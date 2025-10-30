@@ -27,9 +27,11 @@ def get_all_reviews_grouped():
             joinedload(DBReview.publication)
         ).all()
         
-        # Ryhmittele elokuvittain
+        # Hae kaikki kriitikot
+        critics = session.query(Critic).all()
+        
+        # Ryhmittele elokuvittain (käytä kriitikon NIMEÄ avaimena)
         grouped = {}
-        all_critics = set()
         
         for review in reviews:
             movie_title = review.movie.title
@@ -39,9 +41,8 @@ def get_all_reviews_grouped():
                 grouped[movie_title] = {}
             
             grouped[movie_title][critic_name] = review
-            all_critics.add(critic_name)
         
-        return grouped, sorted(all_critics), len(reviews)
+        return grouped, sorted(critics, key=lambda c: c.name), len(reviews)
     
     finally:
         session.close()
@@ -97,6 +98,186 @@ def health():
             'status': 'ok',
             'reviews_count': count
         })
+    finally:
+        session.close()
+
+
+@app.route('/admin')
+def admin():
+    """Admin-sivu elokuvanimien hallintaan."""
+    session = get_session(engine)
+    
+    try:
+        movies = session.query(Movie).options(joinedload(Movie.reviews)).all()
+        critics = session.query(Critic).options(joinedload(Critic.reviews)).all()
+        
+        stats = {
+            'movies': session.query(Movie).count(),
+            'reviews': session.query(DBReview).count(),
+            'critics': session.query(Critic).count(),
+            'publications': session.query(Publication).count()
+        }
+        
+        # Hae mahdollinen viesti session storagesta (flash-viestit)
+        message = request.args.get('message')
+        message_type = request.args.get('message_type', 'success')
+        
+        return render_template(
+            'admin.html',
+            movies=movies,
+            critics=critics,
+            stats=stats,
+            message=message,
+            message_type=message_type
+        )
+    finally:
+        session.close()
+
+
+@app.route('/admin/movie/<int:movie_id>/rename', methods=['POST'])
+def rename_movie(movie_id):
+    """Nimeä elokuva uudelleen."""
+    session = get_session(engine)
+    
+    try:
+        movie = session.query(Movie).get(movie_id)
+        if not movie:
+            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
+        
+        new_title = request.form.get('new_title', '').strip()
+        if not new_title:
+            return redirect(url_for('admin', message='Nimi ei voi olla tyhjä', message_type='error'))
+        
+        old_title = movie.title
+        movie.title = new_title
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'Elokuva "{old_title}" → "{new_title}" päivitetty!', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/movie/<int:movie_id>/delete', methods=['POST'])
+def delete_movie(movie_id):
+    """Poista elokuva (vain jos ei arvosteluja)."""
+    session = get_session(engine)
+    
+    try:
+        movie = session.query(Movie).get(movie_id)
+        if not movie:
+            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
+        
+        if len(movie.reviews) > 0:
+            return redirect(url_for('admin', message='Elokuvaa ei voi poistaa - sillä on arvosteluja', message_type='error'))
+        
+        title = movie.title
+        session.delete(movie)
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'Elokuva "{title}" poistettu', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/movie/merge', methods=['POST'])
+def merge_movies():
+    """Yhdistä kaksi elokuvaa (siirrä arvostelut toiseen ja poista toinen)."""
+    session = get_session(engine)
+    
+    try:
+        source_id = int(request.form.get('source_id'))
+        target_id = int(request.form.get('target_id'))
+        
+        if source_id == target_id:
+            return redirect(url_for('admin', message='Lähde ja kohde eivät voi olla sama elokuva', message_type='error'))
+        
+        source = session.query(Movie).get(source_id)
+        target = session.query(Movie).get(target_id)
+        
+        if not source or not target:
+            return redirect(url_for('admin', message='Elokuvia ei löytynyt', message_type='error'))
+        
+        # Siirrä kaikki arvostelut lähteestä kohteeseen
+        review_count = len(source.reviews)
+        for review in source.reviews:
+            review.movie = target
+        
+        # Poista lähde-elokuva
+        source_title = source.title
+        session.delete(source)
+        session.commit()
+        
+        return redirect(url_for('admin', 
+            message=f'✅ Yhdistetty "{source_title}" → "{target.title}" ({review_count} arvostelua siirretty)', 
+            message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/critic/<int:critic_id>/update_media', methods=['POST'])
+def update_critic_media(critic_id):
+    """Päivitä kriitikon media."""
+    session = get_session(engine)
+    
+    try:
+        critic = session.query(Critic).get(critic_id)
+        if not critic:
+            return redirect(url_for('admin', message='Kriitikkoa ei löytynyt', message_type='error'))
+        
+        new_media = request.form.get('media', '').strip().upper()
+        
+        old_media = critic.media or '(ei mediaa)'
+        critic.media = new_media if new_media else None
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'Kriitikko {critic.name}: media päivitetty "{old_media}" → "{new_media or "(ei mediaa)"}"', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/critic/<int:critic_id>/delete', methods=['POST'])
+def delete_critic(critic_id):
+    """Poista kriitikko (vain jos ei arvosteluja)."""
+    session = get_session(engine)
+    
+    try:
+        critic = session.query(Critic).get(critic_id)
+        if not critic:
+            return redirect(url_for('admin', message='Kriitikkoa ei löytynyt', message_type='error'))
+        
+        if len(critic.reviews) > 0:
+            return redirect(url_for('admin', message='Kriitikkoa ei voi poistaa - hänellä on arvosteluja', message_type='error'))
+        
+        name = critic.name
+        session.delete(critic)
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'Kriitikko "{name}" poistettu', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
     finally:
         session.close()
 

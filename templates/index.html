@@ -221,7 +221,12 @@
                     <tr>
                         <th class="movie-col">Elokuva</th>
                         {% for critic in all_critics %}
-                        <th class="rating-cell">{{ critic }}</th>
+                        <th class="rating-cell">
+                            {{ critic.name }}
+                            {% if critic.media %}
+                            <span style="font-size: 0.75em; font-weight: normal; color: #6c757d;"> / {{ critic.media }}</span>
+                            {% endif %}
+                        </th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -231,10 +236,11 @@
                         <td class="movie-col">{{ movie_title }}</td>
                         {% for critic in all_critics %}
                         <td class="rating-cell">
-                            {% if critic in critics_reviews %}
-                                {% set review = critics_reviews[critic] %}
+                            {% if critic.name in critics_reviews %}
+                                {% set review = critics_reviews[critic.name] %}
                                 {% if review.source_url %}
-                                <a href="{{ review.source_url }}" class="rating-link" target="_blank" title="Lue {{ review.critic.name }} arvostelu - {{ review.publication.name }}">
+                                {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                                <a href="{{ review.source_url }}" class="rating-link" target="_blank" title="{{ tooltip_text }}...">
                                 {% endif %}
                                     {% if review.rating_stars %}
                                     <span class="rating-stars">{{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}</span>

@@ -47,12 +47,16 @@ def get_or_create_movie(session, title: str):
     return movie
 
 
-def get_or_create_critic(session, name: str):
+def get_or_create_critic(session, name: str, media: str = None):
     """Hakee tai luo kriitikon."""
     critic = session.query(Critic).filter_by(name=name).first()
     if not critic:
-        critic = Critic(name=name)
+        critic = Critic(name=name, media=media)
         session.add(critic)
+        session.flush()
+    elif media and not critic.media:
+        # Päivitä media jos puuttuu
+        critic.media = media
         session.flush()
     return critic
 
@@ -97,7 +101,7 @@ def import_test_data(session):
         
         # Hae tai luo relaatiot
         movie = get_or_create_movie(session, review.movie_title)
-        critic = get_or_create_critic(session, review.critic_name)
+        critic = get_or_create_critic(session, review.critic_name, media=pub_short_name.upper())
         publication = get_publication(session, pub_short_name)
         
         # Luo arvostelu

@@ -33,13 +33,14 @@ class Critic(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False, index=True)
+    media = Column(String(100), nullable=True)  # Esim. "HS", "IL", "TS"
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="critic")
     
     def __repr__(self):
-        return f"<Critic(id={self.id}, name='{self.name}')>"
+        return f"<Critic(id={self.id}, name='{self.name}', media='{self.media}')>"
 
 
 class Publication(Base):

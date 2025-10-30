@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Elokuvanimien hallinta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #222;
+            font-size: 1.8em;
+        }
+        
+        .back-link {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .back-link:hover {
+            background: #5a6268;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .edit-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .edit-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .edit-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .review-count {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .merge-form {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #ffc107;
+            margin-top: 20px;
+        }
+        
+        .merge-form h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .merge-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Admin - Elokuvanimien hallinta</h1>
+            <a href="/" class="back-link">← Takaisin etusivulle</a>
+        </header>
+        
+        {% if message %}
+        <div class="alert alert-{{ message_type }}">
+            {{ message }}
+        </div>
+        {% endif %}
+        
+        <div class="section">
+            <h2>📽️ Elokuvat tietokannassa</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Elokuvan nimi</th>
+                        <th>Arvosteluja</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies %}
+                    <tr>
+                        <td>{{ movie.id }}</td>
+                        <td>
+                            <form method="POST" action="/admin/movie/{{ movie.id }}/rename" class="edit-form">
+                                <input type="text" name="new_title" value="{{ movie.title }}" class="edit-input" required>
+                                <button type="submit" class="btn btn-primary">Tallenna</button>
+                            </form>
+                        </td>
+                        <td class="review-count">{{ movie.reviews|length }} arvostelua</td>
+                        <td>
+                            {% if movie.reviews|length == 0 %}
+                            <form method="POST" action="/admin/movie/{{ movie.id }}/delete" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa elokuvan {{ movie.title }}?')">Poista</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="merge-form">
+                <h3>🔀 Yhdistä elokuvat</h3>
+                <p style="color: #856404; margin-bottom: 15px; font-size: 0.95em;">
+                    Jos sama elokuva on tietokannassa eri nimillä (esim. "Kyllä isä osaa" ja "Lapissa"), voit yhdistää ne:
+                </p>
+                <form method="POST" action="/admin/movie/merge" class="merge-controls">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Lähde-elokuva (poistetaan):</label>
+                        <select name="source_id" required>
+                            <option value="">Valitse...</option>
+                            {% for movie in movies %}
+                            <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Kohde-elokuva (säilytetään):</label>
+                        <select name="target_id" required>
+                            <option value="">Valitse...</option>
+                            {% for movie in movies %}
+                            <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Yhdistä</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>👤 Kriitikot</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nimi</th>
+                        <th>Media</th>
+                        <th>Arvosteluja</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for critic in critics %}
+                    <tr>
+                        <td>{{ critic.id }}</td>
+                        <td>{{ critic.name }}</td>
+                        <td>
+                            <form method="POST" action="/admin/critic/{{ critic.id }}/update_media" class="edit-form">
+                                <input type="text" name="media" value="{{ critic.media or '' }}" class="edit-input" placeholder="Esim. HS, IL, TS" maxlength="20">
+                                <button type="submit" class="btn btn-primary">Tallenna</button>
+                            </form>
+                        </td>
+                        <td class="review-count">{{ critic.reviews|length }} arvostelua</td>
+                        <td>
+                            {% if critic.reviews|length == 0 %}
+                            <form method="POST" action="/admin/critic/{{ critic.id }}/delete" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa kriitikon {{ critic.name }}?')">Poista</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Tilastot</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div style="background: #e7f3ff; padding: 20px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #007bff;">{{ stats.movies }}</div>
+                    <div style="color: #666; margin-top: 5px;">Elokuvaa</div>
+                </div>
+                <div style="background: #e7ffe7; padding: 20px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #28a745;">{{ stats.reviews }}</div>
+                    <div style="color: #666; margin-top: 5px;">Arvostelua</div>
+                </div>
+                <div style="background: #fff3e7; padding: 20px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #fd7e14;">{{ stats.critics }}</div>
+                    <div style="color: #666; margin-top: 5px;">Kriitikkoa</div>
+                </div>
+                <div style="background: #f3e7ff; padding: 20px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #6f42c1;">{{ stats.publications }}</div>
+                    <div style="color: #666; margin-top: 5px;">Julkaisua</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
