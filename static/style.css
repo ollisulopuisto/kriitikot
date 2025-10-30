@@ -499,10 +499,32 @@ footer {
     min-width: 100px;
 }
 
+.review-rating a {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    color: #f39c12;
+}
+
+.review-rating a:hover {
+    background: #f39c12;
+    color: white !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
 .review-critic {
     flex-grow: 1;
     color: #495057;
     font-size: 0.95em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.review-critic:hover {
+    background-color: rgba(139, 92, 246, 0.08);
 }
 
 .review-critic-name {
@@ -511,9 +533,8 @@ footer {
     transition: all 0.2s ease;
 }
 
-.review-critic-name:hover {
+.review-critic:hover .review-critic-name {
     color: #8b5cf6;
-    text-decoration: underline;
 }
 
 .review-media {
