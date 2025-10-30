@@ -50,14 +50,28 @@ def get_all_reviews_grouped():
 
 @app.route('/')
 def index():
-    """Pääsivu - näyttää kaikki arvostelut ryhmiteltynä elokuvittain."""
-    grouped, all_critics, total = get_all_reviews_grouped()
+    """Etusivu - näyttää kaikki arvostelut."""
+    grouped_reviews, all_critics, total_reviews = get_all_reviews_grouped()
+    
+    # Hae kritikoiden järjestys query parametrista (CSV)
+    order = request.args.get('order')
+    if order:
+        try:
+            critic_ids = [int(id) for id in order.split(',')]
+            # Järjestä kriitikot annetun järjestyksen mukaan
+            critic_dict = {c.id: c for c in all_critics}
+            ordered_critics = [critic_dict[id] for id in critic_ids if id in critic_dict]
+            # Lisää loput kriitikot jotka eivät ole järjestyksessä
+            remaining = [c for c in all_critics if c.id not in critic_ids]
+            all_critics = ordered_critics + remaining
+        except (ValueError, KeyError):
+            pass  # Jos virhe, käytä oletusta
     
     return render_template(
         'index.html',
-        grouped_reviews=grouped,
+        grouped_reviews=grouped_reviews,
         all_critics=all_critics,
-        total_reviews=total
+        total_reviews=total_reviews
     )
 
 
