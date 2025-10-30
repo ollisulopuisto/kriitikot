@@ -292,10 +292,10 @@
                 const criticCells = thead.querySelectorAll('th.rating-cell');
                 const allRows = tbody.querySelectorAll('tr');
                 
-                // Tarkista onko JO TÄMÄ rivi filtteröity
-                const isFiltered = row.dataset.filtered === 'true';
+                // Tarkista onko JO TÄMÄ rivi filtteröity ENNEN resetointia
+                const wasAlreadyFiltered = row.dataset.filtered === 'true';
                 
-                // ENSIN resetoi KAIKKI filtterit
+                // AINA resetoi KAIKKI filtterit ensin
                 criticCells.forEach(cell => {
                     cell.style.display = '';
                     cell.classList.remove('dimmed');
@@ -314,35 +314,36 @@
                     if (mCell) mCell.style.fontWeight = 'normal';
                 });
                 
-                if (isFiltered) {
-                    // Jos klikataan samaa uudestaan, piilota reset-nappi
+                // Jos klikataan samaa riviä joka oli jo filtteröity, lopeta tähän (toggle off)
+                if (wasAlreadyFiltered) {
                     const resetButton = document.getElementById('reset-filters');
                     if (resetButton) resetButton.style.display = 'none';
-                } else {
-                    // Aktivoi uusi filtteri TÄLLE riville
-                    ratingCells.forEach((cell, index) => {
-                        const hasStars = cell.querySelector('.rating-stars');
-                        
-                        if (!hasStars) {
-                            // Piilota tämä sarake kaikista riveistä
-                            criticCells[index].style.display = 'none';
-                            tbody.querySelectorAll('tr').forEach(r => {
-                                r.querySelectorAll('.rating-cell')[index].style.display = 'none';
-                            });
-                        }
-                    });
-                    
-                    // Himmennä muut rivit
-                    allRows.forEach(r => {
-                        if (r !== row) {
-                            r.classList.add('dimmed');
-                        }
-                    });
-                    
-                    row.dataset.filtered = 'true';
-                    movieCell.style.fontWeight = 'bold';
-                    if (window.showResetButton) window.showResetButton();
+                    return; // Ei aktivoida uutta filteriä
                 }
+                
+                // Aktivoi uusi filtteri TÄLLE riville
+                ratingCells.forEach((cell, index) => {
+                    const hasStars = cell.querySelector('.rating-stars');
+                    
+                    if (!hasStars) {
+                        // Piilota tämä sarake kaikista riveistä
+                        criticCells[index].style.display = 'none';
+                        tbody.querySelectorAll('tr').forEach(r => {
+                            r.querySelectorAll('.rating-cell')[index].style.display = 'none';
+                        });
+                    }
+                });
+                
+                // Himmennä muut rivit
+                allRows.forEach(r => {
+                    if (r !== row) {
+                        r.classList.add('dimmed');
+                    }
+                });
+                
+                row.dataset.filtered = 'true';
+                movieCell.style.fontWeight = 'bold';
+                if (window.showResetButton) window.showResetButton();
             });
         });
         
@@ -358,10 +359,10 @@
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
-                // Tarkista onko JO TÄMÄ sarake filtteröity
-                const isFiltered = criticHeader.dataset.filtered === 'true';
+                // Tarkista onko JO TÄMÄ sarake filtteröity ENNEN resetointia
+                const wasAlreadyFiltered = criticHeader.dataset.filtered === 'true';
                 
-                // ENSIN resetoi KAIKKI filtterit
+                // AINA resetoi KAIKKI filtterit ensin
                 const criticCells = table.querySelector('thead tr').querySelectorAll('th.rating-cell');
                 criticCells.forEach(cell => {
                     cell.style.display = '';
@@ -381,38 +382,39 @@
                     if (mCell) mCell.style.fontWeight = 'normal';
                 });
                 
-                if (isFiltered) {
-                    // Jos klikataan samaa uudestaan, piilota reset-nappi
+                // Jos klikataan samaa saraketta joka oli jo filtteröity, lopeta tähän (toggle off)
+                if (wasAlreadyFiltered) {
                     const resetButton = document.getElementById('reset-filters');
                     if (resetButton) resetButton.style.display = 'none';
-                } else {
-                    // Aktivoi uusi filtteri TÄLLE sarakkeelle
-                    rows.forEach(row => {
-                        const ratingCell = row.querySelectorAll('.rating-cell')[colIndex];
-                        const hasStars = ratingCell.querySelector('.rating-stars');
-                        
-                        if (!hasStars) {
-                            row.style.display = 'none';
-                        }
-                    });
-                    
-                    // Himmennä muut sarakkeet
-                    allCriticHeaders.forEach((header, idx) => {
-                        if (idx !== colIndex) {
-                            header.classList.add('dimmed');
-                            
-                            tbody.querySelectorAll('tr').forEach(row => {
-                                if (row.style.display !== 'none') {
-                                    row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
-                                }
-                            });
-                        }
-                    });
-                    
-                    criticHeader.dataset.filtered = 'true';
-                    criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
-                    if (window.showResetButton) window.showResetButton();
+                    return; // Ei aktivoida uutta filteriä
                 }
+                
+                // Aktivoi uusi filtteri TÄLLE sarakkeelle
+                rows.forEach(row => {
+                    const ratingCell = row.querySelectorAll('.rating-cell')[colIndex];
+                    const hasStars = ratingCell.querySelector('.rating-stars');
+                    
+                    if (!hasStars) {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Himmennä muut sarakkeet
+                allCriticHeaders.forEach((header, idx) => {
+                    if (idx !== colIndex) {
+                        header.classList.add('dimmed');
+                        
+                        tbody.querySelectorAll('tr').forEach(row => {
+                            if (row.style.display !== 'none') {
+                                row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
+                            }
+                        });
+                    }
+                });
+                
+                criticHeader.dataset.filtered = 'true';
+                criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+                if (window.showResetButton) window.showResetButton();
             });
         });
         
@@ -437,10 +439,10 @@
                 const allCards = document.querySelectorAll('.movie-card');
                 const allReviewItems = document.querySelectorAll('.review-item');
                 
-                // Tarkista onko JO TÄMÄ kriitikko filtteröity
-                const isFiltered = criticArea.dataset.filtered === 'true';
+                // Tarkista onko JO TÄMÄ kriitikko filtteröity ENNEN resetointia
+                const wasAlreadyFiltered = criticArea.dataset.filtered === 'true';
                 
-                // ENSIN resetoi KAIKKI mobiili-filtterit
+                // AINA resetoi KAIKKI mobiili-filtterit ensin
                 allCards.forEach(card => {
                     card.style.display = '';
                 });
@@ -455,31 +457,33 @@
                     }
                 });
                 
-                if (isFiltered) {
-                    // Jos klikataan samaa uudestaan, piilota reset-nappi
+                // Jos klikataan samaa kriitikkoa joka oli jo filtteröity, lopeta tähän (toggle off)
+                if (wasAlreadyFiltered) {
                     const resetButton = document.getElementById('reset-filters');
                     if (resetButton) resetButton.style.display = 'none';
-                } else {
-                    // Aktivoi uusi filtteri TÄLLE kriitikolle
-                    allCards.forEach(card => {
-                        const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
-                            .some(item => item.dataset.critic === selectedCritic);
-                        
-                        if (!cardHasSelectedCritic) {
-                            // Piilota kortti jos ei sisällä valittua kriitikkoa
-                            card.style.display = 'none';
-                        } else {
-                            // Näytä kortti, mutta piilota muut kriitikot
-                            card.style.display = '';
-                            card.querySelectorAll('.review-item').forEach(item => {
-                                if (item.dataset.critic !== selectedCritic) {
-                                    item.style.display = 'none';
-                                }
-                            });
-                        }
-                    });
+                    return; // Ei aktivoida uutta filteriä
+                }
+                
+                // Aktivoi uusi filtteri TÄLLE kriitikolle
+                allCards.forEach(card => {
+                    const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
+                        .some(item => item.dataset.critic === selectedCritic);
                     
-                    // Korostetaan valitut
+                    if (!cardHasSelectedCritic) {
+                        // Piilota kortti jos ei sisällä valittua kriitikkoa
+                        card.style.display = 'none';
+                    } else {
+                        // Näytä kortti, mutta piilota muut kriitikot
+                        card.style.display = '';
+                        card.querySelectorAll('.review-item').forEach(item => {
+                            if (item.dataset.critic !== selectedCritic) {
+                                item.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+                
+                // Korostetaan valitut
                     allReviewItems.forEach(item => {
                         const area = item.querySelector('.review-critic');
                         const name = item.querySelector('.review-critic-name');

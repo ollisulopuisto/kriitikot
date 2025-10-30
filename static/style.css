@@ -514,9 +514,10 @@ footer {
 }
 
 .movie-card-title {
-    font-size: 1.1em;
+    font-size: 1.4em;
     font-weight: 600;
     color: #212529;
+    line-height: 1.3;
 }
 
 .movie-card-body {
