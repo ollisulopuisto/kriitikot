@@ -26,6 +26,17 @@ header {
     margin-bottom: 30px;
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-text {
+    flex-grow: 1;
+}
+
 h1 {
     color: #222;
     font-size: 2em;
@@ -37,22 +48,19 @@ h1 {
     font-size: 1em;
 }
 
-.reset-container {
-    text-align: center;
-    margin: 20px 0;
-}
-
 .reset-button {
     background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
     color: white;
     border: none;
-    padding: 12px 24px;
-    font-size: 1em;
+    padding: 10px 20px;
+    font-size: 0.9em;
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
     transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .reset-button:hover {
@@ -191,13 +199,13 @@ tbody tr:hover td.movie-col {
 
 /* Himmennys-efektit */
 tr.dimmed {
-    opacity: 0.3;
+    opacity: 0.5;
     transition: opacity 0.3s ease;
 }
 
 th.dimmed,
 td.dimmed {
-    opacity: 0.25;
+    opacity: 0.4;
     transition: opacity 0.3s ease;
 }
 
@@ -578,6 +586,17 @@ footer {
 @media (max-width: 768px) {
     h1 {
         font-size: 1.5em;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .reset-button {
+        align-self: stretch;
+        text-align: center;
     }
     
     .stats {
