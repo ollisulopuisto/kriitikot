@@ -147,10 +147,13 @@ tbody tr:hover td.movie-col {
 }
 
 .rating-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     color: inherit;
     padding: 4px;
+    min-height: 40px;
 }
 
 .rating-stars {
