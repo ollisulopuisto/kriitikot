@@ -105,14 +105,14 @@ kriitikot/
 └── reviews.db              # 🗄️ SQLite-tietokanta
 ```
 
-## 🚀 Pääkomennot
+## � Pääkomennot
 
 ```bash
 # Web-käyttöliittymä
 python3 src/app.py
 
-# Tuo arvosteluja käsin
-python3 src/discovery_importer.py --source sk --limit 10
+# Tuo arvosteluja (IS.fi mukana!)
+python3 src/discovery_importer.py --source is --limit 10
 
 # Eräajo (päivitä kaikki lähteet)
 python3 src/batch_update.py

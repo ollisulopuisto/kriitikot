@@ -1,8 +1,8 @@
-# Elokuvakritiikkien Kerääjä 🎬
+# Kriitikon valinta 🎬
 
 Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteistä.
 
-## 📋 Prototyypin Tila
+## 📋 Prototyypin tila
 
 ### ✅ Toimii nyt:
 - **🔄 Refaktoroitu arkkitehtuuri**: Modulaarinen scrapers-paketti (ks. [docs/REFACTORING.md](docs/REFACTORING.md))
@@ -38,9 +38,7 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 - **Testit**: 13 pytest-testiä (100% passing) ✅
 
 ### 🚧 Työn alla / Tulossa:
-- **IS.fi discovery**: Automaattinen löytäminen Ilta-Sanomista
 - **Web UI -parannukset**: Suodattimet, haku, järjestely
-- **Elokuvanimien normalisointi**: Samaan elokuvaan liittyvät arvostelut yhteen
 - **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
 - **Lisää lähteitä**: YLE Areena, Episodi.fi
 - **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
@@ -319,13 +317,11 @@ curl http://localhost:5000/api/reviews/0
 
 ## 📝 Seuraavat Askeleet
 
-1. **IS.fi discovery**: Lisää automaattinen löytäminen Ilta-Sanomista
-2. **Web UI -parannukset**: Suodattimet, haku, järjestely
-3. **Elokuvanimien normalisointi**: Fuzzy matching -parannus
-4. **MySQL-tietokanta**: Siirto SQLite → MySQL (tuotantoon)
-5. **APScheduler**: Ajasta discovery automaattisesti (joka 6h)
-6. **Ollama AI**: Generoi puuttuvia arvosanoja
-7. **Lisää lähteitä**: YLE Areena, Episodi.fi
+1. **Web UI -parannukset**: Suodattimet, haku, järjestely
+2. **Ollama AI**: Generoi puuttuvia arvosanoja
+3. **APScheduler**: Ajasta discovery automaattisesti (joka 6h)
+4. **Lisää lähteitä**: YLE Areena, Episodi.fi
+5. **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
 
 📖 **Lisää dokumentaatiota:** [docs/](docs/) -hakemisto
 

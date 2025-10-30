@@ -84,12 +84,59 @@ class ISScraper:
         """
         Tarkistaa onko artikkeli elokuva-arvio.
         IS.fi merkitsee arviot "TV-lehti" ja "Arviot" tageilla.
+        
+        HUOM: Hylkää arvostelut jotka koskevat vain suoratoistoa/TV:tä.
+        Hyväksytään vain elokuvateattereissa esitettävät elokuvat.
         """
         tags = asset_data.get('tags', [])
         tag_keys = [tag.get('key', '').lower() for tag in tags]
         
         # Vaadi että on "TV-lehti" JA "arviot" tag
-        return 'tv-lehti' in tag_keys and 'arviot' in tag_keys
+        if not ('tv-lehti' in tag_keys and 'arviot' in tag_keys):
+            return False
+        
+        # Tarkista ettei ole pelkkä suoratoisto/TV-arvostelu
+        # Hyväksytään vain jos mainitaan "elokuvateatter" tai "valkokangas"
+        text_content = self._get_full_text(asset_data).lower()
+        
+        # Suoratoistopalvelut ja TV-viittaukset jotka HYLÄTÄÄN
+        streaming_keywords = [
+            'katsomo+', 'katsomo +', 'mtv katsomo',
+            'netflix', 'hbo', 'disney+', 'viaplay', 'ruutu',
+            'suoratoistossa', 'suoratoistopalvelu',
+            'tv:ssä', 'televisiossa'
+        ]
+        
+        # Elokuvateatteriviittaukset jotka HYVÄKSYTÄÄN
+        theater_keywords = [
+            'elokuvateatter', 'valkokangas', 'teattereissa',
+            'ensi-ilta', 'elokuvakino', 'finnkino'
+        ]
+        
+        # Jos mainitaan suoratoisto MUTTA EI teatteria → hylkää
+        has_streaming = any(kw in text_content for kw in streaming_keywords)
+        has_theater = any(kw in text_content for kw in theater_keywords)
+        
+        if has_streaming and not has_theater:
+            return False  # Pelkkä suoratoistoarvostelu
+        
+        return True
+    
+    def _get_full_text(self, asset_data: dict) -> str:
+        """Palauttaa artikkelin koko tekstin yhtenä stringinä."""
+        split_body = asset_data.get('splitBody', [])
+        ingress = asset_data.get('ingress', '')
+        title = asset_data.get('title', '')
+        
+        text_parts = [title, ingress]
+        
+        for section in split_body:
+            if section.get('type') == 'paragraph':
+                crumbs = section.get('crumbs', [])
+                for crumb in crumbs:
+                    text_parts.append(crumb.get('content', ''))
+        
+        return ' '.join(text_parts)
     
     def _extract_movie_title(self, asset_data: dict) -> Optional[str]:
         """

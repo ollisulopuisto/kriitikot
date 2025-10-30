@@ -12,6 +12,7 @@ Tuetut lähteet:
 - IL: JSON API (iltalehti.fi/tv-ja-leffat)
 - KSML: HTML search page (ksml.fi/haku/)
 - SK: HTML category page (suomenkuvalehti.fi/avainsana/elokuva/)
+- IS: Next.js JSON (is.fi/tv-ja-elokuvat/)
 """
 
 from typing import List, Dict, Optional
@@ -32,6 +33,7 @@ class CategoryCrawler:
         'ts': 'https://www.ts.fi/kulttuuri/',
         'il': 'https://www.iltalehti.fi/tv-ja-leffat',
         'ksml': 'https://www.ksml.fi/haku/?q=Elokuva-arvio',
+        'is': 'https://www.is.fi/tv-ja-elokuvat/',
     }
     
     def __init__(self):
@@ -44,7 +46,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -79,6 +81,11 @@ class CategoryCrawler:
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_ksml_reviews(soup, limit)
+        
+        elif source == 'is':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_is_reviews(soup, limit)
         
         return []
     
@@ -224,6 +231,94 @@ class CategoryCrawler:
         
         return reviews
     
+    def _find_is_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Ilta-Sanomien arvostelut Next.js JSON:sta.
+        IS.fi käyttää Next.js:ää, artikkeli-data on <script id="__NEXT_DATA__"> tagissa.
+        Elokuva-arviot tunnistetaan byLine-kentästä (kriitikot kuten "Taneli Topelius").
+        
+        HUOM: Hylkää TV-arvostelut ("Tänään tv:ssä") ja suoratoistoarvostelut.
+        """
+        reviews = []
+        
+        # Etsi __NEXT_DATA__ script tag
+        next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
+        if not next_data_script:
+            return reviews
+        
+        try:
+            # Parsitaan JSON
+            data = json.loads(next_data_script.string)
+            
+            # IS.fi:n rakenne: props.pageProps.page.data.data[].lanes[].items[]
+            page_props = data.get('props', {}).get('pageProps', {})
+            page = page_props.get('page', {})
+            page_data_wrapper = page.get('data', {})
+            page_data = page_data_wrapper.get('data', [])
+            
+            # Tunnetut IS.fi:n elokuvakriitikot
+            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen']
+            
+            # Hylättävät otsikkopatternit (TV-arvostelut)
+            excluded_patterns = [
+                'tänään tv:ssä',
+                'tänään tv',
+                'katso ilmaiseksi',
+                'katsomo+',
+                'netflix',
+                'viaplay',
+                'hbo'
+            ]
+            
+            # Käy läpi kaikki lanes ja items
+            for data_item in page_data:
+                lanes = data_item.get('lanes', [])
+                for lane in lanes:
+                    items = lane.get('items', [])
+                    for item in items:
+                        # Tarkista onko byLine (kriitikko) tiedossa
+                        byline = item.get('byLine', '').strip()
+                        title = item.get('title', '').strip()
+                        url_path = item.get('url', '').strip()
+                        ingress = item.get('ingress', '').strip().lower()
+                        
+                        # Jos kriitikko on tunnettu JA otsikossa viitteitä arvioon
+                        if byline in known_critics and title and url_path:
+                            title_lower = title.lower()
+                            
+                            # Hylkää TV-arvostelut
+                            if any(pattern in title_lower for pattern in excluded_patterns):
+                                continue
+                            
+                            # Hylkää jos ingressissä mainitaan suoratoisto
+                            if any(word in ingress for word in ['katsomo+', 'netflix', 'suoratoistossa']):
+                                continue
+                            
+                            # Hyväksy vain jos otsikossa viitteitä ELOKUVA-arvioon
+                            # (ei "tv:ssä" joka viittaa TV-esitykseen)
+                            review_keywords = ['tähden arvoinen', 'elokuva', 'arvio', 'leffassa', 'leffa']
+                            if any(kw in title_lower for kw in review_keywords):
+                                # Muodosta absoluuttinen URL
+                                if url_path.startswith('/'):
+                                    url = 'https://www.is.fi' + url_path
+                                else:
+                                    url = 'https://www.is.fi/' + url_path
+                                
+                                reviews.append({
+                                    'title': title,
+                                    'url': url
+                                })
+                                
+                                if len(reviews) >= limit:
+                                    return reviews
+        
+        except json.JSONDecodeError as e:
+            print(f"Virhe JSON parsinnassa: {e}")
+        except Exception as e:
+            print(f"Virhe IS.fi arvostelujen etsinnässä: {e}")
+        
+        return reviews
+    
     def _find_ksml_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
         """Löytää Keskisuomalaisen arvostelut hakusivulta."""
         reviews = []
@@ -279,7 +374,7 @@ class MetaScraper:
         Löytää uudet arvostelut lähteestä.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is')
             limit: Montako max arvostelua etsitään
             
         Returns:
@@ -315,7 +410,7 @@ if __name__ == '__main__':
     meta = MetaScraper()
     
     # Testaa kaikki lähteet
-    for source in ['hs', 'ts', 'il', 'ksml', 'sk']:
+    for source in ['hs', 'ts', 'il', 'ksml', 'sk', 'is']:
         try:
             print(f"\n{'='*60}")
             meta.preview_discoveries(source, count=3)

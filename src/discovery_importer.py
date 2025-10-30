@@ -6,7 +6,7 @@ Hakee uusia arvosteluja discovery-moduulilla ja tallentaa ne tietokantaan.
 
 from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper
+from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper
 from movie_normalizer import get_canonical_title
 from typing import List, Dict
 import re
@@ -33,6 +33,7 @@ class DiscoveryImporter:
             'il': ILScraper(),
             'ts': TSScraper(),
             'sk': SKScraper(),
+            'is': ISScraper(),
         }
     
     def normalize_movie_title(self, title: str) -> str:

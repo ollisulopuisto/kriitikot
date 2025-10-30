@@ -2,7 +2,8 @@
 import pytest
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review, Review
+from scrapers import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review
+from scrapers.base import Review
 
 
 def test_hs_scraper_basic():
@@ -265,7 +266,7 @@ def test_sk_via_general_function():
 def test_is_scraper():
     """Testaa Ilta-Sanomien scraperin toimivuuden."""
     scraper = ISScraper()
-    result = scraper.parse_file('tests/test_data/is_review_1.html')
+    result = scraper.parse_file('test_data/is_review_1.html')
     
     # Perusvalidaatio
     assert result is not None, "IS scraper ei palauttanut Review-objektia"
