@@ -33,10 +33,50 @@ pytest tests/test_scraper.py -v
 
 ### 3. Käynnistä web-sovellus
 ```bash
-python src/app.py
+python3 src/app.py
 ```
 
+#### Paikallinen kehitys (kontti samalla koneella)
 Avaa selaimessa: `http://localhost:5000`
+
+#### Remote-kehitys (VS Code Dev Container)
+
+**Vaihtoehto A: VS Code Simple Browser (suositeltu)**
+1. Paina `Ctrl+Shift+P` (tai `Cmd+Shift+P` macOS)
+2. Kirjoita: "Simple Browser: Show"
+3. Anna URL: `http://localhost:5000`
+
+**Vaihtoehto B: SSH-tunneli läppärille**
+
+Jos Flask pyörii remote-koneella (esim. `dev.sulopuis.to`), luo SSH-tunneli **läppärilläsi**:
+
+```bash
+# Jos VS Code jo forwardaa portin 5000, käytä eri porttia:
+ssh -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
+
+# Tai jos portti 5000 on vapaa:
+ssh -L 5000:localhost:5000 käyttäjä@dev.sulopuis.to
+```
+
+Sitten avaa läppärin selaimessa:
+- `http://localhost:8000` (jos käytit porttia 8000)
+- `http://localhost:5000` (jos käytit porttia 5000)
+
+**Huom:** `forwardPorts` devcontainer.json:ssa ei riitä remote-käytössä - tarvitaan SSH-tunneli tai Simple Browser.
+
+**Vaihtoehto C: Automaattinen tunneli (autossh)**
+
+Voit automatisoida tunnelin autossh-työkalulla:
+```bash
+# Asenna autossh (läppärillä)
+# macOS: brew install autossh
+# Linux: sudo apt-get install autossh
+
+# Luo pysyvä tunneli
+autossh -M 0 -f -N -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
+```
+
+Tunneli pysyy pystyssä ja yhdistää automaattisesti uudelleen jos yhteys katkeaa.
 
 ## 📁 Projektin Rakenne
 
