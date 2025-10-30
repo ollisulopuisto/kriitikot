@@ -67,11 +67,31 @@ def index():
         except (ValueError, KeyError):
             pass  # Jos virhe, käytä oletusta
     
+    # Laske arvosanajakauma
+    session = get_session(engine)
+    try:
+        rating_distribution = {}
+        for i in range(1, 6):
+            count = session.query(DBReview).filter(DBReview.rating_stars == i).count()
+            rating_distribution[i] = count
+        
+        # Julkaisujen tilastot
+        publications = session.query(Publication).all()
+        pub_stats = {}
+        for pub in publications:
+            review_count = session.query(DBReview).filter(DBReview.publication_id == pub.id).count()
+            if review_count > 0:
+                pub_stats[pub.short_name.upper()] = review_count
+    finally:
+        session.close()
+    
     return render_template(
         'index.html',
         grouped_reviews=grouped_reviews,
         all_critics=all_critics,
-        total_reviews=total_reviews
+        total_reviews=total_reviews,
+        rating_distribution=rating_distribution,
+        pub_stats=pub_stats
     )
 
 

@@ -108,18 +108,56 @@
         {% endif %}
         
         <footer>
-            <div class="stats">
-                <div class="stat-box">
-                    <div class="stat-number">{{ total_reviews }}</div>
-                    <div class="stat-label">arvostelua</div>
+            <div class="footer-content">
+                <h3>📊 Tilastot</h3>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number">{{ total_reviews }}</div>
+                        <div class="stat-label">arvostelua</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{{ grouped_reviews|length }}</div>
+                        <div class="stat-label">elokuvaa</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{{ all_critics|length }}</div>
+                        <div class="stat-label">kriitikkoa</div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-number">{{ grouped_reviews|length }}</div>
-                    <div class="stat-label">elokuvaa</div>
+                
+                <div class="rating-distribution">
+                    <h4>⭐ Arvosanajakauma</h4>
+                    <div class="rating-bars">
+                        {% for stars in range(5, 0, -1) %}
+                        <div class="rating-bar-row">
+                            <span class="rating-stars-label">{{ '★' * stars }}</span>
+                            <div class="rating-bar-container">
+                                {% set count = rating_distribution.get(stars, 0) %}
+                                {% set percentage = (count / total_reviews * 100) if total_reviews > 0 else 0 %}
+                                <div class="rating-bar" style="width: {{ percentage }}%"></div>
+                            </div>
+                            <span class="rating-count">{{ rating_distribution.get(stars, 0) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-number">{{ all_critics|length }}</div>
-                    <div class="stat-label">kriitikkoa</div>
+                
+                <div class="publication-stats">
+                    <h4>📰 Arvostelut julkaisuittain</h4>
+                    <div class="pub-stats-grid">
+                        {% for pub, count in pub_stats.items() %}
+                        <div class="pub-stat-item">
+                            <span class="pub-name">{{ pub }}</span>
+                            <span class="pub-count">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="/admin" class="footer-link">⚙️ Hallinta</a>
+                    <a href="https://github.com/ollisulopuisto/kriitikot" target="_blank" class="footer-link">💻 GitHub</a>
                 </div>
             </div>
         </footer>
