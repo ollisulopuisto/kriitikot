@@ -7,9 +7,11 @@ Tämä moduuli sisältää "metascraperin" joka:
 3. Palauttaa URL-listoja jatkokäsittelyä varten
 
 Tuetut lähteet:
+- HS: Next.js JSON (hs.fi/aihe/elokuvat/)
 - TS: HTML category page (ts.fi/kulttuuri/)
 - IL: JSON API (iltalehti.fi/tv-ja-leffat)
 - KSML: HTML search page (ksml.fi/haku/)
+- SK: HTML category page (suomenkuvalehti.fi/avainsana/elokuva/)
 """
 
 from typing import List, Dict, Optional
@@ -26,6 +28,7 @@ class CategoryCrawler:
     # Kategoriasivut joilta arvostelut löytyvät
     CATEGORY_PAGES = {
         'sk': 'https://suomenkuvalehti.fi/avainsana/elokuva/',
+        'hs': 'https://www.hs.fi/aihe/elokuvat/',
         'ts': 'https://www.ts.fi/kulttuuri/',
         'il': 'https://www.iltalehti.fi/tv-ja-leffat',
         'ksml': 'https://www.ksml.fi/haku/?q=Elokuva-arvio',
@@ -56,6 +59,11 @@ class CategoryCrawler:
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_sk_reviews(soup, limit)
+        
+        elif source == 'hs':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_hs_reviews(soup, limit)
         
         elif source == 'ts':
             html = self._fetch_url(url)
@@ -96,6 +104,61 @@ class CategoryCrawler:
                 
                 if len(reviews) >= limit:
                     break
+        
+        return reviews
+    
+    def _find_hs_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Helsingin Sanomien arvostelut Next.js JSON:sta.
+        HS.fi käyttää Next.js:ää ja artikkeli-data on <script id="__NEXT_DATA__"> tagissa.
+        """
+        reviews = []
+        
+        # Etsi __NEXT_DATA__ script tag
+        next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
+        if not next_data_script:
+            return reviews
+        
+        try:
+            # Parsitaan JSON
+            data = json.loads(next_data_script.string)
+            
+            # Navigoidaan: props.pageProps.page.data.data[].lanes[].items[]
+            page_props = data.get('props', {}).get('pageProps', {})
+            page = page_props.get('page', {})
+            page_data_wrapper = page.get('data', {})
+            page_data = page_data_wrapper.get('data', [])
+            
+            # Käy läpi kaikki lanes ja items
+            for data_item in page_data:
+                lanes = data_item.get('lanes', [])
+                for lane in lanes:
+                    items = lane.get('items', [])
+                    for item in items:
+                        # Tarkista onko tämä elokuva-arvio
+                        story_logo = item.get('storyLogo', '')
+                        if story_logo == 'Elokuva-arvio':
+                            title = item.get('title', '').strip()
+                            url_path = item.get('url', '').strip()
+                            
+                            if title and url_path:
+                                # Muodosta absoluuttinen URL
+                                if url_path.startswith('/'):
+                                    url = 'https://www.hs.fi' + url_path
+                                else:
+                                    url = 'https://www.hs.fi/' + url_path
+                                
+                                reviews.append({
+                                    'title': title,
+                                    'url': url
+                                })
+                                
+                                if len(reviews) >= limit:
+                                    return reviews
+        
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            print(f"  [HS] JSON parsing error: {e}")
+            return reviews
         
         return reviews
     
@@ -216,7 +279,7 @@ class MetaScraper:
         Löytää uudet arvostelut lähteestä.
         
         Args:
-            source: Lähteen tunniste ('sk', 'ts', 'il', 'ksml')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml')
             limit: Montako max arvostelua etsitään
             
         Returns:
@@ -252,7 +315,7 @@ if __name__ == '__main__':
     meta = MetaScraper()
     
     # Testaa kaikki lähteet
-    for source in ['ts', 'il', 'ksml', 'sk']:
+    for source in ['hs', 'ts', 'il', 'ksml', 'sk']:
         try:
             print(f"\n{'='*60}")
             meta.preview_discoveries(source, count=3)

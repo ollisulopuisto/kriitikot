@@ -108,12 +108,37 @@ class HSScraper:
     
     def _extract_movie_title(self, asset_data: dict) -> str:
         """
-        Poimii elokuvan nimen otsikosta.
-        HS käyttää muotoa: "Elokuva-arvio | Otsikko" tai pelkkä otsikko.
+        Poimii elokuvan nimen splitBody-rakenteesta.
+        HS:ssä elokuvan tiedot ovat kappaleen muodossa:
+        - "Elokuvan nimi, ohjaus X. Y min. K-raja. ★★★★" (pilkku)
+        - "Elokuvan nimi. Ohjaus X. Y min. K-raja. ★★★" (piste)
         """
-        title = asset_data.get('title', 'Unknown Movie')
+        split_body = asset_data.get('splitBody', [])
         
-        # Poista "Elokuva-arvio |" -prefix jos löytyy
+        # Etsi kappale jossa on tähtiä (★) - se sisältää elokuvan tiedot
+        for item in split_body:
+            if item.get('type') != 'paragraph':
+                continue
+            
+            crumbs = item.get('crumbs', [])
+            full_text = ''.join([c.get('content', '') for c in crumbs])
+            
+            # Jos löytyy tähtimerkintä, tämä on elokuvatietokappale
+            if '★' in full_text:
+                # Elokuvan nimi on ennen "ohjaus" tai "Ohjaus" sanaa
+                # Poistetaan kaikki sen jälkeen
+                import re
+                # Etsi "ohjaus" tai ", ohjaus" tai ". Ohjaus" jne
+                match = re.split(r'[,.]?\s*[Oo]hjaus', full_text, maxsplit=1)
+                if len(match) > 1:
+                    title = match[0].strip()
+                    # Poista mahdollinen loppu-pilkku tai -piste
+                    title = title.rstrip('.,').strip()
+                    if title:
+                        return title
+        
+        # Fallback: Käytä otsikkoa ja poista "Elokuva-arvio |" -prefix
+        title = asset_data.get('title', 'Unknown Movie')
         if '|' in title:
             parts = title.split('|')
             title = parts[-1].strip()

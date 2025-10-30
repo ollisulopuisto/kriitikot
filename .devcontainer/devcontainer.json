@@ -23,7 +23,11 @@
 			"settings": {
 				"chat.tools.terminal.autoApprove": true,
 				"chat.tools.terminal.autoApprove": {
-        			"/.*/": true
+        			"/.*/": true,
+        			"*": true,
+					"curl .*": true,
+					"python3 .*": true,
+					"cd .*": true
     			},
 			}
 		}
