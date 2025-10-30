@@ -64,7 +64,7 @@
         <!-- Mobile: Korttinäkymä -->
         <div class="mobile-cards">
             {% for movie_title, critics_reviews in grouped_reviews.items() %}
-            <div class="movie-card">
+            <div class="movie-card" data-movie="{{ movie_title }}">
                 <div class="movie-card-header">
                     <div class="movie-card-title">🎬 {{ movie_title }}</div>
                 </div>
@@ -72,7 +72,7 @@
                     {% for critic in all_critics %}
                         {% if critic.name in critics_reviews %}
                             {% set review = critics_reviews[critic.name] %}
-                            <div class="review-item">
+                            <div class="review-item" data-critic="{{ critic.name }}">
                                 <div class="review-rating">
                                     {% if review.rating_stars %}
                                         {% if review.source_url %}
@@ -194,83 +194,185 @@
             topLeftCell.textContent = sortAscending ? '▼' : '▲';
         });
         
-        // Elokuvanimi: Himmennä muut rivit, korostetaan tämä
+        // Elokuvanimi: Piilota sarakkeet joissa ei tähtiä + himmennä muut rivit
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
             movieCell.style.cursor = 'pointer';
-            movieCell.title = 'Klikkaa korostaaksesi tämä elokuva';
+            movieCell.title = 'Klikkaa piilottaaksesi tyhjät arvostelut';
             
             movieCell.addEventListener('click', function() {
                 const row = movieCell.parentElement;
+                const ratingCells = row.querySelectorAll('.rating-cell');
+                const thead = table.querySelector('thead tr');
+                const criticCells = thead.querySelectorAll('th.rating-cell');
                 const allRows = tbody.querySelectorAll('tr');
                 
-                // Tarkista onko jo valittu
-                const isHighlighted = row.dataset.highlighted === 'true';
+                // Tarkista onko jo filtteröity
+                const isFiltered = row.dataset.filtered === 'true';
                 
-                if (isHighlighted) {
-                    // Poista korostus
-                    allRows.forEach(r => {
-                        r.classList.remove('dimmed');
-                        delete r.dataset.highlighted;
+                if (isFiltered) {
+                    // Näytä kaikki sarakkeet ja poista himmennys
+                    criticCells.forEach(cell => {
+                        cell.style.display = '';
                     });
+                    tbody.querySelectorAll('tr').forEach(r => {
+                        r.querySelectorAll('.rating-cell').forEach(cell => {
+                            cell.style.display = '';
+                        });
+                        r.classList.remove('dimmed');
+                        delete r.dataset.filtered;
+                    });
+                    delete row.dataset.filtered;
                     movieCell.style.fontWeight = 'normal';
                 } else {
+                    // Piilota sarakkeet joissa ei tähtiä tälle elokuvalle
+                    ratingCells.forEach((cell, index) => {
+                        const hasStars = cell.querySelector('.rating-stars');
+                        
+                        if (!hasStars) {
+                            // Piilota tämä sarake kaikista riveistä
+                            criticCells[index].style.display = 'none';
+                            tbody.querySelectorAll('tr').forEach(r => {
+                                r.querySelectorAll('.rating-cell')[index].style.display = 'none';
+                            });
+                        }
+                    });
+                    
                     // Himmennä muut rivit
                     allRows.forEach(r => {
-                        r.classList.add('dimmed');
-                        delete r.dataset.highlighted;
-                        r.querySelector('.movie-col').style.fontWeight = 'normal';
+                        if (r !== row) {
+                            r.classList.add('dimmed');
+                        }
                     });
-                    // Korostetaan valittu
-                    row.classList.remove('dimmed');
-                    row.dataset.highlighted = 'true';
+                    
+                    row.dataset.filtered = 'true';
                     movieCell.style.fontWeight = 'bold';
                 }
             });
         });
         
-        // Kriitikon nimi: Himmennä muut sarakkeet, korostetaan tämä
+        // Kriitikon nimi: Piilota rivit joissa ei tähtiä + himmennä muut sarakkeet
         const criticHeaders = table.querySelectorAll('thead th.rating-cell');
         const thead = table.querySelector('thead tr');
         
         criticHeaders.forEach((criticHeader, colIndex) => {
             criticHeader.style.cursor = 'pointer';
-            criticHeader.title = 'Klikkaa korostaaksesi tämä kriitikko';
+            criticHeader.title = 'Klikkaa piilottaaksesi elokuvat joita ei arvosteltu';
             
             criticHeader.addEventListener('click', function() {
+                const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
-                // Tarkista onko jo valittu
-                const isHighlighted = criticHeader.dataset.highlighted === 'true';
+                // Tarkista onko jo filtteröity
+                const isFiltered = criticHeader.dataset.filtered === 'true';
                 
-                if (isHighlighted) {
-                    // Poista korostus
+                if (isFiltered) {
+                    // Näytä kaikki rivit ja poista himmennys
+                    rows.forEach(row => {
+                        row.style.display = '';
+                    });
                     allCriticHeaders.forEach((header, idx) => {
                         header.classList.remove('dimmed');
-                        delete header.dataset.highlighted;
+                        delete header.dataset.filtered;
+                        header.style.backgroundColor = '';
                         
                         tbody.querySelectorAll('tr').forEach(row => {
                             row.querySelectorAll('.rating-cell')[idx].classList.remove('dimmed');
                         });
                     });
-                    criticHeader.style.backgroundColor = '';
                 } else {
+                    // Piilota rivit joissa ei tähtiä tälle kriitikolle
+                    rows.forEach(row => {
+                        const ratingCell = row.querySelectorAll('.rating-cell')[colIndex];
+                        const hasStars = ratingCell.querySelector('.rating-stars');
+                        
+                        if (!hasStars) {
+                            row.style.display = 'none';
+                        }
+                    });
+                    
                     // Himmennä muut sarakkeet
                     allCriticHeaders.forEach((header, idx) => {
-                        header.classList.add('dimmed');
-                        delete header.dataset.highlighted;
-                        header.style.backgroundColor = '';
-                        
-                        tbody.querySelectorAll('tr').forEach(row => {
-                            row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
-                        });
+                        if (idx !== colIndex) {
+                            header.classList.add('dimmed');
+                            
+                            tbody.querySelectorAll('tr').forEach(row => {
+                                if (row.style.display !== 'none') {
+                                    row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
+                                }
+                            });
+                        }
                     });
-                    // Korostetaan valittu
-                    criticHeader.classList.remove('dimmed');
-                    criticHeader.dataset.highlighted = 'true';
-                    criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
                     
-                    tbody.querySelectorAll('tr').forEach(row => {
-                        row.querySelectorAll('.rating-cell')[colIndex].classList.remove('dimmed');
+                    criticHeader.dataset.filtered = 'true';
+                    criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+                }
+            });
+        });
+        
+        // MOBILE: Kriitikon nimi - Filtteröi kortit
+        const reviewItems = document.querySelectorAll('.review-item');
+        
+        reviewItems.forEach(reviewItem => {
+            const criticName = reviewItem.querySelector('.review-critic-name');
+            if (!criticName) return;
+            
+            criticName.style.cursor = 'pointer';
+            criticName.style.userSelect = 'none';
+            criticName.title = 'Klikkaa nähdäksesi vain tämän kriitikon arvostelut';
+            
+            criticName.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const selectedCritic = reviewItem.dataset.critic;
+                const allCards = document.querySelectorAll('.movie-card');
+                const allReviewItems = document.querySelectorAll('.review-item');
+                
+                // Tarkista onko jo filtteröity
+                const isFiltered = criticName.dataset.filtered === 'true';
+                
+                if (isFiltered) {
+                    // Poista filtteri: Näytä kaikki
+                    allCards.forEach(card => {
+                        card.style.display = '';
+                    });
+                    allReviewItems.forEach(item => {
+                        item.style.display = '';
+                        const name = item.querySelector('.review-critic-name');
+                        if (name) {
+                            name.style.fontWeight = 'normal';
+                            name.style.color = '';
+                            delete name.dataset.filtered;
+                        }
+                    });
+                } else {
+                    // Aktivoi filtteri: Näytä vain valittu kriitikko
+                    allCards.forEach(card => {
+                        const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
+                            .some(item => item.dataset.critic === selectedCritic);
+                        
+                        if (!cardHasSelectedCritic) {
+                            // Piilota kortti jos ei sisällä valittua kriitikkoa
+                            card.style.display = 'none';
+                        } else {
+                            // Näytä kortti, mutta piilota muut kriitikot
+                            card.style.display = '';
+                            card.querySelectorAll('.review-item').forEach(item => {
+                                if (item.dataset.critic !== selectedCritic) {
+                                    item.style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                    
+                    // Korostetaan valitut
+                    allReviewItems.forEach(item => {
+                        const name = item.querySelector('.review-critic-name');
+                        if (name && item.dataset.critic === selectedCritic) {
+                            name.style.fontWeight = 'bold';
+                            name.style.color = '#8b5cf6';
+                            name.dataset.filtered = 'true';
+                        }
                     });
                 }
             });

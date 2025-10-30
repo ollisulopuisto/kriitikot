@@ -508,6 +508,12 @@ footer {
 .review-critic-name {
     font-weight: 500;
     color: #212529;
+    transition: all 0.2s ease;
+}
+
+.review-critic-name:hover {
+    color: #8b5cf6;
+    text-decoration: underline;
 }
 
 .review-media {
