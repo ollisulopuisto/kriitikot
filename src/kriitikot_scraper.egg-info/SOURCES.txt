@@ -1,6 +1,0 @@
-pyproject.toml
-src/kriitikot_scraper.egg-info/PKG-INFO
-src/kriitikot_scraper.egg-info/SOURCES.txt
-src/kriitikot_scraper.egg-info/dependency_links.txt
-src/kriitikot_scraper.egg-info/top_level.txt
-tests/test_scraper.py

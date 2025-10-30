@@ -5,13 +5,16 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 ## 📋 Prototyypin Tila
 
 ### ✅ Toimii nyt:
-- **Modulaarinen scraper-arkkitehtuuri**: Helppo lisätä uusia lähteitä
-- **5 toimivaa scraperia**:
+- **🔄 Refaktoroitu arkkitehtuuri**: Modulaarinen scrapers-paketti (ks. [docs/REFACTORING.md](docs/REFACTORING.md))
+  - 1070 riviä → 49 riviä wrapper + 8 modulia
+  - Jokainen scraper omassa tiedostossaan
+- **6 toimivaa scraperia**:
   - **HS.fi**: Helsingin Sanomat (Next.js JSON, puhdas title extraction)
   - **KSML.fi**: Keskisuomalainen (aria-label + JSON-LD, maksumuurin takana)
   - **IL.fi**: Iltalehti (⭐-symbolit, regex "IL-arvio: ⭐⭐")
   - **TS.fi**: Turun Sanomat (★-symbolit, maksumuurin takana, intro-tag)
   - **SK.fi**: Suomen Kuvalehti (meta og:title, "[Nimi] kirjoittaa" pattern)
+  - **IS.fi**: Ilta-Sanomat (Next.js JSON, TV-lehti-tagit) ✨ **UUSI!**
 - **🔍 Discovery-system**: Automaattinen arvostelujen löytäminen kaikista lähteistä!
   - HS: Next.js JSON parsing (storyLogo: "Elokuva-arvio")
   - TS: HTML category page (span "Elokuva-arvostelu")
@@ -21,23 +24,38 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 - **📊 Tietokanta**: SQLite + SQLAlchemy ORM
   - Movies, Critics, Publications, Reviews
   - Automaattinen duplikaattien välttäminen (URL-perusteinen)
-  - 16 arvostelua tietokannassa (HS, TS, IL, KSML, SK)
+  - Fuzzy matching elokuvan nimille (0.9 threshold)
 - **🤖 Eräajo-system**: Automaattinen tietokannan päivitys
   - `batch_update.py`: Python-scripti päivityksiin
   - `run_batch_update.sh`: Bash wrapper backupilla ja logeilla
   - Cron/systemd -valmiit konfiguraatiot
 - **Tähtiarvioiden parsinta**: 1-5 tähteä + suomenkieliset sanat ("neljä tähteä")
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
+  - Kompakti admin-näkymä (80-100px sarakkeet)
+  - Ulkoinen CSS-tiedosto (static/style.css)
+  - Sarakkeiden järjestyksen muuttaminen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: 12 pytest-testiä (100% passing - HS, KSML, IL, TS, SK)
+- **Testit**: 13 pytest-testiä (100% passing) ✅
 
 ### 🚧 Työn alla / Tulossa:
-- **Web UI -parannukset**: Parempi käyttöliittymä tietokannalle
+- **IS.fi discovery**: Automaattinen löytäminen Ilta-Sanomista
+- **Web UI -parannukset**: Suodattimet, haku, järjestely
 - **Elokuvanimien normalisointi**: Samaan elokuvaan liittyvät arvostelut yhteen
 - **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
 - **Lisää lähteitä**: YLE Areena, Episodi.fi
 - **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
-- **HTML-taulukkogeneraattori**: WordPress-widget
+
+## 📚 Dokumentaatio
+
+Kaikki dokumentaatio löytyy [docs/](docs/) -hakemistosta:
+
+- **[docs/PIKAOHJE.md](docs/PIKAOHJE.md)** - Pikaopas käyttöön (aloita tästä!)
+- **[docs/REFACTORING.md](docs/REFACTORING.md)** - Scrapers-paketin refaktorointi
+- **[docs/METASCRAPER_DESIGN.md](docs/METASCRAPER_DESIGN.md)** - Discovery-systeemin suunnitelma
+- **[docs/METASCRAPER_REPORT.md](docs/METASCRAPER_REPORT.md)** - Discovery-toteutus
+- **[docs/ERÄAJO.md](docs/ERÄAJO.md)** - Eräajoskriptien dokumentaatio
+- **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Muutosloki
+- **[docs/README.md](docs/README.md)** - Datamalli ja arkkitehtuuri
 
 ## 🚀 Asennus ja Käyttö
 
@@ -134,23 +152,45 @@ crontab -e
 0 10 * * 0,6 /workspaces/kriitikot/src/run_batch_update.sh weekly
 ```
 
-📖 **Tarkemmat ohjeet**: Katso [ERÄAJO.md](ERÄAJO.md) systemd-timer ja muut vaihtoehdot.
+📖 **Tarkemmat ohjeet**: Katso [docs/ERÄAJO.md](docs/ERÄAJO.md) systemd-timer ja muut vaihtoehdot.
 
 
 ## 📁 Projektin Rakenne
 
 ```
 kriitikot/
+├── docs/                    # 📚 Dokumentaatio
+│   ├── README.md           # Datamalli ja arkkitehtuuri
+│   ├── PIKAOHJE.md         # Käyttöohje
+│   ├── REFACTORING.md      # Refaktorointi-raportti
+│   ├── METASCRAPER_*.md    # Discovery-dokumentaatio
+│   ├── ERÄAJO.md           # Eräajo-ohje
+│   └── CHANGELOG.md        # Muutosloki
 ├── src/
-│   ├── scraper.py      # Modulaarinen scraper (HS + tulevat lähteet)
-│   └── app.py          # Flask web-sovellus
-├── templates/
-│   └── index.html      # HTML-template arvosteluille
-├── tests/
-│   ├── test_scraper.py # Scraper-testit
-│   └── test_data/      # Test HTML-tiedostot
+│   ├── scrapers/           # 🕷️ Modulaariset scraperit
+│   │   ├── base.py         # Review + BaseScraper
+│   │   ├── hs.py           # Helsingin Sanomat
+│   │   ├── ksml.py         # Keskisuomalainen
+│   │   ├── il.py           # Iltalehti
+│   │   ├── ts.py           # Turun Sanomat
+│   │   ├── sk.py           # Suomen Kuvalehti
+│   │   └── is_scraper.py   # Ilta-Sanomat
+│   ├── scraper.py          # Backward compatibility wrapper
+│   ├── app.py              # Flask web-sovellus
+│   ├── models.py           # SQLAlchemy-mallit
+│   ├── discovery.py        # Automaattinen löytäminen
+│   ├── discovery_importer.py  # Tuonti-skripti
+│   ├── movie_normalizer.py # Elokuvan nimien normalisointi
+│   ├── batch_update.py     # Eräajoskripti
+│   └── init_db.py          # Tietokannan alustus
+├── templates/              # 🎨 HTML-templatet
+├── static/                 # 🎨 CSS/JS
+├── tests/                  # 🧪 Testit
+│   ├── test_scraper.py    # Scraper-testit (13 testiä)
+│   └── test_data/         # Testimateriaali
+├── reviews.db             # 🗄️ SQLite-tietokanta
 ├── requirements.txt
-└── SUUNNITELMA.md
+└── pyproject.toml
 ```
 
 ## 🔧 Arkkitehtuuri
@@ -169,25 +209,27 @@ Review(
 ```
 
 ### Scrapers
-Jokaisella lähteellä oma scraper-luokka:
+Jokainen lähde omassa moduulissaan `scrapers/`-paketissa:
 ```python
-# Helsingin Sanomat
+# Käytä suoraan
+from scrapers import HSScraper
 scraper = HSScraper()
 review = scraper.parse_html(html_content)
 
-# Keskisuomalainen
-scraper = KSMLScraper()
-review = scraper.parse_html(html_content)
-
-# Yleinen funktio joka valitsee oikean scraperin
-review = scrape_review(html_content, source='hs')  # tai source='ksml'
+# Tai yleistä funktiota
+from scrapers import scrape_review
+review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is
 ```
 
+Ks. [docs/REFACTORING.md](docs/REFACTORING.md) lisätietoja modulaarisesta rakenteesta.
+
 ### Uuden lähteen lisääminen
-1. Luo uusi scraper-luokka (esim. `ILScraper`)
+1. Luo uusi scraper-moduuli `src/scrapers/example.py`
 2. Toteuta `parse_html()`-metodi
 3. Palauta `Review`-objekti
-4. Lisää `scrape_review()`-funktion `scrapers`-sanakirjaan
+4. Lisää `scrapers/__init__.py`-tiedoston `scrapers`-dictionaryyn
+
+Ks. [docs/README.md](docs/README.md) yksityiskohtaiset ohjeet.
 
 ## 🧪 Testaus
 
@@ -213,15 +255,15 @@ pytest -v -s
 
 ### Python API - Scraping
 ```python
-from scraper import HSScraper, scrape_review
+from scrapers import HSScraper, scrape_review
 
 # Suora scraper-käyttö
 scraper = HSScraper()
 review = scraper.parse_file('review.html')
 print(f"{review.movie_title}: {review.rating_stars}★")
 
-# Yleinen funktio
-review = scrape_review(html_content, source='hs')  # tai 'ksml', 'il', 'ts', 'sk'
+# Yleinen funktio (suositeltu)
+review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is
 data = review.to_dict()
 ```
 
@@ -246,7 +288,7 @@ meta.preview_discoveries('sk', count=5)
 ### Yhdistä Discovery + Scraping
 ```python
 from discovery import MetaScraper
-from scraper import scrape_review
+from scrapers import scrape_review
 import requests
 
 meta = MetaScraper()
@@ -277,18 +319,15 @@ curl http://localhost:5000/api/reviews/0
 
 ## 📝 Seuraavat Askeleet
 
-1. **Metascraperin laajentaminen**: Lisää kategoriasivut muille lähteille (HS, KSML, IL, TS)
-2. **MySQL-tietokanta**: Tallenna arvostelut pysyvästi
-3. **Deduplication**: Älä scrapaa samaa arvostelua kahdesti
-4. **APScheduler**: Ajasta discovery automaattisesti (joka 6h)
-5. **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
+1. **IS.fi discovery**: Lisää automaattinen löytäminen Ilta-Sanomista
+2. **Web UI -parannukset**: Suodattimet, haku, järjestely
+3. **Elokuvanimien normalisointi**: Fuzzy matching -parannus
+4. **MySQL-tietokanta**: Siirto SQLite → MySQL (tuotantoon)
+5. **APScheduler**: Ajasta discovery automaattisesti (joka 6h)
 6. **Ollama AI**: Generoi puuttuvia arvosanoja
-7. **WordPress-integraatio**: HTML-widget
+7. **Lisää lähteitä**: YLE Areena, Episodi.fi
 
-📖 **Lisää dokumentaatiota:**
-- `METASCRAPER_DESIGN.md` - Metascraperin arkkitehtuurisuunnittelu (4 eri lähestymistapaa)
-- `METASCRAPER_REPORT.md` - Toteutusraportti ja käyttöohjeet
-- `CHANGELOG.md` - Versiohistoria ja muutokset
+📖 **Lisää dokumentaatiota:** [docs/](docs/) -hakemisto
 
 ## 🤝 Kehitysperiaatteet
 
