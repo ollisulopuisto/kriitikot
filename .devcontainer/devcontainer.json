@@ -3,24 +3,23 @@
 {
 	"name": "Debian Kriitikon valinta",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bullseye"
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [5000],
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"chat.tools.terminal.autoApprove": true
+			}
+		}
+	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-  	"settings": {
-    	"chat.tools.terminal.autoApprove": true,
-		"chat.tools.terminal.autoApprove": {
- 			 "/\\(.+\\)/": null
-		}
-  	}	
-
 }
