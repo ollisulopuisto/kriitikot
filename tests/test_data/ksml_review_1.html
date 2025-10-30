@@ -1,0 +1,2217 @@
+<!doctype html>
+<html class="diks-no-js diks-site--ksml diks-user--is-not-logged-in diks-user--is-not-subscriber diks-user--is-not-company-subscriber diks-site--layout-master" lang="fi" prefix="og: http://ogp.me/ns#">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Elokuva-arvio | Kriitikoiden elitistiset marinat voi jättää omaan arvottomuuteensa, kun nautiskelee Kyllä isä osaa Lapissa -elokuvasta | Keski-Suomi | Keskisuomalainen</title>
+		<link id="diks-stylesheet" rel="stylesheet" href="https://a.ksml.fi/styles/5c3c13b9/styles/diks-news.css">
+		
+		
+
+		<script>
+
+		const checkUserPreferenceEnabled = 1;
+		const darkmodeStylesheet = "https://a.ksml.fi/styles/5c3c13b9/styles/diks-news-darkmode.css";
+		const defaultStylesheet = "https://a.ksml.fi/styles/5c3c13b9/styles/diks-news.css";
+		const savedTheme = localStorage.getItem('theme');
+		const stylesheet = document.getElementById("diks-stylesheet");
+
+		// Check local storage for saved theme
+		if ( savedTheme == 'darkmode' ) {
+			stylesheet.href = darkmodeStylesheet;
+			document.documentElement.classList.add('diks-theme--darkmode');
+		}
+		// Check user's theme preference through an OS setting or a user agent setting
+		else if ( checkUserPreferenceEnabled && savedTheme != 'default' && ( window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ) ) {
+			stylesheet.href = darkmodeStylesheet;
+			document.documentElement.classList.add('diks-theme--darkmode');
+		}
+		else {
+			document.documentElement.classList.add('diks-theme--default');
+		}
+
+
+		// Darkmode toggle switch
+		document.addEventListener('DOMContentLoaded', function () {
+			const darkmodeButton = document.getElementById("diks-darkmode-toggler");
+
+			// Set darkmode button to checked if darkmode is already on
+			// Check local storage for saved theme
+			if (savedTheme == 'darkmode' ) {
+				darkmodeButton.checked = true;
+			}
+			// Check user's theme preference through an OS setting or a user agent setting
+			else if ( checkUserPreferenceEnabled && savedTheme != 'default' && ( window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ) ) {
+				darkmodeButton.checked = true;
+			}
+
+			// Change theme based on darkmode button checked/unchecked
+			darkmodeButton.addEventListener("click", function() {
+				// Swap out the URL for the different stylesheets
+				if ( stylesheet.getAttribute("href") == defaultStylesheet ) {
+					stylesheet.href = darkmodeStylesheet;
+					document.documentElement.classList.remove('diks-theme--default');
+					document.documentElement.classList.add('diks-theme--darkmode');
+					// Save theme to local storage
+					window.localStorage.setItem('theme', 'darkmode');
+				} else {
+					stylesheet.href = defaultStylesheet;
+					document.documentElement.classList.remove('diks-theme--darkmode');
+					document.documentElement.classList.add('diks-theme--default');
+					// Save theme to local storage
+					window.localStorage.setItem('theme', 'default');
+				}
+				// Dispatch event ThemeChanged when theme inside Local Storage changes
+				window.dispatchEvent(new Event("ThemeChanged"));
+			});
+
+		}, false);
+
+	</script>
+		<script>
+		// Hyphenopoly library initialization. The library will add soft-hyphen characters into the content if the
+		// browser doesn't support CSS hyphenation. For debugging on macOS Chrome: require: { 'fi': 'FORCEHYPHENOPOLY' }
+		const Hyphenopoly = {
+			require: { 'fi': 'yhdyssanahirviö' },
+			setup: {
+				defaultLanguage: "fi",
+				selectors: { '.diks-card__title': { minWordLength: 11, leftmin: 4, rightmin: 4 }, '.diks-article__headline': { minWordLength: 11, leftmin: 4, rightmin: 4 }, '.diks-parallax-content .diks-storyline-element-wrapper > .diks-sub-headline': { minWordLength: 11, leftmin: 4, rightmin: 4 } }
+			}
+		}
+		console.log('Hyphenopoly settings:', Hyphenopoly.setup)
+
+		// Helper function for hyphenating content that was added after pageload. We must query a nodelist and iterate
+		// each node because the library can't handle a nodelist.
+		// https://mnater.github.io/Hyphenopoly/Hyphenators.html
+		// https://github.com/mnater/Hyphenopoly/issues/92#issuecomment-597728300
+		const diksHyphenateContent = (containerSelector) => {
+			if (!Hyphenopoly.hyphenators) {
+				return
+			}
+			Hyphenopoly.hyphenators["HTML"].then((hyphenator) => {
+				for (const itemSelector in Hyphenopoly.setup.selectors) {
+					const containerNode = document.querySelector(containerSelector)
+					const itemNodeList = containerNode.querySelectorAll(itemSelector)
+					itemNodeList.forEach((itemNode) => { hyphenator(itemNode, itemSelector) })
+				}
+			})
+		}
+	</script>
+	<script src="https://a.ksml.fi/styles/5c3c13b9/includes/hyphenopoly/Hyphenopoly_Loader.js"></script>
+			<script>
+		window.JankkoSSOConfig = {
+			accountOrigin: "KE"
+		};
+	</script>
+
+				
+	<script id="jankko-sso-script" src="https://sso.ksml.fi/assets/jankko-sso-client.modern.min.js"></script>
+
+
+		<script src='/gravito_config_bridging.js'></script>
+		<script src="/theme/css/includes/waypoints/lib/noframework.waypoints.min.js"></script>
+		<link rel="icon" type="image/png" href="/favicon.png" sizes="96x96" /><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" /><link rel="apple-touch-icon" href="/icon-180.png"/><meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#121416" media="(prefers-color-scheme: dark)" /><link rel="alternate" type="application/rss+xml" title="Keskisuomalainen" href="https://www.ksml.fi/feed/rss"><meta name="robots" content="max-image-preview:large"><script>
+	var pageData = {};
+	pageData.article = {
+			'id':'8924414',
+			'url':'https\u003A\/\/www.ksml.fi\/paikalliset\/8924414',
+			'published': '2025\u002D10\u002D15\u002015\u003A43',
+			'modified': '2025\u002D10\u002D15\u002015\u003A45',
+			'storyType':'review',
+			'paywall':'paid',
+			'headlinePrefix':'Elokuva\u002Darvio',
+			'headline':'Kriitikoiden\u0020elitistiset\u0020marinat\u0020voi\u0020j\u00E4tt\u00E4\u00E4\u0020omaan\u0020arvottomuuteensa,\u0020kun\u0020nautiskelee\u0020Kyll\u00E4\u0020is\u00E4\u0020osaa\u0020Lapissa\u0020\u002Delokuvasta',
+			'lead':'Jos\u0020elokuva\u0020ker\u00E4\u00E4\u0020katsojia,\u0020sen\u0020t\u00E4ytyy\u0020olla\u0020hyv\u00E4.\u0020Kyll\u00E4\u0020is\u00E4\u0020osaa\u0020Lapissa\u0020\u002Delokuva\u0020on\u0020modernia\u0020rillumareita,\u0020joka\u0020tarjoaa\u0020verkkaisuutta\u0020sek\u00E4\u0020vaarattomia\u0020tilanteita.',
+			'description':'',
+			'priority':'default',
+			'style':'default',
+			'brandSafety':'1',
+			'brandSafetyScore':'1.0',
+			'mainImage':'https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/FREE_960/11074340.jpg',
+			'teaserImage':'',
+			'authors': ['Jussi\u0020Virratvuori'],
+			'topics': ["Tv ja elokuvat","Virrat","Hotellit ja majoitus","Kulttuuri","N\u00e4ytt\u00e4m\u00f6taide","Joulukoristeet","Lapset","Lappi","Taide (Yleist\u00e4)","Audiovisuaalinen media","N\u00e4yttelij\u00e4t (teatteri, elokuvat, tv)","Perhe","Musiikki","Elokuva- ja tv-n\u00e4yttelij\u00e4t","Suomalaiset n\u00e4yttelij\u00e4t","Audio"],
+			'marketingCategories': ["Kulttuuri","Viihde","Vapaa-aika","Muu","Tapahtumat","Julkkikset","Lapsiperheet"],
+			'advertisers': [],
+			'elementCount': 27,
+			'contentLength': 3937,
+			'imageCount': 3,
+			'useEmptyFeatureLayout': false,
+			'article_contents': ["image","mainimage"],
+			'article_word_count': 486
+		}
+	pageData.section = {
+			'name': 'Keski\u002DSuomi',
+			'uname': 'paikalliset',
+			'url': 'https\u003A\/\/www.ksml.fi\/paikalliset\/',
+			'topics': [],
+			'marketingCategories': [],
+			'advertisers': []
+		}
+	pageData.publication = {
+		'name': 'ksml',
+		'url': 'https\u003A\/\/www.ksml.fi\/',
+		'engage': 'KE',
+		'paywallEnabled': true,
+		'env':'prod'
+	}
+	pageData.user = {}
+	pageData.companyUser = {}
+
+	function isPwa() {
+		// window.navigator.standalone = iOS
+		// window.matchMedia('(display-mode: standalone)').matches = Android/universal
+		return (window.navigator.standalone) ||
+		       (["fullscreen", "standalone", "minimal-ui"].some(
+		        function(displayMode) { return window.matchMedia('(display-mode: ' + displayMode + ')')
+		        .matches }));
+	}
+
+	pageData.general = {
+		'browseMode': (isPwa() ? 'pwa' : 'browser')
+	}
+</script>
+	<meta property="og:site_name" content="Keskisuomalainen">
+	<meta property="og:locale" content="fi_FI">
+
+
+<link rel="canonical" href="https://www.ksml.fi/paikalliset/8924414" />
+<meta property="og:url" content="https://www.ksml.fi/paikalliset/8924414" />
+<meta name="description" content="Jos elokuva kerää katsojia, sen täytyy olla hyvä. Kyllä isä osaa Lapissa -elokuva on modernia rillumareita, joka tarjoaa verkkaisuutta sekä vaarattomia tilanteita." />
+<meta name="keywords" content="Tv ja elokuvat, Virrat, Hotellit ja majoitus, Kulttuuri, Näyttämötaide, Joulukoristeet, Lapset" />
+	<meta property="og:title" content="Elokuva-arvio | Kriitikoiden elitistiset marinat voi jättää omaan arvottomuuteensa, kun nautiskelee Kyllä isä osaa Lapissa -elokuvasta" />
+<meta property="og:description" content="Jos elokuva kerää katsojia, sen täytyy olla hyvä. Kyllä isä osaa Lapissa -elokuva on modernia rillumareita, joka tarjoaa verkkaisuutta sekä vaarattomia tilanteita." />
+<meta property="cXenseParse:image" content="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/LANDSCAPE_960/11074340.jpg"/>
+<meta property="og:image" content="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/OG_IMAGE_KSML/11074340.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:type" content="article" />
+<meta property="article:author" content="Jussi Virratvuori" />
+<meta property="article:section" content="Keski-Suomi" />
+<meta property="article:tag" content="Tv ja elokuvat" />
+<meta property="article:tag" content="Virrat" />
+<meta property="article:tag" content="Hotellit ja majoitus" />
+<meta property="article:tag" content="Kulttuuri" />
+<meta property="article:tag" content="Näyttämötaide" />
+<meta property="article:tag" content="Joulukoristeet" />
+<meta property="article:tag" content="Lapset" />
+<meta property="article:modified_time" content="2025-10-15T15:45:47+03:00" />
+<meta property="article:published_time" content="2025-10-15T15:43:33+03:00" />
+
+
+<meta name="cXenseParse:recs:recommendable" content="true"/>
+<meta name="cXenseParse:pageclass" content="article"/>
+<meta name="cXenseParse:recs:articleid" content="8924414" />
+<meta name="cXenseParse:recs:kes-origin" content="Karjalainen" />
+<meta name="cXenseParse:kes-origin" content="Karjalainen" />
+<meta name="cXenseParse:recs:kes-isad" content="false" />
+<meta name="cXenseParse:kes-isad" content="false" />
+<meta name="cXenseParse:recs:kes-hasimage" content="true" />
+<meta name="cXenseParse:kes-hasimage" content="true" />
+<meta name="cXenseParse:recs:kes-source" content="Karjalainen" />
+<meta name="cXenseParse:kes-source" content="Karjalainen" />
+<meta name="cXenseParse:recs:kes-articletype" content="Story" />
+<meta name="cXenseParse:kes-articletype" content="Story" />
+<meta name="cXenseParse:recs:kes-siterecsname" content="Keskisuomalainen" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Tv ja elokuvat" />
+<meta name="cXenseParse:kes-keywordtag" content="Tv ja elokuvat" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Virrat" />
+<meta name="cXenseParse:kes-keywordtag" content="Virrat" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Hotellit ja majoitus" />
+<meta name="cXenseParse:kes-keywordtag" content="Hotellit ja majoitus" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Kulttuuri" />
+<meta name="cXenseParse:kes-keywordtag" content="Kulttuuri" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Näyttämötaide" />
+<meta name="cXenseParse:kes-keywordtag" content="Näyttämötaide" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Joulukoristeet" />
+<meta name="cXenseParse:kes-keywordtag" content="Joulukoristeet" />
+<meta name="cXenseParse:recs:kes-keywordtag" content="Lapset" />
+<meta name="cXenseParse:kes-keywordtag" content="Lapset" />
+<meta name="cXenseParse:recs:publishtime" content="2025-10-15T15:43:33+03:00" />
+<meta name="cXenseParse:kes-paywall" content="paid" />
+<meta name="cXenseParse:recs:kes-paywall" content="paid" />
+<meta name="cXenseParse:kes-storyType" content="review" />
+<meta name="cXenseParse:recs:kes-storyType" content="review" />
+<meta name="cXenseParse:kes-priority" content="default" />
+<meta name="cXenseParse:recs:kes-priority" content="default" />
+<meta name="cXenseParse:kes-style" content="default" />
+<meta name="cXenseParse:recs:kes-style" content="default" />
+<meta name="cXenseParse:kes-template" content="default" />
+<meta name="cXenseParse:recs:kes-template" content="default" />
+<meta property="al:ios:url" content="https://www.ksml.fi/paikalliset/8924414" />
+		<meta property="al:ios:app_store_id" content="6477535063" />
+		<meta property="al:ios:app_name" content="Keskisuomalainen" />
+		<meta property="al:android:url" content="https://www.ksml.fi/paikalliset/8924414" />
+		<meta property="al:android:package" content="fi.media.ksml" />
+		<meta property="al:android:app_name" content="Keskisuomalainen" />
+		<link rel="manifest" href="/manifest.webmanifest">
+		<style>@media (max-width: 600px) { .gravitoCMP-footer { margin-top: 1.5em; } }</style>
+		<script type="text/javascript">
+		// Async load of cx.js
+		(function(d,s,e,t){e=d.createElement(s);e.type='text/java'+s;e.async='async';
+		e.src='http'+('https:'===location.protocol?'s://s':'://')+'cdn.cxense.com/cx.js';
+		t=d.getElementsByTagName(s)[0];t.parentNode.insertBefore(e,t);})(document,'script');
+	</script>
+					<script src="https://a.ksml.fi/styles/5c3c13b9/js/blueconic/dialog.min.js"></script>
+		<script>
+			BCinst = 'blueconic';
+			BCshortcode = 'KSML';
+		</script><script src="https://a.ksml.fi/styles/5c3c13b9/js/blueconic/events.min.js"></script>
+		<script>
+			const BCEventParams = {
+				currentPage: '' || null,
+				dependenciesTimeout: 5000,
+				inHouseAdEnabled: true
+			};
+			InitializeEventScript(BCEventParams);
+		</script><script src="https://o576.ksml.fi/script.js"></script>
+				<script async='async' src='https://securepubads.g.doubleclick.net/tag/js/gpt.js'></script><script async src="https://ksml-cdn.relevant-digital.com/static/tags/5dd27c4aefdf49603c1ab917.js"></script><script src="https://a.ksml.fi/styles/5c3c13b9/js/google/googleTagScript.min.js"></script>
+		<script>
+			const GAM_params = {
+				account: '21684433086' || null,
+				site: 'ksml' || null,
+				adsSetToRenderFromPageLevel: ["paraati1","jattiboksi1","mobiili1","mobiili2","interstitiaali"],
+				enableHeaderBiddingManager: true,
+				headerBiddingManagerConfigId: '63b68262506062d046eec9ae' || null,
+				enableTCF: true,
+				enableSegmentTargeting: true,
+				pianoSegmentTargetingPersistedQueryId: '110c4c9055b4a1f72dc557ca3983bd140a676a7c' || null,
+				enablePianoSegmentTargeting: true,
+				pianoScriptEnabled: true,
+				enablePersonalizationTargeting: true,
+				pageType: 'article',
+				userHasPermission: false,
+				mw: 300,
+				tw: 750,
+				dw: 1024,
+				inContentAdTextTop: 'Mainos - sisältö jatkuu alla' || 'Mainos - sisältö jatkuu alla',
+				inContentAdTextBottom: 'Mainos päättyy' || 'Mainos päättyy',
+				collapseEmptyDivs: true,
+				disableInitialLoad: true,
+				enableSRA: true,
+				enableLazyLoad: true,
+				fetchMarginPercent: 200,
+				renderMarginPercent: 20,
+				mobileScaling: -1,
+				gamAdUnits: {"paraati1":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[736,552],[980,120],[980,400],[980,552],[980,250]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[[736,552]],"viewport_width_980":[[736,552],[980,120],[980,400],[980,552],[980,250]],"viewport_width_1024":[[736,552],[980,120],[980,400],[980,552],[980,250]]}},"section_config":{"show_labels":false,"all_sizes":[[736,552],[980,120],[980,400],[980,552],[980,250]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[[736,552]],"viewport_width_980":[[736,552],[980,120],[980,400],[980,552],[980,250]],"viewport_width_1024":[[736,552],[980,120],[980,400],[980,552],[980,250]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[736,552],[980,120],[980,400],[980,552],[980,250]]}}},"jattiboksi1":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]]},"position_inside_article":3,"paywall_config":{"show_labels":false},"comic_config":{"show_labels":false}},"section_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"position_inside_section":5,"position_inside_latest":10,"position_inside_most_read":10}},"jattiboksi2":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,2],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2],[1,1]]},"position_inside_article":6},"section_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,2]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,2]]},"position_inside_section":12,"position_inside_latest":20,"position_inside_front_page_large":7,"position_inside_front_page":9}},"jattiboksi3":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]]},"position_inside_article":8},"section_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"position_inside_section":19,"position_inside_latest":30,"position_inside_front_page":15}},"jattiboksi4":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]]},"position_inside_article":12},"section_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"position_inside_section":25,"position_inside_latest":40,"position_inside_front_page":19}},"jattiboksi5":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]]},"position_inside_article":16},"section_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[620,891]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"front_page_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891]]},"position_inside_section":31,"position_inside_front_page":25}},"jattiboksi6":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[1,1]],"viewport_width_644":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_736":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_980":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]],"viewport_width_1024":[[468,832],[468,624],[468,263],[468,351],[468,400],[468,600],[600,600],[620,891],[1,1]]}}},"boksi1":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"boksi2":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"boksi3":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"boksi4":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"mobiili1":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":3,"paywall_config":{"show_labels":false},"comic_config":{"show_labels":false}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_section":1,"position_inside_latest":10,"position_inside_most_read":5}},"mobiili2":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":6,"paywall_config":{"show_labels":false},"comic_config":{"show_labels":false}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_section":5,"position_inside_latest":20,"position_inside_most_read":10}},"mobiili3":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":8},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]},"position_inside_section":12,"position_inside_latest":30,"position_inside_front_page_large":7,"position_inside_front_page":6}},"mobiili4":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":12},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_section":19,"position_inside_latest":40}},"mobiili5":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":16},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_section":25,"position_inside_front_page":6}},"mobiili6":{"type":"normal","article_config":{"show_labels":true,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"position_inside_article":20},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_section":31,"position_inside_front_page":9}},"mobiili7":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[320,320]],"viewport_width_1024":[]},"position_inside_front_page":15}},"mobiili8":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]},"position_inside_front_page":19}},"mobiili9":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150],[1,1]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]},"position_inside_front_page":25}},"mobiili10":{"type":"normal","section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[]},"front_page_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}}},"interstitiaali":{"type":"outofpage","article_config":{"show_labels":false,"default_sizes":{"viewport_width_0":[1,1],"viewport_width_492":[1,1],"viewport_width_644":[1,1],"viewport_width_736":[1,1],"viewport_width_980":[1,1],"viewport_width_1024":[1,1]}},"section_config":{"show_labels":false,"default_sizes":{"viewport_width_0":[1,1],"viewport_width_492":[1,1],"viewport_width_644":[1,1],"viewport_width_736":[1,1],"viewport_width_980":[1,1],"viewport_width_1024":[1,1]}}}},
+				gamNativeAdPageAdUnits: {"natiiviboksi1":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"natiiviboksi2":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"natiiviboksi3":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"natiiviboksi4":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[],"viewport_width_492":[],"viewport_width_644":[],"viewport_width_736":[],"viewport_width_980":[],"viewport_width_1024":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]]}}},"natiivimobiili1":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}}},"natiivimobiili2":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}}},"natiivimobiili3":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}}},"natiivimobiili4":{"type":"normal","article_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}},"section_config":{"show_labels":false,"all_sizes":[[300,533],[300,400],[300,169],[300,225],[300,250],[300,600],[300,431]],"default_sizes":{"viewport_width_0":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_492":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_644":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_736":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_980":[[300,533],[300,400],[300,169],[300,225],[300,600],[300,431],[300,300],[300,250],[300,200],[300,150]],"viewport_width_1024":[]}}}},
+				gamNativeAdPageSite: 'natiivikoonti' || 'natiivikoonti',
+				adSlotPrefix: 'gam-ad-' || 'gam-ad-',
+				isFrontPage: false,
+				isComicArticle: false,
+				isPreview: false,
+				isNativeAdPage: false,
+				previewAdUnits: ["mobiili1","mobiili2","mobiili3","mobiili4","mobiili5","mobiili6","mobiili7","mobiili8","mobiili9","mobiili10"],
+				skipLinksEnabled: true,
+				appendMarketingCategoriesToTopics: true,
+				enableLocationPrompt: false
+			}
+			InitializeGoogleScript(GAM_params)
+		</script>
+		<script>
+		const gtmContainerId = 'GTM-KTJNB7R';
+		const sendDatalayerPush = Boolean(1);
+		const context = 'art';
+
+		(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+		'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+		})(window,document,'script','dataLayer',gtmContainerId);
+
+		if (sendDatalayerPush) {
+			window.dataLayer.push({'event':'pageDataPush','pageData': window.pageData});
+		}
+
+		(async function () {
+			const paywallEnabled = window?.pageData?.publication?.paywallEnabled ?? true;
+
+			const user = {};
+			const companyUser = {};
+
+			let articleState;
+			let articlePaywall = 'free'; // free is always the safer fallback
+
+			if (context === 'art') {
+				if (window.pageData && window.pageData.article && window.pageData.article.paywall) {
+					articlePaywall = window.pageData.article.paywall;
+				}
+				if (articlePaywall === 'free' || !paywallEnabled) {
+					articleState = 'full';
+				}
+				else {
+					articleState = 'preview';
+				}
+			}
+
+			function getCookie(name) {
+				name = name + '=';
+				const decodedCookie = decodeURIComponent(document.cookie);
+				const cookies = decodedCookie.split(';');
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					if (cookie.indexOf(name) === 0) {
+						return cookie.substring(name.length, cookie.length);
+					}
+				}
+			}
+
+			function pushDataLayerEvent() {
+				let segmentsCookie = getCookie('jankkosegments');
+
+				if (segmentsCookie) {
+					let segmentsData = JSON.parse(segmentsCookie);
+					let segments = segmentsData.segments;
+
+					if (segments && typeof segments === 'object') {
+						user.segments = segments;
+					}
+				}
+				const pageData = {
+					'user': user,
+					'companyUser': companyUser
+				};
+				if (context === 'art') {
+					pageData.article = { 'state': articleState };
+				}
+				if (sendDatalayerPush) {
+					window.dataLayer.push({'event': 'userDataPush', 'pageData': pageData });
+				}
+			}
+
+			async function modifyDatalayerData() {
+				const sessionData = await JankkoSSOClient.getSession();
+				if (!sessionData) {
+					return;
+				}
+
+				user.id = sessionData?.personal?.personal_user_id;
+				user.products = sessionData?.personal?.personal_active_products;
+				user.permissions = sessionData?.personal?.personal_permissions;
+
+				companyUser.id = sessionData?.company?.company_user_id ?? null;
+				companyUser.products = sessionData?.company?.company_active_products ?? null;
+				companyUser.permissions = sessionData?.company?.company_permissions ?? null;
+
+				const permissions = sessionData?.permissions ?? [];
+				if (context === 'art' && articlePaywall !== 'free' && permissions.includes('paywall')) {
+					articleState = 'full';
+				}
+			}
+
+			try {
+				await modifyDatalayerData();
+			}
+			catch (error) {
+				console.warn(error);
+			}
+
+			pushDataLayerEvent();
+		}());
+
+	</script>
+		
+	</head>
+		<body class="diks-body diks-body--page-type-article">
+		<!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KTJNB7R"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+					<div class="diks-out-of-page-display-ad-container"><div class="diks-display-ad  rs_skip" aria-hidden="true">
+		<div class="diks-display-ad__unit" id="gam-ad-interstitiaali" style="width:0;height:0;margin:0;padding:0;">
+			<script>window.cX.callQueue.push(['invoke', function() { googletag.cmd.push(function() { googletag.display('gam-ad-interstitiaali'); }); }]);</script>
+		</div>
+	</div></div>
+		
+					
+																																						
+																				
+																							
+																								
+																								
+																								
+							<header id="main-header" class="diks-header diks-header ">
+	<div class="diks-skip-link-navigation diks-skip-link-navigation--top">
+		<ul class="diks-navigation diks-navigation--skip-links">
+							<li class="diks-navigation__item">
+					<a class="diks-button diks-button--primary diks-a11y__screen-reader diks-a11y__screen-reader--focusable" href="#sisalto" >Siirry suoraan sisältöön</a>
+				</li>
+					</ul>
+	</div>
+
+	<div class="diks-header-wrapper">
+		<div class="diks-container diks-container--header">
+			<div class="diks-header-container"><div class="diks-header__navigation-container diks-header__navigation-container--left">
+						<button class="diks-button diks-button--icon-only diks-button--ghost diks-navigation__link js-diks-toggler diks-dropdown-toggler diks-dropdown-toggler--main" id="diks-dropdown-toggle" data-toggle="diks-dropdown-navigation" aria-expanded="false" aria-controls="diks-dropdown-navigation" aria-label="Valikko"><span class="diks-icon diks-icon--size-m" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M22 6H2V4H22V6ZM22 13H2V11H22V13ZM22 20H2V18H22V20Z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon diks-icon--size-m diks-icon--hidden" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M10.5858 12L4.2218 5.63603L5.63602 4.22182L12 10.5858L18.3639 4.22183L19.7782 5.63605L13.4142 12L19.7782 18.364L18.3639 19.7782L12 13.4142L5.63602 19.7782L4.2218 18.364L10.5858 12Z" clip-rule="evenodd"/>
+</svg>
+</span></button>
+
+		<div class="diks-dropdown-navigation" id="diks-dropdown-navigation">
+		<button id="diks-close-dropdown-main-nav" class="diks-button diks-button--outline diks-dropdown-navigation__close-button diks-a11y__screen-reader diks-a11y__screen-reader--focusable">Sulje valikko</button><div class="diks-dropdown-navigation__sign-container">
+				<img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/keskisuomalainen-sign.svg" class="diks-logo diks-dropdown-navigation__sign" alt="Keskisuomalainen Oyj">
+			</div><form id="dropdown-navigation-search" name="dropdownnavigationsearch" class="diks-form diks-form--fluid" action="/haku/" method="get">
+					<div class="diks-form__field-wrapper diks-form__field-wrapper--padding-right diks-form__field-wrapper--required"><input class="diks-form__field" type="search" name="q" id="dropdown-navigation-searchSearch1" size="20"  aria-label="Haku" placeholder="Hae sivustolta" required  value=""></div>
+
+						<div class="diks-form__field-wrapper diks-form__field-wrapper--submit-button-icon-only">
+		<button class="diks-form__submit" type="submit" id="dropdown-navigation-searchSubmitbutton2"><span class="diks-icon diks-icon--color-primary" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M9.5 4C6.46243 4 4 6.46243 4 9.5C4 12.5376 6.46243 15 9.5 15C12.5376 15 15 12.5376 15 9.5C15 6.46243 12.5376 4 9.5 4ZM2 9.5C2 5.35786 5.35786 2 9.5 2C13.6421 2 17 5.35786 17 9.5C17 11.2106 16.4273 12.7874 15.4632 14.0493L19.7782 18.3642L18.3639 19.7784L14.049 15.4634C12.7872 16.4274 11.2105 17 9.5 17C5.35786 17 2 13.6421 2 9.5Z" clip-rule="evenodd"/>
+</svg>
+</span>Hae
+		</button>
+	</div>
+			</form>	<nav class="diks-navigation-wrapper diks-navigation-wrapper--border-bottom diks-navigation-wrapper--border-top" ><ul class="diks-navigation diks-navigation--row diks-navigation--mobile-row diks-navigation--no-active-links diks-navigation--size-s"  id="dropdown-highlights-nav"><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/asenna/">Sovellus</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/nakoislehti/">Lehdet</a></li><li class="diks-navigation__item diks-navigation__item--button diks-navigation__item--align-right diks-hide-from-subscribers" ><a class="diks-navigation__link" href="/tilaa/">Tilaa</a></li></ul>
+		</nav>	<nav class="diks-navigation-wrapper diks-navigation-wrapper--divider-bottom" ><ul class="diks-navigation diks-navigation--row diks-navigation--mobile-row diks-navigation--no-active-links diks-navigation--size-s"  id="dropdown-newstip-nav"><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://oma.media.fi/keskisuomalainen/yhteystiedot/juttuvinkki/"><span class="diks-icon diks-icon--size-m" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M7.38197 4H16.618L17.618 6H22V20H2V6H6.38197L7.38197 4ZM8.61803 6L7.61803 8H4V18H20V8H16.382L15.382 6H8.61803ZM12 11C10.8954 11 10 11.8954 10 13C10 14.1046 10.8954 15 12 15C13.1046 15 14 14.1046 14 13C14 11.8954 13.1046 11 12 11ZM8 13C8 10.7909 9.79086 9 12 9C14.2091 9 16 10.7909 16 13C16 15.2091 14.2091 17 12 17C9.79086 17 8 15.2091 8 13Z" clip-rule="evenodd"/>
+</svg>
+</span>Lähetä juttuvinkki</a></li></ul>
+		</nav>	<nav class="diks-navigation-wrapper " ><ul class="diks-navigation diks-navigation--light"  id="dropdown-section-nav"><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/">Etusivu</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/uusimmat/">Uusimmat</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/luetuimmat/">Luetuimmat</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Radio_Keskisuomalainen">Radio Keskisuomalaisen podcastit</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/urheilu">Urheilu</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/J%C3%A4%C3%A4kiekon_SM-liiga">Jääkiekon SM-liiga</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Talous">Talous</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Kulttuuri">Kulttuuri</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/uutissuomalainen">Uutissuomalainen</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Sunnuntaisuomalainen">SUSU</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/paakirjoitus-mielipide">Pääkirjoitus &amp; mielipide</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/asumisen-paikka">Asumisen paikka</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://keski-suomi.menoinfo.fi/fi-FI">Menoinfo</a></li></ul>
+		</nav>
+                                                            
+<nav class="diks-content-block-list  diks-navigation-wrapper diks-navigation diks-toggle-container " data-diks-init="toggle" 
+        data-diks-toggle-state="closed">
+            <button class="diks-toggle-button diks-content-block__toggle-button "         aria-expanded="false" 
+        aria-controls="diks-toggle-area-8801800" 
+    ><h2 class="diks-title diks-navigation__item ">Oman kuntasi uutiset</h2><span class="diks-icon diks-icon-chevron-down" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M5.29297 9.70711L6.70718 8.2929L12.0001 13.5858L17.293 8.2929L18.7072 9.70711L12.0001 16.4142L5.29297 9.70711Z" clip-rule="evenodd"/>
+</svg>
+</span>
+            <span class="diks-icon diks-icon-chevron-up" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M18.707 14.2929L17.2928 15.7071L11.9999 10.4142L6.70703 15.7071L5.29282 14.2929L11.9999 7.58578L18.707 14.2929Z" clip-rule="evenodd"/>
+</svg>
+</span>
+        </button>
+        <div class="diks-toggle-content-container diks-toggle--is-closed "         id="diks-toggle-area-8801800"
+    >
+        <ul class="diks-content-block__content diks-navigation diks-navigation--light diks-navigation--size-s diks-toggle-content " >
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Hankasalmi">Hankasalmi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Joutsa">Joutsa</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Jyv%C3%A4skyl%C3%A4">Jyväskylä</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/J%C3%A4ms%C3%A4">Jämsä</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kangasniemi">Kangasniemi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kannonkoski">Kannonkoski</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Karstula">Karstula</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Keuruu">Keuruu</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kinnula">Kinnula</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kivij%C3%A4rvi">Kivijärvi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Konnevesi">Konnevesi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kuhmoinen">Kuhmoinen</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Kyyj%C3%A4rvi">Kyyjärvi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Laukaa">Laukaa</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Luhanka">Luhanka</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Multia">Multia</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Muurame">Muurame</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Pet%C3%A4j%C3%A4vesi">Petäjävesi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Pihtipudas">Pihtipudas</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Saarij%C3%A4rvi">Saarijärvi</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Toivakka">Toivakka</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Uurainen">Uurainen</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/Viitasaari">Viitasaari</a>
+                </li>
+              
+                <li class="diks-list-item diks-navigation__item ">
+                    <a class="diks-link diks-navigation__link " href="/aihe/%C3%84%C3%A4nekoski">Äänekoski</a>
+                </li>
+                    </ul>
+    </div>
+</nav>
+<!-- ESI start element "recommendedTopics" generated at 30-10-2025 14:12:18.809466 -->	<nav class="diks-navigation-wrapper diks-navigation-wrapper--divider-top" ><ul class="diks-navigation diks-navigation--light diks-navigation--size-s" ><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/T%C3%A4n%C3%A4%C3%A4n">Tänään</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Autot_ja_liikenne">Autot ja liikenne</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Er%C3%A4_ja_luonto">Erä ja luonto</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Lukijan_kuvat">Lukijan kuvat</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Meid%C3%A4n_juttu">Meidän juttu</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Maailman_parasta_journalismia">Maailman parasta journalismia</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Radio_Keskisuomalainen">Radio Keskisuomalainen ja podcastit</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/laheta-vauvakuva">Lähetä vauvakuva</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Muistokirjoitukset">Muistokirjoitukset</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Urheilutulokset">Urheilutulokset</a></li></ul>
+		</nav><!-- ESI end element "recommendedTopics" --><!-- ESI start element "promotedAdvertisers" generated at 30-10-2025 14:12:53.352804 -->	<nav class="diks-navigation-wrapper diks-navigation-wrapper--divider-top" ><h2 class="diks-navigation__title">Mainostajan sisältö</h2><ul class="diks-navigation diks-navigation--light diks-navigation--size-s" ><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/mainostaja/Keski-Suomen_Yritt%C3%A4j%C3%A4t">Keski-Suomen Yrittäjät</a></li></ul>
+		</nav><!-- ESI end element "promotedAdvertisers" -->	<nav class="diks-navigation-wrapper diks-navigation-wrapper--divider-top" ><h2 class="diks-navigation__title">Asiakaspalvelu ja yhteystiedot</h2><ul class="diks-navigation diks-navigation--light diks-navigation--size-s"  id="dropdown-customer-nav"><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://oma.media.fi/keskisuomalainen/">Asiakaspalvelu</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://www.meks.fi/mainonta/alueet/keski-suomen-media/">Mediamyynti</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://oma.media.fi/keskisuomalainen/yhteystiedot/">Yhteystiedot</a></li></ul>
+		</nav><div class="diks-navigation-wrapper diks-navigation-wrapper--divider-top"><h2 class="diks-navigation__title">Ulkoasu</h2><label for="diks-darkmode-toggler" class="diks-form__switch">
+					<span class="diks-form__switch-label"><span class="diks-icon diks-icon--size-m" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M13.7547 1.76065L11.7581 3.75666C10.6708 4.8436 10 6.34252 10 8C10 11.3137 12.6863 14 16 14C17.6575 14 19.1564 13.3292 20.2433 12.2419L22.2394 10.2453L21.9451 13.0531C21.4182 18.0815 17.1674 22 12 22C6.47715 22 2 17.5229 2 12C2 6.83263 5.91855 2.58178 10.9469 2.05488L13.7547 1.76065ZM8.70749 4.70657C5.93176 5.9617 4 8.75566 4 12C4 16.4183 7.58172 20 12 20C15.2443 20 18.0383 18.0682 19.2934 15.2925C18.289 15.7468 17.1738 16 16 16C11.5817 16 8 12.4183 8 8C8 6.82623 8.25316 5.71105 8.70749 4.70657Z" clip-rule="evenodd"/>
+</svg>
+</span>Käytä tummaa tilaa</span>
+					<div class="diks-form__switch-wrapper">
+						<input id="diks-darkmode-toggler" class="diks-form__switch-input" type="checkbox">
+						<span class="diks-form__switch-slider"></span>
+					</div>
+				</label>
+			</div></div>	<nav class="diks-navigation-wrapper " ><ul class="diks-navigation diks-navigation--main diks-navigation--size-s diks-navigation--row diks-navigation--mobile-row diks-navigation--no-active-links diks-hide-below-large" ><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/uusimmat/"><span class="diks-icon diks-hide-above-large" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M12 4a8 8 0 100 16 8 8 0 000-16zM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12zm9-6h2v5.586l2.707 2.707-1.414 1.414L11 12.414V6z" clip-rule="evenodd"/>
+</svg>
+</span>Uusimmat</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/luetuimmat/"><span class="diks-icon diks-hide-above-large" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M11.03 3.455c1.168-1.438 3.495-.652 3.55 1.2l.117 3.845h6a1.25 1.25 0 0 1 1.229 1.484l-1.905 10A1.25 1.25 0 0 1 18.793 21H9.06a1.25 1.25 0 0 1-.559-.132L6.764 20H3.25C2.56 20 2 19.44 2 18.75v-8.5C2 9.56 2.56 9 3.25 9h3.274l4.506-5.545ZM8 10.355v8.027L9.236 19h8.936l1.62-8.5h-5.58a1.5 1.5 0 0 1-1.499-1.455l-.131-4.33L8 10.356Zm10.056 9.255ZM4 11v7h2v-7H4Zm14.793 8.75.145.027Z" clip-rule="evenodd"/>
+</svg>
+</span>Luetuimmat</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/nakoislehti/"><span class="diks-icon diks-hide-above-large" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M4 2H20V22H4V2ZM6 4V20H18V4H6ZM8 6H16V12H8V6ZM10 8V10H14V8H10ZM16 15H8V13H16V15ZM16 18H8V16H16V18Z" clip-rule="evenodd"/>
+</svg>
+</span>Lehdet</a></li><li class="diks-navigation__item diks-navigation__item--button diks-navigation__item--align-right diks-hide-above-medium diks-hide-from-subscribers" ><a class="diks-navigation__link" href="/tilaa/">Tilaa</a></li></ul>
+		</nav></div><div class="diks-header__logo-container">
+												<a class="diks-logo__link diks-header__logo-link diks-header__main-logo-link" href="/"><img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/ksml.svg" class="diks-logo diks-logo--default diks-header__logo diks-header__main-logo" alt="Keskisuomalainen"><img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/ksml-white.svg" class="diks-logo diks-logo--darkmode diks-header__logo diks-header__main-logo" alt="Keskisuomalainen"></a>
+					</div><div class="diks-header__navigation-container diks-header__navigation-container--right"><a class="diks-button diks-button--primary diks-button--size-m diks-hide-from-subscribers diks-hide-below-medium " href="/tilaa/">Tilaa</a><div class="diks-user-navigation-wrapper">
+	<button class="diks-button diks-button--icon-only diks-button--ghost diks-navigation__link diks-dropdown-toggler diks-dropdown-toggler--user" aria-expanded="false" id="diks-sso-user" data-diks-toggle="diks-user-navigation" data-diks-toggle-class="diks-user-navigation" aria-controls="diks-user-navigation"><span class="diks-icon diks-icon--size-m" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M4 12a8 8 0 1 1 13.496 5.814c-1.216-1.593-3.262-2.602-5.491-2.602-2.231 0-4.28 1.011-5.495 2.607A7.978 7.978 0 0 1 4 12Zm4.04 6.953A7.963 7.963 0 0 0 12 20a7.964 7.964 0 0 0 3.966-1.05c-.83-1.087-2.254-1.84-3.961-1.84-1.71 0-3.135.754-3.965 1.843ZM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm.005 5.898c-1.247 0-2.305 1.049-2.305 2.4 0 1.353 1.058 2.402 2.305 2.402s2.305-1.05 2.305-2.401c0-1.352-1.058-2.4-2.305-2.4Zm-4.203 2.4C7.802 7.952 9.658 6 12.005 6c2.347 0 4.203 1.95 4.203 4.299 0 2.348-1.856 4.299-4.203 4.299-2.347 0-4.203-1.951-4.203-4.3Z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon diks-icon--size-m diks-icon--hidden" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M10.5858 12L4.2218 5.63603L5.63602 4.22182L12 10.5858L18.3639 4.22183L19.7782 5.63605L13.4142 12L19.7782 18.364L18.3639 19.7782L12 13.4142L5.63602 19.7782L4.2218 18.364L10.5858 12Z" clip-rule="evenodd"/>
+</svg>
+</span></button>
+
+	<div class="diks-navigation diks-sub-navigation diks-user-navigation" id="diks-user-navigation">
+		<button id="diks-close-dropdown-user-nav" class="diks-button diks-button--outline diks-dropdown-navigation__close-button diks-a11y__screen-reader diks-a11y__screen-reader--focusable">Sulje valikko</button>
+	<p id="diks-sso-username" class="diks-user-navigation__username diks-hide-from-company-subscribers"></p><p class="diks-user-navigation__username diks-show-for-company-subscribers">Yritystilaus tunnistettu</p><div class="diks-show-for-company-subscribers"><p>Voit käyttää palvelun kaikkia sisältöjä vapaasti. Jos haluat kommentoida, kirjaudu sisään henkilökohtaisella Mediatunnuksella.</p></div>	<ul class="diks-navigation diks-navigation--size-m"  id="diks-sso-links"><li class="diks-navigation__item " ><a class="diks-navigation__link" href="javascript:window.gravitoCMP.openPreferences();">Evästevalinnat</a></li></ul>
+	</div>
+</div>
+				</div>
+			</div>
+		</div>
+	</div><div class="diks-note-wrapper diks-note-wrapper--article"><div class="diks-container diks-container--narrower-mobile">
+					<div class="diks-note " ><p><a class="diks-note__link" href="https://www.ksml.fi/uutissuomalainen/8957156"><strong>Luitko jo tämän:</strong> Nina Nikkilä, 30, teki isänsä oudon kuoleman jälkeen järkyttäviä löytöjä, ja menetti myös äitinsä: "Ei halunnut tappaa, vaan rakasti"</a></p></div><div id="diks-segment-notes"></div><div id="diks-bc-notes"></div></div></div><div id="diks-dropdown-navigation-shade" class="diks-dropdown-navigation-shade"></div></header><script src="/theme/css/includes/waypoints/lib/noframework.waypoints.min.js"></script>
+	<script>
+	// Fix forEach for IE
+	if (window.NodeList && !NodeList.prototype.forEach) {
+		NodeList.prototype.forEach = Array.prototype.forEach;
+	}
+
+	// Element.closest() needs a polyfill for older browsers.
+	// While we only need the closest() functionality for mobile browsers,
+	// we don't want the code to fail even on old desktop browsers.
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Browser_compatibility
+	if (!Element.prototype.matches) {
+		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+	}
+
+	if (!Element.prototype.closest) {
+		Element.prototype.closest = function(s) {
+			var el = this;
+
+			do {
+				if (el.matches(s)) return el;
+				el = el.parentElement || el.parentNode;
+			} while (el !== null && el.nodeType === 1);
+			return null;
+		};
+	}
+
+	let segmentTeasersContainer = document.getElementById("diks-segment-notes");
+
+		(function() {
+			function getCookie(name) {
+				name = name + '=';
+				const decodedCookie = decodeURIComponent(document.cookie);
+				const cookies = decodedCookie.split(';');
+
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					if (cookie.indexOf(name) == 0) {
+						return cookie.substring(name.length, cookie.length);
+					}
+				}
+			}
+
+			function injectSegmentTeasers(segmentsQueryString) {
+				var xhttp = new XMLHttpRequest();
+
+				xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						var segmentTeasers = this.responseText.trim();
+
+						if (segmentTeasers) {
+							if (segmentTeasersContainer) {
+								segmentTeasersContainer.innerHTML = segmentTeasers;
+							}
+						}
+						else {
+							// Remove segment teaser container if there are no segment teasers
+							if (segmentTeasersContainer) {
+								segmentTeasersContainer.remove();
+							}
+						}
+					}
+				};
+
+				xhttp.open("GET", "/.ajax/segmentTeaser?" + segmentsQueryString, true);
+				xhttp.send();
+			}
+
+			var segmentsCookie = getCookie('jankkosegments');
+
+			if (segmentsCookie) {
+				var segmentsData = JSON.parse(segmentsCookie);
+				var segments = segmentsData.segments;
+
+				if (segments && typeof segments === 'object') {
+					var segmentsQueryString = "";
+
+					Object.keys(segments).forEach(function(key, index) {
+						segmentsQueryString = index === 0 ? "" : segmentsQueryString + "&";
+						var value = segments[key];
+
+						if (Array.isArray(value)) {
+							value = value.join(',');
+						}
+
+						segmentsQueryString = segmentsQueryString + key + "=" + value;
+					});
+
+					injectSegmentTeasers(segmentsQueryString);
+				}
+			}
+			else {
+				// Remove segment teaser container if there are no segment teasers
+				if (segmentTeasersContainer) {
+					segmentTeasersContainer.remove();
+				}
+			}
+		})();	(function () {
+		if (typeof JankkoSSOClient !== 'undefined') {
+			var stringToHTML = function (htmlString) {
+				var div = document.createElement('div');
+				div.innerHTML = htmlString.trim();
+				return div.firstChild;
+			};
+
+			var showUserRelatedItems = function(personalData) {
+				var usernameElement = document.querySelector('#diks-sso-username');
+				if (usernameElement) {
+					usernameElement.innerHTML = personalData.full_name;
+				}
+
+				var linksElement = document.querySelector('#diks-sso-links');
+				if (linksElement) {
+					var myAccountLink = stringToHTML('<li class="diks-navigation__item"><a class="diks-navigation__link" href="'+JankkoSSOClient.serviceUrls.myAccount+'">Omat tiedot</a></li>');
+					var logoutForm = stringToHTML('<li class="diks-navigation__item diks-navigation__item--logout"><form id="logout-form" action="'+JankkoSSOClient.serviceUrls.logout+'" method="post"><input class="diks-navigation__link" type="submit" value="Kirjaudu ulos"></form></li>');
+					linksElement.insertBefore(myAccountLink, linksElement.childNodes[0]);
+					linksElement.appendChild(logoutForm);
+				}
+
+				var htmlElement = document.querySelector('.diks-user--is-not-logged-in'); // Class is set to main html element
+				if (htmlElement) {
+					htmlElement.classList.replace('diks-user--is-not-logged-in', 'diks-user--is-logged-in');
+				}
+			}
+
+			var showMenuLinksForLoggedOutUser = function() {
+				var linksElement = document.querySelector('#diks-sso-links');
+				if (linksElement) {
+					var loginLink = stringToHTML('<li class="diks-navigation__item"><a class="diks-navigation__link" href="/kirjaudu/?returnUrl='+encodeURIComponent(window.location.href.split('?')[0])+'">Kirjaudu</a></li>');
+					linksElement.insertBefore(loginLink, linksElement.childNodes[0]);
+				}
+			}
+
+			var showCompanyUserRelatedItems = function(companyData) {
+				var htmlElement = document.querySelector('.diks-user--is-not-company-subscriber'); // Class is set to main html element
+				var permissions = companyData?.company_permissions || [];
+				if (htmlElement && permissions.length) {
+					htmlElement.classList.replace('diks-user--is-not-company-subscriber', 'diks-user--is-company-subscriber');
+				}
+			}
+
+			document.addEventListener("DOMContentLoaded", async function() {
+				try {
+					const data = await JankkoSSOClient.getSession();
+					if (data.company?.company_user_id) {
+						showCompanyUserRelatedItems(data.company);
+					}
+					if (data.personal?.personal_user_id) {
+						showUserRelatedItems(data.personal);
+					} else {
+						showMenuLinksForLoggedOutUser();
+					}
+				} catch (error) {
+					showMenuLinksForLoggedOutUser();
+				}
+			});
+		}
+	}());
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// NAVIGATIONS
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	// Toggle icon inside a toggler
+	function toggleTogglerIcon(toggler) {
+		togglerIcons = toggler.querySelectorAll('.diks-icon');
+		if ( togglerIcons.length > 1 ) {
+			for (var j= 0; j < togglerIcons.length; j++) {
+				togglerIcons[j].classList.toggle('diks-icon--hidden');
+			}
+		}
+	}
+
+	// Function for closing all dropdown navigations
+	function closeAllDropdownNavigations() {
+		closeMainDropdownNavigation();
+		closeUserDropdownNavigation();
+	}
+
+	// Close main nav or user nav if hidden screen reader only close navigation button is clicked
+	let closeDropdownMainNav = document.getElementById('diks-close-dropdown-main-nav');
+	let closeDropdownUserNav = document.getElementById('diks-close-dropdown-user-nav');
+	if ( closeDropdownMainNav ) {
+		closeDropdownMainNav.addEventListener('click', function(e) {
+			closeMainDropdownNavigation();
+		});
+	}
+	if ( closeDropdownUserNav ) {
+		closeDropdownUserNav.addEventListener('click', function(e) {
+			e.stopPropagation();
+			closeUserDropdownNavigation();
+		});
+	}
+
+	// Trap focus inside opened dropdown navigation
+	document.addEventListener('keydown', function(event) {
+		// Initialize variables
+		var ssoLinks = document.getElementById('diks-sso-links');
+		var linksUserNav = "";
+		var firstElUserNav = "";
+		var lastElUserNav = "";
+		var mainDropdownLastNavLinks = document.getElementById('dropdown-customer-nav'); // Last navigation element inside of main dropdown navigation
+		var linksMainDropdownNav = "";
+		var firstElMainDropdownNav = ""
+		var lastElMainDropdownNav = "";
+
+		// Set user nav variable values if SSO links exist
+		if (ssoLinks) {
+			linksUserNav = ssoLinks.querySelectorAll('.diks-navigation__link');
+			firstElUserNav = document.getElementById('diks-close-dropdown-user-nav');
+			lastElUserNav = linksUserNav[linksUserNav.length - 1];
+		}
+
+		// Set main dropdown nav variable values if main dropdown last nav links exist
+		if (mainDropdownLastNavLinks) {
+			linksMainDropdownNav = mainDropdownLastNavLinks.querySelectorAll('.diks-navigation__link');
+			firstElMainDropdownNav = document.getElementById('diks-close-dropdown-main-nav');
+			lastElMainDropdownNav = linksMainDropdownNav[linksMainDropdownNav.length - 1];
+		}
+
+		// If darkmode-toggler is found set it as the last element of main dropdown nav
+		if ( document.getElementById('diks-darkmode-toggler') ) {
+			lastElMainDropdownNav = document.getElementById('diks-darkmode-toggler');
+		}
+
+		// Close all dropdown navigations & reposition fixed header when ESC key is pressed
+		if (event.key === "Escape" || event.key == "Esc") {
+			closeAllDropdownNavigations();
+		}
+		// Trap focus inside user navigation and/or main dropdown navigation when they are open
+		if (event.keyCode === 9) {
+			if (event.shiftKey && (document.activeElement === firstElUserNav || document.activeElement === firstElMainDropdownNav)) {
+				event.preventDefault();
+				if (document.activeElement === firstElUserNav) {
+					lastElUserNav.focus();
+				}
+				else if ( document.activeElement === firstElMainDropdownNav ) {
+					lastElMainDropdownNav.focus();
+				}
+			}
+			else if (!event.shiftKey && (document.activeElement === lastElUserNav || document.activeElement === lastElMainDropdownNav)) {
+				event.preventDefault();
+				if (document.activeElement === lastElUserNav) {
+					firstElUserNav.focus();
+				}
+				else if ( document.activeElement === lastElMainDropdownNav ) {
+					firstElMainDropdownNav.focus();
+				}
+			}
+		}
+	});
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// User navigation
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	let userDropdownNavigation = document.getElementById('diks-user-navigation'); // user dropdown navigation
+	let userDropdownNavigationToggler = document.getElementById('diks-sso-user'); // user dropdown navigation toggler button (opens and closes user dropdown navigation)
+	let userDropdownNavigationCloseButton = document.getElementById('diks-close-dropdown-main-nav'); // Hidden screen-reader-only close button inside user dropdown navigation
+
+	// Close user dropdown navigation if hidden screen-reader-only close button is clicked
+	if ( userDropdownNavigationCloseButton ) {
+		userDropdownNavigationCloseButton.addEventListener('click', function(e) {
+			closeUserDropdownNavigation();
+		});
+	}
+
+	function closeUserDropdownNavigation() {
+		if (userDropdownNavigation) {
+			if (userDropdownNavigation.classList.contains('diks-user-navigation--is-open')) {
+				// Close user dropdown nav by removing --is-open class
+				userDropdownNavigation.classList.remove('diks-user-navigation--is-open');
+				// Remove --is-open class from user dropdown navigation toggler
+				userDropdownNavigationToggler.classList.remove('diks-dropdown-toggle--is-open');
+				// Toggle icon
+				toggleTogglerIcon(userDropdownNavigationToggler);
+
+				// Set aria-expanded to false for user dropdown toggler
+				userDropdownNavigationToggler.setAttribute('aria-expanded', 'false');
+			}
+		}
+	}
+
+	// User Navigation Dropdown
+	if (userDropdownNavigation) {
+		let userDropdownNavigationAriaControls = userDropdownNavigationToggler.getAttribute('data-diks-toggle'); // aria-controls value for user dropown navigation toggler
+		userDropdownNavigationToggler.setAttribute('aria-controls', userDropdownNavigationAriaControls);
+		userDropdownNavigationToggler.addEventListener('click', function(e) {
+			e.preventDefault();
+			// If the main dropdown navigation is already open (contains --is-open class) close it
+			if ( (userDropdownNavigation).classList.contains('diks-user-navigation--is-open') ) {
+				closeUserDropdownNavigation();
+			}
+			// If the main dropdown navigation isn't open (doesn't contain --is-open class) open it
+			else {
+				// If other toggles are open, close them
+				document.querySelectorAll('.diks-user-navigation--is-open').forEach(function(item) {
+					item.classList.remove('diks-user-navigation--is-open');
+					userDropdownNavigationToggler.classList.remove('diks-dropdown-toggler--is-open');
+				});
+
+				// Toggle icon
+				toggleTogglerIcon(userDropdownNavigationToggler);
+
+				// Set aria-expanded
+				userDropdownNavigationToggler.setAttribute('aria-expanded', 'true');
+
+				// Open this toggle
+				userDropdownNavigation.classList.add('diks-user-navigation--is-open');
+
+				// Close main dropdown navigation if it's open
+				closeMainDropdownNavigation();
+
+				// Add event listener to window when user nav toggler is clicked and user nav is open
+				window.addEventListener('click', function(e){
+					if (document.querySelector('.diks-user-navigation-wrapper').contains(e.target)){
+						// Clicked inside user nav, do nothing
+					}
+					else {
+						// Clicked outside user nav, close user nav
+						closeUserDropdownNavigation();
+					}
+				});
+
+			}
+		});
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// Main navigation
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	let mainDropdownNavigation = document.getElementById('diks-dropdown-navigation'); // main dropdown navigation
+	let mainDropdownNavigationToggler = document.getElementById('diks-dropdown-toggle'); // main dropdown navigation toggler button (opens and closes main dropdown navigation)
+	let mainDropdownNavigationShade = document.querySelector('.diks-dropdown-navigation-shade'); // shade effect that is visible when main dropdown navigation is open
+	let mainDropdownNavigationCloseButton = document.getElementById('diks-close-dropdown-main-nav'); // Hidden screen-reader-only close button inside main dropdown navigation
+
+	// Close main dropdown navigation if hidden screen-reader-only close button is clicked
+	if ( mainDropdownNavigationCloseButton ) {
+		mainDropdownNavigationCloseButton.addEventListener('click', function(e) {
+			closeMainDropdownNavigation();
+		});
+	}
+
+	// Function for closing main dropdown navigation
+	function closeMainDropdownNavigation() {
+		// Main dropdown navigation
+		if (mainDropdownNavigation) {
+			if (mainDropdownNavigation.classList.contains('diks-dropdown-navigation--is-open')) {
+				// Close main dropdown nav by removing --is-open class
+				mainDropdownNavigation.classList.remove('diks-dropdown-navigation--is-open');
+				// Remove --is-open class from main dropdown navigation toggler
+				mainDropdownNavigationToggler.classList.remove('diks-dropdown-toggle--is-open');
+				// Toggle icon
+				toggleTogglerIcon(mainDropdownNavigationToggler);
+
+				// Set aria-expanded to false for main dropdown toggler
+				mainDropdownNavigationToggler.setAttribute('aria-expanded', 'false');
+
+				// Remove --is-open class from body
+				document.body.classList.remove('diks-body--dropdown-navigation-is-open');
+
+				// Turn off shade effect
+				mainDropdownNavigationShade.classList.remove('diks-dropdown-navigation-shade--is-visible');
+			}
+		}
+	}
+
+
+	// Main Navigation Dropdown
+	if (mainDropdownNavigation) {
+		let mainDropdownNavigationAriaControls = mainDropdownNavigationToggler.getAttribute('data-toggle'); // aria-controls value for main dropown navigation toggler
+		mainDropdownNavigationToggler.setAttribute('aria-controls', mainDropdownNavigationAriaControls);
+		mainDropdownNavigationToggler.addEventListener('click', function(e) {
+			e.preventDefault();
+			// If the main dropdown navigation is already open (contains --is-open class) close it
+			if ( (mainDropdownNavigation).classList.contains('diks-dropdown-navigation--is-open') ) {
+				closeMainDropdownNavigation();
+			}
+			// If the main dropdown navigation isn't open (doesn't contain --is-open class) open it
+			else {
+				// If other toggles are open, close them
+				document.querySelectorAll('.diks-dropdown-navigation--is-open').forEach(function(item) {
+					item.classList.remove('diks-dropdown-navigation--is-open');
+					mainDropdownNavigationToggler.classList.remove('diks-dropdown-toggler--is-open');
+				});
+
+				// Toggle icon
+				toggleTogglerIcon(mainDropdownNavigationToggler);
+
+				// Set aria-expanded
+				mainDropdownNavigationToggler.setAttribute('aria-expanded', 'true');
+
+				// Open this toggle
+				mainDropdownNavigation.classList.add('diks-dropdown-navigation--is-open');
+				// Add is-open class to body
+				document.body.classList.add('diks-body--dropdown-navigation-is-open');
+				// Turn on shade effect
+				mainDropdownNavigationShade.classList.add('diks-dropdown-navigation-shade--is-visible');
+
+				// Close main Dropdown Navigation when visible shade area is clicked
+				document.querySelector('.diks-dropdown-navigation-shade--is-visible').addEventListener('click', function(e) {
+					closeMainDropdownNavigation();
+				});
+
+				// Close user dropdown navigation if it's open
+				closeUserDropdownNavigation();
+
+			}
+		});
+	}
+
+	let frontpageLogoContainer = document.querySelector('.diks-header__logo-container--frontpage'); // Frontpage logo container
+	let mainLogo = document.querySelector('.diks-header__main-logo-link'); // Main header logo hyperlink
+
+	// Hide/show header logo on frontpage when scrolled down/up on the page
+	if ( frontpageLogoContainer ) {
+		mainLogo.classList.add('diks-header__main-logo-link--hidden');
+		if (screen && screen.width > 767) {
+			var waypointFrontpageLogoContainer = new Waypoint({
+				element: frontpageLogoContainer,
+				handler: function() {
+					if (mainLogo.classList.contains("diks-header__main-logo-link--hidden")) {
+						mainLogo.classList.remove("diks-header__main-logo-link--hidden");
+					} else {
+						mainLogo.classList.add("diks-header__main-logo-link--hidden");
+					}
+				}
+			});
+		}
+	}
+
+</script>
+<div id="article-header" class="diks-header diks-header--article diks-header--is-fixed">
+	<div class="diks-header-wrapper">
+		<div class="diks-container diks-container--header">
+			<div class="diks-header-container">
+				<div class="diks-header__left"><div class="diks-header__cta-container">
+							<a class="diks-header__cta-link js-diks-back-button" href="/"><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M11.707 5.70711L10.2928 4.29289L2.58569 12L10.2928 19.7071L11.707 18.2929L6.41412 13L20 13V11L6.41412 11L11.707 5.70711Z" clip-rule="evenodd"/>
+</svg>
+</span> <span class="diks-header__cta-text">Etusivulle</span></a>
+						</div></div>
+				<div class="diks-header__right"><div class="diks-header__right-item diks-header__right-item--order-button">
+							<a class="diks-button diks-button--primary diks-button--size-m diks-hide-from-subscribers " href="/tilaa/">Tilaa</a>
+							</div><div class="diks-header__right-item diks-header__right-item--share-button"><div class="diks-dropdown diks-dropdown--share " ><button class="diks-dropdown__toggler js-diks-toggler " href="#jakopainike" data-diks-toggle="jakopainike" data-diks-toggle-class="diks-dropdown__content" aria-label="Näytä jutun jakomahdollisuudet"><span class="diks-icon diks-icon--color-base" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17 5C15.8954 5 15 5.89543 15 7C15 8.10457 15.8954 9 17 9C18.1046 9 19 8.10457 19 7C19 5.89543 18.1046 5 17 5ZM13 7C13 4.79086 14.7909 3 17 3C19.2091 3 21 4.79086 21 7C21 9.20914 19.2091 11 17 11C15.6148 11 14.3941 10.2959 13.6762 9.22607L9.87377 10.9992C9.95617 11.319 10 11.6544 10 12C10 12.443 9.928 12.8691 9.79506 13.2674L13.53 15.009C14.2203 13.8084 15.5157 13 17 13C19.2091 13 21 14.7909 21 17C21 19.2091 19.2091 21 17 21C14.7909 21 13 19.2091 13 17C13 16.9895 13 16.9791 13.0001 16.9687L8.69117 14.9594C7.98063 15.6059 7.03634 16 6 16C3.79086 16 2 14.2091 2 12C2 9.79086 3.79086 8 6 8C7.14196 8 8.17215 8.47854 8.90098 9.24602L13.0133 7.32842C13.0045 7.22011 13 7.11058 13 7ZM6 10C4.89543 10 4 10.8954 4 12C4 13.1046 4.89543 14 6 14C7.10457 14 8 13.1046 8 12C8 10.8954 7.10457 10 6 10ZM17 15C15.8954 15 15 15.8954 15 17C15 18.1046 15.8954 19 17 19C18.1046 19 19 18.1046 19 17C19 15.8954 18.1046 15 17 15Z" clip-rule="evenodd"/>
+</svg>
+</span> </button>
+
+		<div id="jakopainike" class="diks-dropdown__content">
+			<ul class="diks-share diks-share--dropdown"><li class="diks-share__item">
+					<a class="diks-share__item-link "  aria-label="Jaa Facebookissa" href="https://www.facebook.com/sharer/sharer.php?u=https://www.ksml.fi/paikalliset/8924414" target="_blank"><span class="diks-icon diks-icon--color-inverse" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path d="M17.302 8.377a.376.376 0 00-.277-.127h-2.828V7.192c0-.21.045-.45.383-.45h2.25a.315.315 0 00.262-.112.352.352 0 00.105-.255v-3A.375.375 0 0016.822 3h-3.247c-3.6 0-3.878 3.075-3.878 4.013V8.25H7.822a.375.375 0 00-.375.375v3a.375.375 0 00.375.375h1.875v8.625a.375.375 0 00.375.375h3.75a.375.375 0 00.375-.375V12h2.513a.375.375 0 00.375-.338l.307-3a.353.353 0 00-.09-.285z"/>
+</svg>
+</span> Facebook</a>
+				</li><li class="diks-share__item">
+					<a class="diks-share__item-link "  aria-label="Jaa X:ssä" href="https://twitter.com/intent/tweet?text=&amp;url=https://www.ksml.fi/paikalliset/8924414" target="_blank"><span class="diks-icon diks-icon--color-inverse" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M13.1445 9.25282L19.0442 3H21L20.9916 3.00923L14.0139 10.4068L20.4023 18.8858C20.5647 19.1012 20.5911 19.39 20.4708 19.6314C20.3581 19.8573 20.135 20.0054 19.8857 20.0234H15.8852C15.6813 20.0087 15.4927 19.9066 15.3686 19.742L10.8731 13.7754L5.00784 20.0234H3L10.0037 12.6214L3.61532 4.14237C3.45301 3.92695 3.4265 3.63824 3.54687 3.39686C3.66723 3.15546 3.91376 3.00291 4.18349 3.00291H8.08088C8.30425 3.00291 8.51464 3.10782 8.64905 3.28622L13.1445 9.25282ZM12.5457 10.8225C12.5256 10.799 12.5072 10.7745 12.4905 10.7492L7.72617 4.42568H5.61016L16.2914 18.6026H18.4075L12.5457 10.8225Z" clip-rule="evenodd"/>
+</svg>
+</span> X</a>
+				</li><li class="diks-share__item">
+					<a class="diks-share__item-link "  aria-label="Jaa WhatsAppissa" href="https://wa.me/?text=https://www.ksml.fi/paikalliset/8924414" target="_blank"><span class="diks-icon diks-icon--color-inverse" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path d="M11.998 2.896a9.097 9.097 0 00-9.097 9.03 8.893 8.893 0 001.622 5.132L3.492 20.09a.387.387 0 00.09.387.379.379 0 00.388.091l3.176-1.008a9.052 9.052 0 104.852-16.664zm5.458 12.676a2.957 2.957 0 01-2.653 1.585 8.197 8.197 0 01-2.623-.759 10.522 10.522 0 01-4.503-3.912c-1.456-1.918-1.516-3.714-.13-5.2a1.675 1.675 0 011.457-.425 1.16 1.16 0 01.91.667l.295.698.478 1.145a.834.834 0 010 .758c-.194.385-.45.736-.759 1.038a9.73 9.73 0 001.365 1.623c.61.534 1.311.955 2.07 1.243.212-.28.621-.758.758-.97a.758.758 0 011.016-.266c.288.099 1.903.895 1.903.895.206.067.386.197.515.371a1.516 1.516 0 01-.099 1.509z"/>
+</svg>
+</span> WhatsApp</a>
+				</li><li class="diks-share__item">
+					<a class="diks-share__item-link "  aria-label="Jaa LinkedInissä" href="https://www.linkedin.com/sharing/share-offsite/?url=https://www.ksml.fi/paikalliset/8924414" target="_blank"><span class="diks-icon diks-icon--color-inverse" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M5.554 7.286A2.143 2.143 0 103.43 5.143a2.134 2.134 0 002.125 2.143zM7.286 9H3.857a.429.429 0 00-.428.429V20.57c0 .237.191.429.428.429h3.429a.429.429 0 00.428-.429V9.43A.429.429 0 007.286 9zm12.857 12H17.57a.428.428 0 01-.428-.429v-6.428a2.143 2.143 0 00-4.286 0v6.428a.429.429 0 01-.428.429H9.857a.428.428 0 01-.428-.429V9.43A.429.429 0 019.857 9h2.572a.429.429 0 01.428.429.343.343 0 00.223.317.334.334 0 00.386-.077A3.618 3.618 0 0116.19 8.57c2.555 0 4.38 1.569 4.38 4.8v7.2a.428.428 0 01-.428.429z" clip-rule="evenodd"/>
+</svg>
+</span> LinkedIn</a>
+				</li><li class="diks-share__item">
+					<a class="diks-share__item-link js-diks-share-clipboard" data-diks-dropdown-id="jakopainike" aria-label="Kopioi linkki" href="#" target="_blank"><span class="diks-icon diks-icon--color-inverse" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M2 7h9v2H4v6h7v2H2V7zm18 2h-7V7h9v10h-9v-2h7V9zm-4 4H8v-2h8v2z" clip-rule="evenodd"/>
+</svg>
+</span> Kopioi linkki</a>
+				</li></ul>
+
+		</div>
+	</div></div></div>
+			</div>
+		</div>
+	</div>
+</div><script>
+	let mainHeader = document.getElementById('main-header'); // Main Header
+	let articleHeader = document.getElementById('article-header'); // Article Header
+	let mainHeaderHeight = mainHeader.querySelector('.diks-header-wrapper').scrollHeight; // The height of the main header
+
+	// Hide/show header logo on frontpage when scrolled down/up on the page
+	if ( mainHeader && articleHeader ) {
+		//articleHeader.classList.add('diks-header--hidden');
+		var waypointArticleHeader = new Waypoint({
+			element: mainHeader,
+			handler: function() {
+				if (articleHeader.classList.contains("diks-header--article-is-visible")) {
+					articleHeader.classList.remove("diks-header--article-is-visible");
+				} else {
+					articleHeader.classList.add("diks-header--article-is-visible");
+				}
+			},
+			offset: -(mainHeaderHeight) // when page is scrolled past the main header
+		});
+	}
+</script>
+		
+		<div class="diks-display-ad  rs_skip" aria-hidden="true">
+		<div class="diks-display-ad__unit" id="gam-ad-paraati1" >
+			<script>window.cX.callQueue.push(['invoke', function() { googletag.cmd.push(function() { googletag.display('gam-ad-paraati1'); }); }]);</script>
+		</div>
+	</div>
+	<div class="diks-container ">
+		<div class="diks-grid diks-article ">
+				<div class="diks-column diks-column--l-span-1 diks-column--xl-span-3"></div>
+				<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-10 diks-column--xl-span-10">
+					<div class="diks-meta diks-top-meta">
+						<nav aria-label="Murupolku">
+		<ul class="diks-breadcrumb"><li class="diks-breadcrumb__item"><a class="diks-breadcrumb__link" href="/">Etusivu</a></li><li class="diks-breadcrumb__item"><a class="diks-breadcrumb__link" href="https://www.ksml.fi/paikalliset/">Keski-Suomi</a></li></ul>
+	</nav><span class="diks-article__tag diks-article__tag--subscribers-only">Vain tilaajille</span></div>
+				</div>
+			</div>
+			<main id="sisalto">
+				<article class="diks-article ">
+					<div class="diks-article-top "><div class="diks-grid diks-article ">
+					<div class="diks-column diks-column--l-span-1 diks-column--xl-span-3"></div>
+					<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-10 diks-column--xl-span-10">
+						<h1 class="diks-article__headline"><span class="diks-ui-accent">Elokuva-arvio | </span>Kriitikoiden elitistiset marinat voi jättää omaan arvottomuuteensa, kun nautiskelee Kyllä isä osaa Lapissa -elokuvasta</h1>
+					</div>
+				</div><div class="diks-grid diks-article ">
+					<div class="diks-column diks-column--xl-span-1"></div>
+					<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-12 diks-column--xl-span-14"><figure class="diks-figure diks-figure--featured">
+		<a class="diks-gallery__link" href="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/FREE_1440/11074340.jpg" data-thumbnail="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/SQUARE_240/11074340.jpg" data-sub-html="Elokuvassa loppuu bensa sekä kirjamellisesti että kuvainnollisesti. Jouko Piipponen" aria-label="Katso isompi kuva">
+				<picture><source srcset="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/WEBP_FREE_1440/11074340.webp" type="image/webp"><img class="diks-figure__image" src="https://i.media.fi/incoming/8kqo0b/11074340.jpg/alternates/FREE_1440/11074340.jpg"  loading="lazy" decoding="sync" alt="">
+		</picture>
+			</a>
+					<figcaption class="diks-figure__caption">Elokuvassa loppuu bensa sekä kirjamellisesti että kuvainnollisesti. <span class="diks-figure__caption-info">Jouko Piipponen</span></figcaption></figure></div>
+				</div></div>
+					<div class="diks-grid">
+						<div class="diks-column diks-column--l-span-1 diks-column--xl-span-3"></div>
+						<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-10 diks-column--xl-span-10"><p class="diks-article__lead">Jos elokuva kerää katsojia, sen täytyy olla hyvä. Kyllä isä osaa Lapissa -elokuva on modernia rillumareita, joka tarjoaa verkkaisuutta sekä vaarattomia tilanteita.</p><div class="diks-byline ">
+		<div class="diks-byline__text-wrapper"><p class="diks-byline__author">Jussi Virratvuori</p>	<div class="diks-date ">
+		<time class="diks-date__published" datetime="2025-10-15T15:43:33+03:00">15.10.2025 15:43</time>
+
+								</div>
+</div><div class="diks-byline__image-wrapper">
+				<picture><source srcset="https://i.media.fi/incoming/gzx1on/Jussi-Virratvuori-273788.jpg/alternates/WEBP_SQUARE_240/Jussi%20Virratvuori%20%28273788%29.webp" type="image/webp"><img class="diks-byline__image" src="https://i.media.fi/incoming/gzx1on/Jussi-Virratvuori-273788.jpg/alternates/SQUARE_240/Jussi%20Virratvuori%20%28273788%29.jpg" alt="Jussi Virratvuori">
+				</picture>
+			</div></div>
+							<div class="diks-article__storyline diks-article__storyline--fade">
+																
+				
+				<p class="diks-storyline__lead-paragraph">Kyllä isä osaa Lapissa</p>											
+				
+				<p class="diks-storyline__lead-paragraph">Ohjaus Lauri Nurkse. Rooleissa: Tom Lindholm, Tuija Ernamo, Jussi Jokinen, Maiju Jokinen, Vilppu Eleinen, Sanni Haahdenmaa-Vaine ja Lada 1200.</p>											
+				
+				<p class="diks-storyline__stars">
+		<span role="img" aria-label="Arvosana: 2/5 tähteä"><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M14.523 8.528L12 .764 9.477 8.528H1.314l6.604 4.798-2.522 7.764L12 16.292l6.604 4.798-2.522-7.764 6.604-4.798h-8.163z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M14.523 8.528L12 .764 9.477 8.528H1.314l6.604 4.798-2.522 7.764L12 16.292l6.604 4.798-2.522-7.764 6.604-4.798h-8.163z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M12 .764l2.523 7.764h8.163l-6.604 4.798 2.522 7.764L12 16.292 5.396 21.09l2.522-7.764-6.604-4.798h8.163L12 .764zm0 6.472l-1.07 3.292H7.47l2.8 2.034-1.07 3.292L12 13.82l2.8 2.034-1.07-3.292 2.8-2.034h-3.46L12 7.236z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M12 .764l2.523 7.764h8.163l-6.604 4.798 2.522 7.764L12 16.292 5.396 21.09l2.522-7.764-6.604-4.798h8.163L12 .764zm0 6.472l-1.07 3.292H7.47l2.8 2.034-1.07 3.292L12 13.82l2.8 2.034-1.07-3.292 2.8-2.034h-3.46L12 7.236z" clip-rule="evenodd"/>
+</svg>
+</span><span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M12 .764l2.523 7.764h8.163l-6.604 4.798 2.522 7.764L12 16.292 5.396 21.09l2.522-7.764-6.604-4.798h8.163L12 .764zm0 6.472l-1.07 3.292H7.47l2.8 2.034-1.07 3.292L12 13.82l2.8 2.034-1.07-3.292 2.8-2.034h-3.46L12 7.236z" clip-rule="evenodd"/>
+</svg>
+</span></span>
+	</p>								
+				
+				<p>1950-luvulla Suomen kansalla oli valkokankaalla rillumarei, joka 70-luvulla muuttui spedeilyksi ja 90-luvulla Kummeliksi. Kaikkitietäväinen suuri yleisö tarvitsee ja saa aina viihteensä, sillä se on itse valmis maksamaan viihtymisestään.</p>			
+							</div>
+							<div id="diks-paywall-sticky__waypoint"></div>
+							<div class="diks-paywall  diks-paywall--sticky" id="diks-paywall">
+		<div class="diks-container">
+			<div class="diks-paywall__campaign"><h2 class="diks-paywall__headline">Haluatko lukea koko jutun?</h2><p class="diks-paywall__text">Tilaa digi ja pääset lukemaan kaikki Keskisuomalaisen sisällöt.</p><p>								<a class="diks-button diks-button--primary" href="https://sso.ksml.fi/ticket-out?redirectUrl=https%3A%2F%2Ftilaa.media.fi%2Fml%2Fmm_ke%2Fksml_verkko_paketti%3Ftc%3Dke%26utm_source%3Duutissivusto%26utm_medium%3Dmaksumuuri%26utm_campaign%3Dksml-aktivoi%26utm_content%3Dtarjous%26accountOrigin%3DKE%26returnUrl%3Dhttps%3A%2F%2Fwww.ksml.fi%2Fpaikalliset%2F8924414%26articleid%3D8924414%26cd_source_button%3Darticle_paywall%26source%3Dmaksumuuri_artikkeli%26backUrl%3Dhttps%3A%2F%2Foma.media.fi%2Fkeskisuomalainen%2Ftilaa%2F" >Tilaa 3 kk 9,90 €/kk</a>								<a class="diks-button diks-button--primary-outline" href="https://sso.ksml.fi/ticket-out?redirectUrl=https%3A%2F%2Ftilaa.media.fi%2Fml%2Fmm_mt%2Fksml_verkko_paketti%3Ftc%3Dke%26utm_source%3Duutissivusto%26utm_medium%3Dmaksumuuri%26utm_campaign%3Dksml-aktivoi%26utm_content%3Dtarjous%26accountOrigin%3DKE%26returnUrl%3Dhttps%3A%2F%2Fwww.ksml.fi%2Fpaikalliset%2F8924414%26articleid%3D8924414%26cd_source_button%3Darticle_paywall%26source%3Dmaksumuuri_artikkeli%26backUrl%3Dhttps%3A%2F%2Foma.media.fi%2Fkeskisuomalainen%2Ftilaa%2F" >Tilaa 2 kk 18 €/kk</a></p><button aria-expanded="false" aria-controls="diks-paywall__more-info" class="diks-paywall__more-info-trigger" id="diks-paywall__more-info-trigger">
+					Digitilauksen sisältö
+					<span class="diks-icon " aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M5.29297 9.70711L6.70718 8.2929L12.0001 13.5858L17.293 8.2929L18.7072 9.70711L12.0001 16.4142L5.29297 9.70711Z" clip-rule="evenodd"/>
+</svg>
+</span>
+					<span class="diks-icon diks-icon--hidden" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M18.707 14.2929L17.2928 15.7071L11.9999 10.4142L6.70703 15.7071L5.29282 14.2929L11.9999 7.58578L18.707 14.2929Z" clip-rule="evenodd"/>
+</svg>
+</span>
+				</button>
+				<div class="diks-paywall__more-info" id="diks-paywall__more-info">
+					<ul><li>KSML.fi-verkkopalvelun rajaton käyttöoikeus vuoden jokaisena päivänä</li><li>Näköislehti</li><li>SUSU digilehti</li><li>Uutissovelluksen ja päivän lehti -sovelluksen käyttöoikeus (iOS ja Android)</li><li>ESS.fi-, Karjalainen.fi- ja Savonsanomat.fi- verkkopalvelut, näköislehdet ja sovellukset - etu voimassa 31.3.2026 saakka</li><li>Lukuoikeus sinulle ja kolmelle perheenjäsenellesi</li></ul>
+				</div>
+			</div>
+		</div><div class="diks-paywall__login">
+				<div class="diks-container">
+					<p class="diks-paywall__login-text">Oletko jo tilaaja? <a class="diks-paywall__login-link" id="diks-paywall-login-link" href="/kirjaudu/">Kirjaudu</a></p>
+				</div>
+			</div></div><script>
+	// Paywall sticky marker offset value
+	var stickyMarkerOffset = "90%";
+
+	// TODO/REWRITE: Use generic toggler if possible
+	// More info element
+	var paywallMoreInfoTrigger = document.getElementById("diks-paywall__more-info-trigger");
+	// More info content
+	var paywallMoreInfoContent = document.getElementById("diks-paywall__more-info");
+	// Toggle paywall's more info content visibility
+	paywallMoreInfoTrigger.addEventListener("click", paywallToggleMoreInfo);
+
+	function paywallToggleMoreInfo() {
+		// Toggle aria-expanded attribute
+		if ( paywallMoreInfoTrigger.classList.contains("diks-paywall__more-info-trigger--open") ) {
+			paywallMoreInfoTrigger.setAttribute("aria-expanded", "false");
+		}
+		else {
+			paywallMoreInfoTrigger.setAttribute("aria-expanded", "true");
+		}
+		// Toggle paywall more info classes
+		paywallMoreInfoContent.classList.toggle("diks-paywall__more-info--open");
+		paywallMoreInfoTrigger.classList.toggle("diks-paywall__more-info-trigger--open");
+		// Toggle icon
+		children = paywallMoreInfoTrigger.querySelectorAll(".diks-icon");
+		for (var j= 0; j < children.length; j++){
+			children[j].classList.toggle("diks-icon--hidden");
+		}
+	}
+
+
+	// Specify loginLink element + add returnUrl parameter to its href
+	var loginLink = document.querySelector("#diks-paywall-login-link");
+	loginLink.href = loginLink.href + "?returnUrl="+encodeURIComponent(window.location.href.split("?")[0]);// Sticky paywall
+		// Paywall element
+		var paywallElement = document.getElementById("diks-paywall");
+		// Target element to which paywall visibility is bound to
+		var paywallTargetElement = document.getElementById("diks-paywall-sticky__waypoint");
+
+		// Handle paywall visibility (show/hide)
+		if (paywallElement && paywallTargetElement) {
+			function onPageLengthIncreased() {
+				Waypoint.refreshAll();
+			}
+
+			let lastHeight = document.documentElement.scrollHeight;
+
+			const observer = new MutationObserver(() => {
+				const newHeight = document.documentElement.scrollHeight;
+				if (newHeight > lastHeight) {
+					lastHeight = newHeight;
+					onPageLengthIncreased();
+				}
+			});
+
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true,
+				characterData: true,
+			});
+
+			var waypointPaywall = new Waypoint({
+				element: paywallTargetElement,
+				handler: function() {
+					if (paywallElement.classList.contains("diks-paywall--sticky-is-visible")) {
+						paywallElement.classList.remove("diks-paywall--sticky-is-visible");
+						// Close more info content and reset footer padding-bottom (with a timeout, so that transition is smooth)
+						setTimeout(function() {
+							paywallMoreInfoContent.classList.remove("diks-paywall__more-info--open");
+							paywallMoreInfoTrigger.classList.remove("diks-paywall__more-info-trigger--open");
+							document.querySelector(".diks-footer").style.paddingBottom = "0px";
+						}, 1000);
+					} else {
+						paywallElement.classList.add("diks-paywall--sticky-is-visible");
+						// Wait a moment for paywall to be visible so we get it's height
+						setTimeout(function() {
+							// Set padding-bottom for footer to whatever is the height of paywall
+							document.querySelector(".diks-footer").style.paddingBottom = paywallElement.offsetHeight + "px";
+						}, 1000);
+					}
+				},
+				offset: stickyMarkerOffset
+			});
+		}</script>
+
+							<aside class="diks-article__aside"><div class="diks-tags-wrapper diks-tags-wrapper--border-bottom">
+										<p class="diks-tags__text-before">Lue lisää aiheesta</p><ul class="diks-tags diks-tags--size-m"><li class="diks-tags__tag"><a class="diks-tags__tag-link" href="/aihe/Tv_ja_elokuvat"><span class="diks-icon diks-icon--size-s" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17.5859 13L4 13V11L17.5859 11L12.293 5.70711L13.7072 4.29289L21.4143 12L13.7072 19.7071L12.293 18.2929L17.5859 13Z" clip-rule="evenodd"/>
+</svg>
+</span> Tv ja elokuvat</a></li><li class="diks-tags__tag"><a class="diks-tags__tag-link" href="/aihe/Virrat"><span class="diks-icon diks-icon--size-s" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17.5859 13L4 13V11L17.5859 11L12.293 5.70711L13.7072 4.29289L21.4143 12L13.7072 19.7071L12.293 18.2929L17.5859 13Z" clip-rule="evenodd"/>
+</svg>
+</span> Virrat</a></li><li class="diks-tags__tag"><a class="diks-tags__tag-link" href="/aihe/Hotellit_ja_majoitus"><span class="diks-icon diks-icon--size-s" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17.5859 13L4 13V11L17.5859 11L12.293 5.70711L13.7072 4.29289L21.4143 12L13.7072 19.7071L12.293 18.2929L17.5859 13Z" clip-rule="evenodd"/>
+</svg>
+</span> Hotellit ja majoitus</a></li><li class="diks-tags__tag"><a class="diks-tags__tag-link" href="/aihe/Kulttuuri"><span class="diks-icon diks-icon--size-s" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17.5859 13L4 13V11L17.5859 11L12.293 5.70711L13.7072 4.29289L21.4143 12L13.7072 19.7071L12.293 18.2929L17.5859 13Z" clip-rule="evenodd"/>
+</svg>
+</span> Kulttuuri</a></li><li class="diks-tags__tag"><a class="diks-tags__tag-link" href="/aihe/N%C3%A4ytt%C3%A4m%C3%B6taide"><span class="diks-icon diks-icon--size-s" aria-hidden="true"><svg role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M17.5859 13L4 13V11L17.5859 11L12.293 5.70711L13.7072 4.29289L21.4143 12L13.7072 19.7071L12.293 18.2929L17.5859 13Z" clip-rule="evenodd"/>
+</svg>
+</span> Näyttämötaide</a></li></ul>
+									</div><div class="diks-display-ad  rs_skip" aria-hidden="true">
+		<div class="diks-display-ad__unit" id="gam-ad-mobiili1" >
+			<script>window.cX.callQueue.push(['invoke', function() { googletag.cmd.push(function() { googletag.display('gam-ad-mobiili1'); }); }]);</script>
+		</div>
+	</div>
+														
+								<div class="diks-native-ad ">
+		<div class="diks-native-ad__main-wrapper">	<p class="diks-title diks-title--size-s" >Mainos: <span class="diks-title__after-accent">Keski-Suomen Yrittäjät</span></p><div class="diks-native-ad__image-wrapper">
+				<picture><source srcset="https://www.ksml.fi/kaupalliset/jb14s3/Saari_4.jpg/alternates/WEBP_LANDSCAPE_480/Saari_4.webp 480w, https://www.ksml.fi/kaupalliset/jb14s3/Saari_4.jpg/alternates/WEBP_LANDSCAPE_720/Saari_4.webp 720w" sizes="(max-width: 504px) 480px, (max-width: 1023px) 720px, (max-width: 1279px) 480px, 720px" type="image/webp"><img src="https://www.ksml.fi/kaupalliset/jb14s3/Saari_4.jpg/alternates/LANDSCAPE_720/Saari_4.jpg" class="diks-native-ad__image" srcset="https://www.ksml.fi/kaupalliset/jb14s3/Saari_4.jpg/alternates/LANDSCAPE_480/Saari_4.jpg 480w, https://www.ksml.fi/kaupalliset/jb14s3/Saari_4.jpg/alternates/LANDSCAPE_720/Saari_4.jpg 720w" sizes="(max-width: 504px) 480px, (max-width: 1023px) 720px, (max-width: 1279px) 480px, 720px" loading="lazy" decoding="sync" alt="">
+				</picture>
+			</div>
+			<div class="diks-native-ad__content-wrapper">	<p class="diks-title diks-title--size-s" >Mainos: <span class="diks-title__after-accent">Keski-Suomen Yrittäjät</span></p><h2 class="diks-native-ad__title">
+					<a class="diks-native-ad__link" href="https://www.ksml.fi/kaupalliset/8934563">Christian Saari rakentaa ainutlaatuista konseptia karting-bisnekseen – sparrausta kehittämistyöhön KasvuKS-hankkeesta </a>
+				</h2>	<div class="diks-date ">
+		<time class="diks-date__published" datetime="2025-10-27T00:00:00+02:00">27.10.2025 0:00</time>
+
+			</div>
+</div>
+		</div>
+	</div><div class="diks-display-ad  rs_skip" aria-hidden="true">
+		<div class="diks-display-ad__unit" id="gam-ad-mobiili2" >
+			<script>window.cX.callQueue.push(['invoke', function() { googletag.cmd.push(function() { googletag.display('gam-ad-mobiili2'); }); }]);</script>
+		</div>
+	</div>
+	<div class="diks-display-ad  rs_skip" aria-hidden="true">
+		<div class="diks-display-ad__unit" id="gam-ad-jattiboksi1" >
+			<script>window.cX.callQueue.push(['invoke', function() { googletag.cmd.push(function() { googletag.display('gam-ad-jattiboksi1'); }); }]);</script>
+		</div>
+	</div>
+							</aside>
+						</div>
+					</div>
+				</article>
+			</main>
+			</div>
+
+
+					
+																																						<footer class="diks-footer"><div class="diks-container diks-container--narrow-mobile diks-container--full-width-before-l">
+			<div class="diks-footer__top">	<nav class="diks-navigation-wrapper "  aria-label="Osastovalikko"><ul class="diks-navigation diks-navigation--row diks-navigation--light diks-navigation--centered diks-navigation--mobile-row diks-navigation--draggable diks-navigation--size-xs diks-navigation--active-subtle" ><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Radio_Keskisuomalainen"draggable="false">Radio Keskisuomalaisen podcastit</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/urheilu"draggable="false">Urheilu</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/J%C3%A4%C3%A4kiekon_SM-liiga"draggable="false">Jääkiekon SM-liiga</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Talous"draggable="false">Talous</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Kulttuuri"draggable="false">Kulttuuri</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/uutissuomalainen"draggable="false">Uutissuomalainen</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/Sunnuntaisuomalainen"draggable="false">SUSU</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/paakirjoitus-mielipide"draggable="false">Pääkirjoitus &amp; mielipide</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="/aihe/asumisen-paikka"draggable="false">Asumisen paikka</a></li><li class="diks-navigation__item " ><a class="diks-navigation__link" href="https://keski-suomi.menoinfo.fi/fi-FI"draggable="false">Menoinfo</a></li></ul>
+		</nav></div>
+		</div><div class="diks-container"><div class="diks-footer__main">
+				<div class="diks-grid">
+					<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-4 diks-column--xl-span-4">
+						<p><img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/ksml.svg" class="diks-logo diks-logo--default diks-footer__main-logo--wide" alt="Keskisuomalainen"><img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/ksml-white.svg" class="diks-logo diks-logo--darkmode diks-footer__main-logo--wide" alt="Keskisuomalainen"></p>
+						<p><strong>Postiosoite:</strong> PL 159, 40101 Jyväskylä<br><strong>Käyntiosoite:</strong> Aholaidantie 3, Jyväskylä<br><strong>Päätoimittaja:</strong> Pekka Mervola</p></div>
+
+					<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-4 diks-column--xl-span-5"><div class="diks-footer__main-secondary-logos-container"><div class="diks-footer__main-secondary-logo"><a href="https://vastuullistajournalismia.fi/"><img src="https://a.ksml.fi/styles/5c3c13b9/images/logos/vastuullista-journalismia.png" alt="Vastuullisen journalismin merkki kertoo, että sitä käyttävä media on sitoutunut noudattamaan Julkisen sanan neuvoston laatimia Journalistin ohjeita."></a></div></div><div class="diks-footer__main-links-wrapper">
+		<div class="diks-column diks-column--span-2"><a class="diks-footer__main-link" href="https://www.keskisuomalainen.com/tietosuojalauseke/">Tietosuojalauseke</a><a class="diks-footer__main-link" href="javascript:window.gravitoCMP.openPreferences();">Evästevalinnat</a><a class="diks-footer__main-link" href="https://www.keskisuomalainen.com/kayttoehdot/">Käyttöehdot</a><a class="diks-footer__main-link" href="https://keskisuomalainen.com/medianvapausasetus/">Medianvapausasetus</a></div>
+		<div class="diks-column diks-column--span-2"><a class="diks-footer__main-link" href="https://oma.media.fi/keskisuomalainen/">Asiakaspalvelu</a><a class="diks-footer__main-link" href="https://www.meks.fi/mainonta/alueet/keski-suomen-media/">Mediamyynti</a><a class="diks-footer__main-link" href="https://oma.media.fi/keskisuomalainen/yhteystiedot/">Yhteystiedot</a></div>
+	</div></div>
+
+					<div class="diks-column diks-column--span-4 diks-column--m-span-8 diks-column--l-span-4 diks-column--xl-span-5">
+						<h2 class="diks-footer__main-title">Sovellus</h2><p>Sovellus sisältää tuoreet juttumme, joita ilmestyy ympäri vuorokauden vuoden jokaisena päivänä sekä näköislehtemme liitteineen sekä näköislehtien arkiston. Asenna sovellus laitteesi sovelluskaupasta.</p><div class="diks-footer__main-app-image-wrapper">
+					<a class="diks-apps__app-link diks-hide-on-android" href="https://apps.apple.com/fi/app/keskisuomalainen/id6477535063"><img class="diks-apps__app-image" src="https://a.ksml.fi/styles/5c3c13b9/images/default/appstore-badge.svg" alt="Lataa sovellus App Storesta"></a>
+					<a class="diks-apps__app-link diks-hide-on-ios" href="https://play.google.com/store/apps/details?id=fi.media.ksml"><img class="diks-apps__app-image" src="https://a.ksml.fi/styles/5c3c13b9/images/default/google-play-badge.svg" alt="Lataa sovellus Google Play -kaupasta"></a>
+				</div>
+		
+					</div>
+				</div>
+			</div><div class="diks-footer__bottom">
+				<div class="diks-footer__bottom-row"><div class="diks-footer__bottom-logo-wrapper"><a href="https://www.keskisuomalainen.com/"><img class="diks-footer__bottom-logo" src="https://a.ksml.fi/styles/5c3c13b9/images/logos/keskisuomalainen-sign.svg" alt="Keskisuomalainen Oyj"></a></div><span>Kuulumme Mediakonserni Keskisuomalaiseen</span></div>
+				<div class="diks-footer__bottom-link-farm-wrapper">
+			<p><strong>Etelä-Suomen Media</strong>: <a class='diks-footer__bottom-link-farm-item' href='https://www.aamuposti.fi/'>Aamuposti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.helsinginuutiset.fi/'>Helsingin Uutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.karkkilalainen.fi/'>Karkkilalainen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.keski-uusimaa.fi/'>Keski-Uusimaa</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lopenlehti.fi/'>Lopen Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.loviisansanomat.fi/'>Loviisan Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lansi-uusimaa.fi/'>Länsi-Uusimaa</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lansivayla.fi/'>Länsiväylä</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.mantsalanuutiset.fi/'>Mäntsälän Uutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.nurmijarvenuutiset.fi/'>Nurmijärven Uutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pyhtaanlehti.fi/'>Pyhtäänlehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sipoonsanomat.fi/'>Sipoon Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.tamperelainen.fi/'>Tamperelainen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.turkulainen.fi/'>Turkulainen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.uusimaa.fi/'>Uusimaa</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.vantaansanomat.fi/'>Vantaan Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.vihdinuutiset.fi/'>Vihdin Uutiset</a></p><p><strong>Päijänne Media</strong>: <a class='diks-footer__bottom-link-farm-item' href='https://www.ess.fi/'>Etelä-Suomen Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.forssanlehti.fi/'>Forssan Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.hankasalmensanomat.fi/'>Hankasalmen Sanomat </a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.hameensanomat.fi/'>Hämeen Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.hameensanomat.fi/kaupunkiuutiset/'>Hämeenlinnan Kaupunkiuutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.itahame.fi/'>Itä-Häme</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.kaakonkulma.fi/'>Kaakonkulma</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.kangasniemenlehti.fi/'>Kangasniemen Kunnallislehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.keski-hame.fi/'>Keski-Häme</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.keskilaakso.fi/'>Keskilaakso</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.ksml.fi/'>Keskisuomalainen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.kouvolansanomat.fi/'>Kouvolan Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.kymensanomat.fi/'>Kymen Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.laukaa-konnevesi.fi/'>Laukaa-Konnevesi</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sampolehti.fi/'>Sampo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.seutuneloset.fi/'>Seutuneloset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sisasuomenlehti.fi/'>Sisä-Suomen Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sjl.fi/'>Suur-Jyväskylän Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.uusilahti.fi/'>Uusi Lahti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.viispiikkinen.fi/'>Viispiikkinen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.viitasaarenseutu.fi/'>Viitasaaren Seutu</a></p><p><strong>Savo-Karjalan Media</strong>: <a class='diks-footer__bottom-link-farm-item' href='https://www.esaimaa.fi/'>Etelä-Saimaa</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.heinavedenlehti.fi/'>Heinäveden Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.iisalmensanomat.fi/'>Iisalmen Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.ita-savo.fi/'>Itä-Savo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.joroistenlehti.fi/'>Joroisten Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.juvanlehti.fi/'>Juvan Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.karjalainen.fi/'>Karjalainen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.heili.fi/'>Karjalan Heili</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.koillis-savo.fi/'>Koillis-Savo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lappeenrannanuutiset.fi/'>Lappeenrannan Uutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lieksanlehti.fi/'>Lieksan Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.luumaenlehti.fi/'>Luumäen Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lansisaimaa.fi/'>Länsi-Saimaan Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.lansi-savo.fi/'>Länsi-Savo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.mattijaliisa.fi/'>Matti ja Liisa</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.miilu.fi/'>Miilu</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.mikkelinkaupunkilehti.fi/'>Mikkelin Kaupunkilehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.outokummunseutu.fi/'>Outokummun Seutu</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.joutsenolehti.fi/'>Paikallislehti Joutseno</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.prsanomat.fi/'>Parikkalan-Rautjärven Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pieksamaenlehti.fi/'>Pieksämäen Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pielavesi-keitele.fi/'>Pielavesi-Keitele</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pielisjokiseutu.fi/'>Pielisjokiseutu</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pitajalainen.fi/'>Pitäjäläinen</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pitajanuutiset.fi/'>Pitäjänuutiset</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.pogostansanomat.fi/'>Pogostan Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.puruvesi.net/'>Puruvesi</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.savonsanomat.fi/'>Savon Sanomat</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sinunsavo.fi/'>Sinun Savo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.sisa-savolehti.fi/'>Sisä-Savo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.soisalonseutu.fi/'>Soisalon Seutu</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.tollotin.fi/'>Töllötin</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.uutis-jousi.fi/'>Uutis-Jousi</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.uutisvuoksi.fi/'>Uutisvuoksi</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.viikkosavo.fi/'>Viikkosavo</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.warkaudenlehti.fi/'>Warkauden Lehti</a> &bull; <a class='diks-footer__bottom-link-farm-item' href='https://www.ylakarjala.fi/'>Ylä-Karjala</a></p><p><strong>Kamua Helsinki</strong>: <a class='diks-footer__bottom-link-farm-item' href='https://www.avecmedia.fi/'>Avec</a></p>
+		</div>
+			</div></div>
+</footer>
+
+		
+					<script>
+	if (!DOMTokenList.prototype.replace) {
+		// IE Polyfill
+		DOMTokenList.prototype.replace = function (a, b) {
+			if (this.contains(a)) {
+					this.add(b);
+					this.remove(a);
+					return true;
+			}
+			return false;
+		}
+	}
+
+	document.querySelector('.diks-no-js').classList.replace('diks-no-js', 'diks-js');
+
+	// User agent sniffing is not reliable and it's going away.
+	// Use only to sprinkle a little bit of progressive enhancement on top.
+	// Dear Apple, stop lying, iPad on iOS 13 is not a Mac. You're turning into 90s Microsoft.
+	var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+	if (/android/i.test(userAgent)) {
+		document.querySelector('html').classList.add('diks-user-agent--android');
+	} else if (/iPad|iPhone|iPod/i.test(userAgent) && !window.MSStream) {
+		document.querySelector('html').classList.add('diks-user-agent--ios');
+	} else if (/macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) {
+		document.querySelector('html').classList.add('diks-user-agent--ios');
+	}
+</script>
+
+<script>
+	// Fix forEach for IE
+	if (window.NodeList && !NodeList.prototype.forEach) {
+		NodeList.prototype.forEach = Array.prototype.forEach;
+	}
+
+	// Element.closest() needs a polyfill for older browsers.
+	// While we only need the closest() functionality for mobile browsers,
+	// we don't want the code to fail even on old desktop browsers.
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Browser_compatibility
+	if (!Element.prototype.matches) {
+		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+	}
+
+	if (!Element.prototype.closest) {
+		Element.prototype.closest = function(s) {
+			var el = this;
+
+			do {
+				if (el.matches(s)) return el;
+				el = el.parentElement || el.parentNode;
+			} while (el !== null && el.nodeType === 1);
+			return null;
+		};
+	}
+
+	function setAriaExpanded(toggler, ariaExpandedValue) {
+		// Set aria-expanded attribute of dropdown toggler
+		// If the toggler contains a button, set the aria-expanded attribute for the button instead
+		if ( toggler.querySelector('button') != null ) {
+			toggler.querySelector('button').setAttribute('aria-expanded', ariaExpandedValue);
+		}
+		else {
+			toggler.setAttribute('aria-expanded', ariaExpandedValue);
+		}
+	}
+
+	function toggleElement(target, toggleClass, toggler) {
+		if (toggleClass) {
+			var isOpenClass = toggleClass + '--is-open';
+			var isClosedClass = toggleClass + '--is-closed';
+
+			if (target.classList.contains(isOpenClass)) {
+				// Close this toggle
+				target.classList.remove(isOpenClass);
+				target.classList.add(isClosedClass);
+
+				// Set aria-expanded to false for the toggler
+				setAriaExpanded(toggler, 'false');
+
+			} else if (target.classList.contains(isClosedClass)) {
+				// Open this toggle
+				target.classList.remove(isClosedClass);
+				target.classList.add(isOpenClass);
+
+				// Set aria-expanded to true for the toggler
+				setAriaExpanded(toggler, 'true');
+			} else {
+				// Open this toggle as a fallback
+				target.classList.add(isOpenClass);
+
+				// Set aria-expanded to true for the toggler
+				setAriaExpanded(toggler, 'true');
+			}
+		} else {
+			if (window.getComputedStyle(target).display !== 'none') {
+				target.style.display = 'none';
+			} else {
+				target.style.display = 'block';
+			}
+		}
+	};
+
+	document.querySelectorAll('.js-diks-toggler').forEach(function(toggler) {
+		var toggleId = toggler.getAttribute('data-diks-toggle');
+		var target = document.getElementById(toggleId);
+		var eventListenerAttached = toggler.getAttribute('data-diks-event-click');
+
+		if (target && !eventListenerAttached) {
+
+			// Set aria-controls of toggler
+			if ( toggler.querySelector('button') != null ) {
+				toggler.querySelector('button').setAttribute('aria-controls', toggleId);
+			}
+			else {
+				toggler.setAttribute('aria-controls', toggleId);
+			}
+
+			toggler.addEventListener('click', function(e) {
+				e.preventDefault();
+
+				var toggleClass = toggler.getAttribute('data-diks-toggle-class');
+
+				if (webShareAPIEnabled(toggleId)) {
+					share();
+				} else {
+					toggleElement(target, toggleClass, toggler);
+				}
+			});
+
+			toggler.setAttribute('data-diks-event-click', true);
+		}
+	});
+
+	// Web Share and Clipboard API capabilities
+
+	function webShareAPIEnabled(toggleId) {
+		const webShareAPIEnabled = true;
+		const webShareAPIDropdownShareIds = ["jaa","jakopainikkeet"];
+		const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+		return webShareAPIEnabled && webShareAPIDropdownShareIds.includes(toggleId) && isMobileDevice && navigator.share ? true : false;
+	}
+
+	function share() {
+		const metaTitleElement = document.querySelector('meta[property="og:title"]');
+		const metaDescriptionElement = document.querySelector('meta[name="description"]');
+		const metaUrlElement = document.querySelector('meta[property="og:url"]');
+		let title = '';
+		let description = '';
+		let url = document.location.href;
+
+		if (metaTitleElement && metaTitleElement.content) {
+			title = metaTitleElement.content;
+		}
+
+		if (metaDescriptionElement && metaDescriptionElement.content) {
+			description = metaDescriptionElement.content;
+		}
+
+		if (metaUrlElement && metaUrlElement.content) {
+			url = metaUrlElement.content;
+		}
+
+		navigator.share({
+			title: title,
+			text: description,
+			url: url
+		});
+	}
+
+	document.querySelectorAll('.js-diks-share-clipboard').forEach(function(element) {
+		element.addEventListener('click', function(e) {
+			e.preventDefault();
+
+			let url = document.location.href;
+			const metaUrlElement = document.querySelector('meta[property="og:url"]');
+
+			if (metaUrlElement && metaUrlElement.content) {
+				url = metaUrlElement.content;
+			}
+
+			// Copy URL to clipboard
+			navigator.clipboard.writeText(url).then(function () {
+				// Copying URL to clipboard succeeded
+				const dropdownId = element.getAttribute('data-diks-dropdown-id');
+				// Find closest dropdown toggler
+				let dropdownToggler = element.closest('.diks-dropdown').querySelector('.js-diks-toggler');
+
+				if (dropdownId) {
+					const dropdownElement = document.getElementById(dropdownId);
+
+					if (dropdownElement) {
+						// Close currently open dropdown
+						toggleElement(dropdownElement, 'diks-dropdown__content', dropdownToggler);
+					}
+
+					// Show link copied notification text
+					const notificationTextWrapperDiv = document.createElement('div');
+					const notificationTextDiv = document.createElement('div');
+					const notificationText = document.createTextNode('Linkki kopioitu leikepöydälle');
+
+					notificationTextDiv.classList.add('diks-dropdown__notification-text');
+					notificationTextDiv.appendChild(notificationText);
+					notificationTextWrapperDiv.classList.add('diks-dropdown__notification-text-wrapper');
+					notificationTextWrapperDiv.appendChild(notificationTextDiv);
+					dropdownElement.parentNode.insertBefore(notificationTextWrapperDiv, null);
+
+					setTimeout(function () {
+						notificationTextWrapperDiv.remove();
+					}, 5000);
+				}
+			});
+		});
+	});
+
+        const initContentBlockToggleButtons = () => {
+        const toggleContainers = document.querySelectorAll('[data-diks-init="toggle"]');
+        toggleContainers.forEach(container => {
+            const toggleButton = container.querySelector('.diks-toggle-button');
+            const toggleContent = container.querySelector('.diks-toggle-content-container');
+            if (toggleButton && toggleContent) {
+                toggleButton.addEventListener('click', () => {
+                    toggleElement(toggleContent, 'diks-toggle', toggleButton);
+                });
+            }
+        });
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+        initContentBlockToggleButtons();
+    });
+
+</script>
+
+<script>
+	const useDragThreshold = true;
+
+	// Horizontally scrollable & draggable navigation
+	class HorizontalScrollDragger {
+		constructor(element) {
+			this.slider = typeof element === 'string' ? document.querySelector(element) : element instanceof Element ? element : null;
+			if (this.slider === null) return console.error('HorizontalScrollDragger: Element not found');
+
+			this.isDown = false;
+			this.preventClick = false;
+			this.startX;
+			this.scrollLeft;
+
+			this.dragThreshold = 5;
+			this.dragSensitivity = 1;
+			this.dragged = false;
+
+			this.init();
+		}
+
+		init() {
+			this.slider.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+			this.slider.addEventListener('mouseleave', () => this.handleMouseLeave());
+			this.slider.addEventListener('mouseup', () => this.handleMouseUp());
+			this.slider.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+			this.slider.addEventListener('click', (e) => this.handleClick(e));
+		}
+
+		handleMouseDown(e) {
+			this.isDown = true;
+			this.slider.classList.add('diks-navigation--draggable-active');
+			this.startX = e.pageX - this.slider.offsetLeft;
+			this.scrollLeft = this.slider.scrollLeft;
+			this.preventClick = false;
+		}
+
+		handleMouseLeave() {
+			this.isDown = false;
+			this.slider.classList.remove('diks-navigation--draggable-active');
+		}
+
+		handleMouseUp() {
+			this.isDown = false;
+			this.slider.classList.remove('diks-navigation--draggable-active');
+		}
+
+		handleMouseMove(e) {
+			if (!this.isDown) return;
+
+			if ( useDragThreshold == true ) {
+				const xWithThreshold = e.pageX - this.slider.offsetLeft;
+				const delta = xWithThreshold - this.startX;
+
+				// If not yet dragging, check threshold
+				if (!this.dragged && Math.abs(delta) > this.dragThreshold) {
+					this.dragged = true;
+					this.preventClick = true;
+
+					// Reset baseline so scrolling starts smoothly from here
+					this.startX = xWithThreshold;
+					this.scrollLeft = this.slider.scrollLeft;
+				}
+
+				if (this.dragged) {
+					e.preventDefault();
+					const walkWithThreshold = (xWithThreshold - this.startX) * this.dragSensitivity; // adjust sensitivity
+					this.slider.scrollLeft = this.scrollLeft - walkWithThreshold;
+				}
+			}
+			else {
+				e.preventDefault();
+				const x = e.pageX - this.slider.offsetLeft;
+				const walk = (x - this.startX) * this.dragSensitivity; // adjust sensitivity
+				this.slider.scrollLeft = this.scrollLeft - walk;
+				this.preventClick = true;
+			}
+
+		}
+
+		handleClick(e) {
+			if ( useDragThreshold == true && this.preventClick && this.dragged ) {
+				e.preventDefault();
+			}
+			else if ( useDragThreshold == false && this.preventClick) {
+				e.preventDefault();
+			}
+		}
+	}
+
+	// Set the draggable navs (multiple) to handle their scrollbars
+	let scrollableNavs = document.querySelectorAll('.diks-navigation--draggable');
+
+	// Make draggable navigation draggable
+	if ( scrollableNavs ) {
+		scrollableNavs.forEach(function(element) {
+			new HorizontalScrollDragger(element);
+		});
+	}
+
+
+	// Handle has-scrollbars class adding and removing
+	function handleScrollableNavScrollbars(scrollableNavElement) {
+		// If scrollable area is wider (scrollWidth) than what's visible (clientWidth) the element has scrollbars
+		if ( scrollableNavElement.scrollWidth > scrollableNavElement.clientWidth ) {
+			scrollableNavElement.classList.add('diks-navigation--draggable-has-scrollbars');
+			scrollableNavElement.parentElement.classList.add('diks-navigation-wrapper--has-scrollbars');
+		}
+		// Remove the has-scrollbars class if it exists but shouldn't (element does not have scrollbars)
+		else if ( scrollableNavElement.classList.contains('diks-navigation--draggable-has-scrollbars') ) {
+			scrollableNavElement.classList.remove('diks-navigation--draggable-has-scrollbars');
+			scrollableNavElement.parentElement.classList.remove('diks-navigation-wrapper--has-scrollbars');
+		}
+	}
+
+	// If scrollable nav exists add (or remove) necessary classes
+	// "DOMContentLoaded" does not wait for styles to load and styles affect the size of the scrollable nav directly so we have to use "load" instead
+	window.addEventListener('load', (event) => {
+		if ( scrollableNavs ) {
+			scrollableNavs.forEach(function(element) {
+				handleScrollableNavScrollbars(element);
+			});
+		}
+	});
+
+	// Check if scrollable nav has scrollbar
+	window.addEventListener('resize', function(event){
+		if ( scrollableNavs ) {
+			scrollableNavs.forEach(function(element) {
+				handleScrollableNavScrollbars(element);
+			});
+		}
+	});
+</script>
+
+<script>
+	// Back button handling
+	document.querySelectorAll('a.js-diks-back-button').forEach(function(item) {
+		var referrerIsSameDomain = false;
+		// Check if referrer is found as referrer isn't always available (browser, tab, window, bookmark, privacy).
+		if (typeof(document.referrer) === 'string' && document.referrer.length > 0) {
+			// Set referrerIsSameDomain to true if referrer is in the same domain as current location hostname and referrer is not the same page as current page (window.location.href)
+			if ( document.referrer.includes(document.location.hostname) && document.referrer != window.location.href ) {
+				referrerIsSameDomain = true;
+			}
+		}
+
+		// Overwrite link with history.go, as it also remembers scroll position but only if referrer is the same domain as current location hostname
+		if (history.length > 1 && referrerIsSameDomain == true) {
+			// Set referrer as back button href to enable visual cue & opening to a new window
+			item.setAttribute('href', document.referrer);
+
+			// Set back button text
+			item.querySelector('.diks-header__cta-text').innerHTML = "Takaisin";
+			
+			var stepsToGoBack = -1;
+
+			item.addEventListener('click', function(e) {
+				e.preventDefault();
+				history.go(stepsToGoBack);
+			});
+		}
+	});
+</script>
+
+			<link rel="stylesheet" href="/theme/css/includes/lightgallery/css/lightgallery-bundle.min.css">
+	<style>.lg-sub-html { background-color: rgba(0,0,0, .6); }</style>
+	<script src="/theme/css/includes/lightgallery/lightgallery.min.js"></script>
+	<script src="/theme/css/includes/lightgallery/plugins/autoplay/lg-autoplay.min.js"></script>
+	<script src="/theme/css/includes/lightgallery/plugins/fullscreen/lg-fullscreen.min.js"></script>
+	<script src="/theme/css/includes/lightgallery/plugins/thumbnail/lg-thumbnail.min.js"></script>
+	<script src="/theme/css/includes/lightgallery/plugins/zoom/lg-zoom.min.js"></script>
+	<script>
+		// lightGallery
+		// Separate gallery for every .js-lightgallery
+		// Gallery items come from .js-lightgallery .js-lightgallery__link
+		// https://www.lightgalleryjs.com/docs/getting-started/
+		document.querySelectorAll('.js-diks-lightgallery').forEach(function(gallery) {
+			var galleryImageLinks = gallery.getElementsByClassName('diks-gallery__link');
+
+			// Thumbnails come from img inside the links, unless links specify data-thumbnail
+			var thumbnailSource = (galleryImageLinks[0].hasAttribute('data-thumbnail')) ? ('data-thumbnail') : (false);
+
+			// Adjust certain settings depending on whether the gallery has one or more images
+			var galleryHasMultipleImages = (galleryImageLinks.length > 1 ? true : false);
+
+			// Initialize
+			lightGallery(gallery, {
+				autoplay: galleryHasMultipleImages,
+				counter: galleryHasMultipleImages,
+				download: false,
+				exThumbImage: thumbnailSource,
+				hideControlOnEnd: true,
+				licenseKey: "96BAAD7E-3BF04397-BBB55AE3-6D5A2C0B",
+				loop: false,
+				plugins: [lgAutoplay, lgFullscreen, lgThumbnail, lgZoom],
+				selector: '.diks-gallery__link',
+				mobileSettings: {
+					controls: true,
+					showCloseIcon: true
+				},
+				strings: {
+					closeGallery: 'Sulje galleria',
+					toggleMaximize: 'Maksimointi',
+					previousSlide: 'Edellinen',
+					nextSlide: 'Seuraava',
+					download: 'Lataa',
+					playVideo: 'Katso video',
+					mediaLoadingFailed: 'Sisällön lataus epäonnistui',
+				},
+				autoplayPluginStrings: {
+					toggleAutoplay: 'Automaattinen toisto'
+				},
+				fullscreenPluginStrings: {
+					toggleFullscreen: 'Kokoruututila'
+				},
+				thumbnailPluginStrings: {
+					toggleThumbnails: 'Pikkukuvat'
+				},
+				zoomPluginStrings: {
+					zoomIn: 'Suurenna',
+					zoomOut: 'Pienennä',
+					viewActualSize: 'Näytä täysikokoisena'
+				}
+			});
+
+			// After closing LightGallery return focus to the image link that opened the gallery 
+			gallery.addEventListener('lgAfterClose', () => {
+				galleryImageLinks[0].focus();
+			});
+
+		});
+
+	</script>
+
+<script>
+	function loadScript(url, callback) {
+		var script = document.createElement("script");
+		script.type = "text/javascript";
+		if (script.readyState) {  // IE
+			script.onreadystatechange = function() {
+				if (script.readyState === "loaded" || script.readyState === "complete") {
+					script.onreadystatechange = null;
+					callback();
+				}
+			};
+		} else {  // Others
+			script.onload = function() {
+				callback();
+			};
+		}
+		script.src = url;
+		document.getElementsByTagName("head")[0].appendChild(script);
+	}
+	function checkAudioElements() {
+		// load audioplayer script only when audio elements are found
+		if (document.querySelector(".init-audio-player")) {
+			loadScript("https://a.ksml.fi/styles/5c3c13b9/js/audioplayer/diks-audioplayer.min.js", function() {
+				DiksAudioPlayer.init({
+					selector: '.init-audio-player',
+					stopOthersOnPlay: true,
+					enableKeystrokes: true
+				});
+			});
+		}
+	}
+	window.onload = (event) => {
+		checkAudioElements();
+	};
+</script><script>
+	// Service Worker
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', function() {
+			navigator.serviceWorker.register('/sw.js').then(
+				function(registration) {
+					console.log('PWA: Service worker registered to scope: ', registration.scope);
+				},
+				function(err) {
+					console.error('PWA: Service worker failed to register with error: ', err);
+				}
+			);
+		});
+	}
+
+	// Show installation option, hide generic fallback instructions
+	function pwaShowInstallationOption() {
+		document.querySelectorAll('.js-diks-apps-pwa-installation').forEach(function(element) {
+			element.style.display = 'block';
+		});
+		document.querySelectorAll('.js-diks-apps-pwa-instructions').forEach(function(element) {
+			element.style.display = 'none';
+		});
+	}
+
+	let deferredPrompt;
+	var dataLayer = window.dataLayer || [];
+
+	// Basic installation process
+	window.addEventListener('beforeinstallprompt', (e) => {
+		// Stash the event so it can be triggered later
+		deferredPrompt = e;
+
+		const enablePrompt = 0;
+
+		if(!enablePrompt) {
+			e.preventDefault();
+		}
+
+		// Update the UI to notify the user they can install PWA
+		pwaShowInstallationOption();
+
+		// Handle installation
+		document.querySelectorAll('.js-diks-apps-pwa-installation-button').forEach(function(button) {
+			button.addEventListener('click', (e) => {
+				// Show the prompt
+				deferredPrompt.prompt();
+
+				// Wait for user to respond
+				deferredPrompt.userChoice.then((choiceResult) => {
+					if (choiceResult.outcome === 'accepted') {
+						console.log('PWA: Installed (prompt)');
+						dataLayer.push({
+							'event': 'PWA.installation',
+							'eventData': 'success'
+						});
+					} else {
+						console.log('PWA: User dismissed installation prompt');
+						dataLayer.push({
+							'event': 'PWA.installation',
+							'eventData': 'canceled'
+						});
+					}
+					deferredPrompt = null;
+				});
+			});
+		});
+	});
+
+	// iOS installation process (show instructions modal)
+	if (!navigator.standalone) {
+		var userAgent = navigator.userAgent.toLowerCase();
+		var iPhoneUser = (/iphone/.test(userAgent));
+		var iPadUser = (/ipad/.test(userAgent) || (/macintosh/.test(userAgent) && navigator.maxTouchPoints > 1));
+		var safariUser = (/^(?!.*(brave|chrome|crios|duckduckgo|edgeios|firefox|fxios|opios|ucbrowser|yabrowser)).*safari.*$/.test(userAgent));
+
+		if (safariUser && (iPhoneUser || iPadUser)) {
+			// Update the UI to notify the user they can install PWA
+			pwaShowInstallationOption();
+
+			// Instructions
+			var modals = document.querySelectorAll('.js-diks-apps-pwa-ios-instructions').forEach(function(element) {
+				// Position on screen based on device
+				if (iPhoneUser) {
+					element.classList.add('diks-apps__pwa-ios-modal--bottom');
+				} else if (iPadUser) {
+					element.classList.add('diks-apps__pwa-ios-modal--top');
+				}
+			});
+
+			// Handle modal instructions from installation button
+			document.querySelectorAll('.js-diks-apps-pwa-installation-button').forEach(function(button) {
+				button.addEventListener('click', (e) => {
+					// Show first modal
+					document.querySelector('.js-diks-apps-pwa-ios-instructions').classList.toggle('diks-apps__pwa-ios-modal--is-visible');
+					dataLayer.push({
+						'event': 'PWA.instructions.shown',
+						'eventData': 'iOS'
+					});
+				});
+			});
+		}
+	}
+</script>
+					<script class="coral-script" src="//coral.prod.diks.fi/assets/js/count.js?v=9.3.1.3" defer></script>
+
+
+			</body>
+</html>
+
+			<script type="application/ld+json">
+		{
+			"@context": "http://schema.org",
+			"@type": "NewsArticle",
+			"isAccessibleForFree": false,
+			"isPartOf": {
+				"@type": ["CreativeWork", "Product"],
+				"name": "Keskisuomalainen",
+				"productID": "ksml.fi:showcase"
+			},
+			"publisher": {
+				"@type": "Organization",
+				"name": "Keskisuomalainen"
+			}
+		}
+	</script>
+
+	<script async src="https://accounts.google.com/gsi/client" defer></script>
+	<script async subscriptions-control="manual" src="https://news.google.com/swg/js/v1/swg.js"></script>
+	<script async src="https://news.google.com/swg/js/v1/swg-gaa.js" onload="InitGaaMetering()"></script>
+
+		<script>
+		function getCookie(name) {
+			name = name + '='
+			const decodedCookie = decodeURIComponent(document.cookie)
+			const cookies = decodedCookie.split(';')
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].trim()
+				if (cookie.indexOf(name) === 0) {
+					return cookie.substring(name.length, cookie.length)
+				}
+			}
+		}
+	</script>
+
+	<script>
+		const configShowcase = {
+			debug: Boolean(),
+			productId: 'ksml.fi',
+			ssoDomain: 'sso.ksml.fi',
+			canonicalUrl: 'https://www.ksml.fi/paikalliset/8924414',
+			subscribeUrl: 'https://sso.ksml.fi/ticket-out?redirectUrl=https%3A%2F%2Ftilaa.media.fi%2Fml%2Fmm_ke%2Fksml_verkko_paketti%3Ftc%3Dke%26utm_source%3Duutissivusto%26utm_medium%3Dmaksumuuri%26utm_campaign%3Dksml-aktivoi%26utm_content%3Dtarjous%26accountOrigin%3DKE%26returnUrl%3Dhttps%3A%2F%2Fwww.ksml.fi%2Fpaikalliset%2F8924414%26articleid%3D8924414%26cd_source_button%3Darticle_paywall%26source%3Dmaksumuuri_artikkeli%26backUrl%3Dhttps%3A%2F%2Foma.media.fi%2Fkeskisuomalainen%2Ftilaa%2F',
+			googleApiClientId: '1016551398314-go20qor3hlur65jti34aoihnqk8s6p12.apps.googleusercontent.com',
+			timestampFallback: 946684800, // 1.1.2000, for situations where we don't have a real timestamp available,
+		}
+	</script>
+
+	<script>
+		if (configShowcase.debug) {
+			window.location.hash = 'swg.debug=1'
+		}
+
+		/**
+		 * Initialize Google Article Access metering
+		 *
+		 * This function does three things:
+		 *   1) If user is a subscriber, initialize Extended Access library.
+		 *   2) If user's read permission data has been fetched from the Showcase API, initialize Extended Access library.
+		 *   3) If user's read permission data has not been fetched yet, fetch data from the Showcase API and reload the page.
+		 */
+		async function InitGaaMetering() {
+			if (!isValidShowcaseUrl() || typeof JankkoSSOClient === 'undefined') {
+				return
+			}
+
+			const sessionData = await JankkoSSOClient.getSession()
+
+			// Case 1: Showcase API was called on previous page, and now we have the data available.
+			// Grant JWT has been validated in the backend already. Client-side reads some unimportant data without validation.
+			const grantJwt = getCookie('jankko-gns-grant-jwt')
+			const grantJwtPayload = getJwtPayloadWithoutValidation(grantJwt) || {}
+			if (grantJwtPayload.pathname === window.location.pathname) {
+				const { userId, userTimestamp, showcaseEntitlement = '' } = grantJwtPayload
+				const userState = { id: userId, registrationTimestamp: userTimestamp }
+				initExtendedAccess(userState, showcaseEntitlement)
+				return
+			}
+
+			// Case 2: Company subscriber
+			const companyId = sessionData?.company?.company_user_id || ''
+			const companyTimestamp = configShowcase.timestampFallback
+			const companyPermissions = sessionData?.company?.company_permissions || []
+			if (companyId && companyTimestamp && companyPermissions.includes('paywall')) {
+				const userState = { id: companyId, registrationTimestamp: companyTimestamp, granted: true, grantReason: 'SUBSCRIBER', subscriptionTimestamp: companyTimestamp }
+				initExtendedAccess(userState)
+				return
+			}
+
+			// Case 3: Authenticated subscriber
+			const personalId = sessionData?.personal?.showcase_user_id || ''
+			const personalTimestamp = sessionData?.personal?.showcase_user_timestamp || ''
+			const personalPermissions = sessionData?.personal?.personal_permissions || []
+			if (personalId && personalTimestamp && personalPermissions.includes('paywall')) {
+				const userState = { id: personalId, registrationTimestamp: personalTimestamp, granted: true, grantReason: 'SUBSCRIBER', subscriptionTimestamp: personalTimestamp }
+				initExtendedAccess(userState)
+				return
+			}
+
+			// Case 4: Authenticated non-subscriber
+			if (personalId && personalTimestamp) {
+				await fetchShowcaseEntitlementData({ userId: personalId, userTimestamp: personalTimestamp })
+				return
+			}
+
+			// Case 5: Previous Google authentication exists
+			const jankkoGnsGoogleUserJwt = getCookie('jankko-gns-google-user-jwt')
+			if (jankkoGnsGoogleUserJwt) {
+				await fetchShowcaseEntitlementData({ jankkoGnsGoogleUserJwt })
+				return
+			}
+
+			// Case 6: Completely anonymous user, trigger Google authentication flow
+			const userState = { granted: false }
+			initExtendedAccess(userState)
+		}
+
+		// Get Showcase entitlement data from API and store it into cookie.
+		async function fetchShowcaseEntitlementData(parameters) {
+			const urlParams = new URLSearchParams(window.location.search)
+			const ssoDomain = configShowcase.ssoDomain
+			const urlObject = new URL(`https://${ssoDomain}/showcase`)
+			urlObject.searchParams.set('publicationId', configShowcase.productId || '')
+			urlObject.searchParams.set('canonicalUrl', configShowcase.canonicalUrl || '')
+			urlObject.searchParams.set('googleCredentialJwt', parameters.googleCredentialJwt || '')
+			urlObject.searchParams.set('userId', parameters.userId || '')
+			urlObject.searchParams.set('userTimestamp', parameters.userTimestamp || '')
+			urlObject.searchParams.set('jankkoGnsGoogleUserJwt', parameters.jankkoGnsGoogleUserJwt || '')
+			urlObject.searchParams.set('suffix', urlParams.get('suffix') || '')
+
+			const response = await fetch(urlObject, { method: 'GET' })
+			const responseData = await response.json()
+			if (responseData.error) {
+				console.error(responseData.error)
+				return
+			}
+
+			if (responseData.jankkoGnsGrantJwt) {
+				const oneMinute = 1000*60;
+				const expires = (new Date(Date.now() + oneMinute)).toUTCString()
+				document.cookie = `jankko-gns-grant-jwt=${responseData.jankkoGnsGrantJwt}; expires=${expires}; path=/`
+			}
+			if (responseData.jankkoGnsGoogleUserJwt) {
+				const oneYear = 365*86400*1000
+				const expires = (new Date(Date.now() + oneYear)).toUTCString()
+				document.cookie = `jankko-gns-google-user-jwt=${responseData.jankkoGnsGoogleUserJwt}; expires=${expires}; path=/`
+			}
+			location.reload()
+		}
+
+		// Initialize Extended Access library.
+		function initExtendedAccess(userState = {}, showcaseEntitlement = '') {
+			// Handler for modal "Continue with Google" button.
+			// See https://developers.google.com/news/subscribe/extended-access/integration-steps/web-implementation?feed=server-side#example-code-3
+			const registerUserPromise = new Promise(async (resolve, reject) => {
+				const user = await GaaMetering.getGaaUserPromise()
+				const googleCredentialJwt = user.credential
+				await fetchShowcaseEntitlementData({ googleCredentialJwt })
+			})
+			// Gandler for login link click inside the Google modal.
+			// See https://developers.google.com/news/subscribe/extended-access/integration-steps/web-implementation?feed=server-side#initialize-the-extended-access-library
+			const handleLoginPromise = new Promise((resolve) => {
+				GaaMetering.getLoginPromise().then(() => {
+					const loginLink = '/kirjaudu/?returnUrl='+encodeURIComponent(window.location.href)
+					window.location.replace(loginLink)
+				})
+			})
+
+			const params = {
+				userState,
+				showcaseEntitlement,
+				paywallType: 'SERVER_SIDE',
+				googleApiClientId: configShowcase.googleApiClientId,
+				allowedReferrers: [window.location.hostname],
+				showPaywall: () => { window.location.replace(configShowcase.subscribeUrl) },
+				unlockArticle: () => {}, // Required eventhough we don't use it
+				registerUserPromise,
+				handleLoginPromise,
+			}
+			console.log('Showcase: init extended access', params)
+
+			GaaMetering.init(params)
+		}
+
+		// Get JWT payload without validating the signature.
+		function getJwtPayloadWithoutValidation(jwt) {
+			if (!jwt) {
+				return {}
+			}
+			const base64Url = jwt.split(".")[1]
+			const base64 = base64Url.replace("-", "+").replace("_", "/")
+			return JSON.parse(atob(base64))
+		}
+
+		// Check if current URL is a valid Showcase URL.
+		function isValidShowcaseUrl() {
+			const urlParams = new URLSearchParams(window.location.search)
+			return (urlParams.get('gaa_at') && urlParams.get('gaa_ts') && urlParams.get('gaa_n') && urlParams.get('gaa_sig'))
+		}
+	</script>
+
+

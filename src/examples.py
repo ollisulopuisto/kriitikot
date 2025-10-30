@@ -3,7 +3,7 @@
 Esimerkki: Miten käyttää scraper-kirjastoa
 """
 
-from scraper import HSScraper, scrape_review
+from scraper import HSScraper, KSMLScraper, scrape_review
 import os
 
 
@@ -52,7 +52,7 @@ def example_2_multiple_sources():
     # Käytä yleistä funktiota joka valitsee oikean scraperin
     review = scrape_review(
         html_content,
-        source='hs',  # Voit vaihtaa lähdettä: 'il', 'yle', etc. (kun lisätään)
+        source='hs',  # Voit vaihtaa lähdettä: 'ksml', 'il', 'yle', etc.
         source_url='https://www.hs.fi/taide/art-2000011556702.html'
     )
     
@@ -60,6 +60,49 @@ def example_2_multiple_sources():
         print(f"\n✅ Parsittiin arvostelu lähteestä: {review.source_publication}")
         print(f"   Elokuva: {review.movie_title}")
         print(f"   Arvosana: {review.rating_stars}/5 ⭐")
+    
+    print()
+
+
+def example_2b_ksml_source():
+    """Esimerkki: KSML.fi arvostelun parsinta."""
+    print("=" * 60)
+    print("ESIMERKKI 2B: KSML (Keskisuomalainen) scraper")
+    print("=" * 60)
+    
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        '../tests/test_data/ksml_review_1.html'
+    )
+    
+    # Suora scraper-käyttö
+    scraper = KSMLScraper()
+    review = scraper.parse_file(test_file)
+    
+    if review:
+        print(f"\n📽️  Elokuva: {review.movie_title}")
+        print(f"✍️  Kriitikko: {review.critic_name}")
+        if review.rating_stars:
+            print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
+        else:
+            print(f"⭐ Arvosana: Ei mainittu")
+        print(f"📰 Julkaisu: {review.source_publication}")
+        
+        if review.review_text:
+            preview = review.review_text[:150] + '...' if len(review.review_text) > 150 else review.review_text
+            print(f"\n💬 Arvostelu (alku):")
+            print(f"   {preview}")
+    else:
+        print("❌ Arvostelun parsiminen epäonnistui")
+    
+    # Vaihtoehtoisesti yleisen funktion kautta:
+    print("\n🔄 Sama yleisellä scrape_review()-funktiolla:")
+    with open(test_file, 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    review2 = scrape_review(html, source='ksml', source_url='https://www.ksml.fi/paikalliset/8924414')
+    if review2:
+        print(f"   ✅ {review2.movie_title} - {review2.rating_stars}/5★")
     
     print()
 
@@ -173,6 +216,7 @@ if __name__ == '__main__':
     
     example_1_basic_usage()
     example_2_multiple_sources()
+    example_2b_ksml_source()
     example_3_to_dict()
     example_4_filter_reviews()
     example_5_adding_new_source()

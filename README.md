@@ -7,10 +7,11 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 ### ✅ Toimii nyt:
 - **Modulaarinen scraper-arkkitehtuuri**: Helppo lisätä uusia lähteitä
 - **HS.fi-scraper**: Parsii Helsingin Sanomien arvostelut
+- **KSML.fi-scraper**: Parsii Keskisuomalaisen arvostelut (tukee maksumuurin takana olevaa sisältöä)
 - **Tähtiarvioiden parsinta**: Poimii 1-5 tähden arvostelut
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: Pytest-testit scraperille
+- **Testit**: 6 pytest-testiä (HS ja KSML)
 
 ### 🚧 Työn alla / Tulossa:
 - Tietokanta (MySQL)
@@ -116,8 +117,12 @@ Jokaisella lähteellä oma scraper-luokka:
 scraper = HSScraper()
 review = scraper.parse_html(html_content)
 
+# Keskisuomalainen
+scraper = KSMLScraper()
+review = scraper.parse_html(html_content)
+
 # Yleinen funktio joka valitsee oikean scraperin
-review = scrape_review(html_content, source='hs')
+review = scrape_review(html_content, source='hs')  # tai source='ksml'
 ```
 
 ### Uuden lähteen lisääminen

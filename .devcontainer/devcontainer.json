@@ -21,7 +21,10 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"chat.tools.terminal.autoApprove": true
+				"chat.tools.terminal.autoApprove": true,
+				"chat.tools.terminal.autoApprove": {
+        			"/.*/": true
+    			},
 			}
 		}
 	}
