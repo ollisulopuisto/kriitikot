@@ -134,6 +134,15 @@ th.rating-cell:hover {
     background: rgba(139, 92, 246, 0.1);
 }
 
+th.critic-name {
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+th.critic-name:hover {
+    background: rgba(139, 92, 246, 0.1);
+}
+
 th .critic-media {
     display: block;
     font-size: 0.7em;
