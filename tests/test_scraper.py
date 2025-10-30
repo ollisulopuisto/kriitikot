@@ -2,7 +2,7 @@
 import pytest
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
-from scraper import HSScraper, KSMLScraper, ILScraper, scrape_review, Review
+from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, scrape_review, Review
 
 
 def test_hs_scraper_basic():
@@ -169,5 +169,52 @@ def test_il_via_general_function():
     assert review.source_url == 'https://www.iltalehti.fi/tv-ja-leffat/a/847c8833-444c-433c-aa05-66ab89fe0b94'
     assert review.source_publication == "Iltalehti"
     assert review.rating_stars == 2
+
+
+def test_ts_scraper_basic():
+    """
+    Testaa TS-scraperin perustoiminnallisuutta.
+    """
+    test_file = "/workspaces/kriitikot/tests/test_data/ts_review_1.html"
+    
+    scraper = TSScraper()
+    review = scraper.parse_file(test_file)
+    
+    # Varmista että saimme Review-objektin
+    assert review is not None, "TS scraper did not return a Review object"
+    assert isinstance(review, Review), "Return value is not a Review instance"
+    
+    # Tarkista kentät
+    print(f"\n=== TS Parsed Review ===")
+    print(f"Movie: {review.movie_title}")
+    print(f"Critic: {review.critic_name}")
+    print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
+    print(f"Publication: {review.source_publication}")
+    
+    # Validoi tiedot
+    assert review.critic_name == "Henri Waltter Rehnström", f"Expected critic 'Henri Waltter Rehnström', got '{review.critic_name}'"
+    assert review.source_publication == "Turun Sanomat"
+    assert review.rating_stars == 4, f"Expected rating 4/5, got {review.rating_stars}"
+    assert review.movie_title, "Movie title should not be empty"
+    assert "isä osaa" in review.movie_title.lower(), f"Movie title seems wrong: {review.movie_title}"
+
+
+def test_ts_via_general_function():
+    """
+    Testaa TS:n käyttöä yleisen scrape_review()-funktion kautta.
+    """
+    test_file = "/workspaces/kriitikot/tests/test_data/ts_review_1.html"
+    
+    with open(test_file, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    # Käytä yleistä funktiota source='ts'
+    review = scrape_review(html_content, source='ts', source_url='https://www.ts.fi/kulttuuri/6796149')
+    
+    assert review is not None
+    assert review.source_url == 'https://www.ts.fi/kulttuuri/6796149'
+    assert review.source_publication == "Turun Sanomat"
+    assert review.rating_stars == 4
+
 
 

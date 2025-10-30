@@ -2,6 +2,25 @@
 
 Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
+## [0.4.0] - 2025-10-30
+
+### ✨ Lisätty
+- **TS-scraper (Turun Sanomat)**
+  - `TSScraper`: Parsii TS.fi:n arvostelut
+  - Tuki maksumuurin takana oleville arvosteluille (curl + oikeat headerit)
+  - ★-symbolipohjainen tähtiarvioiden poiminta
+  - Meta property="article:author" -parsinta
+  - JSON-LD structured data -tuki
+  
+- **Testit**
+  - 10 automaattista testiä (HS: 4, KSML: 2, IL: 2, TS: 2)
+  - Testidata kaikille neljälle lähteelle
+
+### 🔧 Parannettu
+- `scrape_review()` tukee nyt neljää lähdettä: 'hs', 'ksml', 'il', 'ts'
+- Esimerkkiskripti päivitetty (examples.py): TS-esimerkki tulossa
+- README.md päivitetty: 4 lähdettä dokumentoitu
+
 ## [0.3.0] - 2025-10-30
 
 ### ✨ Lisätty

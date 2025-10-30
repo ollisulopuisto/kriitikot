@@ -9,10 +9,11 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 - **HS.fi-scraper**: Parsii Helsingin Sanomien arvostelut
 - **KSML.fi-scraper**: Parsii Keskisuomalaisen arvostelut (tukee maksumuurin takana olevaa sisältöä)
 - **IL.fi-scraper**: Parsii Iltalehden arvostelut (⭐-symbolit)
+- **TS.fi-scraper**: Parsii Turun Sanomien arvostelut (★-symbolit, maksumuurin takana)
 - **Tähtiarvioiden parsinta**: Poimii 1-5 tähden arvostelut
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: 8 pytest-testiä (HS, KSML, IL)
+- **Testit**: 10 pytest-testiä (HS, KSML, IL, TS)
 
 ### 🚧 Työn alla / Tulossa:
 - Tietokanta (MySQL)
