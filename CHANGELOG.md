@@ -2,6 +2,29 @@
 
 Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
+## [0.3.0] - 2025-10-30
+
+### ✨ Lisätty
+- **KSML-scraper (Keskisuomalainen)**
+  - `KSMLScraper`: Parsii KSML.fi:n arvostelut
+  - Tuki maksumuurin takana oleville arvosteluille
+  - Aria-label -pohjainen tähtiarvioiden poiminta
+  - JSON-LD structured data -parsinta
+  
+- **IL-scraper (Iltalehti)**
+  - `ILScraper`: Parsii Iltalehti.fi:n arvostelut
+  - Tuki ⭐-symbolipohjaisille arvosteluille (regex: `IL-arvio: ⭐⭐`)
+  - Automaattinen aikaleiman poisto kirjoittajan nimestä
+  
+- **Testit**
+  - 8 automaattista testiä (HS: 4, KSML: 2, IL: 2)
+  - Testidata kaikille kolmelle lähteelle
+
+### 🔧 Parannettu
+- `scrape_review()` tukee nyt kolmea lähdettä: 'hs', 'ksml', 'il'
+- Esimerkkiskripti päivitetty (examples.py): KSML + IL esimerkit
+- README.md päivitetty: 3 lähdettä dokumentoitu
+
 ## [0.2.0] - 2025-10-30
 
 ### ✨ Lisätty

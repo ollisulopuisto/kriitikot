@@ -8,10 +8,11 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 - **Modulaarinen scraper-arkkitehtuuri**: Helppo lisätä uusia lähteitä
 - **HS.fi-scraper**: Parsii Helsingin Sanomien arvostelut
 - **KSML.fi-scraper**: Parsii Keskisuomalaisen arvostelut (tukee maksumuurin takana olevaa sisältöä)
+- **IL.fi-scraper**: Parsii Iltalehden arvostelut (⭐-symbolit)
 - **Tähtiarvioiden parsinta**: Poimii 1-5 tähden arvostelut
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: 6 pytest-testiä (HS ja KSML)
+- **Testit**: 8 pytest-testiä (HS, KSML, IL)
 
 ### 🚧 Työn alla / Tulossa:
 - Tietokanta (MySQL)

@@ -3,7 +3,7 @@
 Esimerkki: Miten käyttää scraper-kirjastoa
 """
 
-from scraper import HSScraper, KSMLScraper, scrape_review
+from scraper import HSScraper, KSMLScraper, ILScraper, scrape_review
 import os
 
 
@@ -101,6 +101,49 @@ def example_2b_ksml_source():
         html = f.read()
     
     review2 = scrape_review(html, source='ksml', source_url='https://www.ksml.fi/paikalliset/8924414')
+    if review2:
+        print(f"   ✅ {review2.movie_title} - {review2.rating_stars}/5★")
+    
+    print()
+
+
+def example_2c_il_source():
+    """Esimerkki: Iltalehden arvostelun parsinta."""
+    print("=" * 60)
+    print("ESIMERKKI 2C: IL (Iltalehti) scraper")
+    print("=" * 60)
+    
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        '../tests/test_data/il_review_1.html'
+    )
+    
+    # Suora scraper-käyttö
+    scraper = ILScraper()
+    review = scraper.parse_file(test_file)
+    
+    if review:
+        print(f"\n📽️  Elokuva: {review.movie_title}")
+        print(f"✍️  Kriitikko: {review.critic_name}")
+        if review.rating_stars:
+            print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
+        else:
+            print(f"⭐ Arvosana: Ei mainittu")
+        print(f"📰 Julkaisu: {review.source_publication}")
+        
+        if review.review_text:
+            preview = review.review_text[:150] + '...' if len(review.review_text) > 150 else review.review_text
+            print(f"\n💬 Arvostelu (alku):")
+            print(f"   {preview}")
+    else:
+        print("❌ Arvostelun parsiminen epäonnistui")
+    
+    # Vaihtoehtoisesti yleisen funktion kautta:
+    print("\n🔄 Sama yleisellä scrape_review()-funktiolla:")
+    with open(test_file, 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    review2 = scrape_review(html, source='il', source_url='https://www.iltalehti.fi/tv-ja-leffat/a/847c8833')
     if review2:
         print(f"   ✅ {review2.movie_title} - {review2.rating_stars}/5★")
     
@@ -217,6 +260,7 @@ if __name__ == '__main__':
     example_1_basic_usage()
     example_2_multiple_sources()
     example_2b_ksml_source()
+    example_2c_il_source()
     example_3_to_dict()
     example_4_filter_reviews()
     example_5_adding_new_source()
