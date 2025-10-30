@@ -123,24 +123,18 @@ th.movie-col {
 
 th.movie-col:hover {
     background: #e9ecef;
+    cursor: pointer;
 }
 
 th.rating-cell {
+    background: #f8f9fa;
     user-select: none;
     transition: background-color 0.2s;
 }
 
 th.rating-cell:hover {
-    background: rgba(139, 92, 246, 0.1);
-}
-
-th.critic-name {
-    user-select: none;
-    transition: background-color 0.2s;
-}
-
-th.critic-name:hover {
-    background: rgba(139, 92, 246, 0.1);
+    background: rgba(139, 92, 246, 0.2);
+    cursor: pointer;
 }
 
 th .critic-media {
@@ -154,6 +148,11 @@ th .critic-media {
 /* Vuorottelevat taustavärit sarakkeille - parempi kontrasti */
 th:nth-child(even):not(.movie-col) {
     background: #e3f2fd;
+}
+
+th:nth-child(even):not(.movie-col):hover {
+    background: rgba(139, 92, 246, 0.2);
+    cursor: pointer;
 }
 
 td:nth-child(even) {
