@@ -7,6 +7,7 @@ Hakee uusia arvosteluja discovery-moduulilla ja tallentaa ne tietokantaan.
 from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
 from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper
+from movie_normalizer import get_canonical_title
 from typing import List, Dict
 import re
 
@@ -84,14 +85,32 @@ class DiscoveryImporter:
         return title.strip()
     
     def get_or_create_movie(self, title: str) -> Movie:
-        """Hakee tai luo elokuvan."""
+        """
+        Hakee tai luo elokuvan fuzzy matchingilla.
+        
+        Etsii ensin vastaavan elokuvan tietokannasta (90% samankaltaisuus).
+        Jos löytyy, käyttää olemassa olevaa nimeä.
+        Muuten luo uuden elokuvan.
+        """
         normalized = self.normalize_movie_title(title)
-        movie = self.session.query(Movie).filter_by(title=normalized).first()
+        
+        # Hae kaikki elokuvien nimet tietokannasta
+        existing_movies = self.session.query(Movie).all()
+        existing_titles = [m.title for m in existing_movies]
+        
+        # Etsi vastaava nimi fuzzy matchingilla (90% samankaltaisuus)
+        canonical_title = get_canonical_title(normalized, existing_titles, threshold=0.9)
+        
+        # Hae tai luo elokuva kanonisella nimellä
+        movie = self.session.query(Movie).filter_by(title=canonical_title).first()
         if not movie:
-            movie = Movie(title=normalized)
+            movie = Movie(title=canonical_title)
             self.session.add(movie)
             self.session.flush()
-            print(f"   🎬 Luotiin uusi elokuva: {normalized}")
+            print(f"   🎬 Luotiin uusi elokuva: {canonical_title}")
+        elif canonical_title != normalized:
+            # Löytyi vastaava, käytetään olemassa olevaa
+            print(f"   🔗 Yhdistetty olemassa olevaan: {canonical_title}")
         return movie
     
     def get_or_create_critic(self, name: str, media: str = None) -> Critic:

@@ -748,7 +748,23 @@ class SKScraper:
     
     def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
         """Poimii elokuvan nimen."""
-        # SK:ssa meta og:title sisältää muodon "Arvio: [Elokuva] ..."
+        # 1. PRIORITY: Etsi täsmällinen muoto artikkelin lopusta
+        # Muoto: "Ohjaaja: Elokuva. Elokuvateattereissa X.X. ★★★★★"
+        # Esim: "Andrzej Żuławski: Possession. Elokuvateattereissa 3.10."
+        
+        # Etsi kaikki <em> ja <p> tagit jotka sisältävät tähtiä
+        paragraphs = soup.find_all(['p', 'em'])
+        for p in reversed(paragraphs):  # Käy läpi lopusta alkuun
+            text = p.get_text(strip=True)
+            # Tarkista onko muotoa "Nimi: Elokuva. Elokuvateattereissa..."
+            movie_info_match = re.search(r'([A-ZÅÄÖa-zåäö\s]+):\s*([^.]+)\.\s*Elokuvateattereissa', text)
+            if movie_info_match:
+                title = movie_info_match.group(2).strip()
+                return title
+        
+        # 2. FALLBACK: Käytä og:title metatagia
+        # SK:ssa meta og:title sisältää muodon "Arvio: [Arvosana] – [Elokuva] ..."
+        # Esim: "Arvio: Neljä tähteä – Sisu 2 tarjoaa kaikkien aikojen..."
         meta_title = soup.find('meta', property='og:title')
         if meta_title and meta_title.get('content'):
             title = meta_title['content']
@@ -756,13 +772,18 @@ class SKScraper:
             # Poista "Arvio:" prefix
             title = re.sub(r'^Arvio:\s*', '', title, flags=re.I)
             
-            # Ota ensimmäinen osa ennen " on " tai " – "
-            if ' on ' in title:
-                title = title.split(' on ')[0].strip()
-            elif ' – ' in title:
-                title = title.split(' – ')[0].strip()
-            elif ' ei ' in title:
-                title = title.split(' ei ')[0].strip()
+            # Tarkista onko arvosana alussa (muoto: "Neljä tähteä – Elokuva")
+            rating_pattern = r'^(Yksi|Kaksi|Kolme|Neljä|Viisi)\s+tähteä\s*[–-]\s*'
+            title = re.sub(rating_pattern, '', title, flags=re.I)
+            
+            # Ota ensimmäinen osa ennen " on ", " – ", " ei " tai " tarjoaa "
+            for separator in [' tarjoaa ', ' on ', ' – ', ' ei ', ' kannatti ']:
+                if separator in title:
+                    title = title.split(separator)[0].strip()
+                    break
+            
+            # Poista mahdollinen "-elokuva" suffixi
+            title = re.sub(r'\s*-elokuva$', '', title, flags=re.I)
             
             return title
         
