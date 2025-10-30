@@ -228,26 +228,42 @@ class KSMLScraper:
         return None
     
     def _extract_title(self, soup: BeautifulSoup, ld_json: Optional[dict]) -> Optional[str]:
-        """Poimii otsikon."""
+        """
+        Poimii otsikon.
+        Käyttää järjestyksessä:
+        1. <meta name="description"> - KSML käyttää tätä pelkälle elokuvan nimelle
+        2. JSON-LD headline
+        3. h1
+        4. og:title
+        5. <title>
+        """
         title = None
         
-        # Yritä JSON-LD
+        # 1. <meta name="description"> - KSML:llä usein pelkkä elokuvan nimi
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc and meta_desc.get('content'):
+            desc = meta_desc['content'].strip()
+            # Jos description on lyhyt (< 50 merkkiä), se on todennäköisesti elokuvan nimi
+            if desc and len(desc) < 50 and not desc.startswith('Elokuva'):
+                return desc
+        
+        # 2. Yritä JSON-LD
         if ld_json:
             title = ld_json.get('headline') or ld_json.get('name')
         
-        # Fallback: h1
+        # 3. Fallback: h1
         if not title:
             h1 = soup.find('h1')
             if h1:
                 title = h1.get_text(strip=True)
         
-        # Fallback: meta og:title
+        # 4. Fallback: meta og:title
         if not title:
             meta_og = soup.find('meta', property='og:title')
             if meta_og and meta_og.get('content'):
                 title = meta_og['content']
         
-        # Fallback: <title>
+        # 5. Fallback: <title>
         if not title and soup.title:
             title = soup.title.string.strip() if soup.title.string else None
         
@@ -559,8 +575,22 @@ class TSScraper:
         )
     
     def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
-        """Poimii otsikon."""
-        # h1 tag
+        """
+        Poimii elokuvan nimen.
+        Käyttää järjestyksessä:
+        1. <p class="intro"> - sisältää pelkän elokuvan nimen (esim. "Bugonia.")
+        2. h1 otsikko (parsitaan verbeillä)
+        """
+        # 1. <p class="intro"> - paras lähde, sisältää puhtaan elokuvan nimen
+        intro_p = soup.find('p', class_='intro')
+        if intro_p:
+            title = intro_p.get_text(strip=True)
+            # Poista mahdollinen piste lopusta
+            title = title.rstrip('.')
+            if title:
+                return title
+        
+        # 2. h1 tag (fallback)
         h1 = soup.find('h1')
         if h1:
             title = h1.get_text(strip=True)
