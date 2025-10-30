@@ -2,7 +2,7 @@
 import pytest
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, scrape_review, Review
+from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, scrape_review, Review
 
 
 def test_hs_scraper_basic():
@@ -215,6 +215,52 @@ def test_ts_via_general_function():
     assert review.source_url == 'https://www.ts.fi/kulttuuri/6796149'
     assert review.source_publication == "Turun Sanomat"
     assert review.rating_stars == 4
+
+
+def test_sk_scraper_basic():
+    """
+    Testaa SK-scraperin perustoiminnallisuutta.
+    """
+    test_file = "/workspaces/kriitikot/tests/test_data/sk_review_1.html"
+    
+    scraper = SKScraper()
+    review = scraper.parse_file(test_file)
+    
+    # Varmista että saimme Review-objektin
+    assert review is not None, "SK scraper did not return a Review object"
+    assert isinstance(review, Review), "Return value is not a Review instance"
+    
+    # Tarkista kentät
+    print(f"\n=== SK Parsed Review ===")
+    print(f"Movie: {review.movie_title}")
+    print(f"Critic: {review.critic_name}")
+    print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
+    print(f"Publication: {review.source_publication}")
+    
+    # Validoi tiedot
+    assert review.critic_name == "Kalle Kinnunen", f"Expected critic 'Kalle Kinnunen', got '{review.critic_name}'"
+    assert review.source_publication == "Suomen Kuvalehti"
+    assert review.rating_stars == 2, f"Expected rating 2/5, got {review.rating_stars}"
+    assert review.movie_title == "Bugonia", f"Expected 'Bugonia', got '{review.movie_title}'"
+
+
+def test_sk_via_general_function():
+    """
+    Testaa SK:n käyttöä yleisen scrape_review()-funktion kautta.
+    """
+    test_file = "/workspaces/kriitikot/tests/test_data/sk_review_1.html"
+    
+    with open(test_file, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    # Käytä yleistä funktiota source='sk'
+    review = scrape_review(html_content, source='sk', source_url='https://suomenkuvalehti.fi/kulttuuri/arvio-bugonia')
+    
+    assert review is not None
+    assert review.source_url == 'https://suomenkuvalehti.fi/kulttuuri/arvio-bugonia'
+    assert review.source_publication == "Suomen Kuvalehti"
+    assert review.rating_stars == 2
+
 
 
 

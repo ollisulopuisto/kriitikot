@@ -6,21 +6,31 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 
 ### ✅ Toimii nyt:
 - **Modulaarinen scraper-arkkitehtuuri**: Helppo lisätä uusia lähteitä
-- **HS.fi-scraper**: Parsii Helsingin Sanomien arvostelut
-- **KSML.fi-scraper**: Parsii Keskisuomalaisen arvostelut (tukee maksumuurin takana olevaa sisältöä)
-- **IL.fi-scraper**: Parsii Iltalehden arvostelut (⭐-symbolit)
-- **TS.fi-scraper**: Parsii Turun Sanomien arvostelut (★-symbolit, maksumuurin takana)
-- **Tähtiarvioiden parsinta**: Poimii 1-5 tähden arvostelut
+- **5 toimivaa scraperia**:
+  - **HS.fi**: Helsingin Sanomat (JSON __NEXT_DATA__)
+  - **KSML.fi**: Keskisuomalainen (aria-label + JSON-LD, maksumuurin takana)
+  - **IL.fi**: Iltalehti (⭐-symbolit, regex "IL-arvio: ⭐⭐")
+  - **TS.fi**: Turun Sanomat (★-symbolit, maksumuurin takana)
+  - **SK.fi**: Suomen Kuvalehti (meta og:title, "[Nimi] kirjoittaa" pattern)
+- **🎯 Metascraper**: Automaattinen arvostelujen löytäminen ilman manuaalista URL-syöttöä!
+  - CategoryCrawler: Hakee kategoriasivuja (esim. SK elokuva-tag)
+  - Tunnistaa arvostelut automaattisesti ("Arvio:" prefix)
+  - Palauttaa URL-listan jatkoprosessointia varten
+- **Tähtiarvioiden parsinta**: 1-5 tähteä + suomenkieliset sanat ("neljä tähteä")
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: 10 pytest-testiä (HS, KSML, IL, TS)
+- **Testit**: 12 pytest-testiä (100% passing - HS, KSML, IL, TS, SK)
 
 ### 🚧 Työn alla / Tulossa:
-- Tietokanta (MySQL)
-- Ollama-integraatio (AI-pohjainen arvosanojen generointi)
-- Lisää lähteitä (IL, YLE, ym.)
-- Elokuvanimien normalisointi
-- HTML-taulukkogeneraattori
+- **Metascraperin laajentaminen**: Lisää HS, KSML, IL, TS kategoriasivut
+- **Tietokanta**: MySQL-integraatio arvostelujen tallennukseen
+- **Deduplication**: Tarkistus ettei samaa arvostelua skreipata kahdesti
+- **Scheduler**: APScheduler ajamaan discovery automaattisesti (esim. joka 6h)
+- **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi (ks. METASCRAPER_DESIGN.md)
+- **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
+- **Lisää lähteitä**: YLE, Episodi
+- **Elokuvanimien normalisointi**: Samaan elokuvaan liittyvät arvostelut yhteen
+- **HTML-taulukkogeneraattori**: WordPress-widget
 
 ## 🚀 Asennus ja Käyttö
 
@@ -155,7 +165,7 @@ pytest -v -s
 
 ## 💡 Esimerkkejä
 
-### Python API
+### Python API - Scraping
 ```python
 from scraper import HSScraper, scrape_review
 
@@ -165,8 +175,49 @@ review = scraper.parse_file('review.html')
 print(f"{review.movie_title}: {review.rating_stars}★")
 
 # Yleinen funktio
-review = scrape_review(html_content, source='hs')
+review = scrape_review(html_content, source='hs')  # tai 'ksml', 'il', 'ts', 'sk'
 data = review.to_dict()
+```
+
+### Python API - Discovery (Metascraper)
+```python
+from discovery import MetaScraper
+
+# Luo metascraper
+meta = MetaScraper()
+
+# Hae 10 uusinta arvostelua Suomen Kuvalehdestä
+reviews = meta.discover_new_reviews('sk', limit=10)
+
+for rev in reviews:
+    print(f"{rev['title']}")
+    print(f"  URL: {rev['url']}")
+
+# Esikatsele löydökset
+meta.preview_discoveries('sk', count=5)
+```
+
+### Yhdistä Discovery + Scraping
+```python
+from discovery import MetaScraper
+from scraper import scrape_review
+import requests
+
+meta = MetaScraper()
+reviews = meta.discover_new_reviews('sk', limit=3)
+
+for rev_meta in reviews:
+    url = rev_meta['url']
+    
+    # Hae HTML
+    html = requests.get(url).text
+    
+    # Parsii
+    review = scrape_review(html, source='sk', source_url=url)
+    
+    if review:
+        print(f"✅ {review.movie_title} - {review.rating_stars}/5★")
+        print(f"   by {review.critic_name}")
 ```
 
 ### HTTP API
@@ -180,11 +231,18 @@ curl http://localhost:5000/api/reviews/0
 
 ## 📝 Seuraavat Askeleet
 
-1. **Tietokanta**: Lisää MySQL-integraatio
-2. **Uusia lähteitä**: IL, YLE, Episodi
-3. **Ollama**: AI-pohjainen arvosanojen generointi
-4. **Scheduler**: Automaattinen ajastus
-5. **WordPress-integraatio**: HTML-widget
+1. **Metascraperin laajentaminen**: Lisää kategoriasivut muille lähteille (HS, KSML, IL, TS)
+2. **MySQL-tietokanta**: Tallenna arvostelut pysyvästi
+3. **Deduplication**: Älä scrapaa samaa arvostelua kahdesti
+4. **APScheduler**: Ajasta discovery automaattisesti (joka 6h)
+5. **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
+6. **Ollama AI**: Generoi puuttuvia arvosanoja
+7. **WordPress-integraatio**: HTML-widget
+
+📖 **Lisää dokumentaatiota:**
+- `METASCRAPER_DESIGN.md` - Metascraperin arkkitehtuurisuunnittelu (4 eri lähestymistapaa)
+- `METASCRAPER_REPORT.md` - Toteutusraportti ja käyttöohjeet
+- `CHANGELOG.md` - Versiohistoria ja muutokset
 
 ## 🤝 Kehitysperiaatteet
 

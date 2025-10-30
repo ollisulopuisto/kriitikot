@@ -615,6 +615,117 @@ class TSScraper:
             return None
 
 
+class SKScraper:
+    """Scraper Suomen Kuvalehden elokuva-arvosteluille."""
+    
+    def __init__(self):
+        self.publication_name = 'Suomen Kuvalehti'
+    
+    def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
+        """Parsii Suomen Kuvalehden arvostelun."""
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        title = self._extract_title(soup)
+        author = self._extract_author(html_content, soup)
+        rating = self._extract_rating(html_content, soup)
+        review_text = self._extract_review_text(soup)
+        
+        if not title:
+            return None
+        
+        return Review(
+            movie_title=title,
+            critic_name=author or 'Unknown',
+            rating_stars=rating,
+            review_text=review_text,
+            source_url=source_url,
+            source_publication=self.publication_name,
+            raw_data={}
+        )
+    
+    def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii elokuvan nimen."""
+        # SK:ssa meta og:title sisältää muodon "Arvio: [Elokuva] ..."
+        meta_title = soup.find('meta', property='og:title')
+        if meta_title and meta_title.get('content'):
+            title = meta_title['content']
+            
+            # Poista "Arvio:" prefix
+            title = re.sub(r'^Arvio:\s*', '', title, flags=re.I)
+            
+            # Ota ensimmäinen osa ennen " on " tai " – "
+            if ' on ' in title:
+                title = title.split(' on ')[0].strip()
+            elif ' – ' in title:
+                title = title.split(' – ')[0].strip()
+            elif ' ei ' in title:
+                title = title.split(' ei ')[0].strip()
+            
+            return title
+        
+        return None
+    
+    def _extract_author(self, html_content: str, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii kriitikon nimen."""
+        # SK käyttää muotoa "[Nimi] kirjoittaa" tekstissä
+        author_pattern = re.search(r'([A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+)\s+kirjoittaa', html_content)
+        if author_pattern:
+            return author_pattern.group(1)
+        
+        return None
+    
+    def _extract_rating(self, html_content: str, soup: BeautifulSoup) -> Optional[int]:
+        """Poimii tähtiarvion (1-5)."""
+        # 1. Etsi ★-symbolit HTML:stä
+        stars_match = re.search(r'(★{1,5})', html_content)
+        if stars_match:
+            return len(stars_match.group(1))
+        
+        # 2. Etsi sanallinen muoto meta og:title:stä
+        # "Neljä tähteä", "Viisi tähteä" jne.
+        meta_title = soup.find('meta', property='og:title')
+        if meta_title and meta_title.get('content'):
+            title = meta_title['content'].lower()
+            
+            numbers = {
+                'yksi': 1, 'kaksi': 2, 'kolme': 3, 'neljä': 4, 'viisi': 5,
+                'yhden': 1, 'kahden': 2, 'kolmen': 3, 'neljän': 4, 'viiden': 5
+            }
+            
+            for word, num in numbers.items():
+                if word in title and 'tähteä' in title or 'tähden' in title:
+                    return num
+        
+        return None
+    
+    def _extract_review_text(self, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii arvostelutekstin."""
+        # Etsi meta description
+        meta_desc = soup.find('meta', property='og:description')
+        if meta_desc and meta_desc.get('content'):
+            return meta_desc['content']
+        
+        # Fallback: ensimmäinen p-tag artikkelista
+        article = soup.find('article') or soup.find('div', class_=re.compile(r'article|content', re.I))
+        if article:
+            paragraphs = article.find_all('p')
+            for p in paragraphs:
+                text = p.get_text(strip=True)
+                if len(text) > 50:
+                    return text
+        
+        return None
+    
+    def parse_file(self, file_path: str) -> Optional[Review]:
+        """Parsii tiedostosta."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return self.parse_html(content)
+        except (IOError, OSError):
+            return None
+
+
 # Yleinen rajapinta - helppo lisätä uusia sivustoja
 def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[str] = None) -> Optional[Review]:
     """
@@ -633,6 +744,7 @@ def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[st
         'ksml': KSMLScraper(),
         'il': ILScraper(),
         'ts': TSScraper(),
+        'sk': SKScraper(),
         # Myöhemmin lisätään:
         # 'yle': YLEScraper(),
     }
