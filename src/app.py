@@ -9,7 +9,7 @@ from typing import List, Dict
 import os
 
 
-app = Flask(__name__, template_folder='../templates')
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 # Tietokantayhteys
 engine = get_engine()
