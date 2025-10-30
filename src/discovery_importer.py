@@ -228,7 +228,7 @@ class DiscoveryImporter:
         Returns:
             Dictionary: {source: imported_count}
         """
-        sources = ['ts', 'il', 'ksml', 'sk']
+        sources = ['hs', 'ts', 'il', 'ksml', 'sk']
         results = {}
         
         print("\n" + "="*60)

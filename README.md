@@ -7,29 +7,36 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
 ### ✅ Toimii nyt:
 - **Modulaarinen scraper-arkkitehtuuri**: Helppo lisätä uusia lähteitä
 - **5 toimivaa scraperia**:
-  - **HS.fi**: Helsingin Sanomat (JSON __NEXT_DATA__)
+  - **HS.fi**: Helsingin Sanomat (Next.js JSON, puhdas title extraction)
   - **KSML.fi**: Keskisuomalainen (aria-label + JSON-LD, maksumuurin takana)
   - **IL.fi**: Iltalehti (⭐-symbolit, regex "IL-arvio: ⭐⭐")
-  - **TS.fi**: Turun Sanomat (★-symbolit, maksumuurin takana)
+  - **TS.fi**: Turun Sanomat (★-symbolit, maksumuurin takana, intro-tag)
   - **SK.fi**: Suomen Kuvalehti (meta og:title, "[Nimi] kirjoittaa" pattern)
-- **🎯 Metascraper**: Automaattinen arvostelujen löytäminen ilman manuaalista URL-syöttöä!
-  - CategoryCrawler: Hakee kategoriasivuja (esim. SK elokuva-tag)
-  - Tunnistaa arvostelut automaattisesti ("Arvio:" prefix)
-  - Palauttaa URL-listan jatkoprosessointia varten
+- **🔍 Discovery-system**: Automaattinen arvostelujen löytäminen kaikista lähteistä!
+  - HS: Next.js JSON parsing (storyLogo: "Elokuva-arvio")
+  - TS: HTML category page (span "Elokuva-arvostelu")
+  - IL: JSON API embedded data
+  - KSML: Search page parsing
+  - SK: Tag-based category crawling
+- **📊 Tietokanta**: SQLite + SQLAlchemy ORM
+  - Movies, Critics, Publications, Reviews
+  - Automaattinen duplikaattien välttäminen (URL-perusteinen)
+  - 16 arvostelua tietokannassa (HS, TS, IL, KSML, SK)
+- **🤖 Eräajo-system**: Automaattinen tietokannan päivitys
+  - `batch_update.py`: Python-scripti päivityksiin
+  - `run_batch_update.sh`: Bash wrapper backupilla ja logeilla
+  - Cron/systemd -valmiit konfiguraatiot
 - **Tähtiarvioiden parsinta**: 1-5 tähteä + suomenkieliset sanat ("neljä tähteä")
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
 - **Testit**: 12 pytest-testiä (100% passing - HS, KSML, IL, TS, SK)
 
 ### 🚧 Työn alla / Tulossa:
-- **Metascraperin laajentaminen**: Lisää HS, KSML, IL, TS kategoriasivut
-- **Tietokanta**: MySQL-integraatio arvostelujen tallennukseen
-- **Deduplication**: Tarkistus ettei samaa arvostelua skreipata kahdesti
-- **Scheduler**: APScheduler ajamaan discovery automaattisesti (esim. joka 6h)
-- **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi (ks. METASCRAPER_DESIGN.md)
-- **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
-- **Lisää lähteitä**: YLE, Episodi
+- **Web UI -parannukset**: Parempi käyttöliittymä tietokannalle
 - **Elokuvanimien normalisointi**: Samaan elokuvaan liittyvät arvostelut yhteen
+- **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
+- **Lisää lähteitä**: YLE Areena, Episodi.fi
+- **RSS Feed Crawler**: Vaihtoehtoinen discovery-metodi
 - **HTML-taulukkogeneraattori**: WordPress-widget
 
 ## 🚀 Asennus ja Käyttö
@@ -90,6 +97,45 @@ autossh -M 0 -f -N -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
 ```
 
 Tunneli pysyy pystyssä ja yhdistää automaattisesti uudelleen jos yhteys katkeaa.
+
+### 4. Eräajo - Tietokannan automaattinen päivitys
+
+#### Manuaalinen käyttö
+
+```bash
+# Päivitä kaikki lähteet (5 arvostelua per lähde)
+cd src && python3 batch_update.py
+
+# Päivitä vain HS.fi, 10 arvostelua
+python3 batch_update.py --source hs --limit 10
+
+# Täysi päivitys (20 arvostelua per lähde)
+python3 batch_update.py --full
+
+# Bash wrapper (sisältää backupin ja lokituksen)
+./run_batch_update.sh daily
+./run_batch_update.sh weekly
+./run_batch_update.sh hourly
+```
+
+#### Automaattinen ajastus (Cron)
+
+```bash
+# Muokkaa crontab:
+crontab -e
+
+# Päivittäinen päivitys klo 08:00
+0 8 * * * /workspaces/kriitikot/src/run_batch_update.sh daily
+
+# Päivitys 3 kertaa päivässä
+0 8,14,20 * * * /workspaces/kriitikot/src/run_batch_update.sh hourly
+
+# Täysi päivitys viikonloppuisin
+0 10 * * 0,6 /workspaces/kriitikot/src/run_batch_update.sh weekly
+```
+
+📖 **Tarkemmat ohjeet**: Katso [ERÄAJO.md](ERÄAJO.md) systemd-timer ja muut vaihtoehdot.
+
 
 ## 📁 Projektin Rakenne
 
