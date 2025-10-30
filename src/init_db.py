@@ -70,6 +70,15 @@ def import_test_data(session):
     """Importoi testidatat tietokantaan."""
     test_data_dir = '/workspaces/kriitikot/tests/test_data'
     
+    # Oikeat URL:t kullekin arvostelulle
+    test_urls = {
+        'hs_review_1.html': 'https://www.hs.fi/kulttuuri/art-2000010864038.html',
+        'ksml_review_1.html': 'https://www.ksml.fi/paikalliset/8924414',
+        'il_review_1.html': 'https://www.iltalehti.fi/tv-ja-leffat/a/847c8833-444c-433c-aa05-66ab89fe0b94',
+        'ts_review_1.html': 'https://www.ts.fi/kulttuuri/6796149',
+        'sk_review_1.html': 'https://suomenkuvalehti.fi/kulttuuri/arvio-bugonia-on-elokuva-joka-tormayttaa-salaliittoteoriat-ja-eriarvoistumisen/',
+    }
+    
     scrapers = [
         (HSScraper(), 'hs_review_1.html', 'hs'),
         (KSMLScraper(), 'ksml_review_1.html', 'ksml'),
@@ -82,13 +91,17 @@ def import_test_data(session):
     
     for scraper, filename, pub_short_name in scrapers:
         filepath = os.path.join(test_data_dir, filename)
+        real_url = test_urls[filename]  # Käytä oikeaa URL:ia
         
         if not os.path.exists(filepath):
             print(f"⚠️  File not found: {filename}")
             continue
         
-        # Scrape review
-        review = scraper.parse_file(filepath)
+        # Scrape review - käytä oikeaa URL:ia
+        with open(filepath, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        review = scraper.parse_html(html_content, real_url)
         if not review:
             print(f"⚠️  Failed to parse: {filename}")
             continue
@@ -104,17 +117,14 @@ def import_test_data(session):
         critic = get_or_create_critic(session, review.critic_name, media=pub_short_name.upper())
         publication = get_publication(session, pub_short_name)
         
-        # Luo arvostelu
-        # Jos source_url puuttuu, luo dummy URL
-        source_url = review.source_url if review.source_url else f"https://example.com/{pub_short_name}/{filename}"
-        
+        # Luo arvostelu (käytä review.source_url joka on nyt oikea URL)
         db_review = DBReview(
             movie=movie,
             critic=critic,
             publication=publication,
             rating_stars=review.rating_stars,
             review_text=review.review_text,
-            source_url=source_url
+            source_url=review.source_url
         )
         
         session.add(db_review)
