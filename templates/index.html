@@ -177,6 +177,77 @@
             font-size: 0.9em;
         }
         
+        /* Korttinäkymä mobiilille */
+        .mobile-cards {
+            display: none;
+        }
+        
+        .movie-card {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .movie-card-header {
+            background: #f8f9fa;
+            padding: 16px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .movie-card-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #212529;
+        }
+        
+        .movie-card-body {
+            padding: 12px;
+        }
+        
+        .review-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.15s;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .review-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .review-rating {
+            flex-shrink: 0;
+            margin-right: 16px;
+            font-size: 1.2em;
+            color: #f39c12;
+            letter-spacing: 1px;
+            min-width: 100px;
+        }
+        
+        .review-critic {
+            flex-grow: 1;
+            color: #495057;
+            font-size: 0.95em;
+        }
+        
+        .review-critic-name {
+            font-weight: 500;
+            color: #212529;
+        }
+        
+        .review-media {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-left: 4px;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.5em;
@@ -186,9 +257,14 @@
                 flex-wrap: wrap;
             }
             
-            th, td {
-                padding: 12px 8px;
-                font-size: 0.85em;
+            /* Piilota taulukko mobiililla */
+            .table-wrapper {
+                display: none;
+            }
+            
+            /* Näytä kortit mobiililla */
+            .mobile-cards {
+                display: block;
             }
         }
     </style>
@@ -215,6 +291,7 @@
         </header>
         
         {% if grouped_reviews %}
+        <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -259,6 +336,46 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Mobile: Korttinäkymä -->
+        <div class="mobile-cards">
+            {% for movie_title, critics_reviews in grouped_reviews.items() %}
+            <div class="movie-card">
+                <div class="movie-card-header">
+                    <div class="movie-card-title">🎬 {{ movie_title }}</div>
+                </div>
+                <div class="movie-card-body">
+                    {% for critic in all_critics %}
+                        {% if critic.name in critics_reviews %}
+                            {% set review = critics_reviews[critic.name] %}
+                            <div class="review-item">
+                                <div class="review-rating">
+                                    {% if review.rating_stars %}
+                                        {% if review.source_url %}
+                                        {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                                        <a href="{{ review.source_url }}" target="_blank" style="text-decoration: none; color: inherit;" title="{{ tooltip_text }}...">
+                                            {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
+                                        </a>
+                                        {% else %}
+                                            {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: #adb5bd; font-size: 0.85em;">Ei arvosanaa</span>
+                                    {% endif %}
+                                </div>
+                                <div class="review-critic">
+                                    <span class="review-critic-name">{{ critic.name }}</span>
+                                    {% if critic.media %}
+                                    <span class="review-media">/ {{ critic.media }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
         </div>
         {% else %}
         <div class="empty-state">
