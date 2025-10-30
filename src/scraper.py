@@ -259,9 +259,31 @@ class KSMLScraper:
                 # Ota viimeinen osa (varsinainen elokuvan nimi)
                 title = parts[-1].strip()
             
+            # Poista "-ohjaajan" tai "-elokuvan" tyylinen teksti
+            # Esim: "The Hurt Locker -ohjaajan A House of Dynamite" -> "A House of Dynamite"
+            match = re.search(r'^.+?-(ohjaajan|elokuvan|tähden)\s+(.+)$', title)
+            if match:
+                title = match.group(2).strip()
+            
+            # Poista verbi-kuvaukset samalla tavalla kuin TS-scraperissa
+            verb_patterns = [
+                r'^(.+?)\s+(on|tarjoaa|kertoo|vie)\s+.*',
+            ]
+            for pattern in verb_patterns:
+                match = re.search(pattern, title)
+                if match:
+                    first_part = match.group(1).strip()
+                    if len(first_part) < 80 and '.' not in first_part:
+                        title = first_part
+                        break
+            
             # Rajoita pituutta jos otsikko on epätavallisen pitkä
-            if len(title) > 200:
-                title = title[:200] + '...'
+            if len(title) > 100:
+                title = title[:100]
+                # Etsi viimeinen välilyönti
+                last_space = title.rfind(' ')
+                if last_space > 50:
+                    title = title[:last_space]
         
         return title
     
@@ -294,12 +316,17 @@ class KSMLScraper:
             if author_elem:
                 author = author_elem.get_text(strip=True)
         
-        # Puhdista: poista aikaleima jos mukana (esim. "Nimi15.10.2025 15:43")
+        # Puhdista: poista aikaleima jos mukana
         if author:
-            # Etsi ensimmäinen numero-piste-numero (päivämäärän alku)
-            match = re.search(r'^(.+?)(\d{1,2}\.\d{1,2}\.\d{4})', author)
-            if match:
-                author = match.group(1).strip()
+            # Poista "Tänään HH:MM" muoto
+            author = re.sub(r'Tänään\s+\d{1,2}:\d{2}$', '', author)
+            # Poista "Eilen HH:MM" muoto
+            author = re.sub(r'Eilen\s+\d{1,2}:\d{2}$', '', author)
+            # Poista "PP.KK.VVVV HH:MM" muoto
+            author = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}\s+\d{1,2}:\d{2}$', '', author)
+            # Poista pelkkä "HH:MM" jos esiintyy lopussa
+            author = re.sub(r'\s+\d{1,2}:\d{2}$', '', author)
+            author = author.strip()
         
         return author
     
@@ -403,6 +430,11 @@ class ILScraper:
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """Parsii Iltalehden arvostelun."""
         soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # VALIDOINTI: Varmista että otsikossa on "IL-arvio"
+        h1 = soup.find('h1')
+        if not h1 or 'IL-arvio' not in h1.get_text():
+            return None  # Ei ole IL-arvio, vaan joku muu juttu
         
         # Iltalehti käyttää yksinkertaista rakennetta
         title = self._extract_title(soup)
@@ -535,6 +567,22 @@ class TSScraper:
             
             # Poista "Elokuva-arvostelu |" tai vastaavat prefixit
             title = re.sub(r'^Elokuva-arvostelu\s*\|\s*', '', title, flags=re.I)
+            
+            # Poista kriitikon nimi jos se on otsikossa
+            # Esim: "Emma Stone tekee loistoroolin..." -> ota vain ennen verbiä
+            # Etsitään pattern: "[Nimi] tekee|on|olisi|vie|tarjoaa [kuvaus]"
+            verb_patterns = [
+                r'^(.+?)\s+(tekee|on|olisi|vie|tarjoaa|kertoo)\s+.*',
+            ]
+            for pattern in verb_patterns:
+                match = re.search(pattern, title)
+                if match:
+                    # Tarkista onko ensimmäinen osa lyhyt (todennäköisesti elokuvan nimi)
+                    first_part = match.group(1).strip()
+                    # Jos alle 50 merkkiä ja ei piste, todennäköisesti elokuvan nimi
+                    if len(first_part) < 50 and '.' not in first_part:
+                        title = first_part
+                        break
             
             return title
         
