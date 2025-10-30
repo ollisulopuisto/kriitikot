@@ -1,0 +1,141 @@
+"""
+Suomen Kuvalehti (SK.fi) movie review scraper.
+"""
+
+import json
+import re
+from typing import Optional
+from bs4 import BeautifulSoup
+from .base import Review
+
+
+class SKScraper:
+    """Scraper Suomen Kuvalehden elokuva-arvosteluille."""
+    
+    def __init__(self):
+        self.publication_name = 'Suomen Kuvalehti'
+    
+    def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
+        """Parsii Suomen Kuvalehden arvostelun."""
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        title = self._extract_title(soup)
+        author = self._extract_author(html_content, soup)
+        rating = self._extract_rating(html_content, soup)
+        review_text = self._extract_review_text(soup)
+        
+        if not title:
+            return None
+        
+        return Review(
+            movie_title=title,
+            critic_name=author or 'Unknown',
+            rating_stars=rating,
+            review_text=review_text,
+            source_url=source_url,
+            source_publication=self.publication_name,
+            raw_data={}
+        )
+    
+    def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii elokuvan nimen."""
+        # 1. PRIORITY: Etsi täsmällinen muoto artikkelin lopusta
+        # Muoto: "Ohjaaja: Elokuva. Elokuvateattereissa X.X. ★★★★★"
+        # Esim: "Andrzej Żuławski: Possession. Elokuvateattereissa 3.10."
+        
+        # Etsi kaikki <em> ja <p> tagit jotka sisältävät tähtiä
+        paragraphs = soup.find_all(['p', 'em'])
+        for p in reversed(paragraphs):  # Käy läpi lopusta alkuun
+            text = p.get_text(strip=True)
+            # Tarkista onko muotoa "Nimi: Elokuva. Elokuvateattereissa..."
+            movie_info_match = re.search(r'([A-ZÅÄÖa-zåäö\s]+):\s*([^.]+)\.\s*Elokuvateattereissa', text)
+            if movie_info_match:
+                title = movie_info_match.group(2).strip()
+                return title
+        
+        # 2. FALLBACK: Käytä og:title metatagia
+        # SK:ssa meta og:title sisältää muodon "Arvio: [Arvosana] – [Elokuva] ..."
+        # Esim: "Arvio: Neljä tähteä – Sisu 2 tarjoaa kaikkien aikojen..."
+        meta_title = soup.find('meta', property='og:title')
+        if meta_title and meta_title.get('content'):
+            title = meta_title['content']
+            
+            # Poista "Arvio:" prefix
+            title = re.sub(r'^Arvio:\s*', '', title, flags=re.I)
+            
+            # Tarkista onko arvosana alussa (muoto: "Neljä tähteä – Elokuva")
+            rating_pattern = r'^(Yksi|Kaksi|Kolme|Neljä|Viisi)\s+tähteä\s*[–-]\s*'
+            title = re.sub(rating_pattern, '', title, flags=re.I)
+            
+            # Ota ensimmäinen osa ennen " on ", " – ", " ei " tai " tarjoaa "
+            for separator in [' tarjoaa ', ' on ', ' – ', ' ei ', ' kannatti ']:
+                if separator in title:
+                    title = title.split(separator)[0].strip()
+                    break
+            
+            # Poista mahdollinen "-elokuva" suffixi
+            title = re.sub(r'\s*-elokuva$', '', title, flags=re.I)
+            
+            return title
+        
+        return None
+    
+    def _extract_author(self, html_content: str, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii kriitikon nimen."""
+        # SK käyttää muotoa "[Nimi] kirjoittaa" tekstissä
+        author_pattern = re.search(r'([A-ZÅÄÖ][a-zåäö]+\s+[A-ZÅÄÖ][a-zåäö]+)\s+kirjoittaa', html_content)
+        if author_pattern:
+            return author_pattern.group(1)
+        
+        return None
+    
+    def _extract_rating(self, html_content: str, soup: BeautifulSoup) -> Optional[int]:
+        """Poimii tähtiarvion (1-5)."""
+        # 1. Etsi ★-symbolit HTML:stä
+        stars_match = re.search(r'(★{1,5})', html_content)
+        if stars_match:
+            return len(stars_match.group(1))
+        
+        # 2. Etsi sanallinen muoto meta og:title:stä
+        # "Neljä tähteä", "Viisi tähteä" jne.
+        meta_title = soup.find('meta', property='og:title')
+        if meta_title and meta_title.get('content'):
+            title = meta_title['content'].lower()
+            
+            numbers = {
+                'yksi': 1, 'kaksi': 2, 'kolme': 3, 'neljä': 4, 'viisi': 5,
+                'yhden': 1, 'kahden': 2, 'kolmen': 3, 'neljän': 4, 'viiden': 5
+            }
+            
+            for word, num in numbers.items():
+                if word in title and 'tähteä' in title or 'tähden' in title:
+                    return num
+        
+        return None
+    
+    def _extract_review_text(self, soup: BeautifulSoup) -> Optional[str]:
+        """Poimii arvostelutekstin."""
+        # Etsi meta description
+        meta_desc = soup.find('meta', property='og:description')
+        if meta_desc and meta_desc.get('content'):
+            return meta_desc['content']
+        
+        # Fallback: ensimmäinen p-tag artikkelista
+        article = soup.find('article') or soup.find('div', class_=re.compile(r'article|content', re.I))
+        if article:
+            paragraphs = article.find_all('p')
+            for p in paragraphs:
+                text = p.get_text(strip=True)
+                if len(text) > 50:
+                    return text
+        
+        return None
+    
+    def parse_file(self, file_path: str) -> Optional[Review]:
+        """Parsii tiedostosta."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return self.parse_html(content)
+        except (IOError, OSError):
+            return None
