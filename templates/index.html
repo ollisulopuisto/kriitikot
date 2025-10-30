@@ -33,7 +33,7 @@
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     <tr>
-                        <td class="movie-col">{{ movie_title }}</td>
+                        <td class="movie-col" title="{{ movie_title }}">{{ movie_title }}</td>
                         {% for critic in all_critics %}
                         <td class="rating-cell">
                             {% if critic.name in critics_reviews %}
@@ -158,5 +158,124 @@
             </div>
         </footer>
     </div>
+
+    <script>
+    // Ylänurkka: Aakkosta elokuvat
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('table');
+        if (!table) return;
+        
+        const topLeftCell = table.querySelector('thead th.movie-col');
+        const tbody = table.querySelector('tbody');
+        
+        let sortAscending = true;
+        
+        topLeftCell.style.cursor = 'pointer';
+        topLeftCell.title = 'Klikkaa aakkostaaksesi elokuvat';
+        
+        topLeftCell.addEventListener('click', function() {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const titleA = a.querySelector('.movie-col').textContent.trim();
+                const titleB = b.querySelector('.movie-col').textContent.trim();
+                
+                if (sortAscending) {
+                    return titleA.localeCompare(titleB, 'fi');
+                } else {
+                    return titleB.localeCompare(titleA, 'fi');
+                }
+            });
+            
+            // Päivitä järjestys
+            rows.forEach(row => tbody.appendChild(row));
+            
+            sortAscending = !sortAscending;
+            topLeftCell.textContent = sortAscending ? '▼' : '▲';
+        });
+        
+        // Elokuvanimi: Himmennä muut rivit, korostetaan tämä
+        tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
+            movieCell.style.cursor = 'pointer';
+            movieCell.title = 'Klikkaa korostaaksesi tämä elokuva';
+            
+            movieCell.addEventListener('click', function() {
+                const row = movieCell.parentElement;
+                const allRows = tbody.querySelectorAll('tr');
+                
+                // Tarkista onko jo valittu
+                const isHighlighted = row.dataset.highlighted === 'true';
+                
+                if (isHighlighted) {
+                    // Poista korostus
+                    allRows.forEach(r => {
+                        r.classList.remove('dimmed');
+                        delete r.dataset.highlighted;
+                    });
+                    movieCell.style.fontWeight = 'normal';
+                } else {
+                    // Himmennä muut rivit
+                    allRows.forEach(r => {
+                        r.classList.add('dimmed');
+                        delete r.dataset.highlighted;
+                        r.querySelector('.movie-col').style.fontWeight = 'normal';
+                    });
+                    // Korostetaan valittu
+                    row.classList.remove('dimmed');
+                    row.dataset.highlighted = 'true';
+                    movieCell.style.fontWeight = 'bold';
+                }
+            });
+        });
+        
+        // Kriitikon nimi: Himmennä muut sarakkeet, korostetaan tämä
+        const criticHeaders = table.querySelectorAll('thead th.rating-cell');
+        const thead = table.querySelector('thead tr');
+        
+        criticHeaders.forEach((criticHeader, colIndex) => {
+            criticHeader.style.cursor = 'pointer';
+            criticHeader.title = 'Klikkaa korostaaksesi tämä kriitikko';
+            
+            criticHeader.addEventListener('click', function() {
+                const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Tarkista onko jo valittu
+                const isHighlighted = criticHeader.dataset.highlighted === 'true';
+                
+                if (isHighlighted) {
+                    // Poista korostus
+                    allCriticHeaders.forEach((header, idx) => {
+                        header.classList.remove('dimmed');
+                        delete header.dataset.highlighted;
+                        
+                        tbody.querySelectorAll('tr').forEach(row => {
+                            row.querySelectorAll('.rating-cell')[idx].classList.remove('dimmed');
+                        });
+                    });
+                    criticHeader.style.backgroundColor = '';
+                } else {
+                    // Himmennä muut sarakkeet
+                    allCriticHeaders.forEach((header, idx) => {
+                        header.classList.add('dimmed');
+                        delete header.dataset.highlighted;
+                        header.style.backgroundColor = '';
+                        
+                        tbody.querySelectorAll('tr').forEach(row => {
+                            row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
+                        });
+                    });
+                    // Korostetaan valittu
+                    criticHeader.classList.remove('dimmed');
+                    criticHeader.dataset.highlighted = 'true';
+                    criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+                    
+                    tbody.querySelectorAll('tr').forEach(row => {
+                        row.querySelectorAll('.rating-cell')[colIndex].classList.remove('dimmed');
+                    });
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

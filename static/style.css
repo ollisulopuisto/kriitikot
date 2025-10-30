@@ -74,6 +74,21 @@ th.movie-col {
     background: #f8f9fa;
     z-index: 10;
     white-space: nowrap;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+th.movie-col:hover {
+    background: #e9ecef;
+}
+
+th.rating-cell {
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+th.rating-cell:hover {
+    background: rgba(139, 92, 246, 0.1);
 }
 
 th .critic-media {
@@ -120,6 +135,16 @@ td {
 }
 
 td.movie-col {
+    user-select: none;
+    transition: all 0.2s;
+}
+
+td.movie-col:hover {
+    background: #e9ecef !important;
+    cursor: pointer;
+}
+
+td.movie-col {
     font-weight: 600;
     color: #212529;
     position: sticky;
@@ -127,10 +152,37 @@ td.movie-col {
     background: white;
     border-right: 2px solid #e9ecef;
     padding: 12px 10px;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 tbody tr:hover td.movie-col {
     background: #f8f9fa;
+}
+
+/* Himmennys-efektit */
+tr.dimmed {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+th.dimmed,
+td.dimmed {
+    opacity: 0.25;
+    transition: opacity 0.3s ease;
+}
+
+tr:not(.dimmed) {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+th:not(.dimmed),
+td:not(.dimmed) {
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 .rating-cell {
