@@ -190,12 +190,16 @@ td:not(.dimmed) {
     min-width: 80px;
     max-width: 100px;
     cursor: pointer;
-    transition: background-color 0.15s;
+    transition: background-color 0.2s ease;
     padding: 8px 4px;
 }
 
-.rating-cell:hover {
-    background: #bbdefb !important;
+.rating-cell:has(.rating-stars):hover {
+    background: #f39c12 !important;
+}
+
+.rating-cell:has(.rating-stars):hover .rating-stars {
+    color: white !important;
 }
 
 .rating-link {
@@ -213,6 +217,7 @@ td:not(.dimmed) {
     font-size: 1.1em;
     letter-spacing: 1px;
     display: block;
+    transition: color 0.2s ease;
 }
 
 .no-rating {
