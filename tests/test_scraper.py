@@ -2,7 +2,7 @@
 import pytest
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, scrape_review, Review
+from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review, Review
 
 
 def test_hs_scraper_basic():
@@ -261,6 +261,28 @@ def test_sk_via_general_function():
     assert review.source_publication == "Suomen Kuvalehti"
     assert review.rating_stars == 2
 
+
+def test_is_scraper():
+    """Testaa Ilta-Sanomien scraperin toimivuuden."""
+    scraper = ISScraper()
+    result = scraper.parse_file('tests/test_data/is_review_1.html')
+    
+    # Perusvalidaatio
+    assert result is not None, "IS scraper ei palauttanut Review-objektia"
+    assert result.movie_title is not None
+    assert result.critic_name is not None
+    
+    # Elokuvan nimi
+    assert "Sisu 2" in result.movie_title or "Sisu" in result.movie_title
+    
+    # Kriitikon nimi
+    assert result.critic_name == "Taneli Topelius"
+    
+    # Arvosana
+    assert result.rating_stars == 2, f"Expected 2 stars, got {result.rating_stars}"
+    
+    # Julkaisu
+    assert result.source_publication == "Ilta-Sanomat"
 
 
 
