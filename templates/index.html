@@ -14,6 +14,13 @@
         </header>
         
         {% if grouped_reviews %}
+        <!-- Reset-nappi -->
+        <div class="reset-container">
+            <button id="reset-filters" class="reset-button" style="display: none;">
+                🔄 Näytä kaikki
+            </button>
+        </div>
+        
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
             <table>
@@ -160,6 +167,82 @@
     </div>
 
     <script>
+    // Reset-nappi
+    document.addEventListener('DOMContentLoaded', function() {
+        const resetButton = document.getElementById('reset-filters');
+        if (!resetButton) return;
+        
+        function showResetButton() {
+            resetButton.style.display = 'inline-block';
+        }
+        
+        function hideResetButton() {
+            resetButton.style.display = 'none';
+        }
+        
+        resetButton.addEventListener('click', function() {
+            // Desktop: Poista kaikki filtterit ja himmennykset
+            const table = document.querySelector('table');
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const allRows = tbody.querySelectorAll('tr');
+                const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Näytä kaikki rivit
+                allRows.forEach(row => {
+                    row.style.display = '';
+                    row.classList.remove('dimmed');
+                    delete row.dataset.filtered;
+                    const movieCell = row.querySelector('.movie-col');
+                    if (movieCell) {
+                        movieCell.style.fontWeight = 'normal';
+                    }
+                });
+                
+                // Näytä kaikki sarakkeet
+                allCriticHeaders.forEach((header, idx) => {
+                    header.style.display = '';
+                    header.classList.remove('dimmed');
+                    delete header.dataset.highlighted;
+                    delete header.dataset.filtered;
+                    header.style.backgroundColor = '';
+                    
+                    tbody.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('.rating-cell');
+                        if (cells[idx]) {
+                            cells[idx].style.display = '';
+                            cells[idx].classList.remove('dimmed');
+                        }
+                    });
+                });
+            }
+            
+            // Mobile: Poista kaikki filtterit
+            const allCards = document.querySelectorAll('.movie-card');
+            const allReviewItems = document.querySelectorAll('.review-item');
+            
+            allCards.forEach(card => {
+                card.style.display = '';
+            });
+            
+            allReviewItems.forEach(item => {
+                item.style.display = '';
+                const area = item.querySelector('.review-critic');
+                const name = item.querySelector('.review-critic-name');
+                if (area && name) {
+                    name.style.fontWeight = 'normal';
+                    name.style.color = '';
+                    delete area.dataset.filtered;
+                }
+            });
+            
+            hideResetButton();
+        });
+        
+        // Näytä nappi kun jotain filtteröidään
+        window.showResetButton = showResetButton;
+    });
+    
     // Ylänurkka: Aakkosta elokuvat
     document.addEventListener('DOMContentLoaded', function() {
         const table = document.querySelector('table');
@@ -223,6 +306,10 @@
                     });
                     delete row.dataset.filtered;
                     movieCell.style.fontWeight = 'normal';
+                    
+                    // Piilota reset-nappi kun filtteri poistetaan
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.style.display = 'none';
                 } else {
                     // Piilota sarakkeet joissa ei tähtiä tälle elokuvalle
                     ratingCells.forEach((cell, index) => {
@@ -246,6 +333,7 @@
                     
                     row.dataset.filtered = 'true';
                     movieCell.style.fontWeight = 'bold';
+                    if (window.showResetButton) window.showResetButton();
                 }
             });
         });
@@ -279,6 +367,10 @@
                             row.querySelectorAll('.rating-cell')[idx].classList.remove('dimmed');
                         });
                     });
+                    
+                    // Piilota reset-nappi kun filtteri poistetaan
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.style.display = 'none';
                 } else {
                     // Piilota rivit joissa ei tähtiä tälle kriitikolle
                     rows.forEach(row => {
@@ -305,22 +397,25 @@
                     
                     criticHeader.dataset.filtered = 'true';
                     criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+                    if (window.showResetButton) window.showResetButton();
                 }
             });
         });
         
-        // MOBILE: Kriitikon nimi - Filtteröi kortit
+        // MOBILE: Kriitikon nimi-alue - Filtteröi kortit
         const reviewItems = document.querySelectorAll('.review-item');
         
         reviewItems.forEach(reviewItem => {
+            const criticArea = reviewItem.querySelector('.review-critic');
+            if (!criticArea) return;
+            
             const criticName = reviewItem.querySelector('.review-critic-name');
-            if (!criticName) return;
             
-            criticName.style.cursor = 'pointer';
-            criticName.style.userSelect = 'none';
-            criticName.title = 'Klikkaa nähdäksesi vain tämän kriitikon arvostelut';
+            criticArea.style.cursor = 'pointer';
+            criticArea.style.userSelect = 'none';
+            criticArea.title = 'Klikkaa nähdäksesi vain tämän kriitikon arvostelut';
             
-            criticName.addEventListener('click', function(e) {
+            criticArea.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -329,7 +424,7 @@
                 const allReviewItems = document.querySelectorAll('.review-item');
                 
                 // Tarkista onko jo filtteröity
-                const isFiltered = criticName.dataset.filtered === 'true';
+                const isFiltered = criticArea.dataset.filtered === 'true';
                 
                 if (isFiltered) {
                     // Poista filtteri: Näytä kaikki
@@ -338,13 +433,18 @@
                     });
                     allReviewItems.forEach(item => {
                         item.style.display = '';
+                        const area = item.querySelector('.review-critic');
                         const name = item.querySelector('.review-critic-name');
-                        if (name) {
+                        if (area && name) {
                             name.style.fontWeight = 'normal';
                             name.style.color = '';
-                            delete name.dataset.filtered;
+                            delete area.dataset.filtered;
                         }
                     });
+                    
+                    // Piilota reset-nappi kun filtteri poistetaan
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.style.display = 'none';
                 } else {
                     // Aktivoi filtteri: Näytä vain valittu kriitikko
                     allCards.forEach(card => {
@@ -367,13 +467,15 @@
                     
                     // Korostetaan valitut
                     allReviewItems.forEach(item => {
+                        const area = item.querySelector('.review-critic');
                         const name = item.querySelector('.review-critic-name');
-                        if (name && item.dataset.critic === selectedCritic) {
+                        if (area && name && item.dataset.critic === selectedCritic) {
                             name.style.fontWeight = 'bold';
                             name.style.color = '#8b5cf6';
-                            name.dataset.filtered = 'true';
+                            area.dataset.filtered = 'true';
                         }
                     });
+                    if (window.showResetButton) window.showResetButton();
                 }
             });
         });
