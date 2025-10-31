@@ -24,7 +24,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@700;900&family=Bitter:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800;900&family=Bitter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
@@ -8640,7 +8640,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     delete row.dataset.filtered;
                     const movieCell = row.querySelector('.movie-col');
                     if (movieCell) {
-                        movieCell.style.fontWeight = 'normal';
+                        movieCell.classList.remove('selected');
                         hidePosterInCell(movieCell);
                     }
                 });
@@ -8652,6 +8652,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     delete header.dataset.highlighted;
                     delete header.dataset.filtered;
                     header.style.backgroundColor = '';
+                    header.classList.remove('selected');
                     
                     tbody.querySelectorAll('tr').forEach(row => {
                         const cells = row.querySelectorAll('.rating-cell');
@@ -8676,8 +8677,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const area = item.querySelector('.review-critic');
                 const name = item.querySelector('.review-critic-name');
                 if (area && name) {
-                    name.style.fontWeight = 'normal';
-                    name.style.color = '';
+                    name.classList.remove('selected');
                     delete area.dataset.filtered;
                 }
             });
@@ -8700,6 +8700,16 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
         
         // Näytä nappi kun jotain filtteröidään
         window.showResetButton = showResetButton;
+        
+        // Tee otsikosta klikattava reset-nappi
+        const headerTitle = document.querySelector('h1');
+        if (headerTitle) {
+            headerTitle.style.cursor = 'pointer';
+            headerTitle.title = 'Klikkaa nollataksesi kaikki hakufasetit';
+            headerTitle.addEventListener('click', function() {
+                resetButton.click();
+            });
+        }
     });
     
     // Poster functions
@@ -8865,7 +8875,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 });
                 
                 row.dataset.filtered = 'true';
-                movieCell.style.fontWeight = 'bold';
+                movieCell.classList.add('selected');
                 if (window.showResetButton) window.showResetButton();
                 
                 // Näytä poster nimisolussa jos saatavilla
@@ -8923,6 +8933,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 
                 criticHeader.dataset.filtered = 'true';
                 criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+                criticHeader.classList.add('selected');
                 if (window.showResetButton) window.showResetButton();
             });
         });
@@ -8982,8 +8993,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     const area = item.querySelector('.review-critic');
                     const name = item.querySelector('.review-critic-name');
                     if (area && name && item.dataset.critic === selectedCritic) {
-                        name.style.fontWeight = 'bold';
-                        name.style.color = '#8b5cf6';
+                        name.classList.add('selected');
                         area.dataset.filtered = 'true';
                     }
                 });
