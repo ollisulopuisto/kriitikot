@@ -46,6 +46,36 @@
         <div class="table-wrapper">
             <table>
                 <thead>
+                    <!-- Rivi 1: Arvioiden määrä -suodatin -->
+                    <tr class="filter-row">
+                        <th colspan="6" class="filter-header">
+                            <div class="review-count-filter-inline">
+                                <label for="min-reviews-slider">
+                                    <span class="filter-icon">🔍</span>
+                                    Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                                </label>
+                                <div class="slider-container">
+                                    <input 
+                                        type="range" 
+                                        id="min-reviews-slider" 
+                                        min="1" 
+                                        max="5" 
+                                        value="1" 
+                                        step="1"
+                                        class="slider"
+                                    >
+                                    <div class="slider-labels">
+                                        <span>1</span>
+                                        <span>2</span>
+                                        <span>3</span>
+                                        <span>4</span>
+                                        <span>5+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                    <!-- Rivi 2: Kriitikot -->
                     <tr>
                         <th class="movie-col"></th>
                         
@@ -64,7 +94,7 @@
                         </th>
                         
                         <th class="rating-cell">
-                            Jussi Ahlroth HS
+                            Jussi Ahlroth
                             
                             <span class="critic-media">HS</span>
                             
@@ -107,11 +137,6 @@
                         
                         <th class="rating-cell">
                             Mikko-Pekka Heikkinen
-                            
-                        </th>
-                        
-                        <th class="rating-cell">
-                            Mikko-Pekka Heikkinen HS
                             
                             <span class="critic-media">HS</span>
                             
@@ -203,12 +228,6 @@
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -408,12 +427,6 @@
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -571,12 +584,6 @@
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -634,12 +641,6 @@
                     
                     <tr>
                         <td class="movie-col">Sorry, Baby</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -842,12 +843,6 @@ Sorry, babyonEva Victorinkäsikirjoittama debyyttiohjaus, jossa hän vieläpä n
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -902,7 +897,20 @@ Exit 8on alunperin vuonna 2023 ilmestynyt ongelmanratkontapeli, josta tuli ilmes
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
+                                
+                                
+                                    
+                                    
+                                    <a href="https://www.hs.fi/taide/art-2000011572927.html" class="rating-link" target="_blank" title="Helsingin Sanomat: Exit 8 näyttää ja kuulostaa upealta, mutta pelin ulkopuolelta tuotu isäteema ei istu kokonaisuuteen....">
+                                    
+                                        
+                                        <span class="rating-stars">★★★☆☆</span>
+                                        
+                                    
+                                    </a>
+                                    
+                                    
+                                
                             
                         </td>
                         
@@ -975,12 +983,6 @@ Exit 8on alunperin vuonna 2023 ilmestynyt ongelmanratkontapeli, josta tuli ilmes
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -1192,12 +1194,6 @@ Eletään vuotta 1946. Taannoin päättyneessä sodassa toisena maaliin saapunut
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -1277,12 +1273,6 @@ Jalmari Helanderin uusi toimintaelokuva Sisu 2 lataa kovat piippuun tavalla, jot
                     
                     <tr>
                         <td class="movie-col">After the Hunt</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -1520,12 +1510,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -1612,12 +1596,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -1815,12 +1793,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -1889,12 +1861,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -2115,12 +2081,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -2247,22 +2207,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
                         <td class="movie-col">Täydelliset vieraat</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -2511,22 +2459,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
                         <td class="movie-col">Sorry</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -2716,12 +2652,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -2784,145 +2714,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     </tr>
                     
                     <tr>
-                        <td class="movie-col">Exit 8 (8-ban deguchi)</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                
-                                
-                                    
-                                    
-                                    <a href="https://www.hs.fi/taide/art-2000011572927.html" class="rating-link" target="_blank" title="Helsingin Sanomat: Exit 8 näyttää ja kuulostaa upealta, mutta pelin ulkopuolelta tuotu isäteema ei istu kokonaisuuteen....">
-                                    
-                                        
-                                        <span class="rating-stars">★★★☆☆</span>
-                                        
-                                    
-                                    </a>
-                                    
-                                    
-                                
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                    </tr>
-                    
-                    <tr>
                         <td class="movie-col">Black Phone 2</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -3049,12 +2841,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                     <tr>
                         <td class="movie-col">Timantit (Diamanti)</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -3303,12 +3089,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -3435,22 +3215,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
                         <td class="movie-col">Kyllä isä osaa Lapissa</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -3699,12 +3467,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -3831,22 +3593,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
                         <td class="movie-col">Gabbyn nukketalo</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -4072,12 +3822,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -4204,12 +3948,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -4237,12 +3975,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                     <tr>
                         <td class="movie-col">Mies ja alaston ase</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -4491,12 +4223,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -4542,12 +4268,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -4755,12 +4475,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -4806,12 +4520,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                     
                                     
                                 
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
                             
                         </td>
                         
@@ -4996,12 +4704,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         <td class="rating-cell">
                             
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
-                        <td class="rating-cell">
-                            
                                 
                                 
                                     
@@ -5029,12 +4731,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                     <tr>
                         <td class="movie-col">The Helsinki Effect</td>
-                        
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
                         
                         <td class="rating-cell">
                             
@@ -5283,12 +4979,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                     <tr>
@@ -5415,19 +5105,39 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             
                         </td>
                         
-                        <td class="rating-cell">
-                            
-                                <span class="no-rating">–</span>
-                            
-                        </td>
-                        
                     </tr>
                     
                 </tbody>
             </table>
         </div>
         
-        <!-- Mobile: Korttinäkymä -->
+        <!-- Mobile: Suodatin -->
+            <div class="mobile-filter">
+                <div class="review-count-filter-mobile">
+                    <label for="min-reviews-slider-mobile">
+                        <span class="filter-icon">🔍</span>
+                        Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
+                    </label>
+                    <div class="slider-container">
+                        <input 
+                            type="range" 
+                            id="min-reviews-slider-mobile" 
+                            min="1" 
+                            max="5" 
+                            value="1" 
+                            step="1"
+                            class="slider"
+                        >
+                        <div class="slider-labels">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>        <!-- Mobile: Korttinäkymä -->
         <div class="mobile-sort-button" id="mobile-sort" style="display: none; cursor: pointer; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: bold;">
             ▼ Aakkosta elokuvat
         </div>
@@ -5459,8 +5169,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -5583,11 +5291,9 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
-                            <div class="review-item" data-critic="Mikko-Pekka Heikkinen HS" data-publication="hs">
+                            <div class="review-item" data-critic="Mikko-Pekka Heikkinen" data-publication="hs">
                                 <div class="review-rating">
                                     
                                         
@@ -5599,7 +5305,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                     
                                 </div>
                                 <div class="review-critic">
-                                    <span class="review-critic-name">Mikko-Pekka Heikkinen HS</span>
+                                    <span class="review-critic-name">Mikko-Pekka Heikkinen</span>
                                     <span class="review-media">/ HS</span>
                                 </div>
                             </div>
@@ -5676,8 +5382,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Pertti Avola" data-publication="hs">
@@ -5719,8 +5423,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Sorry, Baby</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -5832,8 +5534,6 @@ Sorry, babyonEva Victorinkäsikirjoittama debyyttiohjaus, jossa hän vieläpä n
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Olli-Matti Oinonen" data-publication="ksml">
@@ -5886,6 +5586,26 @@ Exit 8on alunperin vuonna 2023 ilmestynyt ongelmanratkontapeli, josta tuli ilmes
                         
                     
                         
+                            
+                            
+                            <div class="review-item" data-critic="Sakri Pölönen" data-publication="hs">
+                                <div class="review-rating">
+                                    
+                                        
+                                        
+                                        <a href="https://www.hs.fi/taide/art-2000011572927.html" target="_blank" style="text-decoration: none; color: inherit;" title="Helsingin Sanomat: Exit 8 näyttää ja kuulostaa upealta, mutta pelin ulkopuolelta tuotu isäteema ei istu kokonaisuuteen....">
+                                            ★★★☆☆
+                                        </a>
+                                        
+                                    
+                                </div>
+                                <div class="review-critic">
+                                    <span class="review-critic-name">Sakri Pölönen</span>
+                                    <span class="review-media">/ HS</span>
+                                </div>
+                            </div>
+                            
+                        
                     
                         
                     
@@ -5932,8 +5652,6 @@ Exit 8on alunperin vuonna 2023 ilmestynyt ongelmanratkontapeli, josta tuli ilmes
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -6006,7 +5724,7 @@ Kathryn Bigelowon etenkin viime teoksissaan keskittynyt r...">
                         
                             
                             
-                            <div class="review-item" data-critic="Jussi Ahlroth HS" data-publication="hs">
+                            <div class="review-item" data-critic="Jussi Ahlroth" data-publication="hs">
                                 <div class="review-rating">
                                     
                                         
@@ -6018,7 +5736,7 @@ Kathryn Bigelowon etenkin viime teoksissaan keskittynyt r...">
                                     
                                 </div>
                                 <div class="review-critic">
-                                    <span class="review-critic-name">Jussi Ahlroth HS</span>
+                                    <span class="review-critic-name">Jussi Ahlroth</span>
                                     <span class="review-media">/ HS</span>
                                 </div>
                             </div>
@@ -6049,8 +5767,6 @@ Eletään vuotta 1946. Taannoin päättyneessä sodassa toisena maaliin saapunut
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -6151,8 +5867,6 @@ Jalmari Helanderin uusi toimintaelokuva Sisu 2 lataa kovat piippuun tavalla, jot
                     <div class="movie-card-title">🎬 After the Hunt</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -6290,8 +6004,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Sakri Pölönen" data-publication="hs">
@@ -6373,8 +6085,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Pertti Avola" data-publication="hs">
@@ -6416,8 +6126,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Anna minun rakastaa enemmän</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -6512,8 +6220,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -6627,8 +6333,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -6694,8 +6398,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -6704,8 +6406,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Täydelliset vieraat</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -6828,8 +6528,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -6838,8 +6536,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Sorry</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -6927,8 +6623,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Pekka Torvinen" data-publication="hs">
@@ -6967,80 +6661,11 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 </div>
             </div>
             
-            <div class="movie-card" data-movie="Exit 8 (8-ban deguchi)">
-                <div class="movie-card-header">
-                    <div class="movie-card-title">🎬 Exit 8 (8-ban deguchi)</div>
-                </div>
-                <div class="movie-card-body">
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                            
-                            
-                            <div class="review-item" data-critic="Sakri Pölönen" data-publication="hs">
-                                <div class="review-rating">
-                                    
-                                        
-                                        
-                                        <a href="https://www.hs.fi/taide/art-2000011572927.html" target="_blank" style="text-decoration: none; color: inherit;" title="Helsingin Sanomat: Exit 8 näyttää ja kuulostaa upealta, mutta pelin ulkopuolelta tuotu isäteema ei istu kokonaisuuteen....">
-                                            ★★★☆☆
-                                        </a>
-                                        
-                                    
-                                </div>
-                                <div class="review-critic">
-                                    <span class="review-critic-name">Sakri Pölönen</span>
-                                    <span class="review-media">/ HS</span>
-                                </div>
-                            </div>
-                            
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                </div>
-            </div>
-            
             <div class="movie-card" data-movie="Black Phone 2">
                 <div class="movie-card-header">
                     <div class="movie-card-title">🎬 Black Phone 2</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -7106,8 +6731,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Timantit (Diamanti)</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -7230,8 +6853,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -7297,8 +6918,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -7307,8 +6926,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Kyllä isä osaa Lapissa</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -7431,8 +7048,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -7498,8 +7113,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -7508,8 +7121,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Gabbyn nukketalo</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -7609,8 +7220,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Tero Kartastenpää" data-publication="hs">
@@ -7676,8 +7285,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Tero Kartastenpää" data-publication="sk">
@@ -7709,8 +7316,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 Mies ja alaston ase</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -7833,8 +7438,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -7872,8 +7475,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -7967,8 +7568,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -8006,8 +7605,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                                 </div>
                             </div>
                             
-                        
-                    
                         
                     
                         
@@ -8078,8 +7675,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                     
                         
-                    
-                        
                             
                             
                             <div class="review-item" data-critic="Tero Kartastenpää" data-publication="sk">
@@ -8111,8 +7706,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <div class="movie-card-title">🎬 The Helsinki Effect</div>
                 </div>
                 <div class="movie-card-body">
-                    
-                        
                     
                         
                     
@@ -8235,8 +7828,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -8302,8 +7893,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     
                         
                     
-                        
-                    
                 </div>
             </div>
             
@@ -8320,11 +7909,11 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         <div class="stat-label">arvostelua</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number">38</div>
+                        <div class="stat-number">37</div>
                         <div class="stat-label">elokuvaa</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number">19</div>
+                        <div class="stat-number">18</div>
                         <div class="stat-label">kriitikkoa</div>
                     </div>
                 </div>
@@ -8423,6 +8012,148 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
     </div>
 
     <script>
+    // Arvioiden määrä -suodatin (desktop + mobile)
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('min-reviews-slider');
+        const sliderMobile = document.getElementById('min-reviews-slider-mobile');
+        const valueDisplay = document.getElementById('min-reviews-value');
+        const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
+        const table = document.querySelector('table');
+        const mobileCards = document.querySelectorAll('.movie-card');
+        
+        if (!slider || !valueDisplay) return;
+        
+        // Laske jokaisen elokuvan arvioiden määrä
+        const movieReviewCounts = new Map();
+        
+        // Desktop: Laske taulukon riveiltä
+        if (table) {
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const movieCell = row.querySelector('.movie-col');
+                if (!movieCell) return;
+                
+                const movieTitle = movieCell.textContent.trim();
+                const ratingCells = row.querySelectorAll('.rating-cell');
+                
+                let reviewCount = 0;
+                ratingCells.forEach(cell => {
+                    // Tarkista onko solussa oikea arvostelu (linkki tai tähtiä)
+                    const hasLink = cell.querySelector('a.rating-link');
+                    const hasStars = cell.querySelector('.rating-stars');
+                    const noRating = cell.querySelector('.no-rating');
+                    
+                    // Laske vain jos on linkki tai tähtiä (ei pelkkä "–")
+                    if (hasLink || hasStars || (noRating && !noRating.textContent.includes('–'))) {
+                        reviewCount++;
+                    }
+                });
+                
+                movieReviewCounts.set(movieTitle, reviewCount);
+                row.dataset.reviewCount = reviewCount;
+            });
+        }
+        
+        // Mobile: Laske korteista
+        mobileCards.forEach(card => {
+            const movieTitle = card.dataset.movie;
+            const reviewItems = card.querySelectorAll('.review-item');
+            const reviewCount = reviewItems.length;
+            
+            movieReviewCounts.set(movieTitle, reviewCount);
+            card.dataset.reviewCount = reviewCount;
+        });
+        
+        function filterByReviewCount(minCount) {
+            let hiddenCount = 0;
+            
+            // Desktop: Piilota rivit
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const rows = tbody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const count = parseInt(row.dataset.reviewCount || 0);
+                    if (count < minCount) {
+                        row.style.display = 'none';
+                        hiddenCount++;
+                    } else {
+                        row.style.display = '';
+                    }
+                });
+            }
+            
+            // Mobile: Piilota kortit
+            mobileCards.forEach(card => {
+                const count = parseInt(card.dataset.reviewCount || 0);
+                if (count < minCount) {
+                    card.style.display = 'none';
+                    hiddenCount++;
+                } else {
+                    card.style.display = '';
+                }
+            });
+            
+            // Näytä/piilota reset-nappi
+            if (minCount > 1 && typeof window.showResetButton === 'function') {
+                window.showResetButton();
+            }
+            
+            return hiddenCount;
+        }
+        
+        // Funktio sanan päivittämiseen (yksikkö/monikko)
+        function updateReviewWord(value) {
+            const reviewWord = document.getElementById('review-word');
+            const reviewWordMobile = document.getElementById('review-word-mobile');
+            const word = value === 1 ? 'arvostelu' : 'arvostelua';
+            if (reviewWord) reviewWord.textContent = word;
+            if (reviewWordMobile) reviewWordMobile.textContent = word;
+        }
+        
+        // Desktop slider
+        slider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            valueDisplay.textContent = value;
+            updateReviewWord(value);
+            if (sliderMobile && valueDisplayMobile) {
+                sliderMobile.value = value;
+                valueDisplayMobile.textContent = value;
+            }
+            filterByReviewCount(value);
+        });
+        
+        // Mobile slider
+        if (sliderMobile && valueDisplayMobile) {
+            sliderMobile.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                valueDisplayMobile.textContent = value;
+                valueDisplay.textContent = value;
+                updateReviewWord(value);
+                slider.value = value;
+                filterByReviewCount(value);
+            });
+        }
+        
+        // Lisää reset-toiminto
+        const resetButton = document.getElementById('reset-filters');
+        if (resetButton) {
+            const originalResetHandler = resetButton.onclick;
+            resetButton.addEventListener('click', function() {
+                slider.value = 1;
+                valueDisplay.textContent = 1;
+                updateReviewWord(1);
+                if (sliderMobile && valueDisplayMobile) {
+                    sliderMobile.value = 1;
+                    valueDisplayMobile.textContent = 1;
+                }
+                filterByReviewCount(1);
+            });
+        }
+    });
+    
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
         const resetButton = document.getElementById('reset-filters');

@@ -136,9 +136,25 @@ h2, h3, h4, h5, h6 {
     }
 }
 
+/* Desktop: piilota mobiililiukusäädin */
+@media (min-width: 769px) {
+    .mobile-filter {
+        display: none !important;
+    }
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
+}
+
+tbody tr {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+tbody tr[style*="display: none"] {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 
 thead {
@@ -148,6 +164,117 @@ thead {
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
     box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
+}
+
+/* Filter-rivi headerin sisällä */
+.filter-row {
+    background: white;
+}
+
+.filter-header {
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.review-count-filter-inline {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.review-count-filter-inline label {
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+@media (max-width: 1200px) {
+    .review-count-filter-inline {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .slider-container {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+.filter-icon {
+    font-size: 1.1em;
+    margin-right: 0.3rem;
+}
+
+.slider-container {
+    flex: 1;
+    max-width: 400px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 0.4rem;
+    background: #ddd;
+    outline: none;
+    border-radius: 0.2rem;
+    transition: background 0.3s;
+    margin-bottom: 0.3rem;
+    cursor: pointer;
+}
+
+.slider:hover {
+    background: #ccc;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider::-webkit-slider-thumb:active {
+    transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+    width: 1.2rem;
+    height: 1.2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb:active {
+    transform: scale(1.1);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75em;
+    color: #666;
+    padding: 0 0.3rem;
 }
 
 th {
@@ -534,6 +661,51 @@ footer {
 @media (max-width: 768px) {
     footer {
         padding: 1.875rem 1.25rem;
+    }
+    
+    /* Piilota desktop-suodatin, näytä mobile-suodatin */
+    .filter-row {
+        display: none;
+    }
+    
+    .mobile-filter {
+        display: block !important;
+        margin-bottom: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 15;
+        background: #f5f5f5;
+        padding-top: 0.5rem;
+    }
+    
+    .review-count-filter-mobile {
+        background: white;
+        padding: 1rem 1.25rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    }
+    
+    .review-count-filter-mobile label {
+        display: block;
+        font-size: 0.95em;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+    
+    .mobile-sort-button {
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-sort-button:hover {
+        background: #e9ecef !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    }
+    
+    .mobile-sort-button:active {
+        transform: translateY(0);
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
     }
     
     .stats {
