@@ -126,7 +126,7 @@ h2, h3, h4, h5, h6 {
     overflow-x: auto;
 }
 
-/* Desktop only: make the wrapper support sticky positioning */
+/* Desktop: tee taulukosta tukea sticky-asemointi */
 @media (min-width: 769px) {
     .table-wrapper {
         overflow-x: visible;
