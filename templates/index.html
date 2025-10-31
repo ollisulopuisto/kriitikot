@@ -484,17 +484,16 @@
                 });
                 
                 // Korostetaan valitut
-                    allReviewItems.forEach(item => {
-                        const area = item.querySelector('.review-critic');
-                        const name = item.querySelector('.review-critic-name');
-                        if (area && name && item.dataset.critic === selectedCritic) {
-                            name.style.fontWeight = 'bold';
-                            name.style.color = '#8b5cf6';
-                            area.dataset.filtered = 'true';
-                        }
-                    });
-                    if (window.showResetButton) window.showResetButton();
-                }
+                allReviewItems.forEach(item => {
+                    const area = item.querySelector('.review-critic');
+                    const name = item.querySelector('.review-critic-name');
+                    if (area && name && item.dataset.critic === selectedCritic) {
+                        name.style.fontWeight = 'bold';
+                        name.style.color = '#8b5cf6';
+                        area.dataset.filtered = 'true';
+                    }
+                });
+                if (window.showResetButton) window.showResetButton();
             });
         });
     });
