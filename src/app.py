@@ -109,12 +109,15 @@ def index():
         # Hae nytleffaan.fi linkit ja posterit
         nytleffaan_urls = {}
         poster_urls = {}
+        letterboxd_urls = {}
         movies = session.query(Movie).all()
         for movie in movies:
             if movie.nytleffaan_url:
                 nytleffaan_urls[movie.title] = movie.nytleffaan_url
             if movie.poster_url:
                 poster_urls[movie.title] = movie.poster_url
+            if movie.letterboxd_url:
+                letterboxd_urls[movie.title] = movie.letterboxd_url
     finally:
         session.close()
     
@@ -127,7 +130,8 @@ def index():
         pub_stats=pub_stats,
         critic_media_map=critic_media_map,
         nytleffaan_urls=nytleffaan_urls,
-        poster_urls=poster_urls
+        poster_urls=poster_urls,
+        letterboxd_urls=letterboxd_urls
     )
 
 
