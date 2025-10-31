@@ -11,11 +11,13 @@ body {
     background: #f5f5f5;
     min-height: 100vh;
     padding: 1.25rem;
+    overflow-x: hidden;
 }
 
 .container {
     max-width: 87.5rem;
     margin: 0 auto;
+    width: 100%;
 }
 
 header {
@@ -27,6 +29,7 @@ header {
     text-align: center;
     overflow: hidden;
     position: relative;
+    max-width: 100%;
 }
 
 header::before {
@@ -126,12 +129,13 @@ h2, h3, h4, h5, h6 {
     border-radius: 0.5rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
     overflow-x: auto;
+    max-width: 100%;
 }
 
 /* Desktop: tee taulukosta tukea sticky-asemointi */
 @media (min-width: 769px) {
     .table-wrapper {
-        overflow-x: visible;
+        overflow-x: auto;
         overflow-y: visible;
     }
 }
@@ -350,6 +354,7 @@ footer {
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
     margin-top: 2.5rem;
     padding: 2.5rem 1.875rem;
+    max-width: 100%;
 }
 
 .footer-content {
@@ -674,6 +679,10 @@ footer {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+    
     header {
         padding: 2rem 1.25rem;
     }
@@ -714,5 +723,30 @@ footer {
     /* Näytä kortit mobiililla */
     .mobile-cards {
         display: block;
+    }
+}
+
+/* Extra small devices (very narrow viewports) */
+@media (max-width: 480px) {
+    body {
+        padding: 0.25rem;
+    }
+    
+    header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .subtitle {
+        font-size: 0.9em;
+    }
+    
+    footer {
+        padding: 1.5rem 1rem;
+        margin-top: 1.5rem;
     }
 }
