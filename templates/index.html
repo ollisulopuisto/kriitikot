@@ -494,6 +494,16 @@
         
         // Näytä nappi kun jotain filtteröidään
         window.showResetButton = showResetButton;
+        
+        // Tee otsikosta klikattava reset-nappi
+        const headerTitle = document.querySelector('h1');
+        if (headerTitle) {
+            headerTitle.style.cursor = 'pointer';
+            headerTitle.title = 'Klikkaa nollataksesi kaikki hakufasetit';
+            headerTitle.addEventListener('click', function() {
+                resetButton.click();
+            });
+        }
     });
     
     // Poster functions

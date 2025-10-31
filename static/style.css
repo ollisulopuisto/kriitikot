@@ -301,6 +301,7 @@ th.movie-col {
     transition: background-color 0.2s;
     text-align: center;
     vertical-align: middle;
+    font-family: 'Afacad', sans-serif;
 }
 
 th.movie-col:hover {
@@ -370,6 +371,7 @@ td {
 td.movie-col {
     user-select: none;
     transition: all 0.2s;
+    font-size: 1.0em;
 }
 
 td.movie-col:hover {
@@ -787,6 +789,14 @@ footer {
     float: right;
     margin-left: 1rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+}
+
+/* Mobiili: Tee juliste pienemmäksi */
+@media (max-width: 768px) {
+    .movie-card-poster {
+        max-width: 80px;
+        margin-left: 0.5rem;
+    }
 }
 
 .movie-card-title {
