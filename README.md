@@ -2,6 +2,12 @@
 
 Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteistä.
 
+## 🌐 Live-sivusto
+
+**Sivusto:** https://ollisulopuisto.github.io/kriitikot/
+
+Päivittyy automaattisesti päivittäin klo 08:00 Suomen aikaa (GitHub Actions).
+
 ## 📋 Prototyypin tila
 
 ### ✅ Toimii nyt:
@@ -29,6 +35,10 @@ Web-sovellus joka kerää, analysoi ja esittää elokuva-arvostelut eri lähteis
   - `batch_update.py`: Python-scripti päivityksiin
   - `run_batch_update.sh`: Bash wrapper backupilla ja logeilla
   - Cron/systemd -valmiit konfiguraatiot
+- **🚀 GitHub Pages deployment**: Staattiset sivut automaattisella päivityksellä
+  - `scripts/generate_static.py`: Generoi docs/ kansio Flask-appista
+  - GitHub Actions: `.github/workflows/update-site.yml` + `deploy-pages.yml`
+  - Ei tietoturva-aukkoja (staattiset sivut, ei backend)
 - **Tähtiarvioiden parsinta**: 1-5 tähteä + suomenkieliset sanat ("neljä tähteä")
 - **Web-käyttöliittymä**: Flask-pohjainen sivu arvostelujen näyttämiseen
   - Kompakti admin-näkymä (80-100px sarakkeet)
@@ -114,7 +124,26 @@ autossh -M 0 -f -N -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
 
 Tunneli pysyy pystyssä ja yhdistää automaattisesti uudelleen jos yhteys katkeaa.
 
-### 4. Eräajo - Tietokannan automaattinen päivitys
+### 4. Generoi staattiset sivut (GitHub Pages)
+
+```bash
+# Generoi docs/ kansio
+python scripts/generate_static.py
+
+# Push GitHubiin
+git add docs/ reviews.db
+git commit -m "Päivitä staattiset sivut"
+git push
+```
+
+**GitHub Pages asetukset:**
+1. GitHub → Settings → Pages
+2. Source: `main` branch
+3. Folder: `/docs`
+
+**Automaattinen päivitys:** GitHub Actions hoitaa päivittäisen päivityksen (ks. `.github/workflows/`)
+
+### 5. Eräajo - Tietokannan automaattinen päivitys
 
 #### Manuaalinen käyttö
 

@@ -1,0 +1,53 @@
+name: Päivitä staattiset sivut
+
+on:
+  # Ajastettu ajo joka päivä klo 06:00 UTC (08:00 Suomen aikaa)
+  schedule:
+    - cron: '0 6 * * *'
+  
+  # Manuaalinen ajo GitHub UI:sta
+  workflow_dispatch:
+  
+  # Ajo kun pushataan mainiin
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'static/**'
+      - 'templates/**'
+      - 'scripts/generate_static.py'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Aja scraperit ja päivitä tietokanta
+        run: |
+          cd src
+          python batch_update.py
+        continue-on-error: true
+      
+      - name: Generoi staattiset sivut
+        run: |
+          python scripts/generate_static.py
+      
+      - name: Commit ja push muutokset
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/ reviews.db
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Automaattinen päivitys: $(date +'%Y-%m-%d %H:%M')" && git push)

@@ -43,10 +43,10 @@ htmlcov/
 instance/
 .webassets-cache
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Database (ei ignoroida reviews.db - tarvitaan GitHub Actionsissa)
+# *.db
+# *.sqlite
+# *.sqlite3
 
 # OS
 .DS_Store

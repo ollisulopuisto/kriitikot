@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""
+Generoi staattiset HTML-sivut Flask-appista GitHub Pagesille.
+
+Käyttö:
+    python scripts/generate_static.py
+"""
+
+import os
+import shutil
+import sys
+from pathlib import Path
+
+# Lisää src kansio Python pathiin
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+
+from app import app, get_grouped_reviews, get_all_critics
+
+def generate_static_site():
+    """Generoi staattiset sivut docs/ kansioon."""
+    
+    # Luo docs kansio (GitHub Pages käyttää tätä)
+    docs_dir = Path(__file__).parent.parent / 'docs'
+    docs_dir.mkdir(exist_ok=True)
+    
+    print("📝 Generoidaan staattinen sivusto...")
+    
+    # 1. Renderöi pääsivu
+    with app.app_context():
+        with app.test_client() as client:
+            response = client.get('/')
+            if response.status_code == 200:
+                index_html = docs_dir / 'index.html'
+                index_html.write_bytes(response.data)
+                print(f"✅ Luotu: {index_html}")
+            else:
+                print(f"❌ Virhe: HTTP {response.status_code}")
+                return False
+    
+    # 2. Kopioi static-kansio
+    src_static = Path(__file__).parent.parent / 'static'
+    dst_static = docs_dir / 'static'
+    
+    if dst_static.exists():
+        shutil.rmtree(dst_static)
+    
+    shutil.copytree(src_static, dst_static)
+    print(f"✅ Kopioitu: static/ -> docs/static/")
+    
+    # 3. Luo .nojekyll tiedosto (GitHub Pages ei käsittele Jekylliä)
+    nojekyll = docs_dir / '.nojekyll'
+    nojekyll.touch()
+    print(f"✅ Luotu: {nojekyll}")
+    
+    # 4. Tilastot
+    grouped_reviews = get_grouped_reviews()
+    all_critics = get_all_critics()
+    
+    print(f"\n📊 Sivuston tilastot:")
+    print(f"   - Elokuvia: {len(grouped_reviews)}")
+    print(f"   - Kriitikoita: {len(all_critics)}")
+    print(f"   - Arvosteluja: {sum(len(reviews) for reviews in grouped_reviews.values())}")
+    
+    print(f"\n✨ Staattinen sivusto valmis: {docs_dir}")
+    print(f"\n📌 Seuraavat vaiheet:")
+    print(f"   1. git add docs/")
+    print(f"   2. git commit -m 'Päivitä staattiset sivut'")
+    print(f"   3. git push")
+    print(f"   4. GitHub Settings -> Pages -> Source: main branch, /docs folder")
+    
+    return True
+
+if __name__ == '__main__':
+    success = generate_static_site()
+    sys.exit(0 if success else 1)
