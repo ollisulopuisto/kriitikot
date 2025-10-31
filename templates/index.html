@@ -41,35 +41,41 @@
             </div>
         </header>
         
-        <!-- Arvioiden määrä -suodatin -->
-        <div class="review-count-filter">
-            <label for="min-reviews-slider">
-                <span class="filter-icon">🔍</span>
-                Näytä elokuvat, joista vähintään <strong id="min-reviews-value">1</strong> arvostelua
-            </label>
-            <input 
-                type="range" 
-                id="min-reviews-slider" 
-                min="1" 
-                max="5" 
-                value="1" 
-                step="1"
-                class="slider"
-            >
-            <div class="slider-labels">
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5+</span>
-            </div>
-        </div>
-        
         {% if grouped_reviews %}
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
             <table>
                 <thead>
+                    <!-- Rivi 1: Arvioiden määrä -suodatin -->
+                    <tr class="filter-row">
+                        <th colspan="{{ all_critics|length + 1 }}" class="filter-header">
+                            <div class="review-count-filter-inline">
+                                <label for="min-reviews-slider">
+                                    <span class="filter-icon">🔍</span>
+                                    Vähintään <strong id="min-reviews-value">1</strong> arvostelua
+                                </label>
+                                <div class="slider-container">
+                                    <input 
+                                        type="range" 
+                                        id="min-reviews-slider" 
+                                        min="1" 
+                                        max="5" 
+                                        value="1" 
+                                        step="1"
+                                        class="slider"
+                                    >
+                                    <div class="slider-labels">
+                                        <span>1</span>
+                                        <span>2</span>
+                                        <span>3</span>
+                                        <span>4</span>
+                                        <span>5+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                    <!-- Rivi 2: Kriitikot -->
                     <tr>
                         <th class="movie-col"></th>
                         {% for critic in all_critics %}
@@ -114,6 +120,34 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Mobile: Suodatin -->
+        <div class="mobile-filter" style="display: none;">
+            <div class="review-count-filter-mobile">
+                <label for="min-reviews-slider-mobile">
+                    <span class="filter-icon">🔍</span>
+                    Vähintään <strong id="min-reviews-value-mobile">1</strong> arvostelua
+                </label>
+                <div class="slider-container">
+                    <input 
+                        type="range" 
+                        id="min-reviews-slider-mobile" 
+                        min="1" 
+                        max="5" 
+                        value="1" 
+                        step="1"
+                        class="slider"
+                    >
+                    <div class="slider-labels">
+                        <span>1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5+</span>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Mobile: Korttinäkymä -->
@@ -218,10 +252,12 @@
     </div>
 
     <script>
-    // Arvioiden määrä -suodatin
+    // Arvioiden määrä -suodatin (desktop + mobile)
     document.addEventListener('DOMContentLoaded', function() {
         const slider = document.getElementById('min-reviews-slider');
+        const sliderMobile = document.getElementById('min-reviews-slider-mobile');
         const valueDisplay = document.getElementById('min-reviews-value');
+        const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
         const table = document.querySelector('table');
         const mobileCards = document.querySelectorAll('.movie-card');
         
@@ -308,11 +344,27 @@
             return hiddenCount;
         }
         
+        // Desktop slider
         slider.addEventListener('input', function() {
             const value = parseInt(this.value);
             valueDisplay.textContent = value;
+            if (sliderMobile && valueDisplayMobile) {
+                sliderMobile.value = value;
+                valueDisplayMobile.textContent = value;
+            }
             filterByReviewCount(value);
         });
+        
+        // Mobile slider
+        if (sliderMobile && valueDisplayMobile) {
+            sliderMobile.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                valueDisplayMobile.textContent = value;
+                valueDisplay.textContent = value;
+                slider.value = value;
+                filterByReviewCount(value);
+            });
+        }
         
         // Lisää reset-toiminto
         const resetButton = document.getElementById('reset-filters');
@@ -321,6 +373,10 @@
             resetButton.addEventListener('click', function() {
                 slider.value = 1;
                 valueDisplay.textContent = 1;
+                if (sliderMobile && valueDisplayMobile) {
+                    sliderMobile.value = 1;
+                    valueDisplayMobile.textContent = 1;
+                }
                 filterByReviewCount(1);
             });
         }
