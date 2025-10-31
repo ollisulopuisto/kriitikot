@@ -545,10 +545,10 @@
             });
         }
         
-        // Elokuvanimi: Piilota sarakkeet joissa ei tähtiä + himmennä muut rivit
+        // Elokuvanimi: Himmennä muut rivit
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
             movieCell.style.cursor = 'pointer';
-            movieCell.title = 'Klikkaa piilottaaksesi tyhjät arvostelut';
+            movieCell.title = 'Klikkaa nähdäksesi vain tämän elokuvan arvostelut';
             
             movieCell.addEventListener('click', function() {
                 const row = movieCell.parentElement;
@@ -564,22 +564,7 @@
                 }
                 
                 // Aktivoi uusi filtteri
-                const ratingCells = row.querySelectorAll('.rating-cell');
-                const thead = table.querySelector('thead tr');
-                const criticCells = thead.querySelectorAll('th.rating-cell');
                 const allRows = tbody.querySelectorAll('tr');
-                
-                ratingCells.forEach((cell, index) => {
-                    const hasStars = cell.querySelector('.rating-stars');
-                    
-                    if (!hasStars) {
-                        // Piilota tämä sarake kaikista riveistä
-                        criticCells[index].style.display = 'none';
-                        tbody.querySelectorAll('tr').forEach(r => {
-                            r.querySelectorAll('.rating-cell')[index].style.display = 'none';
-                        });
-                    }
-                });
                 
                 // Himmennä muut rivit
                 allRows.forEach(r => {
