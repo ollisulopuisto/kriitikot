@@ -379,6 +379,30 @@ def publish_review(review_id):
         session.close()
 
 
+@app.route('/admin/review/<int:review_id>/unpublish', methods=['POST'])
+def unpublish_review(review_id):
+    """Poista arvio julkaisusta (piilota frontendistä)."""
+    session = get_session(engine)
+    
+    try:
+        review = session.query(DBReview).get(review_id)
+        if not review:
+            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
+        
+        review.is_published = 0
+        session.commit()
+        
+        movie_title = review.movie.title if review.movie else 'Unknown'
+        return redirect(url_for('admin', message=f'⏸️ Arvio piilotettu frontendistä: {movie_title}', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
 @app.route('/admin/review/<int:review_id>/delete', methods=['POST'])
 def delete_review(review_id):
     """Poista arvio (esim. pending-tilasta)."""

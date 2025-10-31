@@ -11,6 +11,11 @@
             box-sizing: border-box;
         }
         
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 120px; /* Tilaa sticky headerille */
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f5f5;
@@ -29,9 +34,48 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+        
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            border: 1px solid #dee2e6;
+        }
+        
+        .nav-link:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
         
         h1 {
@@ -224,13 +268,120 @@
         .btn-success:hover {
             background: #218838;
         }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+        
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .nav-menu {
+                width: 100%;
+            }
+            
+            .nav-link {
+                flex: 1;
+                text-align: center;
+                font-size: 0.8em;
+                padding: 6px 10px;
+            }
+        }
+        
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-top:hover {
+            background: #0056b3;
+            transform: scale(1.1) translateY(0);
+        }
     </style>
+    <script>
+        // Highlightaa aktiivinen osio navigaatiossa
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const scrollTopBtn = document.getElementById('scrollTop');
+            
+            function updateActiveLink() {
+                let currentSection = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (window.pageYOffset >= sectionTop - 150) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + currentSection) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Näytä/piilota scroll-to-top nappi
+                if (window.pageYOffset > 300) {
+                    scrollTopBtn.classList.add('visible');
+                } else {
+                    scrollTopBtn.classList.remove('visible');
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveLink);
+            updateActiveLink(); // Aja heti sivun latautuessa
+            
+            // Scroll to top -toiminto
+            scrollTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>⚙️ Admin - Elokuvanimien hallinta</h1>
-            <a href="/" class="back-link">← Takaisin etusivulle</a>
+            <div class="header-top">
+                <h1>⚙️ Admin - Elokuvanimien hallinta</h1>
+                <a href="/" class="back-link">← Takaisin etusivulle</a>
+            </div>
+            <nav class="nav-menu">
+                {% if pending_reviews %}
+                <a href="#pending" class="nav-link">⏳ Odottavat arviot <span style="background: #ff9800; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.85em; margin-left: 4px;">{{ pending_reviews|length }}</span></a>
+                {% endif %}
+                <a href="#movies" class="nav-link">📽️ Elokuvat</a>
+                <a href="#merge" class="nav-link">🔀 Yhdistä elokuvat</a>
+                <a href="#critics" class="nav-link">👤 Kriitikot</a>
+                <a href="#reviews" class="nav-link">📝 Julkaistut arviot</a>
+                <a href="#stats" class="nav-link">📊 Tilastot</a>
+            </nav>
         </header>
         
         {% if message %}
@@ -240,7 +391,7 @@
         {% endif %}
         
         {% if pending_reviews %}
-        <div class="section" style="border-left: 4px solid #ff9800;">
+        <div class="section" id="pending" style="border-left: 4px solid #ff9800;">
             <h2>⏳ Odottavat arviot ({{ pending_reviews|length }})</h2>
             <p style="color: #856404; margin-bottom: 20px; font-size: 0.95em;">
                 Nämä arviot on haettu automaattisesti, mutta ne eivät näy vielä julkisella sivustolla. Tarkista tiedot ja julkaise tai poista.
@@ -293,7 +444,7 @@
         </div>
         {% endif %}
         
-        <div class="section">
+        <div class="section" id="movies">
             <h2>📽️ Elokuvat tietokannassa</h2>
             <table>
                 <thead>
@@ -325,7 +476,7 @@
                 </tbody>
             </table>
             
-            <div class="merge-form">
+            <div class="merge-form" id="merge">
                 <h3>🔀 Yhdistä elokuvat</h3>
                 <p style="color: #856404; margin-bottom: 15px; font-size: 0.95em;">
                     Jos sama elokuva on tietokannassa eri nimillä (esim. "Kyllä isä osaa" ja "Lapissa"), voit yhdistää ne:
@@ -358,7 +509,7 @@
             </div>
         </div>
         
-        <div class="section">
+        <div class="section" id="critics">
             <h2>👤 Kriitikot</h2>
             <table>
                 <thead>
@@ -388,7 +539,71 @@
             </table>
         </div>
         
-        <div class="section">
+        <div class="section" id="reviews">
+            <h2>📝 Julkaistut arviot ({{ stats.reviews }} kpl)</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.95em;">
+                Nämä arviot näkyvät julkisella sivustolla. Voit piilottaa arvion frontendistä poistamalla julkaisun.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Elokuva</th>
+                        <th>Kriitikko</th>
+                        <th style="width: 80px;">Media</th>
+                        <th style="width: 100px;">Tähdet</th>
+                        <th style="width: 100px;">Julkaistu</th>
+                        <th style="width: 150px;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies %}
+                        {% for review in movie.reviews %}
+                            {% if review.is_published %}
+                            <tr>
+                                <td>{{ review.id }}</td>
+                                <td>
+                                    <strong>{{ movie.title }}</strong>
+                                    <br>
+                                    <small style="color: #666;">
+                                        <a href="{{ review.source_url }}" target="_blank" style="color: #1976d2; text-decoration: none;">🔗 Lähde</a>
+                                    </small>
+                                </td>
+                                <td>{{ review.critic.name if review.critic else 'N/A' }}</td>
+                                <td><span class="badge">{{ review.publication.short_name.upper() if review.publication else 'N/A' }}</span></td>
+                                <td>
+                                    {% if review.rating_stars %}
+                                        {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
+                                    {% else %}
+                                        <span style="color: #999;">–</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input 
+                                            type="checkbox" 
+                                            checked 
+                                            onchange="if(!this.checked && confirm('Piilota arvio frontendistä?')) { document.getElementById('unpublish-{{ review.id }}').submit(); } else { this.checked = true; }"
+                                            style="cursor: pointer; width: 18px; height: 18px;"
+                                        >
+                                        <span style="color: #28a745; font-weight: 600;">Näkyy</span>
+                                    </label>
+                                    <form id="unpublish-{{ review.id }}" method="POST" action="/admin/review/{{ review.id }}/unpublish" style="display: none;"></form>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/admin/review/{{ review.id }}/delete" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Poista arvio pysyvästi?')">🗑️ Poista</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section" id="stats">
             <h2>📊 Tilastot</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                 <div style="background: #e7f3ff; padding: 20px; border-radius: 6px; text-align: center;">
@@ -521,5 +736,8 @@
             }
         });
     </script>
+    
+    <!-- Scroll to top button -->
+    <button id="scrollTop" class="scroll-top" title="Takaisin ylös">↑</button>
 </body>
 </html>

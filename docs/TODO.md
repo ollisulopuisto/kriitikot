@@ -14,6 +14,7 @@
     - ✅ näin voi muokata ensin otsikon korrektiksi jne.
     - ✅ Admin-sivu näyttää pending-arviot
     - ✅ Julkaise/Poista -painikkeet pending-arvioille
+    - ✅ Checkbox julkaistuille arvioille - mahdollistaa piilottamisen frontendistä
 
 # Tietomalli
 - ✅ milloin arvio on julkaistu (published_date kenttä Reviews-taulussa)
