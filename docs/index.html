@@ -1304,6 +1304,9 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
         </div>
         
         <!-- Mobile: Korttinäkymä -->
+        <div class="mobile-sort-button" id="mobile-sort" style="cursor: pointer; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: bold;">
+            ▼ Aakkosta elokuvat
+        </div>
         <div class="mobile-cards">
             
             <div class="movie-card" data-movie="Huutamisen taito">
@@ -2376,6 +2379,35 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             sortAscending = !sortAscending;
             topLeftCell.textContent = sortAscending ? '▼' : '▲';
         });
+        
+        // Mobiili: Aakkosta elokuvakortit
+        const mobileSortButton = document.getElementById('mobile-sort');
+        const mobileCardsContainer = document.querySelector('.mobile-cards');
+        
+        if (mobileSortButton && mobileCardsContainer) {
+            let mobileSortAscending = true;
+            
+            mobileSortButton.addEventListener('click', function() {
+                const cards = Array.from(mobileCardsContainer.querySelectorAll('.movie-card'));
+                
+                cards.sort((a, b) => {
+                    const titleA = a.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
+                    const titleB = b.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
+                    
+                    if (mobileSortAscending) {
+                        return titleA.localeCompare(titleB, 'fi');
+                    } else {
+                        return titleB.localeCompare(titleA, 'fi');
+                    }
+                });
+                
+                // Päivitä järjestys (lisää sorttausnapin jälkeen)
+                cards.forEach(card => mobileCardsContainer.appendChild(card));
+                
+                mobileSortAscending = !mobileSortAscending;
+                mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
+            });
+        }
         
         // Elokuvanimi: Piilota sarakkeet joissa ei tähtiä + himmennä muut rivit
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
