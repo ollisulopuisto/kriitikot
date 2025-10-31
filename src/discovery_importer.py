@@ -205,21 +205,22 @@ class DiscoveryImporter:
                 movie = self.get_or_create_movie(review.movie_title)
                 critic = self.get_or_create_critic(review.critic_name, media=source.upper())
                 
-                # Tallenna arvostelu
+                # Tallenna arvostelu (PENDING-tilassa)
                 db_review = Review(
                     movie=movie,
                     critic=critic,
                     publication=publication,
                     rating_stars=review.rating_stars,
                     review_text=review.review_text,
-                    source_url=review.source_url
+                    source_url=review.source_url,
+                    is_published=0  # Pending - vaatii admin-hyväksynnän
                 )
                 
                 self.session.add(db_review)
                 self.session.commit()
                 
                 imported += 1
-                print(f"   ✅ Tallennettu: {movie.title} - {critic.name} - {review.rating_stars}★")
+                print(f"   ⏳ Tallennettu (pending): {movie.title} - {critic.name} - {review.rating_stars}★")
                 
             except Exception as e:
                 print(f"   ❌ Virhe: {e}")

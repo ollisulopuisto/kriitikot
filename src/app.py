@@ -26,8 +26,8 @@ def get_all_reviews_grouped():
     session = get_session(engine)
     
     try:
-        # Hae kaikki arvostelut EAGER LOADingilla (lataa relaatiot heti)
-        reviews = session.query(DBReview).options(
+        # Hae kaikki JULKAISTUT arvostelut EAGER LOADingilla (lataa relaatiot heti)
+        reviews = session.query(DBReview).filter_by(is_published=1).options(
             joinedload(DBReview.movie),
             joinedload(DBReview.critic),
             joinedload(DBReview.publication)
@@ -121,11 +121,11 @@ def index():
 
 @app.route('/api/reviews')
 def api_reviews():
-    """JSON API - palauttaa kaikki arvostelut."""
+    """JSON API - palauttaa kaikki JULKAISTUT arvostelut."""
     session = get_session(engine)
     
     try:
-        reviews = session.query(DBReview).all()
+        reviews = session.query(DBReview).filter_by(is_published=1).all()
         return jsonify([review.to_dict() for review in reviews])
     finally:
         session.close()
@@ -171,6 +171,13 @@ def admin():
             joinedload(Critic.reviews).joinedload(DBReview.publication)
         ).all()
         
+        # Hae pending-arviot (ei vielä julkaistut)
+        pending_reviews = session.query(DBReview).filter_by(is_published=0).options(
+            joinedload(DBReview.movie),
+            joinedload(DBReview.critic),
+            joinedload(DBReview.publication)
+        ).order_by(DBReview.scraped_at.desc()).all()
+        
         # Aakkosta elokuvat ja kriitikot nimen mukaan
         movies = sorted(movies, key=lambda m: m.title.lower())
         critics = sorted(critics, key=lambda c: c.name.lower())
@@ -186,7 +193,8 @@ def admin():
             'movies': session.query(Movie).count(),
             'reviews': session.query(DBReview).count(),
             'critics': session.query(Critic).count(),
-            'publications': session.query(Publication).count()
+            'publications': session.query(Publication).count(),
+            'pending': len(pending_reviews)
         }
         
         # Hae mahdollinen viesti session storagesta (flash-viestit)
@@ -198,6 +206,7 @@ def admin():
             movies=movies,
             critics=critics,
             critic_media_map=critic_media_map,
+            pending_reviews=pending_reviews,
             stats=stats,
             message=message,
             message_type=message_type
@@ -337,6 +346,89 @@ def delete_critic(critic_id):
             msg += f' ({review_count} arvostelua poistettu)'
         
         return redirect(url_for('admin', message=msg, message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/review/<int:review_id>/publish', methods=['POST'])
+def publish_review(review_id):
+    """Julkaise pending-arvio."""
+    session = get_session(engine)
+    
+    try:
+        review = session.query(DBReview).get(review_id)
+        if not review:
+            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
+        
+        review.is_published = 1
+        session.commit()
+        
+        movie_title = review.movie.title if review.movie else 'Unknown'
+        return redirect(url_for('admin', message=f'✅ Arvio julkaistu: {movie_title}', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/review/<int:review_id>/delete', methods=['POST'])
+def delete_review(review_id):
+    """Poista arvio (esim. pending-tilasta)."""
+    session = get_session(engine)
+    
+    try:
+        review = session.query(DBReview).get(review_id)
+        if not review:
+            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
+        
+        movie_title = review.movie.title if review.movie else 'Unknown'
+        session.delete(review)
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'Arvio poistettu: {movie_title}', message_type='success'))
+    
+    except Exception as e:
+        session.rollback()
+        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
+    
+    finally:
+        session.close()
+
+
+@app.route('/admin/movie/<int:movie_id>/metadata', methods=['POST'])
+def update_movie_metadata(movie_id):
+    """Päivitä elokuvan metatiedot (TMDB, IMDB, jne)."""
+    session = get_session(engine)
+    
+    try:
+        movie = session.query(Movie).get(movie_id)
+        if not movie:
+            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
+        
+        # Päivitä kentät
+        if request.form.get('tmdb_id'):
+            movie.tmdb_id = int(request.form.get('tmdb_id'))
+        
+        if request.form.get('imdb_id'):
+            movie.imdb_id = request.form.get('imdb_id').strip()
+        
+        if request.form.get('poster_url'):
+            movie.poster_url = request.form.get('poster_url').strip()
+        
+        if request.form.get('letterboxd_url'):
+            movie.letterboxd_url = request.form.get('letterboxd_url').strip()
+        
+        session.commit()
+        
+        return redirect(url_for('admin', message=f'✅ Metatiedot päivitetty: {movie.title}', message_type='success'))
     
     except Exception as e:
         session.rollback()

@@ -20,6 +20,13 @@ class Movie(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    # Elokuvan metatiedot
+    published_date = Column(DateTime, nullable=True)  # Elokuvan julkaisupäivä (teattereissa)
+    tmdb_id = Column(Integer, nullable=True)  # The Movie Database ID
+    imdb_id = Column(String(20), nullable=True)  # IMDB ID (esim. "tt1234567")
+    poster_url = Column(String(500), nullable=True)  # Julistekuva (TMDB)
+    letterboxd_url = Column(String(500), nullable=True)  # Letterboxd-linkki
+    
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="movie")
     
@@ -76,7 +83,11 @@ class Review(Base):
     review_text = Column(Text, nullable=True)
     source_url = Column(String(500), unique=True, nullable=False)  # Unique - ei duplikaatteja
     
+    # Julkaisustatus
+    is_published = Column(Integer, default=0, nullable=False)  # 0 = pending, 1 = julkaistu (SQLite ei tue Boolean)
+    
     # Metadata
+    published_date = Column(DateTime, nullable=True)  # Arvion julkaisupäivä
     scraped_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -103,6 +114,8 @@ class Review(Base):
             'rating_stars': self.rating_stars,
             'review_text': self.review_text,
             'source_url': self.source_url,
+            'is_published': bool(self.is_published),
+            'published_date': self.published_date.isoformat() if self.published_date else None,
             'scraped_at': self.scraped_at.isoformat() if self.scraped_at else None
         }
 

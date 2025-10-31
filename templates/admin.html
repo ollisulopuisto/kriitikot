@@ -206,6 +206,24 @@
         .critic-item.dragging {
             opacity: 0.5;
         }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
     </style>
 </head>
 <body>
@@ -218,6 +236,60 @@
         {% if message %}
         <div class="alert alert-{{ message_type }}">
             {{ message }}
+        </div>
+        {% endif %}
+        
+        {% if pending_reviews %}
+        <div class="section" style="border-left: 4px solid #ff9800;">
+            <h2>⏳ Odottavat arviot ({{ pending_reviews|length }})</h2>
+            <p style="color: #856404; margin-bottom: 20px; font-size: 0.95em;">
+                Nämä arviot on haettu automaattisesti, mutta ne eivät näy vielä julkisella sivustolla. Tarkista tiedot ja julkaise tai poista.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Elokuva</th>
+                        <th>Kriitikko</th>
+                        <th>Media</th>
+                        <th>Tähdet</th>
+                        <th>Haettu</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in pending_reviews %}
+                    <tr style="background: #fff3e0;">
+                        <td>{{ review.id }}</td>
+                        <td>
+                            <strong>{{ review.movie.title if review.movie else 'N/A' }}</strong>
+                            <br>
+                            <small style="color: #666;">
+                                <a href="{{ review.source_url }}" target="_blank" style="color: #1976d2;">🔗 Lähde</a>
+                            </small>
+                        </td>
+                        <td>{{ review.critic.name if review.critic else 'N/A' }}</td>
+                        <td><span class="badge">{{ review.publication.short_name.upper() if review.publication else 'N/A' }}</span></td>
+                        <td>
+                            {% if review.rating_stars %}
+                                {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
+                            {% else %}
+                                <span style="color: #999;">–</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.9em; color: #666;">{{ review.scraped_at.strftime('%Y-%m-%d %H:%M') if review.scraped_at else 'N/A' }}</td>
+                        <td>
+                            <form method="POST" action="/admin/review/{{ review.id }}/publish" style="display: inline; margin-right: 5px;">
+                                <button type="submit" class="btn btn-success">✓ Julkaise</button>
+                            </form>
+                            <form method="POST" action="/admin/review/{{ review.id }}/delete" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Poista arvio?')">✗ Poista</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% endif %}
         
@@ -335,6 +407,12 @@
                     <div style="font-size: 2em; font-weight: bold; color: #6f42c1;">{{ stats.publications }}</div>
                     <div style="color: #666; margin-top: 5px;">Julkaisua</div>
                 </div>
+                {% if stats.pending > 0 %}
+                <div style="background: #fff3e0; padding: 20px; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                    <div style="font-size: 2em; font-weight: bold; color: #ff9800;">{{ stats.pending }}</div>
+                    <div style="color: #666; margin-top: 5px;">Odottaa julkaisua</div>
+                </div>
+                {% endif %}
             </div>
         </div>
         
