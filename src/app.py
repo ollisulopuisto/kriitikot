@@ -105,6 +105,13 @@ def index():
             review_count = session.query(DBReview).filter(DBReview.publication_id == pub.id).count()
             if review_count > 0:
                 pub_stats[pub.short_name.upper()] = review_count
+        
+        # Hae nytleffaan.fi linkit
+        nytleffaan_urls = {}
+        movies = session.query(Movie).all()
+        for movie in movies:
+            if movie.nytleffaan_url:
+                nytleffaan_urls[movie.title] = movie.nytleffaan_url
     finally:
         session.close()
     
@@ -115,7 +122,8 @@ def index():
         total_reviews=total_reviews,
         rating_distribution=rating_distribution,
         pub_stats=pub_stats,
-        critic_media_map=critic_media_map
+        critic_media_map=critic_media_map,
+        nytleffaan_urls=nytleffaan_urls
     )
 
 
@@ -427,6 +435,42 @@ def delete_review(review_id):
         session.close()
 
 
+@app.route('/admin/movie/<int:movie_id>/fetch-metadata', methods=['POST'])
+def fetch_movie_metadata(movie_id):
+    """Hae elokuvan metatiedot automaattisesti."""
+    from metadata_fetcher import MetadataFetcher
+    
+    try:
+        data = request.get_json()
+        movie_title = data.get('title', '')
+        
+        if not movie_title:
+            return jsonify({'error': 'Elokuvan nimi puuttuu'}), 400
+        
+        fetcher = MetadataFetcher()
+        metadata = fetcher.fetch_all_metadata(movie_title)
+        
+        result = {}
+        
+        if metadata.get('tmdb_data'):
+            tmdb = metadata['tmdb_data']
+            result.update({
+                'tmdb_id': tmdb['tmdb_id'],
+                'poster_url': tmdb['poster_url']
+            })
+        
+        if metadata.get('letterboxd_url'):
+            result['letterboxd_url'] = metadata['letterboxd_url']
+        
+        if metadata.get('nytleffaan_url'):
+            result['nytleffaan_url'] = metadata['nytleffaan_url']
+        
+        return jsonify(result)
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/admin/movie/<int:movie_id>/metadata', methods=['POST'])
 def update_movie_metadata(movie_id):
     """Päivitä elokuvan metatiedot (TMDB, IMDB, jne)."""
@@ -450,6 +494,9 @@ def update_movie_metadata(movie_id):
         if request.form.get('letterboxd_url'):
             movie.letterboxd_url = request.form.get('letterboxd_url').strip()
         
+        if request.form.get('nytleffaan_url'):
+            movie.nytleffaan_url = request.form.get('nytleffaan_url').strip()
+        
         session.commit()
         
         return redirect(url_for('admin', message=f'✅ Metatiedot päivitetty: {movie.title}', message_type='success'))
@@ -458,6 +505,18 @@ def update_movie_metadata(movie_id):
         session.rollback()
         return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
     
+    finally:
+        session.close()
+
+
+@app.route('/debug/movies')
+def debug_movies():
+    """Debug - listaa kaikkien elokuvien ID:t ja nimet."""
+    session = get_session(engine)
+    
+    try:
+        movies = session.query(Movie).all()
+        return '<br>'.join([f"{m.id}: {m.title}" for m in movies])
     finally:
         session.close()
 

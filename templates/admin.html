@@ -377,6 +377,7 @@
                 <a href="#pending" class="nav-link">⏳ Odottavat arviot <span style="background: #ff9800; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.85em; margin-left: 4px;">{{ pending_reviews|length }}</span></a>
                 {% endif %}
                 <a href="#movies" class="nav-link">📽️ Elokuvat</a>
+                <a href="#metadata" class="nav-link">🎬 Elokuvan metatiedot</a>
                 <a href="#merge" class="nav-link">🔀 Yhdistä elokuvat</a>
                 <a href="#critics" class="nav-link">👤 Kriitikot</a>
                 <a href="#reviews" class="nav-link">📝 Julkaistut arviot</a>
@@ -509,8 +510,43 @@
             </div>
         </div>
         
-        <div class="section" id="critics">
-            <h2>👤 Kriitikot</h2>
+        <div class="section" id="metadata">
+            <h2>🎬 Elokuvan metatiedot</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.95em;">
+                Muokkaa elokuvien metatietoja (TMDB ID, IMDB, juliste, linkit).
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Elokuva</th>
+                        <th>TMDB ID</th>
+                        <th>IMDB ID</th>
+                        <th>Juliste</th>
+                        <th>Letterboxd</th>
+                        <th>Nytleffaan.fi</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in movies %}
+                    <tr>
+                        <td>{{ movie.id }}</td>
+                        <td><strong>{{ movie.title }}</strong></td>
+                        <td><input type="number" id="tmdb_id_{{ movie.id }}" value="{{ movie.tmdb_id or '' }}" class="edit-input" placeholder="esim. 12345"></td>
+                        <td><input type="text" id="imdb_id_{{ movie.id }}" value="{{ movie.imdb_id or '' }}" class="edit-input" placeholder="esim. tt1234567"></td>
+                        <td><input type="url" id="poster_url_{{ movie.id }}" value="{{ movie.poster_url or '' }}" class="edit-input" placeholder="https://..."></td>
+                        <td><input type="url" id="letterboxd_url_{{ movie.id }}" value="{{ movie.letterboxd_url or '' }}" class="edit-input" placeholder="https://..."></td>
+                        <td><input type="url" id="nytleffaan_url_{{ movie.id }}" value="{{ movie.nytleffaan_url or '' }}" class="edit-input" placeholder="https://..."></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="saveMetadata({{ movie.id }})">Tallenna</button>
+                            <button type="button" class="btn btn-secondary fetch-metadata-btn" data-movie-id="{{ movie.id }}" data-movie-title="{{ movie.title }}">Hae automaattisesti</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
             <table>
                 <thead>
                     <tr>
@@ -714,27 +750,82 @@
             window.open('/?order=' + order.join(','), '_blank');
         }
         
-        // Lataa tallennettu järjestys
-        window.addEventListener('load', () => {
-            const saved = localStorage.getItem('criticOrder');
-            if (saved) {
-                const order = saved.split(',');
-                const items = document.querySelectorAll('.critic-item');
-                const itemMap = new Map();
-                
-                items.forEach(item => {
-                    itemMap.set(item.dataset.id, item);
-                });
-                
-                // Järjestä elementit
-                order.forEach(id => {
-                    const item = itemMap.get(id);
-                    if (item) {
-                        list.appendChild(item);
+        // Hae metatiedot automaattisesti
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.fetch-metadata-btn').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const movieId = this.dataset.movieId;
+                    const movieTitle = this.dataset.movieTitle;
+                    const originalText = this.textContent;
+                    
+                    this.textContent = 'Haetaan...';
+                    this.disabled = true;
+                    
+                    try {
+                        const response = await fetch(`/admin/movie/${movieId}/fetch-metadata`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ title: movieTitle })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        
+                        // Päivitä formin kentät
+                        document.getElementById(`tmdb_id_${movieId}`).value = data.tmdb_id || '';
+                        document.getElementById(`imdb_id_${movieId}`).value = data.imdb_id || '';
+                        document.getElementById(`poster_url_${movieId}`).value = data.poster_url || '';
+                        document.getElementById(`letterboxd_url_${movieId}`).value = data.letterboxd_url || '';
+                        document.getElementById(`nytleffaan_url_${movieId}`).value = data.nytleffaan_url || '';
+                        
+                        alert('Metatiedot haettu onnistuneesti! Muista tallentaa muutokset.');
+                        
+                    } catch (error) {
+                        console.error('Metadata fetch error:', error);
+                        alert('Virhe metatietojen haussa: ' + error.message);
+                    } finally {
+                        this.textContent = originalText;
+                        this.disabled = false;
                     }
                 });
-            }
+            });
         });
+        
+        // Tallenna metatiedot
+        async function saveMetadata(movieId) {
+            const data = {
+                tmdb_id: document.getElementById(`tmdb_id_${movieId}`).value,
+                imdb_id: document.getElementById(`imdb_id_${movieId}`).value,
+                poster_url: document.getElementById(`poster_url_${movieId}`).value,
+                letterboxd_url: document.getElementById(`letterboxd_url_${movieId}`).value,
+                nytleffaan_url: document.getElementById(`nytleffaan_url_${movieId}`).value
+            };
+            
+            try {
+                const response = await fetch(`/admin/movie/${movieId}/metadata`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                if (response.ok) {
+                    alert('Metatiedot tallennettu onnistuneesti!');
+                    location.reload(); // Päivitä sivu nähdäksesi muutokset
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Virhe tallentamisessa: ' + error.message);
+            }
+        }
     </script>
     
     <!-- Scroll to top button -->

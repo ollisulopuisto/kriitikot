@@ -26,6 +26,7 @@ class Movie(Base):
     imdb_id = Column(String(20), nullable=True)  # IMDB ID (esim. "tt1234567")
     poster_url = Column(String(500), nullable=True)  # Julistekuva (TMDB)
     letterboxd_url = Column(String(500), nullable=True)  # Letterboxd-linkki
+    nytleffaan_url = Column(String(500), nullable=True)  # Nytleffaan.fi-linkki
     
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="movie")
