@@ -156,6 +156,9 @@
             {% for movie_title, critics_reviews in grouped_reviews.items() %}
             <div class="movie-card" data-movie="{{ movie_title }}">
                 <div class="movie-card-header">
+                    {% if poster_urls.get(movie_title) %}
+                    <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
+                    {% endif %}
                     <div class="movie-card-title">🎬 {{ movie_title }}{% if nytleffaan_urls.get(movie_title) %} <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" title="Osta lippuja nytleffaan.fi" style="font-size: 0.8em;">🎫</a>{% endif %}</div>
                 </div>
                 <div class="movie-card-body">

@@ -514,6 +514,7 @@
             <h2>🎬 Elokuvan metatiedot</h2>
             <p style="color: #666; margin-bottom: 20px; font-size: 0.95em;">
                 Muokkaa elokuvien metatietoja (TMDB ID, IMDB, juliste, linkit).
+                <button type="button" class="btn btn-success" onclick="fetchAllMetadata()" style="margin-left: 10px;">Hae kaikki automaattisesti</button>
             </p>
             <table>
                 <thead>
@@ -824,6 +825,42 @@
             } catch (error) {
                 console.error('Save error:', error);
                 alert('Virhe tallentamisessa: ' + error.message);
+            }
+        }
+        
+        // Hae kaikki metatiedot automaattisesti
+        async function fetchAllMetadata() {
+            if (!confirm('Haluatko hakea metatiedot kaikille elokuville joilla niitä puuttuu? Tämä voi kestää useita minuutteja.')) {
+                return;
+            }
+            
+            const button = document.querySelector('button[onclick="fetchAllMetadata()"]');
+            const originalText = button.textContent;
+            button.textContent = 'Haetaan...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/admin/fetch-all-metadata', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.message);
+                    location.reload(); // Päivitä sivu nähdäksesi muutokset
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Fetch all metadata error:', error);
+                alert('Virhe metatietojen haussa: ' + error.message);
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
             }
         }
     </script>

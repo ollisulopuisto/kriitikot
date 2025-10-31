@@ -16,13 +16,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from models import Movie
+from config import TMDB_API_KEY
 
 
 class MetadataFetcher:
     """Hakee elokuvan metatietoja eri lähteistä."""
     
     def __init__(self):
-        self.tmdb_api_key = "6765a34786cda319ca668a936e34a8f4"
+        self.tmdb_api_key = TMDB_API_KEY
         self.tmdb_base_url = "https://api.themoviedb.org/3"
         self.tmdb_image_base_url = "https://image.tmdb.org/t/p/w500"  # Keskitason koko julisteille
         

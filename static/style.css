@@ -779,6 +779,17 @@ footer {
     border-bottom: 0.125rem solid #dee2e6;
 }
 
+.movie-card-poster {
+    width: 100%;
+    max-width: 120px;
+    height: auto;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    float: right;
+    margin-left: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+}
+
 .movie-card-title {
     font-size: 1.4em;
     font-weight: 600;

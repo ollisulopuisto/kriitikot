@@ -106,12 +106,15 @@ def index():
             if review_count > 0:
                 pub_stats[pub.short_name.upper()] = review_count
         
-        # Hae nytleffaan.fi linkit
+        # Hae nytleffaan.fi linkit ja posterit
         nytleffaan_urls = {}
+        poster_urls = {}
         movies = session.query(Movie).all()
         for movie in movies:
             if movie.nytleffaan_url:
                 nytleffaan_urls[movie.title] = movie.nytleffaan_url
+            if movie.poster_url:
+                poster_urls[movie.title] = movie.poster_url
     finally:
         session.close()
     
@@ -123,7 +126,8 @@ def index():
         rating_distribution=rating_distribution,
         pub_stats=pub_stats,
         critic_media_map=critic_media_map,
-        nytleffaan_urls=nytleffaan_urls
+        nytleffaan_urls=nytleffaan_urls,
+        poster_urls=poster_urls
     )
 
 
@@ -517,6 +521,68 @@ def debug_movies():
     try:
         movies = session.query(Movie).all()
         return '<br>'.join([f"{m.id}: {m.title}" for m in movies])
+    finally:
+        session.close()
+
+
+@app.route('/admin/fetch-all-metadata', methods=['POST'])
+def fetch_all_metadata():
+    """Hae metatiedot kaikille elokuville joilla niitä puuttuu."""
+    from metadata_fetcher import MetadataFetcher
+    import time
+    
+    session = get_session(engine)
+    fetcher = MetadataFetcher()
+    updated = 0
+    
+    try:
+        # Hae elokuvat joilla puuttuu TMDB ID tai poster
+        movies = session.query(Movie).filter(
+            (Movie.tmdb_id.is_(None)) | 
+            (Movie.poster_url.is_(None)) |
+            (Movie.imdb_id.is_(None))
+        ).all()
+        
+        for movie in movies:
+            try:
+                metadata = fetcher.fetch_all_metadata(movie.title)
+                
+                if metadata.get('tmdb_data'):
+                    tmdb = metadata['tmdb_data']
+                    if not movie.tmdb_id:
+                        movie.tmdb_id = tmdb['tmdb_id']
+                    if not movie.poster_url:
+                        movie.poster_url = tmdb['poster_url']
+                
+                if metadata.get('imdb_id') and not movie.imdb_id:
+                    movie.imdb_id = metadata['imdb_id']
+                
+                if metadata.get('letterboxd_url') and not movie.letterboxd_url:
+                    movie.letterboxd_url = metadata['letterboxd_url']
+                
+                if metadata.get('nytleffaan_url') and not movie.nytleffaan_url:
+                    movie.nytleffaan_url = metadata['nytleffaan_url']
+                
+                updated += 1
+                
+                # Rate limiting - odota 1 sekunti jokaisen hakemisen jälkeen
+                time.sleep(1)
+                
+            except Exception as e:
+                print(f"Virhe elokuvan {movie.title} metatietojen haussa: {e}")
+                continue
+        
+        session.commit()
+        
+        return jsonify({
+            'message': f'✅ Metatiedot haettu onnistuneesti {updated} elokuvalle',
+            'updated': updated
+        })
+    
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
     finally:
         session.close()
 
