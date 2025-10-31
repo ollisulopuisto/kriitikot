@@ -91,7 +91,7 @@
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     <tr>
-                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}" data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}">{{ movie_title }}{% if nytleffaan_urls.get(movie_title) %} <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" title="Osta lippuja nytleffaan.fi" style="font-size: 0.8em;">🎫</a>{% endif %}</td>
+                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}" data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}" data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">{{ movie_title }}{% if nytleffaan_urls.get(movie_title) %} <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" title="Osta lippuja nytleffaan.fi" style="font-size: 0.8em;">�</a>{% endif %}</td>
                         {% for critic in all_critics %}
                         <td class="rating-cell">
                             {% if critic.name in critics_reviews %}
@@ -516,6 +516,23 @@
         
         movieCell.appendChild(posterImg);
         
+        // Lisää Nytleffaan-linkki jos saatavilla
+        const nytleffaanUrl = movieCell.dataset.nytleffaan;
+        if (nytleffaanUrl) {
+            const nytleffaanLink = document.createElement('a');
+            nytleffaanLink.href = nytleffaanUrl;
+            nytleffaanLink.target = '_blank';
+            nytleffaanLink.textContent = '🎫 Osta liput';
+            nytleffaanLink.style.display = 'block';
+            nytleffaanLink.style.marginTop = '8px';
+            nytleffaanLink.style.fontSize = '0.9em';
+            nytleffaanLink.style.color = '#059669';
+            nytleffaanLink.style.textDecoration = 'none';
+            nytleffaanLink.title = 'Osta lippuja nytleffaan.fi';
+            
+            movieCell.appendChild(nytleffaanLink);
+        }
+        
         // Lisää Letterboxd-linkki jos saatavilla
         const letterboxdUrl = movieCell.dataset.letterboxd;
         if (letterboxdUrl) {
@@ -538,6 +555,10 @@
         const poster = movieCell.querySelector('.movie-poster');
         if (poster) {
             poster.remove();
+        }
+        const nytleffaanLink = movieCell.querySelector('a[href*="nytleffaan"]');
+        if (nytleffaanLink) {
+            nytleffaanLink.remove();
         }
         const letterboxdLink = movieCell.querySelector('a[href*="letterboxd"]');
         if (letterboxdLink) {

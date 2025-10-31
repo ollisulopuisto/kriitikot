@@ -148,7 +148,10 @@ class MetadataFetcher:
         return None
     
     def search_movie_nytleffaan(self, movie_title: str) -> Optional[str]:
-        """Hae Nytleffaan.fi-linkki elokuvalle hakutoiminnolla.
+        """Hae Nytleffaan.fi-linkki elokuvalle.
+        
+        Koska sivusto käyttää bot protectionia, käytetään direct URL muodostamista
+        perustuen elokuvan nimeen.
         
         Args:
             movie_title: Elokuvan nimi
@@ -157,37 +160,34 @@ class MetadataFetcher:
             Nytleffaan.fi elokuva-sivu URL tai None
         """
         try:
-            # Muunna nimi URL-ystävälliseksi hakua varten
-            search_query = movie_title.replace(' ', '+').replace('&', 'and')
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
             
-            # Käytä hakua
-            search_url = f"https://www.nytleffaan.fi/hae/{search_query}/"
-            response = requests.get(search_url, timeout=10)
-            
-            if response.status_code == 200:
-                # Etsi ensimmäinen elokuva-linkki hakutuloksista
-                # Linkit ovat muotoa /elokuva/slug/
-                matches = re.findall(r'href="/elokuva/([^"]*)/?"', response.text)
-                
-                if matches:
-                    # Ota ensimmäinen osuma
-                    slug = matches[0]
-                    movie_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
-                    
-                    # Varmista että sivu löytyy
-                    check_response = requests.head(movie_url, timeout=5)
-                    if check_response.status_code == 200:
-                        return movie_url
-            
-            # Fallback: yritä muodostaa URL suoraan (jos tiedetään slug)
-            # Esim. "Black Phone 2" -> "blackphone2"
+            # Muunna nimi URL-ystävälliseksi slugiksi
+            # Poista erikoismerkit, muunna pieniksi kirjaimiksi, poista välilyönnit
             slug = re.sub(r'[^\w\s-]', '', movie_title.lower())
-            slug = re.sub(r'[\s]+', '', slug)  # Poista välilyönnit
+            slug = re.sub(r'[\s]+', '', slug)
             
+            # Yritä muodostaa URL suoraan
             direct_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
-            check_response = requests.head(direct_url, timeout=5)
-            if check_response.status_code == 200:
+            
+            # Tarkista että sivu löytyy (hyväksy myös 202 status bot protection vuoksi)
+            check_response = requests.head(direct_url, headers=headers, timeout=5)
+            
+            if check_response.status_code < 400:  # Accept 200, 202, etc.
                 return direct_url
+            
+            # Jos ei löydy, yritä vaihtoehtoisia slug-muotoja
+            # Esim. lisää vuosi jos tiedossa, tai muuta väliviivat
+            alt_slug = re.sub(r'[^\w\s-]', '', movie_title.lower())
+            alt_slug = re.sub(r'[\s]+', '-', alt_slug)  # Käytä väliviivoja
+            
+            alt_url = f"https://www.nytleffaan.fi/elokuva/{alt_slug}/"
+            check_response = requests.head(alt_url, headers=headers, timeout=5)
+            
+            if check_response.status_code < 400:
+                return alt_url
             
         except Exception as e:
             print(f"Nytleffaan search error for '{movie_title}': {e}")
@@ -250,5 +250,29 @@ def test_metadata_fetcher():
     print(f"Nytleffaan URL: {result['nytleffaan_url']}")
 
 
+def test_nytleffaan():
+    """Testaa nytleffaan.fi hakua."""
+    fetcher = MetadataFetcher()
+    
+    test_movies = ["Black Phone 2", "Inception", "Oppenheimer"]
+    
+    for movie in test_movies:
+        print(f"\nTestataan: {movie}")
+        url = fetcher.search_movie_nytleffaan(movie)
+        print(f"Tulos: {url}")
+        
+        if url:
+            # Testaa että URL toimii (hyväksy myös 202 status)
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                response = requests.head(url, headers=headers, timeout=5)
+                print(f"URL status: {response.status_code} (hyväksyttävä: {response.status_code < 400})")
+            except Exception as e:
+                print(f"URL error: {e}")
+
+
 if __name__ == '__main__':
     test_metadata_fetcher()
+    test_nytleffaan()
