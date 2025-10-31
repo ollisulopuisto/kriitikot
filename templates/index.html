@@ -25,23 +25,31 @@
         
         {% if grouped_reviews %}
         <!-- Desktop: Taulukkonäkymä -->
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="movie-col"></th>
-                        {% for critic in all_critics %}
-                        <th class="rating-cell">
-                            {{ critic.name }}
-                            {% if critic.media %}
-                            <span class="critic-media">{{ critic.media }}</span>
-                            {% endif %}
-                        </th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for movie_title, critics_reviews in grouped_reviews.items() %}
+        <div class="table-container">
+            <!-- Sticky header table -->
+            <div class="table-header-wrapper">
+                <table class="header-table">
+                    <thead>
+                        <tr>
+                            <th class="movie-col"></th>
+                            {% for critic in all_critics %}
+                            <th class="rating-cell">
+                                {{ critic.name }}
+                                {% if critic.media %}
+                                <span class="critic-media">{{ critic.media }}</span>
+                                {% endif %}
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            
+            <!-- Scrollable data table -->
+            <div class="table-wrapper">
+                <table>
+                    <tbody>
+                        {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     <tr>
                         <td class="movie-col">{{ movie_title }}</td>
                         {% for critic in all_critics %}
@@ -69,6 +77,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
         
         <!-- Mobile: Korttinäkymä -->
