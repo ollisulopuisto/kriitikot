@@ -378,7 +378,6 @@ td.movie-col:hover {
 }
 
 td.movie-col {
-    font-weight: 600;
     color: #212529;
     position: sticky;
     left: 0;
@@ -975,4 +974,20 @@ footer {
 .letterboxd-link:hover {
     background: #7c3aed;
     transform: translateY(-1px);
+}
+
+/* Korostusluokat facet-hakuun */
+.movie-col.selected {
+    font-weight: 700 !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+}
+
+th.rating-cell.selected {
+    font-weight: 700 !important;
+    background: rgba(139, 92, 246, 0.15) !important;
+}
+
+.review-critic-name.selected {
+    font-weight: 700 !important;
+    color: #8b5cf6 !important;
 }
