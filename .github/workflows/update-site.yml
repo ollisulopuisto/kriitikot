@@ -21,6 +21,8 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # Älä aja jos commit on tehty botilla (vältetään loputon looppi)
+    if: ${{ !contains(github.event.head_commit.message, '🤖 Automaattinen päivitys') }}
     
     steps:
       - name: Checkout repository
