@@ -126,6 +126,14 @@ h2, h3, h4, h5, h6 {
     overflow-x: auto;
 }
 
+/* Desktop only: make the wrapper support sticky positioning */
+@media (min-width: 769px) {
+    .table-wrapper {
+        overflow-x: visible;
+        overflow-y: visible;
+    }
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -137,6 +145,7 @@ thead {
     z-index: 20;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
 }
 
 th {
@@ -694,6 +703,11 @@ footer {
     /* Piilota taulukko mobiililla */
     .table-wrapper {
         display: none;
+    }
+    
+    /* Poista sticky-asemointi mobiililla (vaikka taulukko on piilotettu) */
+    thead {
+        position: static;
     }
     
     /* Näytä kortit mobiililla */
