@@ -132,6 +132,9 @@ table {
 }
 
 thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
 }
@@ -154,7 +157,7 @@ th.movie-col {
     position: sticky;
     left: 0;
     background: #f8f9fa;
-    z-index: 10;
+    z-index: 21;
     white-space: nowrap;
     user-select: none;
     transition: background-color 0.2s;
