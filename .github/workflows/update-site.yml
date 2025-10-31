@@ -38,12 +38,12 @@ jobs:
       - name: Aja scraperit ja päivitä tietokanta
         run: |
           cd src
-          python batch_update.py
+          python3 batch_update.py
         continue-on-error: true
       
       - name: Generoi staattiset sivut
         run: |
-          python scripts/generate_static.py
+          python3 scripts/generate_static.py
       
       - name: Commit ja push muutokset
         run: |

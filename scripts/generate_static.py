@@ -14,7 +14,7 @@ from pathlib import Path
 # Lisää src kansio Python pathiin
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from app import app, get_grouped_reviews, get_all_critics
+from app import app, get_all_reviews_grouped
 
 def generate_static_site():
     """Generoi staattiset sivut docs/ kansioon."""
@@ -53,13 +53,12 @@ def generate_static_site():
     print(f"✅ Luotu: {nojekyll}")
     
     # 4. Tilastot
-    grouped_reviews = get_grouped_reviews()
-    all_critics = get_all_critics()
+    grouped_reviews, all_critics, total_reviews = get_all_reviews_grouped()
     
     print(f"\n📊 Sivuston tilastot:")
     print(f"   - Elokuvia: {len(grouped_reviews)}")
     print(f"   - Kriitikoita: {len(all_critics)}")
-    print(f"   - Arvosteluja: {sum(len(reviews) for reviews in grouped_reviews.values())}")
+    print(f"   - Arvosteluja: {total_reviews}")
     
     print(f"\n✨ Staattinen sivusto valmis: {docs_dir}")
     print(f"\n📌 Seuraavat vaiheet:")
