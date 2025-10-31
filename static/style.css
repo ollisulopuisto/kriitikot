@@ -76,12 +76,12 @@ h1 {
     margin-bottom: 0.625rem;
     line-height: 1.1;
     text-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
-    transform: perspective(500px) rotateX(5deg);
+    transform: perspective(500px) rotateX(10deg);
     transition: transform 0.3s ease;
 }
 
 h1:hover {
-    transform: perspective(500px) rotateX(0deg) scale(1.02);
+    transform: perspective(500px) rotateX(-10deg) scale(1.02);
 }
 
 h2, h3, h4, h5, h6 {
