@@ -121,6 +121,91 @@ h2, h3, h4, h5, h6 {
     transform: translateY(0);
 }
 
+/* Arvioiden määrä -suodatin */
+.review-count-filter {
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.review-count-filter label {
+    display: block;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.filter-icon {
+    font-size: 1.3em;
+    margin-right: 0.5rem;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 0.5rem;
+    background: #ddd;
+    outline: none;
+    border-radius: 0.25rem;
+    transition: background 0.3s;
+    margin-bottom: 0.5rem;
+}
+
+.slider:hover {
+    background: #ccc;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider::-webkit-slider-thumb:active {
+    transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb:active {
+    transform: scale(1.1);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+    color: #666;
+    padding: 0 0.5rem;
+}
+
 .table-wrapper {
     background: white;
     border-radius: 0.5rem;
@@ -139,6 +224,15 @@ h2, h3, h4, h5, h6 {
 table {
     width: 100%;
     border-collapse: collapse;
+}
+
+tbody tr {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+tbody tr[style*="display: none"] {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 
 thead {
@@ -534,6 +628,18 @@ footer {
 @media (max-width: 768px) {
     footer {
         padding: 1.875rem 1.25rem;
+    }
+    
+    .review-count-filter {
+        padding: 1rem 1.25rem;
+    }
+    
+    .review-count-filter label {
+        font-size: 1em;
+    }
+    
+    .filter-icon {
+        font-size: 1.1em;
     }
     
     .stats {

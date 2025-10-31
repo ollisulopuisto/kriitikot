@@ -41,6 +41,30 @@
             </div>
         </header>
         
+        <!-- Arvioiden määrä -suodatin -->
+        <div class="review-count-filter">
+            <label for="min-reviews-slider">
+                <span class="filter-icon">🔍</span>
+                Näytä elokuvat, joista vähintään <strong id="min-reviews-value">1</strong> arvostelua
+            </label>
+            <input 
+                type="range" 
+                id="min-reviews-slider" 
+                min="1" 
+                max="5" 
+                value="1" 
+                step="1"
+                class="slider"
+            >
+            <div class="slider-labels">
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4</span>
+                <span>5+</span>
+            </div>
+        </div>
+        
         {% if grouped_reviews %}
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
@@ -194,6 +218,114 @@
     </div>
 
     <script>
+    // Arvioiden määrä -suodatin
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('min-reviews-slider');
+        const valueDisplay = document.getElementById('min-reviews-value');
+        const table = document.querySelector('table');
+        const mobileCards = document.querySelectorAll('.movie-card');
+        
+        if (!slider || !valueDisplay) return;
+        
+        // Laske jokaisen elokuvan arvioiden määrä
+        const movieReviewCounts = new Map();
+        
+        // Desktop: Laske taulukon riveiltä
+        if (table) {
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const movieCell = row.querySelector('.movie-col');
+                if (!movieCell) return;
+                
+                const movieTitle = movieCell.textContent.trim();
+                const ratingCells = row.querySelectorAll('.rating-cell');
+                
+                let reviewCount = 0;
+                ratingCells.forEach(cell => {
+                    // Tarkista onko solussa oikea arvostelu (linkki tai tähtiä)
+                    const hasLink = cell.querySelector('a.rating-link');
+                    const hasStars = cell.querySelector('.rating-stars');
+                    const noRating = cell.querySelector('.no-rating');
+                    
+                    // Laske vain jos on linkki tai tähtiä (ei pelkkä "–")
+                    if (hasLink || hasStars || (noRating && !noRating.textContent.includes('–'))) {
+                        reviewCount++;
+                    }
+                });
+                
+                movieReviewCounts.set(movieTitle, reviewCount);
+                row.dataset.reviewCount = reviewCount;
+            });
+        }
+        
+        // Mobile: Laske korteista
+        mobileCards.forEach(card => {
+            const movieTitle = card.dataset.movie;
+            const reviewItems = card.querySelectorAll('.review-item');
+            const reviewCount = reviewItems.length;
+            
+            movieReviewCounts.set(movieTitle, reviewCount);
+            card.dataset.reviewCount = reviewCount;
+        });
+        
+        function filterByReviewCount(minCount) {
+            let hiddenCount = 0;
+            
+            // Desktop: Piilota rivit
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const rows = tbody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const count = parseInt(row.dataset.reviewCount || 0);
+                    if (count < minCount) {
+                        row.style.display = 'none';
+                        hiddenCount++;
+                    } else {
+                        row.style.display = '';
+                    }
+                });
+            }
+            
+            // Mobile: Piilota kortit
+            mobileCards.forEach(card => {
+                const count = parseInt(card.dataset.reviewCount || 0);
+                if (count < minCount) {
+                    card.style.display = 'none';
+                    hiddenCount++;
+                } else {
+                    card.style.display = '';
+                }
+            });
+            
+            // Näytä/piilota reset-nappi
+            if (minCount > 1 && typeof window.showResetButton === 'function') {
+                window.showResetButton();
+            }
+            
+            return hiddenCount;
+        }
+        
+        slider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            valueDisplay.textContent = value;
+            filterByReviewCount(value);
+        });
+        
+        // Lisää reset-toiminto
+        const resetButton = document.getElementById('reset-filters');
+        if (resetButton) {
+            const originalResetHandler = resetButton.onclick;
+            resetButton.addEventListener('click', function() {
+                slider.value = 1;
+                valueDisplay.textContent = 1;
+                filterByReviewCount(1);
+            });
+        }
+    });
+    
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
         const resetButton = document.getElementById('reset-filters');
