@@ -759,25 +759,21 @@ footer {
 .movie-card-header {
     background: #f8f9fa;
     padding: 1rem;
-}
-
-/* Korttinäkymä mobiilille */
-.mobile-cards {
-    display: none;
-}
-
-.movie-card {
-    background: white;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
-}
-
-.movie-card-header {
-    background: #f8f9fa;
-    padding: 1rem;
     border-bottom: 0.125rem solid #dee2e6;
+}
+
+.movie-card-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.movie-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.3;
+    flex: 1;
 }
 
 .movie-card-poster {
@@ -789,41 +785,7 @@ footer {
     float: right;
     margin-left: 1rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
-}
-
-/* Mobiili: Tee juliste pienemmäksi */
-@media (max-width: 768px) {
-    .movie-card-poster {
-        max-width: 80px;
-        margin-left: 0.5rem;
-    }
-}
-
-.movie-card-title {
-    font-size: 1.4em;
-    font-weight: 600;
-    color: #212529;
-    line-height: 1.3;
-}
-
-.nytleffaan-clapper-link {
-    display: inline-block;
-    background: #28a745;
-    color: white !important;
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
-    text-decoration: none;
-    font-size: 0.8em;
-    font-weight: 600;
-    margin-left: 0.5rem;
-    transition: all 0.2s ease;
-    vertical-align: middle;
-}
-
-.nytleffaan-clapper-link:hover {
-    background: #218838;
-    transform: scale(1.05);
-    box-shadow: 0 0.125rem 0.5rem rgba(40, 167, 69, 0.3);
+    flex-shrink: 0;
 }
 
 .movie-card-body {
@@ -945,6 +907,23 @@ footer {
     /* Näytä sorttausnappi mobiililla */
     .mobile-sort-button {
         display: block !important;
+    }
+    
+    /* Mobiili movie card layout */
+    .movie-card-title-row {
+        align-items: flex-end;
+    }
+    
+    .movie-card-title {
+        font-size: 1.6em;
+    }
+    
+    .movie-card-poster {
+        max-width: 100px;
+        margin-left: 0;
+        margin-bottom: 0;
+        float: none;
+        align-self: flex-end;
     }
 }
 
