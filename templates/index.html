@@ -287,41 +287,23 @@
             
             movieCell.addEventListener('click', function() {
                 const row = movieCell.parentElement;
+                
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.click();
+                    return;
+                }
+                
+                // Aktivoi uusi filtteri
                 const ratingCells = row.querySelectorAll('.rating-cell');
                 const thead = table.querySelector('thead tr');
                 const criticCells = thead.querySelectorAll('th.rating-cell');
                 const allRows = tbody.querySelectorAll('tr');
                 
-                // Tarkista onko JO TÄMÄ rivi filtteröity ENNEN resetointia
-                const wasAlreadyFiltered = row.dataset.filtered === 'true';
-                
-                // AINA resetoi KAIKKI filtterit ensin
-                criticCells.forEach(cell => {
-                    cell.style.display = '';
-                    cell.classList.remove('dimmed');
-                    cell.style.backgroundColor = '';
-                    delete cell.dataset.filtered;
-                });
-                tbody.querySelectorAll('tr').forEach(r => {
-                    r.querySelectorAll('.rating-cell').forEach(cell => {
-                        cell.style.display = '';
-                        cell.classList.remove('dimmed');
-                    });
-                    r.classList.remove('dimmed');
-                    r.style.display = '';
-                    delete r.dataset.filtered;
-                    const mCell = r.querySelector('.movie-col');
-                    if (mCell) mCell.style.fontWeight = 'normal';
-                });
-                
-                // Jos klikataan samaa riviä joka oli jo filtteröity, lopeta tähän (toggle off)
-                if (wasAlreadyFiltered) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.style.display = 'none';
-                    return; // Ei aktivoida uutta filteriä
-                }
-                
-                // Aktivoi uusi filtteri TÄLLE riville
                 ratingCells.forEach((cell, index) => {
                     const hasStars = cell.querySelector('.rating-stars');
                     
@@ -356,40 +338,20 @@
             criticHeader.title = 'Klikkaa piilottaaksesi elokuvat joita ei arvosteltu';
             
             criticHeader.addEventListener('click', function() {
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.click();
+                    return;
+                }
+                
+                // Aktivoi uusi filtteri
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
-                // Tarkista onko JO TÄMÄ sarake filtteröity ENNEN resetointia
-                const wasAlreadyFiltered = criticHeader.dataset.filtered === 'true';
-                
-                // AINA resetoi KAIKKI filtterit ensin
-                const criticCells = table.querySelector('thead tr').querySelectorAll('th.rating-cell');
-                criticCells.forEach(cell => {
-                    cell.style.display = '';
-                    cell.classList.remove('dimmed');
-                    cell.style.backgroundColor = '';
-                    delete cell.dataset.filtered;
-                });
-                tbody.querySelectorAll('tr').forEach(r => {
-                    r.querySelectorAll('.rating-cell').forEach(cell => {
-                        cell.style.display = '';
-                        cell.classList.remove('dimmed');
-                    });
-                    r.classList.remove('dimmed');
-                    r.style.display = '';
-                    delete r.dataset.filtered;
-                    const mCell = r.querySelector('.movie-col');
-                    if (mCell) mCell.style.fontWeight = 'normal';
-                });
-                
-                // Jos klikataan samaa saraketta joka oli jo filtteröity, lopeta tähän (toggle off)
-                if (wasAlreadyFiltered) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.style.display = 'none';
-                    return; // Ei aktivoida uutta filteriä
-                }
-                
-                // Aktivoi uusi filtteri TÄLLE sarakkeelle
                 rows.forEach(row => {
                     const ratingCell = row.querySelectorAll('.rating-cell')[colIndex];
                     const hasStars = ratingCell.querySelector('.rating-stars');
@@ -435,36 +397,21 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    const resetButton = document.getElementById('reset-filters');
+                    if (resetButton) resetButton.click();
+                    return;
+                }
+                
+                // Aktivoi uusi filtteri
                 const selectedCritic = reviewItem.dataset.critic;
                 const allCards = document.querySelectorAll('.movie-card');
                 const allReviewItems = document.querySelectorAll('.review-item');
                 
-                // Tarkista onko JO TÄMÄ kriitikko filtteröity ENNEN resetointia
-                const wasAlreadyFiltered = criticArea.dataset.filtered === 'true';
-                
-                // AINA resetoi KAIKKI mobiili-filtterit ensin
-                allCards.forEach(card => {
-                    card.style.display = '';
-                });
-                allReviewItems.forEach(item => {
-                    item.style.display = '';
-                    const area = item.querySelector('.review-critic');
-                    const name = item.querySelector('.review-critic-name');
-                    if (area && name) {
-                        name.style.fontWeight = 'normal';
-                        name.style.color = '';
-                        delete area.dataset.filtered;
-                    }
-                });
-                
-                // Jos klikataan samaa kriitikkoa joka oli jo filtteröity, lopeta tähän (toggle off)
-                if (wasAlreadyFiltered) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.style.display = 'none';
-                    return; // Ei aktivoida uutta filteriä
-                }
-                
-                // Aktivoi uusi filtteri TÄLLE kriitikolle
                 allCards.forEach(card => {
                     const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
                         .some(item => item.dataset.critic === selectedCritic);
