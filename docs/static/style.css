@@ -791,6 +791,14 @@ footer {
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
 }
 
+/* Mobiili: Tee juliste pienemmäksi */
+@media (max-width: 768px) {
+    .movie-card-poster {
+        max-width: 80px;
+        margin-left: 0.5rem;
+    }
+}
+
 .movie-card-title {
     font-size: 1.4em;
     font-weight: 600;
