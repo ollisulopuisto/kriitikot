@@ -91,7 +91,7 @@
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     <tr>
-                        <td class="movie-col">{{ movie_title }}{% if nytleffaan_urls.get(movie_title) %} <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" title="Osta lippuja nytleffaan.fi" style="font-size: 0.8em;">🎫</a>{% endif %}</td>
+                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}">{{ movie_title }}{% if nytleffaan_urls.get(movie_title) %} <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" title="Osta lippuja nytleffaan.fi" style="font-size: 0.8em;">🎫</a>{% endif %}</td>
                         {% for critic in all_critics %}
                         <td class="rating-cell">
                             {% if critic.name in critics_reviews %}
@@ -424,6 +424,7 @@
                     const movieCell = row.querySelector('.movie-col');
                     if (movieCell) {
                         movieCell.style.fontWeight = 'normal';
+                        hidePosterInCell(movieCell);
                     }
                 });
                 
@@ -483,6 +484,34 @@
         // Näytä nappi kun jotain filtteröidään
         window.showResetButton = showResetButton;
     });
+    
+    // Poster functions
+    function showPosterInCell(movieCell, posterUrl) {
+        // Poista vanha poster jos on
+        const existingPoster = movieCell.querySelector('.movie-poster');
+        if (existingPoster) {
+            existingPoster.remove();
+        }
+        
+        // Lisää uusi poster
+        const posterImg = document.createElement('img');
+        posterImg.src = posterUrl;
+        posterImg.alt = 'Elokuvan juliste';
+        posterImg.className = 'movie-poster';
+        posterImg.style.maxWidth = '120px';
+        posterImg.style.marginTop = '8px';
+        posterImg.style.borderRadius = '4px';
+        posterImg.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        
+        movieCell.appendChild(posterImg);
+    }
+    
+    function hidePosterInCell(movieCell) {
+        const poster = movieCell.querySelector('.movie-poster');
+        if (poster) {
+            poster.remove();
+        }
+    }
     
     // Ylänurkka: Aakkosta elokuvat
     document.addEventListener('DOMContentLoaded', function() {
@@ -579,6 +608,12 @@
                 row.dataset.filtered = 'true';
                 movieCell.style.fontWeight = 'bold';
                 if (window.showResetButton) window.showResetButton();
+                
+                // Näytä poster nimisolussa jos saatavilla
+                const posterUrl = movieCell.dataset.poster;
+                if (posterUrl) {
+                    showPosterInCell(movieCell, posterUrl);
+                }
             });
         });
         
