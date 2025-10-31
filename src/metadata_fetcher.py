@@ -148,30 +148,46 @@ class MetadataFetcher:
         return None
     
     def search_movie_nytleffaan(self, movie_title: str) -> Optional[str]:
-        """Hae Nytleffaan.fi-linkki elokuvalle.
+        """Hae Nytleffaan.fi-linkki elokuvalle hakutoiminnolla.
         
         Args:
             movie_title: Elokuvan nimi
             
         Returns:
-            Nytleffaan.fi URL tai None
+            Nytleffaan.fi elokuva-sivu URL tai None
         """
         try:
-            # Hae elokuvat nytleffaan.fi:stä
-            url = "https://www.nytleffaan.fi/api/v1/movies"
+            # Muunna nimi URL-ystävälliseksi hakua varten
+            search_query = movie_title.replace(' ', '+').replace('&', 'and')
             
-            # Jos API ei ole saatavilla, yritä scrapea
-            response = requests.get("https://www.nytleffaan.fi/", timeout=10)
+            # Käytä hakua
+            search_url = f"https://www.nytleffaan.fi/hae/{search_query}/"
+            response = requests.get(search_url, timeout=10)
             
             if response.status_code == 200:
-                # Etsi elokuvan nimi sivusta
-                content = response.text.lower()
-                movie_lower = movie_title.lower()
+                # Etsi ensimmäinen elokuva-linkki hakutuloksista
+                # Linkit ovat muotoa /elokuva/slug/
+                matches = re.findall(r'href="/elokuva/([^"]*)/?"', response.text)
                 
-                # Yksinkertainen haku - todellisessa toteutuksessa tarvitaan parempi parsinta
-                if movie_lower in content:
-                    # Palauta pääsivu (parempi olisi löytää tarkka linkki)
-                    return "https://www.nytleffaan.fi/"
+                if matches:
+                    # Ota ensimmäinen osuma
+                    slug = matches[0]
+                    movie_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
+                    
+                    # Varmista että sivu löytyy
+                    check_response = requests.head(movie_url, timeout=5)
+                    if check_response.status_code == 200:
+                        return movie_url
+            
+            # Fallback: yritä muodostaa URL suoraan (jos tiedetään slug)
+            # Esim. "Black Phone 2" -> "blackphone2"
+            slug = re.sub(r'[^\w\s-]', '', movie_title.lower())
+            slug = re.sub(r'[\s]+', '', slug)  # Poista välilyönnit
+            
+            direct_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
+            check_response = requests.head(direct_url, timeout=5)
+            if check_response.status_code == 200:
+                return direct_url
             
         except Exception as e:
             print(f"Nytleffaan search error for '{movie_title}': {e}")
