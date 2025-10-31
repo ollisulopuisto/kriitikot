@@ -65,19 +65,23 @@
                         {% for critic in all_critics %}
                         <td class="rating-cell">
                             {% if critic.name in critics_reviews %}
-                                {% set review = critics_reviews[critic.name] %}
-                                {% if review.source_url %}
-                                {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                <a href="{{ review.source_url }}" class="rating-link" target="_blank" title="{{ tooltip_text }}...">
-                                {% endif %}
-                                    {% if review.rating_stars %}
-                                    <span class="rating-stars">{{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}</span>
-                                    {% else %}
-                                    <span class="no-rating">Ei arvosanaa</span>
+                                {% set reviews_list = critics_reviews[critic.name] %}
+                                {% for review in reviews_list %}
+                                    {% if review.source_url %}
+                                    {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                                    <a href="{{ review.source_url }}" class="rating-link" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
                                     {% endif %}
-                                {% if review.source_url %}
-                                </a>
-                                {% endif %}
+                                        {% if review.rating_stars %}
+                                        <span class="rating-stars">{{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}</span>
+                                        {% else %}
+                                        <span class="no-rating">Ei arvosanaa</span>
+                                        {% endif %}
+                                        <span class="pub-badge">{{ review.publication.short_name.upper() }}</span>
+                                    {% if review.source_url %}
+                                    </a>
+                                    {% endif %}
+                                    {% if not loop.last %}<br>{% endif %}
+                                {% endfor %}
                             {% else %}
                                 <span class="no-rating">–</span>
                             {% endif %}
@@ -102,13 +106,14 @@
                 <div class="movie-card-body">
                     {% for critic in all_critics %}
                         {% if critic.name in critics_reviews %}
-                            {% set review = critics_reviews[critic.name] %}
-                            <div class="review-item" data-critic="{{ critic.name }}">
+                            {% set reviews_list = critics_reviews[critic.name] %}
+                            {% for review in reviews_list %}
+                            <div class="review-item" data-critic="{{ critic.name }}" data-publication="{{ review.publication.short_name }}">
                                 <div class="review-rating">
                                     {% if review.rating_stars %}
                                         {% if review.source_url %}
                                         {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                        <a href="{{ review.source_url }}" target="_blank" style="text-decoration: none; color: inherit;" title="{{ tooltip_text }}...">
+                                        <a href="{{ review.source_url }}" target="_blank" style="text-decoration: none; color: inherit;" title="{{ review.publication.name }}: {{ tooltip_text }}...">
                                             {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
                                         </a>
                                         {% else %}
@@ -120,11 +125,10 @@
                                 </div>
                                 <div class="review-critic">
                                     <span class="review-critic-name">{{ critic.name }}</span>
-                                    {% if critic.media %}
-                                    <span class="review-media">/ {{ critic.media }}</span>
-                                    {% endif %}
+                                    <span class="review-media">/ {{ review.publication.short_name.upper() }}</span>
                                 </div>
                             </div>
+                            {% endfor %}
                         {% endif %}
                     {% endfor %}
                 </div>

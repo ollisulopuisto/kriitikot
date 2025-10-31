@@ -2,7 +2,7 @@
 SQLAlchemy tietokantamallit.
 """
 
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Float, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
@@ -28,19 +28,20 @@ class Movie(Base):
 
 
 class Critic(Base):
-    """Kriitikko."""
+    """Kriitikko - voi kirjoittaa useisiin julkaisuihin."""
     __tablename__ = 'critics'
     
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False, index=True)
-    media = Column(String(100), nullable=True)  # Esim. "HS", "IL", "TS"
+    # POISTETTU: media kenttä (kriitikko voi kirjoittaa moneen mediaan)
+    # Media-tieto tulee nyt Review-taulun kautta publication_id:stä
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="critic")
     
     def __repr__(self):
-        return f"<Critic(id={self.id}, name='{self.name}', media='{self.media}')>"
+        return f"<Critic(id={self.id}, name='{self.name}')>"
 
 
 class Publication(Base):
@@ -83,6 +84,11 @@ class Review(Base):
     movie = relationship("Movie", back_populates="reviews")
     critic = relationship("Critic", back_populates="reviews")
     publication = relationship("Publication", back_populates="reviews")
+    
+    # Unique constraint: sama kriitikko voi arvostella saman elokuvan vain kerran per julkaisu
+    __table_args__ = (
+        UniqueConstraint('movie_id', 'critic_id', 'publication_id', name='_movie_critic_pub_uc'),
+    )
     
     def __repr__(self):
         return f"<Review(id={self.id}, movie='{self.movie.title if self.movie else None}', critic='{self.critic.name if self.critic else None}', stars={self.rating_stars})>"

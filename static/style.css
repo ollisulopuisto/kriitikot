@@ -324,8 +324,20 @@ td:not(.dimmed) {
     color: #f39c12;
     font-size: 1.1em;
     letter-spacing: 0.0625rem;
-    display: block;
+    display: inline-block;
     transition: color 0.2s ease;
+}
+
+.pub-badge {
+    display: inline-block;
+    font-size: 0.7em;
+    font-weight: bold;
+    color: #666;
+    background: #e9ecef;
+    padding: 0.15em 0.4em;
+    border-radius: 0.25em;
+    margin-left: 0.3em;
+    vertical-align: middle;
 }
 
 .no-rating {

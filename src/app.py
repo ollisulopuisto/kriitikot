@@ -16,7 +16,13 @@ engine = get_engine()
 
 
 def get_all_reviews_grouped():
-    """Hakee kaikki arvostelut ryhmiteltynä elokuvittain."""
+    """Hakee kaikki arvostelut ryhmiteltynä elokuvittain.
+    
+    Palauttaa:
+        - grouped: dict[movie_title][critic_name] = [review1, review2, ...]
+        - critics: List[Critic] - kaikki kriitikot
+        - total_reviews: int - arvostelujen määrä
+    """
     session = get_session(engine)
     
     try:
@@ -30,7 +36,7 @@ def get_all_reviews_grouped():
         # Hae kaikki kriitikot
         critics = session.query(Critic).all()
         
-        # Ryhmittele elokuvittain (käytä kriitikon NIMEÄ avaimena)
+        # Ryhmittele elokuvittain (kriitikon NIMI → LISTA arvosteluja)
         grouped = {}
         
         for review in reviews:
@@ -40,7 +46,11 @@ def get_all_reviews_grouped():
             if movie_title not in grouped:
                 grouped[movie_title] = {}
             
-            grouped[movie_title][critic_name] = review
+            if critic_name not in grouped[movie_title]:
+                grouped[movie_title][critic_name] = []
+            
+            # Lisää arvostelu listaan (sama kriitikko voi olla useassa mediassa)
+            grouped[movie_title][critic_name].append(review)
         
         return grouped, sorted(critics, key=lambda c: c.name), len(reviews)
     
