@@ -651,7 +651,7 @@ footer {
     }
     
     /* Piilota taulukko mobiililla */
-    .table-wrapper {
+    .table-container {
         display: none;
     }
     
