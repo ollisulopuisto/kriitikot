@@ -289,12 +289,12 @@
                 const row = movieCell.parentElement;
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.click();
+                    resetButton.click();
                     return;
                 }
                 
@@ -339,12 +339,12 @@
             
             criticHeader.addEventListener('click', function() {
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.click();
+                    resetButton.click();
                     return;
                 }
                 
@@ -398,12 +398,12 @@
                 e.stopPropagation();
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const isAnyFilterActive = document.querySelector('[data-filtered="true"]') !== null;
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    const resetButton = document.getElementById('reset-filters');
-                    if (resetButton) resetButton.click();
+                    resetButton.click();
                     return;
                 }
                 
