@@ -717,4 +717,9 @@ footer {
     .mobile-cards {
         display: block;
     }
+    
+    /* Näytä sorttausnappi mobiililla */
+    .mobile-sort-button {
+        display: block !important;
+    }
 }
