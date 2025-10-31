@@ -161,7 +161,7 @@
                     <h4>⭐ Arvosanajakauma</h4>
                     <div class="rating-bars">
                         {% for stars in range(5, 0, -1) %}
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="{{ stars }}" style="cursor: pointer;" title="Klikkaa nähdäksesi vain {{ stars }}-tähden arvostelut">
                             <span class="rating-stars-label">{{ '★' * stars }}</span>
                             <div class="rating-bar-container">
                                 {% set count = rating_distribution.get(stars, 0) %}
@@ -178,7 +178,7 @@
                     <h4>📰 Arvostelut julkaisuittain</h4>
                     <div class="pub-stats-grid">
                         {% for pub, count in pub_stats.items() %}
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="{{ pub }}" style="cursor: pointer;" title="Klikkaa nähdäksesi vain {{ pub }}-arvostelut">
                             <span class="pub-name">{{ pub }}</span>
                             <span class="pub-count">{{ count }}</span>
                         </div>
@@ -258,6 +258,19 @@
                     name.style.color = '';
                     delete area.dataset.filtered;
                 }
+            });
+            
+            // Footer: Poista korostukset tähti- ja julkaisufilttereistä
+            const ratingFilters = document.querySelectorAll('.filter-rating');
+            ratingFilters.forEach(filter => {
+                filter.style.backgroundColor = '';
+                filter.style.fontWeight = '';
+            });
+            
+            const publicationFilters = document.querySelectorAll('.filter-publication');
+            publicationFilters.forEach(filter => {
+                filter.style.backgroundColor = '';
+                filter.style.fontWeight = '';
             });
             
             hideResetButton();
@@ -494,7 +507,173 @@
                 if (window.showResetButton) window.showResetButton();
             });
         });
+        
+        // FOOTER: Tähtijakauma - Filtteröi arvosanojen mukaan
+        const ratingFilters = document.querySelectorAll('.filter-rating');
+        ratingFilters.forEach(ratingFilter => {
+            ratingFilter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    resetButton.click();
+                    return;
+                }
+                
+                const selectedStars = parseInt(this.dataset.stars);
+                const allCards = document.querySelectorAll('.movie-card');
+                const allReviewItems = document.querySelectorAll('.review-item');
+                
+                // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
+                allCards.forEach(card => {
+                    const cardReviews = card.querySelectorAll('.review-item');
+                    let hasMatchingReview = false;
+                    
+                    cardReviews.forEach(item => {
+                        const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                        const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+                        const starCount = (ratingText.match(/★/g) || []).length;
+                        
+                        if (starCount === selectedStars) {
+                            hasMatchingReview = true;
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    card.style.display = hasMatchingReview ? '' : 'none';
+                });
+                
+                // Desktop: Piilota rivit taulukossa
+                const table = document.querySelector('table');
+                if (table) {
+                    const tbody = table.querySelector('tbody');
+                    const allRows = tbody.querySelectorAll('tr');
+                    
+                    allRows.forEach(row => {
+                        const ratingCells = row.querySelectorAll('.rating-cell');
+                        let hasMatchingRating = false;
+                        
+                        ratingCells.forEach(cell => {
+                            const ratingSpan = cell.querySelector('.rating-stars');
+                            if (ratingSpan) {
+                                const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                                if (starCount === selectedStars) {
+                                    hasMatchingRating = true;
+                                }
+                            }
+                        });
+                        
+                        row.style.display = hasMatchingRating ? '' : 'none';
+                    });
+                }
+                
+                // Korosta valittu tähtijakauma
+                this.style.backgroundColor = '#f0e6ff';
+                this.style.fontWeight = 'bold';
+                
+                if (window.showResetButton) window.showResetButton();
+            });
+        });
+        
+        // FOOTER: Julkaisut - Filtteröi julkaisujen mukaan
+        const publicationFilters = document.querySelectorAll('.filter-publication');
+        publicationFilters.forEach(pubFilter => {
+            pubFilter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    resetButton.click();
+                    return;
+                }
+                
+                const selectedPub = this.dataset.publication;
+                const allCards = document.querySelectorAll('.movie-card');
+                
+                // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
+                allCards.forEach(card => {
+                    const cardReviews = card.querySelectorAll('.review-item');
+                    let hasMatchingReview = false;
+                    
+                    cardReviews.forEach(item => {
+                        const mediaElement = item.querySelector('.review-media');
+                        const mediaText = mediaElement ? mediaElement.textContent.trim().replace('/ ', '') : '';
+                        
+                        if (mediaText === selectedPub) {
+                            hasMatchingReview = true;
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    card.style.display = hasMatchingReview ? '' : 'none';
+                });
+                
+                // Desktop: Piilota sarakkeet jotka eivät täsmää ja rivit joilla ei ole arvostelua
+                const table = document.querySelector('table');
+                if (table) {
+                    const thead = table.querySelector('thead');
+                    const tbody = table.querySelector('tbody');
+                    const headerCells = thead.querySelectorAll('th.rating-cell');
+                    const allRows = tbody.querySelectorAll('tr');
+                    
+                    // Piilota sarakkeet
+                    headerCells.forEach((th, index) => {
+                        const mediaSpan = th.querySelector('.critic-media');
+                        const mediaText = mediaSpan ? mediaSpan.textContent.trim() : '';
+                        
+                        if (mediaText !== selectedPub) {
+                            th.style.display = 'none';
+                            // Piilota vastaava solu kaikissa riveissä
+                            allRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                if (cells[index + 1]) { // +1 koska ensimmäinen on elokuvanimi
+                                    cells[index + 1].style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                    
+                    // Piilota rivit joilla ei ole yhtään arvostelua valitusta julkaisusta
+                    allRows.forEach(row => {
+                        const ratingCells = row.querySelectorAll('.rating-cell');
+                        let hasVisibleRating = false;
+                        
+                        ratingCells.forEach(cell => {
+                            if (cell.style.display !== 'none') {
+                                const ratingLink = cell.querySelector('.rating-link');
+                                const noRating = cell.querySelector('.no-rating');
+                                if (ratingLink || (!noRating && cell.textContent.trim() !== '–')) {
+                                    hasVisibleRating = true;
+                                }
+                            }
+                        });
+                        
+                        row.style.display = hasVisibleRating ? '' : 'none';
+                    });
+                }
+                
+                // Korosta valittu julkaisu
+                this.style.backgroundColor = '#f0e6ff';
+                this.style.fontWeight = 'bold';
+                
+                if (window.showResetButton) window.showResetButton();
+            });
+        });
     });
     </script>
 </body>
 </html>
+
+```

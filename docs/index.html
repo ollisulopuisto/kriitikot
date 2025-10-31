@@ -2179,7 +2179,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <h4>⭐ Arvosanajakauma</h4>
                     <div class="rating-bars">
                         
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="5" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 5-tähden arvostelut">
                             <span class="rating-stars-label">★★★★★</span>
                             <div class="rating-bar-container">
                                 
@@ -2189,7 +2189,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             <span class="rating-count">1</span>
                         </div>
                         
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="4" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 4-tähden arvostelut">
                             <span class="rating-stars-label">★★★★</span>
                             <div class="rating-bar-container">
                                 
@@ -2199,7 +2199,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             <span class="rating-count">7</span>
                         </div>
                         
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="3" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 3-tähden arvostelut">
                             <span class="rating-stars-label">★★★</span>
                             <div class="rating-bar-container">
                                 
@@ -2209,7 +2209,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             <span class="rating-count">8</span>
                         </div>
                         
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="2" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 2-tähden arvostelut">
                             <span class="rating-stars-label">★★</span>
                             <div class="rating-bar-container">
                                 
@@ -2219,7 +2219,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             <span class="rating-count">5</span>
                         </div>
                         
-                        <div class="rating-bar-row">
+                        <div class="rating-bar-row filter-rating" data-stars="1" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 1-tähden arvostelut">
                             <span class="rating-stars-label">★</span>
                             <div class="rating-bar-container">
                                 
@@ -2236,27 +2236,27 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     <h4>📰 Arvostelut julkaisuittain</h4>
                     <div class="pub-stats-grid">
                         
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="HS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain HS-arvostelut">
                             <span class="pub-name">HS</span>
                             <span class="pub-count">5</span>
                         </div>
                         
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="KSML" style="cursor: pointer;" title="Klikkaa nähdäksesi vain KSML-arvostelut">
                             <span class="pub-name">KSML</span>
                             <span class="pub-count">5</span>
                         </div>
                         
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="TS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain TS-arvostelut">
                             <span class="pub-name">TS</span>
                             <span class="pub-count">5</span>
                         </div>
                         
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="SK" style="cursor: pointer;" title="Klikkaa nähdäksesi vain SK-arvostelut">
                             <span class="pub-name">SK</span>
                             <span class="pub-count">5</span>
                         </div>
                         
-                        <div class="pub-stat-item">
+                        <div class="pub-stat-item filter-publication" data-publication="IS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain IS-arvostelut">
                             <span class="pub-name">IS</span>
                             <span class="pub-count">1</span>
                         </div>
@@ -2336,6 +2336,19 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     name.style.color = '';
                     delete area.dataset.filtered;
                 }
+            });
+            
+            // Footer: Poista korostukset tähti- ja julkaisufilttereistä
+            const ratingFilters = document.querySelectorAll('.filter-rating');
+            ratingFilters.forEach(filter => {
+                filter.style.backgroundColor = '';
+                filter.style.fontWeight = '';
+            });
+            
+            const publicationFilters = document.querySelectorAll('.filter-publication');
+            publicationFilters.forEach(filter => {
+                filter.style.backgroundColor = '';
+                filter.style.fontWeight = '';
             });
             
             hideResetButton();
@@ -2572,7 +2585,173 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 if (window.showResetButton) window.showResetButton();
             });
         });
+        
+        // FOOTER: Tähtijakauma - Filtteröi arvosanojen mukaan
+        const ratingFilters = document.querySelectorAll('.filter-rating');
+        ratingFilters.forEach(ratingFilter => {
+            ratingFilter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    resetButton.click();
+                    return;
+                }
+                
+                const selectedStars = parseInt(this.dataset.stars);
+                const allCards = document.querySelectorAll('.movie-card');
+                const allReviewItems = document.querySelectorAll('.review-item');
+                
+                // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
+                allCards.forEach(card => {
+                    const cardReviews = card.querySelectorAll('.review-item');
+                    let hasMatchingReview = false;
+                    
+                    cardReviews.forEach(item => {
+                        const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                        const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+                        const starCount = (ratingText.match(/★/g) || []).length;
+                        
+                        if (starCount === selectedStars) {
+                            hasMatchingReview = true;
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    card.style.display = hasMatchingReview ? '' : 'none';
+                });
+                
+                // Desktop: Piilota rivit taulukossa
+                const table = document.querySelector('table');
+                if (table) {
+                    const tbody = table.querySelector('tbody');
+                    const allRows = tbody.querySelectorAll('tr');
+                    
+                    allRows.forEach(row => {
+                        const ratingCells = row.querySelectorAll('.rating-cell');
+                        let hasMatchingRating = false;
+                        
+                        ratingCells.forEach(cell => {
+                            const ratingSpan = cell.querySelector('.rating-stars');
+                            if (ratingSpan) {
+                                const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                                if (starCount === selectedStars) {
+                                    hasMatchingRating = true;
+                                }
+                            }
+                        });
+                        
+                        row.style.display = hasMatchingRating ? '' : 'none';
+                    });
+                }
+                
+                // Korosta valittu tähtijakauma
+                this.style.backgroundColor = '#f0e6ff';
+                this.style.fontWeight = 'bold';
+                
+                if (window.showResetButton) window.showResetButton();
+            });
+        });
+        
+        // FOOTER: Julkaisut - Filtteröi julkaisujen mukaan
+        const publicationFilters = document.querySelectorAll('.filter-publication');
+        publicationFilters.forEach(pubFilter => {
+            pubFilter.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const resetButton = document.getElementById('reset-filters');
+                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                
+                // Jos filtteri on aktiivinen, AINA resetoi
+                if (isAnyFilterActive) {
+                    resetButton.click();
+                    return;
+                }
+                
+                const selectedPub = this.dataset.publication;
+                const allCards = document.querySelectorAll('.movie-card');
+                
+                // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
+                allCards.forEach(card => {
+                    const cardReviews = card.querySelectorAll('.review-item');
+                    let hasMatchingReview = false;
+                    
+                    cardReviews.forEach(item => {
+                        const mediaElement = item.querySelector('.review-media');
+                        const mediaText = mediaElement ? mediaElement.textContent.trim().replace('/ ', '') : '';
+                        
+                        if (mediaText === selectedPub) {
+                            hasMatchingReview = true;
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    card.style.display = hasMatchingReview ? '' : 'none';
+                });
+                
+                // Desktop: Piilota sarakkeet jotka eivät täsmää ja rivit joilla ei ole arvostelua
+                const table = document.querySelector('table');
+                if (table) {
+                    const thead = table.querySelector('thead');
+                    const tbody = table.querySelector('tbody');
+                    const headerCells = thead.querySelectorAll('th.rating-cell');
+                    const allRows = tbody.querySelectorAll('tr');
+                    
+                    // Piilota sarakkeet
+                    headerCells.forEach((th, index) => {
+                        const mediaSpan = th.querySelector('.critic-media');
+                        const mediaText = mediaSpan ? mediaSpan.textContent.trim() : '';
+                        
+                        if (mediaText !== selectedPub) {
+                            th.style.display = 'none';
+                            // Piilota vastaava solu kaikissa riveissä
+                            allRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                if (cells[index + 1]) { // +1 koska ensimmäinen on elokuvanimi
+                                    cells[index + 1].style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                    
+                    // Piilota rivit joilla ei ole yhtään arvostelua valitusta julkaisusta
+                    allRows.forEach(row => {
+                        const ratingCells = row.querySelectorAll('.rating-cell');
+                        let hasVisibleRating = false;
+                        
+                        ratingCells.forEach(cell => {
+                            if (cell.style.display !== 'none') {
+                                const ratingLink = cell.querySelector('.rating-link');
+                                const noRating = cell.querySelector('.no-rating');
+                                if (ratingLink || (!noRating && cell.textContent.trim() !== '–')) {
+                                    hasVisibleRating = true;
+                                }
+                            }
+                        });
+                        
+                        row.style.display = hasVisibleRating ? '' : 'none';
+                    });
+                }
+                
+                // Korosta valittu julkaisu
+                this.style.backgroundColor = '#f0e6ff';
+                this.style.fontWeight = 'bold';
+                
+                if (window.showResetButton) window.showResetButton();
+            });
+        });
     });
     </script>
 </body>
 </html>
+
+```
