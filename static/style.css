@@ -136,6 +136,13 @@ h2, h3, h4, h5, h6 {
     }
 }
 
+/* Desktop: piilota mobiililiukusäädin */
+@media (min-width: 769px) {
+    .mobile-filter {
+        display: none !important;
+    }
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

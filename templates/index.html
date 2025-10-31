@@ -48,11 +48,11 @@
                 <thead>
                     <!-- Rivi 1: Arvioiden määrä -suodatin -->
                     <tr class="filter-row">
-                        <th colspan="{{ all_critics|length + 1 }}" class="filter-header">
+                        <th colspan="6" class="filter-header">
                             <div class="review-count-filter-inline">
                                 <label for="min-reviews-slider">
                                     <span class="filter-icon">🔍</span>
-                                    Vähintään <strong id="min-reviews-value">1</strong> arvostelua
+                                    Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
                                 </label>
                                 <div class="slider-container">
                                     <input 
@@ -123,34 +123,32 @@
         </div>
         
         <!-- Mobile: Suodatin -->
-        <div class="mobile-filter" style="display: none;">
-            <div class="review-count-filter-mobile">
-                <label for="min-reviews-slider-mobile">
-                    <span class="filter-icon">🔍</span>
-                    Vähintään <strong id="min-reviews-value-mobile">1</strong> arvostelua
-                </label>
-                <div class="slider-container">
-                    <input 
-                        type="range" 
-                        id="min-reviews-slider-mobile" 
-                        min="1" 
-                        max="5" 
-                        value="1" 
-                        step="1"
-                        class="slider"
-                    >
-                    <div class="slider-labels">
-                        <span>1</span>
-                        <span>2</span>
-                        <span>3</span>
-                        <span>4</span>
-                        <span>5+</span>
+            <div class="mobile-filter">
+                <div class="review-count-filter-mobile">
+                    <label for="min-reviews-slider-mobile">
+                        <span class="filter-icon">🔍</span>
+                        Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
+                    </label>
+                    <div class="slider-container">
+                        <input 
+                            type="range" 
+                            id="min-reviews-slider-mobile" 
+                            min="1" 
+                            max="5" 
+                            value="1" 
+                            step="1"
+                            class="slider"
+                        >
+                        <div class="slider-labels">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5+</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Mobile: Korttinäkymä -->
+            </div>        <!-- Mobile: Korttinäkymä -->
         <div class="mobile-sort-button" id="mobile-sort" style="display: none; cursor: pointer; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: bold;">
             ▼ Aakkosta elokuvat
         </div>
@@ -344,10 +342,20 @@
             return hiddenCount;
         }
         
+        // Funktio sanan päivittämiseen (yksikkö/monikko)
+        function updateReviewWord(value) {
+            const reviewWord = document.getElementById('review-word');
+            const reviewWordMobile = document.getElementById('review-word-mobile');
+            const word = value === 1 ? 'arvostelu' : 'arvostelua';
+            if (reviewWord) reviewWord.textContent = word;
+            if (reviewWordMobile) reviewWordMobile.textContent = word;
+        }
+        
         // Desktop slider
         slider.addEventListener('input', function() {
             const value = parseInt(this.value);
             valueDisplay.textContent = value;
+            updateReviewWord(value);
             if (sliderMobile && valueDisplayMobile) {
                 sliderMobile.value = value;
                 valueDisplayMobile.textContent = value;
@@ -361,6 +369,7 @@
                 const value = parseInt(this.value);
                 valueDisplayMobile.textContent = value;
                 valueDisplay.textContent = value;
+                updateReviewWord(value);
                 slider.value = value;
                 filterByReviewCount(value);
             });
@@ -373,6 +382,7 @@
             resetButton.addEventListener('click', function() {
                 slider.value = 1;
                 valueDisplay.textContent = 1;
+                updateReviewWord(1);
                 if (sliderMobile && valueDisplayMobile) {
                     sliderMobile.value = 1;
                     valueDisplayMobile.textContent = 1;
