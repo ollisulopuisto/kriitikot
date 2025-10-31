@@ -283,6 +283,7 @@ td:not(.dimmed) {
     cursor: pointer;
     transition: background-color 0.2s ease;
     padding: 0.5rem 0.25rem;
+    vertical-align: middle;
 }
 
 .rating-cell:has(.rating-stars):hover {
@@ -301,6 +302,7 @@ td:not(.dimmed) {
     color: inherit;
     padding: 0.25rem;
     min-height: 2.5rem;
+    height: 100%;
 }
 
 .rating-stars {
