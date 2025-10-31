@@ -77,6 +77,8 @@ class HSScraper:
         HS:ssä elokuvan tiedot ovat kappaleen muodossa:
         - "Elokuvan nimi, ohjaus X. Y min. K-raja. ★★★★" (pilkku)
         - "Elokuvan nimi. Ohjaus X. Y min. K-raja. ★★★" (piste)
+        
+        HUOM: Elokuvan nimi on ENNEN ensimmäistä pilkkua tai pistettä.
         """
         split_body = asset_data.get('splitBody', [])
         
@@ -90,15 +92,34 @@ class HSScraper:
             
             # Jos löytyy tähtimerkintä, tämä on elokuvatietokappale
             if '★' in full_text:
-                # Elokuvan nimi on ennen "ohjaus" tai "Ohjaus" sanaa
-                # Poistetaan kaikki sen jälkeen
-                # Etsi "ohjaus" tai ", ohjaus" tai ". Ohjaus" jne
-                match = re.split(r'[,.]?\s*[Oo]hjaus', full_text, maxsplit=1)
-                if len(match) > 1:
-                    title = match[0].strip()
-                    # Poista mahdollinen loppu-pilkku tai -piste
-                    title = title.rstrip('.,').strip()
-                    if title:
+                # Muoto voi olla:
+                # "A Big Bold Beautiful Journey, ohjaus Brady Corbet. 143 min. K12. ★★★"
+                # "Elokuvan nimi. Ohjaus X. Y min. ★★★★"
+                
+                # Elokuvan nimi on ENNEN ensimmäistä pilkkua TAI "ohjaus"/"Ohjaus" sanaa
+                # (kumpi tulee ensin)
+                
+                # Etsi ensimmäinen pilkku
+                comma_split = full_text.split(',', 1)
+                
+                # Etsi "ohjaus" tai "Ohjaus"
+                ohjaus_match = re.split(r'\s+[Oo]hjaus', full_text, maxsplit=1)
+                
+                # Käytä sitä mikä antaa lyhyemmän tuloksen (= tulee ensin)
+                candidates = []
+                
+                if len(comma_split) > 1:
+                    candidates.append(comma_split[0].strip())
+                
+                if len(ohjaus_match) > 1:
+                    # Poista mahdollinen pilkku tai piste ennen "ohjaus"-sanaa
+                    title = ohjaus_match[0].strip().rstrip('.,').strip()
+                    candidates.append(title)
+                
+                # Valitse lyhyin (ensimmäinen erottelumerkki)
+                if candidates:
+                    title = min(candidates, key=len)
+                    if title and len(title) > 2:
                         return title
         
         # Fallback: Käytä otsikkoa ja poista "Elokuva-arvio |" -prefix

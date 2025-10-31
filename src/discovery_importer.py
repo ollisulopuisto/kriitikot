@@ -115,17 +115,17 @@ class DiscoveryImporter:
         return movie
     
     def get_or_create_critic(self, name: str, media: str = None) -> Critic:
-        """Hakee tai luo kriitikon."""
+        """Hakee tai luo kriitikon.
+        
+        HUOM: media-parametri ei enää käytössä (poistettu Critic-mallista).
+        Media-tieto tulee nyt Review.publication_id:stä.
+        """
         critic = self.session.query(Critic).filter_by(name=name).first()
         if not critic:
-            critic = Critic(name=name, media=media)
+            critic = Critic(name=name)  # EI ENÄÄ media-kenttää
             self.session.add(critic)
             self.session.flush()
             print(f"   ✍️  Luotiin uusi kriitikko: {name}")
-        elif media and not critic.media:
-            # Päivitä media jos puuttuu
-            critic.media = media
-            self.session.flush()
         return critic
     
     def get_publication(self, short_name: str) -> Publication:

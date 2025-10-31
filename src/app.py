@@ -171,6 +171,10 @@ def admin():
             joinedload(Critic.reviews).joinedload(DBReview.publication)
         ).all()
         
+        # Aakkosta elokuvat ja kriitikot nimen mukaan
+        movies = sorted(movies, key=lambda m: m.title.lower())
+        critics = sorted(critics, key=lambda c: c.name.lower())
+        
         # Laske kritikoiden mediat
         critic_media_map = {}
         for critic in critics:

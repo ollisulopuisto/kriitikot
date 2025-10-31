@@ -48,15 +48,15 @@ def get_or_create_movie(session, title: str):
 
 
 def get_or_create_critic(session, name: str, media: str = None):
-    """Hakee tai luo kriitikon."""
+    """Hakee tai luo kriitikon.
+    
+    HUOM: media-parametri ei enää käytössä (poistettu Critic-mallista).
+    Media-tieto tulee nyt Review.publication_id:stä.
+    """
     critic = session.query(Critic).filter_by(name=name).first()
     if not critic:
-        critic = Critic(name=name, media=media)
+        critic = Critic(name=name)  # EI ENÄÄ media-kenttää
         session.add(critic)
-        session.flush()
-    elif media and not critic.media:
-        # Päivitä media jos puuttuu
-        critic.media = media
         session.flush()
     return critic
 

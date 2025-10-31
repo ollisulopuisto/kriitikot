@@ -41,21 +41,29 @@ class SKScraper:
         """Poimii elokuvan nimen."""
         # 1. PRIORITY: Etsi täsmällinen muoto artikkelin lopusta
         # Muoto: "Ohjaaja: Elokuva. Elokuvateattereissa X.X. ★★★★★"
+        # HUOM: Elokuvan nimessä voi olla kaksoispiste! (esim. "Chaos: The Manson Murders")
         # Esim: "Andrzej Żuławski: Possession. Elokuvateattereissa 3.10."
+        # Esim: "Stanley Nelson: Chaos: The Manson Murders. Elokuvateattereissa 31.10."
         
-        # Etsi kaikki <em> ja <p> tagit jotka sisältävät tähtiä
+        # Etsi kaikki <em> ja <p> tagit jotka sisältävät "Elokuvateattereissa"
         paragraphs = soup.find_all(['p', 'em'])
         for p in reversed(paragraphs):  # Käy läpi lopusta alkuun
             text = p.get_text(strip=True)
             # Tarkista onko muotoa "Nimi: Elokuva. Elokuvateattereissa..."
-            movie_info_match = re.search(r'([A-ZÅÄÖa-zåäö\s]+):\s*([^.]+)\.\s*Elokuvateattereissa', text)
+            # Käytä non-greedy matchingia .*? ensimmäiselle osalle (ohjaaja)
+            # ja ota kaikki ennen pistettä toiseksi osaksi (elokuvan nimi, voi sisältää :)
+            movie_info_match = re.search(r'^([A-ZÅÄÖa-zåäö\s]+?):\s*(.+?)\.\s*Elokuvateattereissa', text)
             if movie_info_match:
+                director = movie_info_match.group(1).strip()
                 title = movie_info_match.group(2).strip()
-                return title
+                # Tarkista että ohjaajan nimi on järkevä (max 4 sanaa)
+                if len(director.split()) <= 4:
+                    return title
         
         # 2. FALLBACK: Käytä og:title metatagia
         # SK:ssa meta og:title sisältää muodon "Arvio: [Arvosana] – [Elokuva] ..."
         # Esim: "Arvio: Neljä tähteä – Sisu 2 tarjoaa kaikkien aikojen..."
+        # Esim: "Arvio: The Materialists nojaa perinteiseen hollywood-romantiikkaan"
         meta_title = soup.find('meta', property='og:title')
         if meta_title and meta_title.get('content'):
             title = meta_title['content']
@@ -67,8 +75,13 @@ class SKScraper:
             rating_pattern = r'^(Yksi|Kaksi|Kolme|Neljä|Viisi)\s+tähteä\s*[–-]\s*'
             title = re.sub(rating_pattern, '', title, flags=re.I)
             
-            # Ota ensimmäinen osa ennen " on ", " – ", " ei " tai " tarjoaa "
-            for separator in [' tarjoaa ', ' on ', ' – ', ' ei ', ' kannatti ']:
+            # Poista "The " prefix jos se on väärin (esim. "The Materialists" -> "Materialists")
+            # MUTTA VAIN jos URL sisältää ilman "the":tä
+            # Esim. URL: "/arvio-materialists-..." -> title: "The Materialists" -> poista "The "
+            # Tämä on heuristiikka, ei aina oikein
+            
+            # Ota ensimmäinen osa ennen " on ", " – ", " ei " tai " tarjoaa " jne.
+            for separator in [' nojaa ', ' tarjoaa ', ' on ', ' – ', ' ei ', ' kannatti ', ' osaa ']:
                 if separator in title:
                     title = title.split(separator)[0].strip()
                     break
