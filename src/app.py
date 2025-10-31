@@ -77,9 +77,22 @@ def index():
         except (ValueError, KeyError):
             pass  # Jos virhe, käytä oletusta
     
-    # Laske arvosanajakauma
+    # Laske kritikoiden mediat (kriitikko voi kirjoittaa useaan mediaan)
     session = get_session(engine)
     try:
+        critic_media_map = {}  # critic_id -> list of publication short_names
+        for critic in all_critics:
+            # Hae kaikki kriitikon arvostelut
+            reviews = session.query(DBReview).filter(
+                DBReview.critic_id == critic.id
+            ).options(joinedload(DBReview.publication)).all()
+            
+            # Kerää uniikit julkaisut
+            publications = list(set([r.publication.short_name.upper() for r in reviews if r.publication]))
+            publications.sort()  # Aakkosjärjestys
+            critic_media_map[critic.id] = publications
+        
+        # Laske arvosanajakauma
         rating_distribution = {}
         for i in range(1, 6):
             count = session.query(DBReview).filter(DBReview.rating_stars == i).count()
@@ -101,7 +114,8 @@ def index():
         all_critics=all_critics,
         total_reviews=total_reviews,
         rating_distribution=rating_distribution,
-        pub_stats=pub_stats
+        pub_stats=pub_stats,
+        critic_media_map=critic_media_map
     )
 
 
@@ -153,7 +167,16 @@ def admin():
     
     try:
         movies = session.query(Movie).options(joinedload(Movie.reviews)).all()
-        critics = session.query(Critic).options(joinedload(Critic.reviews)).all()
+        critics = session.query(Critic).options(
+            joinedload(Critic.reviews).joinedload(DBReview.publication)
+        ).all()
+        
+        # Laske kritikoiden mediat
+        critic_media_map = {}
+        for critic in critics:
+            publications = list(set([r.publication.short_name.upper() for r in critic.reviews if r.publication]))
+            publications.sort()
+            critic_media_map[critic.id] = ', '.join(publications) if publications else '–'
         
         stats = {
             'movies': session.query(Movie).count(),
@@ -170,6 +193,7 @@ def admin():
             'admin.html',
             movies=movies,
             critics=critics,
+            critic_media_map=critic_media_map,
             stats=stats,
             message=message,
             message_type=message_type
@@ -208,7 +232,7 @@ def rename_movie(movie_id):
 
 @app.route('/admin/movie/<int:movie_id>/delete', methods=['POST'])
 def delete_movie(movie_id):
-    """Poista elokuva (vain jos ei arvosteluja)."""
+    """Poista elokuva JA kaikki sen arvostelut (cascade delete)."""
     session = get_session(engine)
     
     try:
@@ -216,14 +240,22 @@ def delete_movie(movie_id):
         if not movie:
             return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
         
-        if len(movie.reviews) > 0:
-            return redirect(url_for('admin', message='Elokuvaa ei voi poistaa - sillä on arvosteluja', message_type='error'))
-        
         title = movie.title
+        review_count = len(movie.reviews)
+        
+        # Poista kaikki arvostelut ensin
+        for review in movie.reviews:
+            session.delete(review)
+        
+        # Poista elokuva
         session.delete(movie)
         session.commit()
         
-        return redirect(url_for('admin', message=f'Elokuva "{title}" poistettu', message_type='success'))
+        msg = f'Elokuva "{title}" poistettu'
+        if review_count > 0:
+            msg += f' ({review_count} arvostelua poistettu)'
+        
+        return redirect(url_for('admin', message=msg, message_type='success'))
     
     except Exception as e:
         session.rollback()
@@ -273,35 +305,11 @@ def merge_movies():
         session.close()
 
 
-@app.route('/admin/critic/<int:critic_id>/update_media', methods=['POST'])
-def update_critic_media(critic_id):
-    """Päivitä kriitikon media."""
-    session = get_session(engine)
-    
-    try:
-        critic = session.query(Critic).get(critic_id)
-        if not critic:
-            return redirect(url_for('admin', message='Kriitikkoa ei löytynyt', message_type='error'))
-        
-        new_media = request.form.get('media', '').strip().upper()
-        
-        old_media = critic.media or '(ei mediaa)'
-        critic.media = new_media if new_media else None
-        session.commit()
-        
-        return redirect(url_for('admin', message=f'Kriitikko {critic.name}: media päivitetty "{old_media}" → "{new_media or "(ei mediaa)"}"', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
 
 
 @app.route('/admin/critic/<int:critic_id>/delete', methods=['POST'])
 def delete_critic(critic_id):
-    """Poista kriitikko (vain jos ei arvosteluja)."""
+    """Poista kriitikko JA kaikki hänen arvostelunsa (cascade delete)."""
     session = get_session(engine)
     
     try:
@@ -309,14 +317,22 @@ def delete_critic(critic_id):
         if not critic:
             return redirect(url_for('admin', message='Kriitikkoa ei löytynyt', message_type='error'))
         
-        if len(critic.reviews) > 0:
-            return redirect(url_for('admin', message='Kriitikkoa ei voi poistaa - hänellä on arvosteluja', message_type='error'))
-        
         name = critic.name
+        review_count = len(critic.reviews)
+        
+        # Poista kaikki arvostelut ensin
+        for review in critic.reviews:
+            session.delete(review)
+        
+        # Poista kriitikko
         session.delete(critic)
         session.commit()
         
-        return redirect(url_for('admin', message=f'Kriitikko "{name}" poistettu', message_type='success'))
+        msg = f'Kriitikko "{name}" poistettu'
+        if review_count > 0:
+            msg += f' ({review_count} arvostelua poistettu)'
+        
+        return redirect(url_for('admin', message=msg, message_type='success'))
     
     except Exception as e:
         session.rollback()

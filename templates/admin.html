@@ -244,11 +244,9 @@
                         </td>
                         <td class="review-count">{{ movie.reviews|length }} arvostelua</td>
                         <td>
-                            {% if movie.reviews|length == 0 %}
                             <form method="POST" action="/admin/movie/{{ movie.id }}/delete" style="display: inline;">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa elokuvan {{ movie.title }}?')">Poista</button>
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa elokuvan {{ movie.title }}?\n\nTämä poistaa myös kaikki {{ movie.reviews|length }} arvostelua!')">Poista</button>
                             </form>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -260,26 +258,30 @@
                 <p style="color: #856404; margin-bottom: 15px; font-size: 0.95em;">
                     Jos sama elokuva on tietokannassa eri nimillä (esim. "Kyllä isä osaa" ja "Lapissa"), voit yhdistää ne:
                 </p>
-                <form method="POST" action="/admin/movie/merge" class="merge-controls">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Lähde-elokuva (poistetaan):</label>
-                        <select name="source_id" required>
-                            <option value="">Valitse...</option>
-                            {% for movie in movies %}
-                            <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
-                            {% endfor %}
-                        </select>
+                <form method="POST" action="/admin/movie/merge">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Lähde-elokuva (poistetaan):</label>
+                            <select name="source_id" required style="width: 100%;">
+                                <option value="">Valitse...</option>
+                                {% for movie in movies %}
+                                <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Kohde-elokuva (säilytetään):</label>
+                            <select name="target_id" required style="width: 100%;">
+                                <option value="">Valitse...</option>
+                                {% for movie in movies %}
+                                <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success">Yhdistä</button>
+                        </div>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">Kohde-elokuva (säilytetään):</label>
-                        <select name="target_id" required>
-                            <option value="">Valitse...</option>
-                            {% for movie in movies %}
-                            <option value="{{ movie.id }}">{{ movie.title }} ({{ movie.reviews|length }} arvostelua)</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-success">Yhdistä</button>
                 </form>
             </div>
         </div>
@@ -291,7 +293,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nimi</th>
-                        <th>Media</th>
+                        <th>Mediat</th>
                         <th>Arvosteluja</th>
                         <th>Toiminnot</th>
                     </tr>
@@ -301,19 +303,12 @@
                     <tr>
                         <td>{{ critic.id }}</td>
                         <td>{{ critic.name }}</td>
-                        <td>
-                            <form method="POST" action="/admin/critic/{{ critic.id }}/update_media" class="edit-form">
-                                <input type="text" name="media" value="{{ critic.media or '' }}" class="edit-input" placeholder="Esim. HS, IL, TS" maxlength="20">
-                                <button type="submit" class="btn btn-primary">Tallenna</button>
-                            </form>
-                        </td>
+                        <td style="color: #6c757d;">{{ critic_media_map.get(critic.id, '–') }}</td>
                         <td class="review-count">{{ critic.reviews|length }} arvostelua</td>
                         <td>
-                            {% if critic.reviews|length == 0 %}
                             <form method="POST" action="/admin/critic/{{ critic.id }}/delete" style="display: inline;">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa kriitikon {{ critic.name }}?')">Poista</button>
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko varmasti poistaa kriitikon {{ critic.name }}?\n\nTämä poistaa myös kaikki {{ critic.reviews|length }} arvostelua!')">Poista</button>
                             </form>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -353,7 +348,7 @@
                 <div class="critic-item" data-id="{{ critic.id }}" draggable="true" style="background: #f8f9fa; padding: 12px 16px; border-radius: 6px; cursor: move; border: 2px solid #dee2e6; display: flex; align-items: center; gap: 12px;">
                     <span style="color: #999; font-size: 1.2em;">⋮⋮</span>
                     <span style="flex: 1; font-weight: 500;">{{ critic.name }}</span>
-                    <span style="color: #6c757d; font-size: 0.85em;">{{ critic.media or 'Ei mediaa' }}</span>
+                    <span style="color: #6c757d; font-size: 0.85em;">{{ critic_media_map.get(critic.id, 'Ei arvosteluja') }}</span>
                     <span style="background: #007bff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">{{ critic.reviews|length }} arvostelua</span>
                 </div>
                 {% endfor %}

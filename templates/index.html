@@ -51,8 +51,8 @@
                         {% for critic in all_critics %}
                         <th class="rating-cell">
                             {{ critic.name }}
-                            {% if critic.media %}
-                            <span class="critic-media">{{ critic.media }}</span>
+                            {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
+                            <span class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</span>
                             {% endif %}
                         </th>
                         {% endfor %}
@@ -76,7 +76,6 @@
                                         {% else %}
                                         <span class="no-rating">Ei arvosanaa</span>
                                         {% endif %}
-                                        <span class="pub-badge">{{ review.publication.short_name.upper() }}</span>
                                     {% if review.source_url %}
                                     </a>
                                     {% endif %}
