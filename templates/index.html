@@ -276,6 +276,7 @@
         
         topLeftCell.style.cursor = 'pointer';
         topLeftCell.title = 'Klikkaa aakkostaaksesi elokuvat';
+        topLeftCell.textContent = '▼'; // Näytä nuoli heti
         
         topLeftCell.addEventListener('click', function() {
             const rows = Array.from(tbody.querySelectorAll('tr'));
