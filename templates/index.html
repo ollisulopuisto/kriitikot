@@ -42,9 +42,6 @@
                         </span>
                     </p>
                 </div>
-                <button id="reset-filters" class="reset-button" style="display: none;">
-                    🔄 Näytä kaikki
-                </button>
             </div>
         </header>
         
@@ -200,7 +197,7 @@
                 <!-- Toggle-nappi -->
                 <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
                     <span class="toggle-icon">▲</span>
-                    <span class="toggle-text">Kutista</span>
+                    <span class="toggle-text">Piilota</span>
                 </button>
                 
                 <div class="mobile-filters-container" id="mobile-filters-content">
@@ -238,9 +235,17 @@
                     
                     <!-- Fasetti 4: Aakkostus -->
                     <div class="mobile-filter-group">
-                        <div class="mobile-sort-button" id="mobile-sort" style="cursor: pointer; text-align: center; padding: 0.75rem; background: #f0f0f0; border-radius: 0.5rem; font-weight: bold; border: 1px solid #ddd;">
-                            ▼ Aakkosta elokuvat
-                        </div>
+                        <button class="mobile-sort-button" id="mobile-sort">
+                            <span class="sort-icon">⇅</span>
+                            <span>Aakkosta</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Reset-nappi -->
+                    <div class="mobile-filter-group">
+                        <button id="reset-filters" class="mobile-reset-button" style="display: none;">
+                            🔄 Näytä kaikki
+                        </button>
                     </div>
                 </div>
             </div>        <!-- Mobile: Korttinäkymä -->
@@ -1437,9 +1442,9 @@
                 mobileFilter.classList.toggle('collapsed');
                 
                 if (mobileFilter.classList.contains('collapsed')) {
-                    toggleText.textContent = 'Laajenna';
+                    toggleText.textContent = 'Hakuehdot';
                 } else {
-                    toggleText.textContent = 'Kutista';
+                    toggleText.textContent = 'Piilota';
                 }
             });
         }
