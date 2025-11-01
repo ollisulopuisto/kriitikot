@@ -36,6 +36,7 @@ class CategoryCrawler:
         'ksml': 'https://www.ksml.fi/haku/?q=Elokuva-arvio',
         'is': 'https://www.is.fi/tv-ja-elokuvat/',
         'episodi': 'https://www.episodi.fi/wp-json/wp/v2/elokuvat',
+        'muropaketti': 'https://muropaketti.com/kategoria/elokuvat/elokuva-arvostelut/',
     }
     
     def __init__(self):
@@ -48,7 +49,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -92,6 +93,11 @@ class CategoryCrawler:
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_is_reviews(soup, limit)
+        
+        elif source == 'muropaketti':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_muropaketti_reviews(soup, limit)
         
         return []
     
@@ -360,6 +366,44 @@ class CategoryCrawler:
         
         return reviews
     
+    def _find_muropaketti_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Muropaketin elokuva-arvostelut.
+        
+        Muropaketin arvostelut ovat kategoriasivulla linkkinä jossa on 
+        class="category-name" span jossa lukee "Arvostelu" tai "Arvio".
+        """
+        reviews = []
+        
+        # Etsi kaikki linkit joiden sisällä on <span class="category-name">
+        for link in soup.find_all('a', href=True):
+            category_span = link.find('span', class_='category-name')
+            if category_span:
+                category_text = category_span.get_text().strip()
+                
+                # Tarkista että on arvostelu tai arvio
+                if category_text in ['Arvostelu', 'Arvio']:
+                    url = link['href']
+                    
+                    # Muodosta absoluuttinen URL
+                    if url.startswith('/'):
+                        url = 'https://muropaketti.com' + url
+                    
+                    # Otsikko on koko linkin tekstistä ilman category-spanin tekstiä
+                    full_text = link.get_text(strip=True)
+                    # Poista "Arvostelu " tai "Arvio " alusta
+                    title = full_text.replace(category_text, '').strip()
+                    
+                    reviews.append({
+                        'title': title,
+                        'url': url
+                    })
+                    
+                    if len(reviews) >= limit:
+                        break
+        
+        return reviews
+    
     def _find_episodi_reviews_json(self, api_url: str, limit: int) -> List[Dict[str, str]]:
         """
         Löytää Episodi.fi:n arvostelut WordPress JSON API:sta.
@@ -416,7 +460,7 @@ class MetaScraper:
         Löytää uudet arvostelut lähteestä.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti')
             limit: Montako max arvostelua etsitään
             
         Returns:
@@ -452,7 +496,7 @@ if __name__ == '__main__':
     meta = MetaScraper()
     
     # Testaa kaikki lähteet
-    for source in ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi']:
+    for source in ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti']:
         try:
             print(f"\n{'='*60}")
             meta.preview_discoveries(source, count=3)

@@ -8,6 +8,7 @@ from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
 from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper
 from scrapers.episodi import EpisodiScraper
+from scrapers.muropaketti import MuropakettiScraper
 from movie_normalizer import get_canonical_title
 from typing import List, Dict
 import re
@@ -36,6 +37,7 @@ class DiscoveryImporter:
             'sk': SKScraper(),
             'is': ISScraper(),
             'episodi': EpisodiScraper(),
+            'muropaketti': MuropakettiScraper(),
         }
     
     def normalize_movie_title(self, title: str) -> str:

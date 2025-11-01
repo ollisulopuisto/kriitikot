@@ -9,6 +9,7 @@ This package provides scrapers for:
 - Suomen Kuvalehti (SK.fi)
 - Ilta-Sanomat (IS.fi)
 - Episodi (Episodi.fi)
+- Muropaketti (Muropaketti.com)
 
 All scrapers return Review objects with standardized fields.
 """
@@ -26,6 +27,7 @@ from .ts import TSScraper
 from .sk import SKScraper
 from .is_scraper import ISScraper
 from .episodi import EpisodiScraper
+from .muropaketti import MuropakettiScraper
 
 
 # Scraper registry - maps source identifier to scraper instance
@@ -37,6 +39,7 @@ scrapers = {
     'sk': SKScraper(),
     'is': ISScraper(),
     'episodi': EpisodiScraper(),
+    'muropaketti': MuropakettiScraper(),
 }
 
 
@@ -46,7 +49,7 @@ def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[st
     
     Args:
         html_content: HTML content as string
-        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi')
+        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi', 'muropaketti')
         source_url: Original URL (optional)
         
     Returns:
@@ -81,6 +84,7 @@ __all__ = [
     'SKScraper',
     'ISScraper',
     'EpisodiScraper',
+    'MuropakettiScraper',
     
     # Helper functions
     'scrape_review',
