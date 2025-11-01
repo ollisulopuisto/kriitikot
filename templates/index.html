@@ -79,8 +79,8 @@
                                 <!-- Fasetti 2: Tähdet -->
                                 <div class="filter-group">
                                     <label for="star-filter-slider">
-                                        <span class="filter-icon"></span>
-                                        Näytä arviot: <strong id="star-filter-value">kaikki</strong> ⭐
+                                        <span class="filter-icon">⭐</span>
+                                        Arvosanat: <strong id="star-filter-value">Kaikki</strong>
                                     </label>
                                     <div class="slider-container">
                                         <input 
@@ -223,7 +223,7 @@
                     <div class="mobile-filter-group">
                         <label for="star-filter-slider-mobile">
                             <span class="filter-icon">⭐</span>
-                            Vain <strong id="star-filter-value-mobile">kaikki</strong> tähteä
+                            Arvosanat: <strong id="star-filter-value-mobile">Kaikki</strong>
                         </label>
                         <div class="slider-container">
                             <input 
@@ -501,10 +501,10 @@
         if (!starSlider || !starValueDisplay) return;
         
         function updateStarLabel(value) {
-            const labels = ['kaikki', '1', '2', '3', '4', '5'];
-            const label = labels[value] || 'kaikki';
-            if (starValueDisplay) starValueDisplay.textContent = label;
-            if (starValueDisplayMobile) starValueDisplayMobile.textContent = label;
+            const labels = ['Kaikki', '★', '★★', '★★★', '★★★★', '★★★★★'];
+            const label = labels[value] || 'Kaikki';
+            if (starValueDisplay) starValueDisplay.innerHTML = label;
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = label;
         }
         
         function filterByStars(stars) {
@@ -644,8 +644,8 @@
             
             if (valueDisplay) valueDisplay.textContent = '1';
             if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
-            if (starValueDisplay) starValueDisplay.textContent = 'kaikki';
-            if (starValueDisplayMobile) starValueDisplayMobile.textContent = 'kaikki';
+            if (starValueDisplay) starValueDisplay.innerHTML = 'Kaikki';
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Kaikki';
             
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
