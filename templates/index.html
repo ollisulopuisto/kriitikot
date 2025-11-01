@@ -359,23 +359,35 @@
                 if (shouldBeSticky) {
                     // Luo kloonattu thead jos ei ole
                     if (!theadClone) {
+                        // Luo wrapper-elementti joka rajaa leveyttä
+                        const wrapper = document.createElement('div');
+                        wrapper.id = 'sticky-thead-wrapper';
+                        wrapper.style.position = 'fixed';
+                        wrapper.style.top = filterBottom + 'px';
+                        wrapper.style.left = tableRect.left + 'px';
+                        wrapper.style.width = tableRect.width + 'px';
+                        wrapper.style.zIndex = '50';
+                        wrapper.style.overflow = 'hidden'; // TÄRKEÄ: Leikkaa ylivuodon
+                        wrapper.style.boxShadow = '0 0.125rem 0.5rem rgba(0,0,0,0.1)';
+                        wrapper.style.borderRadius = '0.5rem 0.5rem 0 0';
+                        wrapper.style.background = '#f8f9fa';
+                        
                         theadClone = document.createElement('table');
                         theadClone.id = 'sticky-thead-clone';
-                        theadClone.style.position = 'fixed';
-                        theadClone.style.top = filterBottom + 'px';
-                        theadClone.style.left = tableRect.left + 'px';
-                        theadClone.style.zIndex = '50';
-                        theadClone.style.background = '#f8f9fa';
                         theadClone.style.borderCollapse = 'collapse';
                         theadClone.style.margin = '0';
                         theadClone.style.padding = '0';
-                        theadClone.style.boxShadow = '0 0.125rem 0.5rem rgba(0,0,0,0.1)';
+                        theadClone.style.background = '#f8f9fa';
                         
                         // Kloonaa thead sisältö
                         const clonedThead = thead.cloneNode(true);
                         theadClone.appendChild(clonedThead);
                         
-                        document.body.appendChild(theadClone);
+                        wrapper.appendChild(theadClone);
+                        document.body.appendChild(wrapper);
+                        
+                        // Tallenna wrapper myöhempää käyttöä varten
+                        theadClone.wrapperElement = wrapper;
                         
                         // Piilota alkuperäinen thead
                         thead.style.visibility = 'hidden';
@@ -384,10 +396,12 @@
                         syncColumnWidths();
                     }
                     
-                    // Päivitä position
-                    if (theadClone) {
-                        theadClone.style.top = filterBottom + 'px';
-                        theadClone.style.left = tableRect.left + 'px';
+                    // Päivitä position JA leveys
+                    if (theadClone && theadClone.wrapperElement) {
+                        const wrapper = theadClone.wrapperElement;
+                        wrapper.style.top = filterBottom + 'px';
+                        wrapper.style.left = tableRect.left + 'px';
+                        wrapper.style.width = tableRect.width + 'px'; // Päivitä leveys
                         
                         // Synkronoi vaakasuuntainen skrollaus - PAITSI ensimmäinen sarake
                         const clonedCells = theadClone.querySelectorAll('th');
@@ -410,7 +424,11 @@
                 } else {
                     // Poista kloonattu thead
                     if (theadClone) {
-                        theadClone.remove();
+                        if (theadClone.wrapperElement) {
+                            theadClone.wrapperElement.remove();
+                        } else {
+                            theadClone.remove();
+                        }
                         theadClone = null;
                         thead.style.visibility = 'visible';
                     }
