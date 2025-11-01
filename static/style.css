@@ -12,6 +12,70 @@
 .sort-btn:hover {
     color: #495057;
 }
+
+/* Diagonal split sort cell */
+.diagonal-sort-cell {
+    position: relative;
+    background: #f8f9fa;
+    min-width: 60px;
+    max-width: 80px;
+    height: 56px;
+    padding: 0 !important;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+.sort-half {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.sort-half-movie {
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.sort-half-critic {
+    right: 0;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.sort-half:hover {
+    background: rgba(139, 92, 246, 0.35);
+}
+
+.sort-half:active,
+.sort-half.active {
+    background: rgba(139, 92, 246, 0.55);
+}
+
+.sort-half:focus {
+    outline: 2px solid #764ba2;
+    outline-offset: -2px;
+}
+
+.sort-half svg {
+    width: 40px;
+    height: 40px;
+    display: block;
+    pointer-events: none;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+.sort-half svg path {
+    stroke: #5b21b6;
+    stroke-width: 3;
+}
+
 /* Elokuvakritiikkien Kerääjä - Tyylit */
 
 * {

@@ -77,13 +77,17 @@
                     </tr>
                     <!-- Rivi 2: Kriitikot -->
                     <tr>
-                        <th class="movie-col">
-                            <button id="sort-movie" class="sort-btn" title="Aakkosta elokuvat" style="background: none; border: none; cursor: pointer;">
-                                <span style="font-size: 1.2em; vertical-align: middle;">&#8597;</span>
-                            </button>
-                            <button id="sort-critic" class="sort-btn" title="Aakkosta kriitikot" style="background: none; border: none; cursor: pointer; margin-left: 0.5em;">
-                                <span style="font-size: 1.2em; transform: rotate(90deg); display: inline-block; vertical-align: middle;">&#8597;</span>
-                            </button>
+                        <th class="movie-col diagonal-sort-cell">
+                            <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat" aria-label="Aakkosta elokuvat" tabindex="0" role="button">
+                                <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                                    <path d="M16 8 L12 12 M16 8 L20 12" stroke="#764ba2" stroke-width="2.5" fill="none" />
+                                </svg>
+                            </div>
+                            <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot" aria-label="Aakkosta kriitikot" tabindex="0" role="button">
+                                <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                                    <path d="M8 16 L12 20 M8 16 L12 12" stroke="#764ba2" stroke-width="2.5" fill="none" />
+                                </svg>
+                            </div>
                         </th>
                         {% for critic in all_critics %}
                         <th class="rating-cell">
@@ -591,62 +595,90 @@
             if (!table) return;
             const topLeftCell = table.querySelector('thead th.movie-col');
             const tbody = table.querySelector('tbody');
-            const sortMovieBtn = document.getElementById('sort-movie');
-            const sortCriticBtn = document.getElementById('sort-critic');
+            const sortMovieArea = document.getElementById('sort-movie-area');
+            const sortCriticArea = document.getElementById('sort-critic-area');
             let sortAscending = true;
             let sortCriticAscending = true;
 
             // Elokuvanimi sort
-            if (sortMovieBtn) {
-                sortMovieBtn.addEventListener('click', function(e) {
+            function sortMovies() {
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                rows.sort((a, b) => {
+                    const titleA = a.querySelector('.movie-col').textContent.trim();
+                    const titleB = b.querySelector('.movie-col').textContent.trim();
+                    if (sortAscending) {
+                        return titleA.localeCompare(titleB, 'fi');
+                    } else {
+                        return titleB.localeCompare(titleA, 'fi');
+                    }
+                });
+                rows.forEach(row => tbody.appendChild(row));
+                sortAscending = !sortAscending;
+                
+                // Add visual feedback
+                sortMovieArea.classList.add('active');
+                setTimeout(() => sortMovieArea.classList.remove('active'), 300);
+            }
+            
+            if (sortMovieArea) {
+                sortMovieArea.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const rows = Array.from(tbody.querySelectorAll('tr'));
-                    rows.sort((a, b) => {
-                        const titleA = a.querySelector('.movie-col').textContent.trim();
-                        const titleB = b.querySelector('.movie-col').textContent.trim();
-                        if (sortAscending) {
-                            return titleA.localeCompare(titleB, 'fi');
-                        } else {
-                            return titleB.localeCompare(titleA, 'fi');
-                        }
-                    });
-                    rows.forEach(row => tbody.appendChild(row));
-                    sortAscending = !sortAscending;
+                    sortMovies();
+                });
+                sortMovieArea.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        sortMovies();
+                    }
                 });
             }
 
             // Kriitikonimi sort
-            if (sortCriticBtn) {
-                sortCriticBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    // Sort columns by critic name
-                    const theadRow = table.querySelector('thead tr:last-child');
-                    const criticHeaders = Array.from(theadRow.querySelectorAll('th.rating-cell'));
-                    // Get critic names and their index
-                    const critics = criticHeaders.map((th, idx) => ({
-                        name: th.textContent.trim(),
-                        idx: idx
-                    }));
-                    critics.sort((a, b) => {
-                        if (sortCriticAscending) {
-                            return a.name.localeCompare(b.name, 'fi');
-                        } else {
-                            return b.name.localeCompare(a.name, 'fi');
-                        }
-                    });
-                    // Rearrange header
+            function sortCritics() {
+                // Sort columns by critic name
+                const theadRow = table.querySelector('thead tr:last-child');
+                const criticHeaders = Array.from(theadRow.querySelectorAll('th.rating-cell'));
+                // Get critic names and their index
+                const critics = criticHeaders.map((th, idx) => ({
+                    name: th.textContent.trim(),
+                    idx: idx
+                }));
+                critics.sort((a, b) => {
+                    if (sortCriticAscending) {
+                        return a.name.localeCompare(b.name, 'fi');
+                    } else {
+                        return b.name.localeCompare(a.name, 'fi');
+                    }
+                });
+                // Rearrange header
+                critics.forEach((c, newIdx) => {
+                    theadRow.appendChild(criticHeaders[c.idx]);
+                });
+                // Rearrange each row's critic cells
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                rows.forEach(row => {
+                    const cells = Array.from(row.querySelectorAll('td.rating-cell'));
                     critics.forEach((c, newIdx) => {
-                        theadRow.appendChild(criticHeaders[c.idx]);
+                        row.appendChild(cells[c.idx]);
                     });
-                    // Rearrange each row's critic cells
-                    const rows = Array.from(tbody.querySelectorAll('tr'));
-                    rows.forEach(row => {
-                        const cells = Array.from(row.querySelectorAll('td.rating-cell'));
-                        critics.forEach((c, newIdx) => {
-                            row.appendChild(cells[c.idx]);
-                        });
-                    });
-                    sortCriticAscending = !sortCriticAscending;
+                });
+                sortCriticAscending = !sortCriticAscending;
+                
+                // Add visual feedback
+                sortCriticArea.classList.add('active');
+                setTimeout(() => sortCriticArea.classList.remove('active'), 300);
+            }
+            
+            if (sortCriticArea) {
+                sortCriticArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sortCritics();
+                });
+                sortCriticArea.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        sortCritics();
+                    }
                 });
             }
 
