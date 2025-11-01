@@ -9894,11 +9894,11 @@ Farssin kirjoittamatt...">
         </div>
         
         <!-- Mobile: Suodattimet -->
-            <div class="mobile-filter">
+            <div class="mobile-filter collapsed">
                 <!-- Toggle-nappi -->
                 <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
-                    <span class="toggle-icon">▲</span>
-                    <span class="toggle-text">Piilota</span>
+                    <span class="toggle-icon">▼</span>
+                    <span class="toggle-text">Laajenna</span>
                 </button>
                 
                 <div class="mobile-filters-container" id="mobile-filters-content">
@@ -9922,7 +9922,13 @@ Farssin kirjoittamatt...">
                         </div>
                     </div>
                     
-                    <!-- Fasetti 3: Media -->
+                    <!-- Fasetti 3: Kriitikko -->
+                    <div class="mobile-filter-group mobile-filter-inline">
+                        <label>Kriitikko:</label>
+                        <span class="stepper-value" id="critic-filter-value-mobile">Kaikki</span>
+                    </div>
+                    
+                    <!-- Fasetti 4: Media -->
                     <div class="mobile-filter-group">
                         <label>Julkaisu:</label>
                         <div class="media-filter-buttons">
@@ -9970,11 +9976,11 @@ Farssin kirjoittamatt...">
                         </div>
                     </div>
                     
-                    <!-- Fasetti 4: Aakkostus -->
+                    <!-- Fasetti 5: Aakkostus -->
                     <div class="mobile-filter-group">
                         <button class="mobile-sort-button" id="mobile-sort">
                             <span class="sort-icon">⇅</span>
-                            <span>Aakkosta</span>
+                            <span>Aakkosta elokuvat</span>
                         </button>
                     </div>
                     
@@ -15698,6 +15704,10 @@ Farssin kirjoittamatt...">
             if (starValueDisplay) starValueDisplay.innerHTML = 'Vähintään ★';
             if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = '★';
             
+            // Reset kriitikko-kentän arvo
+            const criticFilterValue = document.getElementById('critic-filter-value-mobile');
+            if (criticFilterValue) criticFilterValue.textContent = 'Kaikki';
+            
             // Reset mobile stepper buttons
             const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
             const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
@@ -16222,6 +16232,13 @@ Farssin kirjoittamatt...">
                         area.dataset.filtered = 'true';
                     }
                 });
+                
+                // Päivitä kriitikko-kentän arvo mobiilissa
+                const criticFilterValue = document.getElementById('critic-filter-value-mobile');
+                if (criticFilterValue) {
+                    criticFilterValue.textContent = selectedCritic;
+                }
+                
                 if (window.showResetButton) window.showResetButton();
             });
         });
