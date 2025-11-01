@@ -341,6 +341,15 @@ thead th {
     top: 0;
     z-index: 100; /* Ylimpänä kaikista */
     border-bottom: 2px solid #e9ecef;
+    display: flex;
+    align-items: flex-start; /* Tasaus ylhäältä */
+    gap: 1.5rem;
+}
+
+.desktop-filters .reset-button {
+    flex-shrink: 0;
+    margin: 0;
+    margin-top: 1.8rem; /* Sama kuin filter-group label korkeus */
 }
 
 /* Filter-rivi headerin sisällä (deprecated, käytä .desktop-filters) */
@@ -358,6 +367,7 @@ thead th {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
+    flex: 1;
 }
 
 .filter-group {

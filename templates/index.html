@@ -42,15 +42,15 @@
                         </span>
                     </p>
                 </div>
-                <button id="reset-filters-desktop" class="reset-button desktop-only" style="display: none;">
-                    🔄 Näytä kaikki
-                </button>
             </div>
         </header>
         
         {% if grouped_reviews %}
         <!-- Desktop suodattimet (ENNEN taulukkoa, jotta sticky toimii) -->
         <div class="desktop-filters">
+            <button id="reset-filters-desktop" class="reset-button desktop-only" style="display: none;">
+                🔄 Näytä kaikki
+            </button>
             <div class="filters-container">
                 <!-- Fasetti 1: Arvioiden määrä -->
                 <div class="filter-group">
@@ -388,6 +388,40 @@
                         
                         // Tallenna wrapper myöhempää käyttöä varten
                         theadClone.wrapperElement = wrapper;
+                        
+                        // Lisää event-delegaatio kloonatulle theadille
+                        // Delegoi klikit alkuperäiseen theadiin
+                        theadClone.addEventListener('click', function(e) {
+                            // Etsi klikattu elementti
+                            const clickedElement = e.target.closest('th');
+                            if (!clickedElement) return;
+                            
+                            // Etsi vastaava elementti alkuperäisestä theadista
+                            const cells = Array.from(theadClone.querySelectorAll('th'));
+                            const index = cells.indexOf(clickedElement);
+                            
+                            if (index !== -1) {
+                                const originalCells = Array.from(thead.querySelectorAll('th'));
+                                const originalCell = originalCells[index];
+                                
+                                if (originalCell) {
+                                    // Triggeröi click alkuperäiseen soluun
+                                    originalCell.click();
+                                }
+                            }
+                        });
+                        
+                        // Lisää event-delegaatio myös sort-napeille
+                        const sortAreas = theadClone.querySelectorAll('[id^="sort-"]');
+                        sortAreas.forEach(area => {
+                            area.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const originalArea = document.getElementById(this.id.replace('-clone', ''));
+                                if (originalArea) {
+                                    originalArea.click();
+                                }
+                            });
+                        });
                         
                         // Piilota alkuperäinen thead
                         thead.style.visibility = 'hidden';
