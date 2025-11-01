@@ -46,30 +46,63 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <!-- Rivi 1: Arvioiden määrä -suodatin -->
+                    <!-- Rivi 1: Suodattimet -->
                     <tr class="filter-row">
                         <th colspan="6" class="filter-header">
-                            <div class="review-count-filter-inline">
-                                <label for="min-reviews-slider">
-                                    <span class="filter-icon">🔍</span>
-                                    Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
-                                </label>
-                                <div class="slider-container">
-                                    <input 
-                                        type="range" 
-                                        id="min-reviews-slider" 
-                                        min="1" 
-                                        max="5" 
-                                        value="1" 
-                                        step="1"
-                                        class="slider"
-                                    >
-                                    <div class="slider-labels">
-                                        <span>1</span>
-                                        <span>2</span>
-                                        <span>3</span>
-                                        <span>4</span>
-                                        <span>5+</span>
+                            <div class="filters-container">
+                                <!-- Fasetti 1: Arvioiden määrä -->
+                                <div class="filter-group">
+                                    <label for="min-reviews-slider">
+                                        <span class="filter-icon">🔍</span>
+                                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input 
+                                            type="range" 
+                                            id="min-reviews-slider" 
+                                            min="1" 
+                                            max="5" 
+                                            value="1" 
+                                            step="1"
+                                            class="slider"
+                                        >
+                                        <div class="slider-labels">
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5+</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Fasetti 2: Tähdet -->
+                                <div class="filter-group">
+                                    <label>
+                                        <span class="filter-icon">⭐</span>
+                                        Näytä vain
+                                    </label>
+                                    <div class="star-filter-buttons">
+                                        {% for stars in range(5, 0, -1) %}
+                                        <button class="star-filter-btn filter-rating" data-stars="{{ stars }}" title="Näytä {{ stars }}-tähden arvostelut">
+                                            {{ '★' * stars }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Fasetti 3: Media -->
+                                <div class="filter-group">
+                                    <label>
+                                        <span class="filter-icon">📰</span>
+                                        Julkaisu
+                                    </label>
+                                    <div class="media-filter-buttons">
+                                        {% for pub, count in pub_stats.items() %}
+                                        <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
+                                            {{ pub }}
+                                        </button>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
@@ -145,29 +178,62 @@
             </table>
         </div>
         
-        <!-- Mobile: Suodatin -->
+        <!-- Mobile: Suodattimet -->
             <div class="mobile-filter">
-                <div class="review-count-filter-mobile">
-                    <label for="min-reviews-slider-mobile">
-                        <span class="filter-icon">🔍</span>
-                        Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
-                    </label>
-                    <div class="slider-container">
-                        <input 
-                            type="range" 
-                            id="min-reviews-slider-mobile" 
-                            min="1" 
-                            max="5" 
-                            value="1" 
-                            step="1"
-                            class="slider"
-                        >
-                        <div class="slider-labels">
-                            <span>1</span>
-                            <span>2</span>
-                            <span>3</span>
-                            <span>4</span>
-                            <span>5+</span>
+                <div class="mobile-filters-container">
+                    <!-- Fasetti 1: Arvioiden määrä -->
+                    <div class="mobile-filter-group">
+                        <label for="min-reviews-slider-mobile">
+                            <span class="filter-icon">🔍</span>
+                            Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
+                        </label>
+                        <div class="slider-container">
+                            <input 
+                                type="range" 
+                                id="min-reviews-slider-mobile" 
+                                min="1" 
+                                max="5" 
+                                value="1" 
+                                step="1"
+                                class="slider"
+                            >
+                            <div class="slider-labels">
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                                <span>5+</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 2: Tähdet -->
+                    <div class="mobile-filter-group">
+                        <label>
+                            <span class="filter-icon">⭐</span>
+                            Näytä vain
+                        </label>
+                        <div class="star-filter-buttons">
+                            {% for stars in range(5, 0, -1) %}
+                            <button class="star-filter-btn filter-rating" data-stars="{{ stars }}" title="Näytä {{ stars }}-tähden arvostelut">
+                                {{ '★' * stars }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 3: Media -->
+                    <div class="mobile-filter-group">
+                        <label>
+                            <span class="filter-icon">📰</span>
+                            Julkaisu
+                        </label>
+                        <div class="media-filter-buttons">
+                            {% for pub, count in pub_stats.items() %}
+                            <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
+                                {{ pub }}
+                            </button>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -254,36 +320,6 @@
                         <div class="stat-label">kriitikkoa</div>
                     </div>
                 </div>
-                
-                <div class="rating-distribution">
-                    <h4>⭐ Arvosanajakauma</h4>
-                    <div class="rating-bars">
-                        {% for stars in range(5, 0, -1) %}
-                        <div class="rating-bar-row filter-rating" data-stars="{{ stars }}" style="cursor: pointer;" title="Klikkaa nähdäksesi vain {{ stars }}-tähden arvostelut">
-                            <span class="rating-stars-label">{{ '★' * stars }}</span>
-                            <div class="rating-bar-container">
-                                {% set count = rating_distribution.get(stars, 0) %}
-                                {% set percentage = (count / total_reviews * 100) if total_reviews > 0 else 0 %}
-                                <div class="rating-bar" style="width: {{ percentage }}%"></div>
-                            </div>
-                            <span class="rating-count">{{ rating_distribution.get(stars, 0) }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                
-                <div class="publication-stats">
-                    <h4>📰 Arvostelut julkaisuittain</h4>
-                    <div class="pub-stats-grid">
-                        {% for pub, count in pub_stats.items() %}
-                        <div class="pub-stat-item filter-publication" data-publication="{{ pub }}" style="cursor: pointer;" title="Klikkaa nähdäksesi vain {{ pub }}-arvostelut">
-                            <span class="pub-name">{{ pub }}</span>
-                            <span class="pub-count">{{ count }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                
             </div>
         </footer>
     </div>

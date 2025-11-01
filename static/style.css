@@ -263,6 +263,88 @@ thead {
     border-bottom: 1px solid #e9ecef;
 }
 
+.filters-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+}
+
+/* Tähtisuodatin */
+.star-filter-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.star-filter-btn {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    color: #f39c12;
+    font-size: 0.95em;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.star-filter-btn:hover {
+    border-color: #f39c12;
+    background: #fff9f0;
+    transform: translateX(2px);
+}
+
+.star-filter-btn.active {
+    background: #f39c12;
+    color: white;
+    border-color: #f39c12;
+}
+
+/* Mediasuodatin */
+.media-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.media-filter-btn {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.8em;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.media-filter-btn:hover {
+    border-color: #667eea;
+    background: #f0e6ff;
+    transform: translateY(-1px);
+}
+
+.media-filter-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
 .review-count-filter-inline {
     display: flex;
     align-items: center;
@@ -770,19 +852,33 @@ footer {
         padding-top: 0.5rem;
     }
     
-    .review-count-filter-mobile {
+    .mobile-filters-container {
         background: white;
         padding: 1rem 1.25rem;
         border-radius: 0.5rem;
         box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
     }
     
-    .review-count-filter-mobile label {
+    .mobile-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .mobile-filter-group label {
         display: block;
-        font-size: 0.95em;
-        font-weight: 500;
+        font-size: 0.9em;
+        font-weight: 600;
         color: #333;
-        margin-bottom: 0.75rem;
+    }
+    
+    /* Grid layout muuttuu yhdeksi sarakkeeksi mobiililla */
+    .filters-container {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
     }
     
     .mobile-sort-button {
