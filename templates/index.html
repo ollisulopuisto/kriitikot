@@ -55,7 +55,8 @@
                 <thead>
                     <!-- Rivi 1: Suodattimet -->
                     <tr class="filter-row">
-                        <th colspan="6" class="filter-header">
+                        {% set total_cols = all_critics|length + 1 %}
+                        <th colspan="{{ total_cols }}" class="filter-header">
                             <div class="filters-container">
                                 <!-- Fasetti 1: Arvioiden määrä -->
                                 <div class="filter-group">
@@ -127,7 +128,7 @@
                         </th>
                     </tr>
                     <!-- Rivi 2: Kriitikot -->
-                    <tr>
+                    <tr class="critic-row">
                         <th class="movie-col diagonal-sort-cell">
                             <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat" aria-label="Aakkosta elokuvat" tabindex="0" role="button">
                                 <svg width="20" height="28" viewBox="0 0 20 28" aria-hidden="true" focusable="false">
@@ -311,8 +312,11 @@
         const tbody = table.querySelector('tbody');
         if (!thead || !tbody) return;
         
-        // Hae kaikki kriitikkosarakkeet (th-elementit paitsi ensimmäinen)
-        const criticHeaders = thead.querySelectorAll('th:not(.movie-col)');
+        // Hae kriitikkorivi ja kriitikkosarakkeet (th-elementit paitsi ensimmäinen)
+        const criticRow = thead.querySelector('tr.critic-row');
+        if (!criticRow) return;
+        
+        const criticHeaders = criticRow.querySelectorAll('th:not(.movie-col)');
         const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
             return row.style.display !== 'none';
         });
@@ -514,13 +518,16 @@
         if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile) {
             let currentValue = 1;
             
-            const updateReviewStepper = (newValue) => {
+            const updateReviewStepper = (newValue, shouldFilter = true) => {
                 currentValue = Math.max(1, Math.min(5, newValue));
                 valueDisplayMobile.textContent = currentValue;
                 valueDisplay.textContent = currentValue;
                 slider.value = currentValue;
                 updateReviewWord(currentValue);
-                filterByReviewCount(currentValue);
+                
+                if (shouldFilter) {
+                    filterByReviewCount(currentValue);
+                }
                 
                 // Disable buttons at limits
                 reviewsMinusBtn.disabled = currentValue <= 1;
@@ -530,8 +537,8 @@
             reviewsMinusBtn.addEventListener('click', () => updateReviewStepper(currentValue - 1));
             reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentValue + 1));
             
-            // Initialize button states
-            updateReviewStepper(1);
+            // Initialize button states WITHOUT filtering
+            updateReviewStepper(1, false);
         }
         
         // Lisää reset-toiminto
@@ -655,12 +662,15 @@
         if (starsMinusBtn && starsPlusBtn) {
             let currentValue = 1;
             
-            const updateStarStepper = (newValue) => {
+            const updateStarStepper = (newValue, shouldFilter = true) => {
                 currentValue = Math.max(1, Math.min(5, newValue));
                 
                 updateStarLabel(currentValue);
                 starSlider.value = currentValue;
-                filterByStars(currentValue);
+                
+                if (shouldFilter) {
+                    filterByStars(currentValue);
+                }
                 
                 // Update button states
                 starsMinusBtn.disabled = (currentValue <= 1);
@@ -683,8 +693,8 @@
                 }
             });
             
-            // Initialize button states
-            updateStarStepper(1);
+            // Initialize button states WITHOUT filtering
+            updateStarStepper(1, false);
         }
     });
     
