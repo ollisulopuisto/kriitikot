@@ -106,6 +106,9 @@ def index():
             if review_count > 0:
                 pub_stats[pub.short_name.upper()] = review_count
         
+        # Aakkosta julkaisut
+        pub_stats = dict(sorted(pub_stats.items(), key=lambda x: x[0]))
+        
         # Hae nytleffaan.fi linkit ja posterit
         nytleffaan_urls = {}
         poster_urls = {}

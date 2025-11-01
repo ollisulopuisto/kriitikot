@@ -686,8 +686,8 @@ footer {
 }
 
 .pub-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(6.25rem, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 0.9375rem;
 }
@@ -699,6 +699,7 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
     border: 0.125rem solid #e9ecef;
     transition: all 0.2s;
 }
@@ -712,6 +713,8 @@ footer {
 .pub-name {
     font-weight: 600;
     color: #333;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .pub-count {
@@ -721,6 +724,7 @@ footer {
     border-radius: 0.75rem;
     font-size: 0.85em;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .footer-links {
