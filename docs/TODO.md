@@ -2,9 +2,19 @@
 - episodi
     - tästä on JSONia https://www.episodi.fi/wp-json/wp/v2/elokuvat ja https://www.episodi.fi/wp-json/wp/v2/kirjoittajat/1790
 - muropaketti
-- kaleva
+    - kaikki arviot https://muropaketti.com/kategoria/elokuvat/elokuva-arvostelut/
+    - yksittäinen arvio https://muropaketti.com/elokuvat/elokuva-arvostelut/arvostelu-kalju-emma-stone-kannattelee-bugoniaa-mutta-ohjaaja-yorgos-lanthimosin-on-pakko-keksia-elokuviinsa-jo-jotain-uutta/
 - film-o-holic
+    - kaikki arviot https://www.film-o-holic.com/arvostelut/
+    - yksittäinen arvio https://www.film-o-holic.com/arvostelut/sorry-baby/
+- kulttuuritoimitus
+    - kaikki arviot https://kulttuuritoimitus.fi/kritiikit/kritiikit-elokuva/
+    - yksittäinen arvio https://kulttuuritoimitus.fi/kritiikit/kritiikit-elokuva/yorgos-lanthimos-kuvaa-nykymaailman-hulluutta-osuvasti-mutta-rankasti-arviossa-ensi-iltaelokuva-bugonia/
 - karjalainen / savon sanomat 
+- kaleva: EI TÄHTIÄ ARVIOISSA
+    - kaikki arviot https://www.kaleva.fi/aihe/elokuvat/286 etsi avainsana "arvio"
+    - yksittäinen arvio https://www.kaleva.fi/arvio-terapeutin-pojalla-on-pelottava-heila-kotima/12375327
+
 
 # Toiminnallisuus
 - elokuvan tiedot -leiska, mihin se laitetaan desktopissa? mobiilissa helpompi, kun on jo kortit
