@@ -9914,10 +9914,10 @@ Farssin kirjoittamatt...">
                     
                     <!-- Fasetti 2: Tähdet -->
                     <div class="mobile-filter-group mobile-filter-inline">
-                        <label>Arvosana:</label>
+                        <label>Vähintään:</label>
                         <div class="mobile-stepper">
                             <button class="stepper-btn" id="stars-minus-mobile" aria-label="Pienempi">−</button>
-                            <span class="stepper-value" id="star-filter-value-mobile">Vähintään ★</span>
+                            <span class="stepper-value" id="star-filter-value-mobile">★</span>
                             <button class="stepper-btn" id="stars-plus-mobile" aria-label="Suurempi">+</button>
                         </div>
                     </div>
@@ -15541,9 +15541,17 @@ Farssin kirjoittamatt...">
                 4: 'Vähintään ★★★★',
                 5: 'Vähintään ★★★★★'
             };
+            const mobileLabels = {
+                1: '★',
+                2: '★★',
+                3: '★★★',
+                4: '★★★★',
+                5: '★★★★★'
+            };
             const label = labels[value] || 'Vähintään ★';
+            const mobileLabel = mobileLabels[value] || '★';
             if (starValueDisplay) starValueDisplay.innerHTML = label;
-            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = label;
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
         }
         
         function filterByStars(stars) {
@@ -15688,7 +15696,7 @@ Farssin kirjoittamatt...">
             if (valueDisplay) valueDisplay.textContent = '1';
             if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
             if (starValueDisplay) starValueDisplay.innerHTML = 'Vähintään ★';
-            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Vähintään ★';
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = '★';
             
             // Reset mobile stepper buttons
             const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
