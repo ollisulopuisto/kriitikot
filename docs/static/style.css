@@ -249,6 +249,7 @@ h2, h3, h4, h5, h6 {
     /* Vaakasuuntainen skrollaus */
     overflow-x: auto;
     overflow-y: visible;
+    position: relative;
     /* Smooth scrolling */
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -280,9 +281,8 @@ h2, h3, h4, h5, h6 {
 /* Desktop: pidä vaakasuuntainen skrollaus */
 @media (min-width: 769px) {
     .table-wrapper {
-        /* Vaakasuuntainen skrollaus pysyy päällä */
         overflow-x: auto;
-        overflow-y: visible; /* Sticky thead vaatii tämän */
+        overflow-y: visible;
     }
 }
 
@@ -299,6 +299,11 @@ table {
     position: relative;
 }
 
+tbody {
+    /* Varmista että ensimmäinen rivi ei jää sticky thead:n alle */
+    display: table-row-group;
+}
+
 tbody tr {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -309,8 +314,7 @@ tbody tr[style*="display: none"] {
 }
 
 thead {
-    position: sticky;
-    top: 95px; /* Desktop-filters korkeus (arvioitu) */
+    position: relative; /* Sticky ei toimi overflow:n sisällä, käytä JS:ää */
     z-index: 50;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
@@ -331,7 +335,7 @@ thead th {
     background: white;
     padding: 1rem 1.5rem;
     border-radius: 0.5rem;
-    margin-bottom: 0;
+    margin-bottom: 1rem; /* Väli taulukkoon */
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
     position: sticky;
     top: 0;

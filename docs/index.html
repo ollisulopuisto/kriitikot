@@ -15273,6 +15273,115 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
     </div>
 
     <script>
+    // Fake sticky thead (koska position:sticky ei toimi overflow:n kanssa)
+    document.addEventListener('DOMContentLoaded', function() {
+        const desktopFilters = document.querySelector('.desktop-filters');
+        const thead = document.querySelector('thead');
+        const tableWrapper = document.querySelector('.table-wrapper');
+        const table = document.querySelector('table');
+        
+        if (desktopFilters && thead && tableWrapper && table) {
+            let theadClone = null;
+            
+            function syncColumnWidths() {
+                if (!theadClone) return;
+                
+                // Synkronoi jokaisen sarakkeen leveys
+                const originalCells = thead.querySelectorAll('th');
+                const clonedCells = theadClone.querySelectorAll('th');
+                
+                originalCells.forEach((cell, index) => {
+                    if (clonedCells[index]) {
+                        const width = cell.offsetWidth;
+                        clonedCells[index].style.width = width + 'px';
+                        clonedCells[index].style.minWidth = width + 'px';
+                        clonedCells[index].style.maxWidth = width + 'px';
+                    }
+                });
+            }
+            
+            function handleScroll() {
+                const filterBottom = desktopFilters.getBoundingClientRect().bottom;
+                const tableRect = tableWrapper.getBoundingClientRect();
+                
+                // Tarkista pitäisikö theadin olla sticky
+                const shouldBeSticky = tableRect.top < filterBottom && 
+                                      tableRect.bottom > filterBottom + thead.offsetHeight;
+                
+                if (shouldBeSticky) {
+                    // Luo kloonattu thead jos ei ole
+                    if (!theadClone) {
+                        theadClone = document.createElement('table');
+                        theadClone.id = 'sticky-thead-clone';
+                        theadClone.style.position = 'fixed';
+                        theadClone.style.top = filterBottom + 'px';
+                        theadClone.style.left = tableRect.left + 'px';
+                        theadClone.style.zIndex = '50';
+                        theadClone.style.background = '#f8f9fa';
+                        theadClone.style.borderCollapse = 'collapse';
+                        theadClone.style.margin = '0';
+                        theadClone.style.padding = '0';
+                        theadClone.style.boxShadow = '0 0.125rem 0.5rem rgba(0,0,0,0.1)';
+                        
+                        // Kloonaa thead sisältö
+                        const clonedThead = thead.cloneNode(true);
+                        theadClone.appendChild(clonedThead);
+                        
+                        document.body.appendChild(theadClone);
+                        
+                        // Piilota alkuperäinen thead
+                        thead.style.visibility = 'hidden';
+                        
+                        // Synkronoi sarakkeiden leveydet
+                        syncColumnWidths();
+                    }
+                    
+                    // Päivitä position
+                    if (theadClone) {
+                        theadClone.style.top = filterBottom + 'px';
+                        theadClone.style.left = tableRect.left + 'px';
+                        
+                        // Synkronoi vaakasuuntainen skrollaus - PAITSI ensimmäinen sarake
+                        const clonedCells = theadClone.querySelectorAll('th');
+                        clonedCells.forEach((cell, index) => {
+                            if (index === 0) {
+                                // Ensimmäinen sarake (diagonal-cell) pysyy paikallaan
+                                cell.style.position = 'sticky';
+                                cell.style.left = '0';
+                                cell.style.zIndex = '52';
+                                cell.style.transform = 'none';
+                            } else {
+                                // Muut sarakkeet skrollaavat
+                                cell.style.transform = `translateX(-${tableWrapper.scrollLeft}px)`;
+                            }
+                        });
+                        
+                        // Synkronoi leveydet uudelleen (jos muuttunut)
+                        syncColumnWidths();
+                    }
+                } else {
+                    // Poista kloonattu thead
+                    if (theadClone) {
+                        theadClone.remove();
+                        theadClone = null;
+                        thead.style.visibility = 'visible';
+                    }
+                }
+            }
+            
+            // Kuuntele scrollausta
+            window.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', () => {
+                syncColumnWidths();
+                handleScroll();
+            });
+            tableWrapper.addEventListener('scroll', handleScroll);
+            
+            // Alustus
+            handleScroll();
+        }
+    });
+    
     // Globaali funktio kriitikkosarakkeiden piilottamiseen
     function updateCriticColumnVisibility() {
         const table = document.querySelector('table');
