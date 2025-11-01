@@ -31,7 +31,7 @@ def main():
     parser.add_argument(
         '--source',
         type=str,
-        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'all'],
+        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'all'],
         default='all',
         help='Lähde josta importoidaan (oletus: all)'
     )

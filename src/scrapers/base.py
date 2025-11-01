@@ -5,6 +5,7 @@ Provides common data structures and abstract base class for all scrapers.
 """
 
 from typing import Optional, Dict, Any
+from bs4 import BeautifulSoup
 
 
 class Review:
@@ -45,6 +46,18 @@ class BaseScraper:
     
     def __init__(self, publication_name: str):
         self.publication_name = publication_name
+    
+    def get_soup(self, html_content: str) -> BeautifulSoup:
+        """
+        Create BeautifulSoup object from HTML content.
+        
+        Args:
+            html_content: HTML content as string
+            
+        Returns:
+            BeautifulSoup object
+        """
+        return BeautifulSoup(html_content, 'html.parser')
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """

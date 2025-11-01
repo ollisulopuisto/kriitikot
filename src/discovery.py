@@ -13,6 +13,7 @@ Tuetut lähteet:
 - KSML: HTML search page (ksml.fi/haku/)
 - SK: HTML category page (suomenkuvalehti.fi/avainsana/elokuva/)
 - IS: Next.js JSON (is.fi/tv-ja-elokuvat/)
+- EPISODI: WordPress JSON API (episodi.fi/wp-json/wp/v2/elokuvat)
 """
 
 from typing import List, Dict, Optional
@@ -34,6 +35,7 @@ class CategoryCrawler:
         'il': 'https://www.iltalehti.fi/tv-ja-leffat',
         'ksml': 'https://www.ksml.fi/haku/?q=Elokuva-arvio',
         'is': 'https://www.is.fi/tv-ja-elokuvat/',
+        'episodi': 'https://www.episodi.fi/wp-json/wp/v2/elokuvat',
     }
     
     def __init__(self):
@@ -46,7 +48,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -55,6 +57,10 @@ class CategoryCrawler:
         url = self.CATEGORY_PAGES.get(source)
         if not url:
             raise ValueError(f"Unknown source: {source}")
+        
+        # Episodi käyttää JSON API:a suoraan
+        if source == 'episodi':
+            return self._find_episodi_reviews_json(url, limit)
         
         # Lähdekohtainen logiikka
         if source == 'sk':
@@ -352,6 +358,40 @@ class CategoryCrawler:
         
         return reviews
     
+    def _find_episodi_reviews_json(self, api_url: str, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Episodi.fi:n arvostelut WordPress JSON API:sta.
+        """
+        reviews = []
+        
+        try:
+            response = requests.get(
+                api_url,
+                params={'per_page': limit, 'orderby': 'date', 'order': 'desc', '_embed': '1'},
+                headers=self.headers,
+                timeout=10
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            for item in data:
+                title = item.get('title', {}).get('rendered', '').strip()
+                url = item.get('link', '')
+                
+                if title and url:
+                    reviews.append({
+                        'title': title,
+                        'url': url
+                    })
+                    
+                    if len(reviews) >= limit:
+                        break
+        
+        except Exception as e:
+            print(f"  [Episodi] JSON API virhe: {e}")
+        
+        return reviews
+    
     def _fetch_url(self, url: str) -> str:
         """Hakee URL:n sisällön."""
         response = requests.get(url, headers=self.headers, timeout=10)
@@ -374,7 +414,7 @@ class MetaScraper:
         Löytää uudet arvostelut lähteestä.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi')
             limit: Montako max arvostelua etsitään
             
         Returns:
@@ -410,7 +450,7 @@ if __name__ == '__main__':
     meta = MetaScraper()
     
     # Testaa kaikki lähteet
-    for source in ['hs', 'ts', 'il', 'ksml', 'sk', 'is']:
+    for source in ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi']:
         try:
             print(f"\n{'='*60}")
             meta.preview_discoveries(source, count=3)

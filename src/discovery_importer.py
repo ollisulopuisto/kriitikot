@@ -7,6 +7,7 @@ Hakee uusia arvosteluja discovery-moduulilla ja tallentaa ne tietokantaan.
 from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
 from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper
+from scrapers.episodi import EpisodiScraper
 from movie_normalizer import get_canonical_title
 from typing import List, Dict
 import re
@@ -34,6 +35,7 @@ class DiscoveryImporter:
             'ts': TSScraper(),
             'sk': SKScraper(),
             'is': ISScraper(),
+            'episodi': EpisodiScraper(),
         }
     
     def normalize_movie_title(self, title: str) -> str:
@@ -137,7 +139,7 @@ class DiscoveryImporter:
         Löytää ja importoi uudet arvostelut lähteestä.
         
         Args:
-            source: Lähteen tunniste ('hs', 'ksml', 'il', 'ts', 'sk')
+            source: Lähteen tunniste ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi')
             limit: Montako max arvostelua etsitään
             
         Returns:
@@ -186,20 +188,40 @@ class DiscoveryImporter:
             
             # Scrape arvostelu
             try:
-                # Lataa HTML ja parsea
-                import requests
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                }
-                response = requests.get(url, headers=headers, timeout=10)
-                response.raise_for_status()
-                html = response.text
-                
-                review = scraper.parse_html(html, url)
-                if not review:
-                    print(f"   ❌ Scraping epäonnistui")
-                    failed += 1
-                    continue
+                # Episodi käyttää JSON API:a suoraan
+                if source == 'episodi':
+                    # Käytä scraperin JSON API -metodia yksittäiselle URL:lle
+                    episodi_scraper = self.scrapers['episodi']
+                    
+                    # Hae JSON-data tälle yksittäiselle arvostelulle
+                    import requests
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                    response = requests.get(url, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    html = response.text
+                    
+                    review = episodi_scraper.parse_html(html, url)
+                    if not review:
+                        print(f"   ❌ Scraping epäonnistui")
+                        failed += 1
+                        continue
+                else:
+                    # Lataa HTML ja parsea
+                    import requests
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                    response = requests.get(url, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    html = response.text
+                    
+                    review = scraper.parse_html(html, url)
+                    if not review:
+                        print(f"   ❌ Scraping epäonnistui")
+                        failed += 1
+                        continue
                 
                 # Luo relaatiot
                 movie = self.get_or_create_movie(review.movie_title)
@@ -249,7 +271,7 @@ class DiscoveryImporter:
         Returns:
             Dictionary: {source: imported_count}
         """
-        sources = ['hs', 'ts', 'il', 'ksml', 'sk']
+        sources = ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi']
         results = {}
         
         print("\n" + "="*60)
