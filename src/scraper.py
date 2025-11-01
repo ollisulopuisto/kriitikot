@@ -10,6 +10,7 @@ All scraper classes have been moved to the scrapers/ package:
 - TSScraper -> scrapers.ts
 - SKScraper -> scrapers.sk
 - ISScraper -> scrapers.is_scraper
+- EpisodiScraper -> scrapers.episodi
 """
 
 import warnings
@@ -24,6 +25,7 @@ from scrapers import (
     TSScraper,
     SKScraper,
     ISScraper,
+    EpisodiScraper,
     scrape_review,
     scrapers,
 )
@@ -44,6 +46,7 @@ __all__ = [
     'TSScraper',
     'SKScraper',
     'ISScraper',
+    'EpisodiScraper',
     'scrape_review',
     'scrapers',
 ]

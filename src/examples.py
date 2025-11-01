@@ -3,7 +3,7 @@
 Esimerkki: Miten käyttää scraper-kirjastoa
 """
 
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, scrape_review
+from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, EpisodiScraper, scrape_review
 import os
 
 
@@ -193,6 +193,40 @@ def example_2d_ts_source():
     print()
 
 
+def example_2e_episodi_source():
+    """Esimerkki: Episodi.fi JSON API scraper."""
+    print("=" * 60)
+    print("ESIMERKKI 2E: Episodi.fi scraper (JSON API)")
+    print("=" * 60)
+    
+    # Episodi käyttää WordPress JSON API:a
+    scraper = EpisodiScraper()
+    
+    print("\n🌐 Haetaan uusimmat arvostelut Episodi.fi JSON API:sta...")
+    
+    # Hae 3 uusinta arvostelua
+    reviews = scraper.parse_json_api(limit=3)
+    
+    if reviews:
+        print(f"\n✅ Löytyi {len(reviews)} arvostelua:\n")
+        for i, review in enumerate(reviews, 1):
+            print(f"{i}. 📽️  {review.movie_title}")
+            print(f"   ✍️  {review.critic_name}")
+            if review.rating_stars:
+                print(f"   ⭐ {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
+            else:
+                print(f"   ⭐ Ei arvosanaa")
+            print(f"   🔗 {review.source_url}")
+            if review.review_text:
+                preview = review.review_text[:100] + '...' if len(review.review_text) > 100 else review.review_text
+                print(f"   💬 {preview}")
+            print()
+    else:
+        print("❌ Ei arvosteluja")
+    
+    print()
+
+
 def example_3_to_dict():
     """Esimerkki: Muunna Review sanakirjaksi (esim. JSON:ia varten)."""
     print("=" * 60)
@@ -305,6 +339,7 @@ if __name__ == '__main__':
     example_2b_ksml_source()
     example_2c_il_source()
     example_2d_ts_source()
+    example_2e_episodi_source()
     example_3_to_dict()
     example_4_filter_reviews()
     example_5_adding_new_source()
