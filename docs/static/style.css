@@ -318,6 +318,18 @@ thead {
     text-align: left;
 }
 
+#review-count-display {
+    display: inline-block;
+    min-width: 8em;
+    text-align: left;
+}
+
+#star-filter-value {
+    display: inline-block;
+    min-width: 10.5em;
+    text-align: left;
+}
+
 /* Mediasuodatin - pakota yhteen riviin */
 .media-filter-buttons {
     display: flex;
@@ -531,6 +543,39 @@ td:nth-child(even) {
 
 tbody tr:hover td:nth-child(even) {
     background: #e3f2fd;
+}
+
+/* Luokkapohjaiset väritykset (korvaavat nth-child kun sarakkeita piilotetaan) */
+th.even-column:not(.movie-col) {
+    background: #e3f2fd !important;
+}
+
+th.even-column:not(.movie-col):hover {
+    background: rgba(139, 92, 246, 0.2) !important;
+}
+
+td.even-column {
+    background: #f5faff !important;
+}
+
+tbody tr:hover td.even-column {
+    background: #e3f2fd !important;
+}
+
+th.odd-column:not(.movie-col) {
+    background: transparent !important;
+}
+
+th.odd-column:not(.movie-col):hover {
+    background: rgba(139, 92, 246, 0.15) !important;
+}
+
+td.odd-column {
+    background: transparent !important;
+}
+
+tbody tr:hover td.odd-column {
+    background: #f8f9fa !important;
 }
 
 tbody tr {
@@ -861,8 +906,9 @@ footer {
         padding: 1.875rem 1.25rem;
     }
     
-    /* Piilota desktop-suodatin, näytä mobile-suodatin */
-    .desktop-filters {
+    /* Piilota desktop-suodatin ja desktop-only elementit, näytä mobile-suodatin */
+    .desktop-filters,
+    .desktop-only {
         display: none !important;
     }
     

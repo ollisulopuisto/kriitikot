@@ -42,6 +42,9 @@
                         </span>
                     </p>
                 </div>
+                <button id="reset-filters-desktop" class="reset-button desktop-only" style="display: none;">
+                    🔄 Näytä kaikki
+                </button>
             </div>
         </header>
         
@@ -55,7 +58,7 @@
                     <div class="filter-group">
                         <label for="min-reviews-slider">
                             <span class="filter-icon">🔍</span>
-                            Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                            Vähintään <span id="review-count-display"><strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
                         </label>
                         <div class="slider-container">
                             <input 
@@ -9986,7 +9989,7 @@ Farssin kirjoittamatt...">
                     
                     <!-- Reset-nappi -->
                     <div class="mobile-filter-group">
-                        <button id="reset-filters" class="mobile-reset-button" style="display: none;">
+                        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
                             🔄 Näytä kaikki
                         </button>
                     </div>
@@ -15288,9 +15291,10 @@ Farssin kirjoittamatt...">
             return row.style.display !== 'none';
         });
         
-        // Tarkista onko tähtifiltteri aktiivinen
+        // Tarkista onko tähtifiltteri aktiivinen (vain jos > 1)
         const starSlider = document.getElementById('star-filter-slider');
-        const activeStarFilter = starSlider ? parseInt(starSlider.value) : 0;
+        const activeStarFilter = starSlider ? parseInt(starSlider.value) : 1;
+        const hasActiveStarFilter = activeStarFilter > 1;
         
         // Käy läpi jokainen kriitikko (sarake)
         criticHeaders.forEach((header, index) => {
@@ -15313,14 +15317,14 @@ Farssin kirjoittamatt...">
                     
                     // Jos on arvostelu (ei tyhjä)
                     if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
-                        // Jos tähtifiltteri on aktiivinen, tarkista tähtimäärä
-                        if (activeStarFilter > 0 && ratingStars) {
+                        // Jos tähtifiltteri on aktiivinen (> 1), tarkista tähtimäärä
+                        if (hasActiveStarFilter && ratingStars) {
                             const starCount = (ratingStars.textContent.match(/★/g) || []).length;
-                            if (starCount === activeStarFilter) {
+                            if (starCount >= activeStarFilter) {
                                 hasVisibleReview = true;
                             }
-                        } else if (activeStarFilter === 0) {
-                            // Ei tähtifilteriä - mikä tahansa arvostelu kelpaa
+                        } else if (!hasActiveStarFilter) {
+                            // Ei tähtifilteriä (slider = 1) - mikä tahansa arvostelu kelpaa
                             hasVisibleReview = true;
                         }
                     }
@@ -15347,6 +15351,39 @@ Farssin kirjoittamatt...">
                     }
                 });
             }
+        });
+        
+        // Päivitä "joka toinen" -väritys vain näkyville sarakkeille
+        const visibleHeaders = Array.from(criticHeaders).filter(header => 
+            !header.classList.contains('filter-hidden') && header.style.display !== 'none'
+        );
+        
+        // Poista vanhat väritykset
+        criticHeaders.forEach(header => {
+            header.classList.remove('even-column', 'odd-column');
+        });
+        
+        // Lisää uudet väritykset vain näkyville
+        visibleHeaders.forEach((header, visibleIndex) => {
+            if (visibleIndex % 2 === 0) {
+                header.classList.add('even-column');
+            } else {
+                header.classList.add('odd-column');
+            }
+            
+            // Päivitä myös rivien solut
+            const columnIndex = Array.from(criticHeaders).indexOf(header) + 1;
+            tbody.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells[columnIndex]) {
+                    cells[columnIndex].classList.remove('even-column', 'odd-column');
+                    if (visibleIndex % 2 === 0) {
+                        cells[columnIndex].classList.add('even-column');
+                    } else {
+                        cells[columnIndex].classList.add('odd-column');
+                    }
+                }
+            });
         });
     }
     
@@ -15445,10 +15482,7 @@ Farssin kirjoittamatt...">
             
             // Näytä reset-nappi kun filtteröidään
             if (minCount > 1) {
-                const resetBtn = document.getElementById('reset-filters');
-                if (resetBtn) {
-                    resetBtn.style.display = 'inline-block';
-                }
+                if (window.showResetButton) window.showResetButton();
             }
             
             // Päivitä kriitikkosarakkeiden näkyvyys
@@ -15508,26 +15542,6 @@ Farssin kirjoittamatt...">
             updateReviewStepper(1, false);
         }
         
-        // Lisää reset-toiminto
-        const resetButton = document.getElementById('reset-filters');
-        if (resetButton) {
-            const originalResetHandler = resetButton.onclick;
-            resetButton.addEventListener('click', function() {
-                slider.value = 1;
-                valueDisplay.textContent = 1;
-                updateReviewWord(1);
-                if (valueDisplayMobile) {
-                    valueDisplayMobile.textContent = 1;
-                }
-                filterByReviewCount(1);
-                
-                // Reset stepper buttons
-                if (reviewsMinusBtn && reviewsPlusBtn) {
-                    reviewsMinusBtn.disabled = true;
-                    reviewsPlusBtn.disabled = false;
-                }
-            });
-        }
     });
     
     // Tähtisuodatin
@@ -15561,11 +15575,84 @@ Farssin kirjoittamatt...">
         }
         
         function filterByStars(stars) {
-            // Desktop: Filtteröi rivit
+            console.log('🔍 filterByStars called with stars:', stars);
+            
             const table = document.querySelector('table');
+            const allCards = document.querySelectorAll('.movie-card');
+            
+            // Jos stars on 1, poista tähtifiltteri kokonaan (näytä kaikki jotka täyttävät muut filtterit)
+            if (stars === 1) {
+                console.log('✅ Stars = 1, removing star filter');
+                
+                // Desktop: Käy läpi kaikki rivit
+                if (table) {
+                    const tbody = table.querySelector('tbody');
+                    const allRows = tbody.querySelectorAll('tr');
+                    
+                    console.log('📊 Desktop: Processing', allRows.length, 'rows');
+                    
+                    let visibleCount = 0;
+                    allRows.forEach(row => {
+                        // Poista tähtifiltteri
+                        delete row.dataset.starFiltered;
+                        
+                        // Tarkista onko muita aktiivisia filttereitä
+                        const hasOtherFilters = row.dataset.reviewCountFiltered === 'true';
+                        
+                        // Näytä rivi jos ei ole muita filttereitä
+                        if (!hasOtherFilters) {
+                            row.style.display = '';
+                            visibleCount++;
+                        }
+                    });
+                    
+                    console.log('👀 Desktop: Visible rows:', visibleCount);
+                }
+                
+                // Mobile: Käy läpi kaikki kortit ja arvostelut
+                let visibleCards = 0;
+                allCards.forEach(card => {
+                    // Poista tähtifiltteri
+                    delete card.dataset.starFiltered;
+                    
+                    // Tarkista onko muita aktiivisia filttereitä
+                    const hasOtherFilters = card.dataset.reviewCountFiltered === 'true';
+                    
+                    // Näytä kortti jos ei ole muita filttereitä
+                    if (!hasOtherFilters) {
+                        card.style.display = '';
+                        visibleCards++;
+                    }
+                    
+                    // Näytä kaikki arvostelut kortissa
+                    const cardReviews = card.querySelectorAll('.review-item');
+                    cardReviews.forEach(item => {
+                        delete item.dataset.starFiltered;
+                        item.style.display = '';
+                    });
+                });
+                
+                console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
+                
+                // Päivitä kriitikkosarakkeiden näkyvyys
+                updateCriticColumnVisibility();
+                
+                console.log('✅ Star filter removed, NOT showing reset button');
+                // Älä näytä reset-nappia pelkän "vähintään 1 tähti" takia
+                return;
+            }
+            
+            console.log('🔽 Filtering for stars >=', stars);
+            
+            console.log('🔽 Filtering for stars >=', stars);
+            
+            // Desktop: Filtteröi rivit (stars > 1)
             if (table) {
                 const tbody = table.querySelector('tbody');
                 const allRows = tbody.querySelectorAll('tr');
+                
+                let visibleRows = 0;
+                let hiddenRows = 0;
                 
                 allRows.forEach(row => {
                     const ratingCells = row.querySelectorAll('.rating-cell');
@@ -15583,11 +15670,18 @@ Farssin kirjoittamatt...">
                     
                     row.style.display = hasMatchingRating ? '' : 'none';
                     row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
+                    
+                    if (hasMatchingRating) visibleRows++;
+                    else hiddenRows++;
                 });
+                
+                console.log('📊 Desktop: Visible:', visibleRows, 'Hidden:', hiddenRows);
             }
             
-            // Mobile: Filtteröi kortit
-            const allCards = document.querySelectorAll('.movie-card');
+            // Mobile: Filtteröi kortit (stars > 1)
+            let visibleCards = 0;
+            let hiddenCards = 0;
+            
             allCards.forEach(card => {
                 const cardReviews = card.querySelectorAll('.review-item');
                 let hasMatchingReview = false;
@@ -15609,23 +15703,27 @@ Farssin kirjoittamatt...">
                 
                 card.style.display = hasMatchingReview ? '' : 'none';
                 card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
+                
+                if (hasMatchingReview) visibleCards++;
+                else hiddenCards++;
             });
+            
+            console.log('📱 Mobile: Visible:', visibleCards, 'Hidden:', hiddenCards);
             
             // Päivitä kriitikkosarakkeiden näkyvyys
             updateCriticColumnVisibility();
             
-            // Näytä reset-nappi kun filtteröidään
-            if (stars > 0) {
-                const resetBtn = document.getElementById('reset-filters');
-                if (resetBtn) {
-                    resetBtn.style.display = 'inline-block';
-                }
+            // Näytä reset-nappi vain jos filtteri todella rajoittaa (stars > 1)
+            if (stars > 1) {
+                console.log('🔴 Showing reset button (stars > 1)');
+                if (window.showResetButton) window.showResetButton();
             }
         }
         
         // Desktop slider
         starSlider.addEventListener('input', function() {
             const value = parseInt(this.value);
+            console.log('🌟 Star slider changed to:', value);
             updateStarLabel(value);
             filterByStars(value);
         });
@@ -15675,18 +15773,20 @@ Farssin kirjoittamatt...">
     
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
-        const resetButton = document.getElementById('reset-filters');
-        if (!resetButton) return;
+        const resetButtonDesktop = document.getElementById('reset-filters-desktop');
+        const resetButtonMobile = document.getElementById('reset-filters-mobile');
         
         function showResetButton() {
-            resetButton.style.display = 'inline-block';
+            if (resetButtonDesktop) resetButtonDesktop.style.display = 'inline-block';
+            if (resetButtonMobile) resetButtonMobile.style.display = 'inline-block';
         }
         
         function hideResetButton() {
-            resetButton.style.display = 'none';
+            if (resetButtonDesktop) resetButtonDesktop.style.display = 'none';
+            if (resetButtonMobile) resetButtonMobile.style.display = 'none';
         }
         
-        resetButton.addEventListener('click', function() {
+        function resetAllFilters() {
             // Nollaa suodattimet
             const slider = document.getElementById('min-reviews-slider');
             const starSlider = document.getElementById('star-filter-slider');
@@ -15707,6 +15807,10 @@ Farssin kirjoittamatt...">
             // Reset kriitikko-kentän arvo
             const criticFilterValue = document.getElementById('critic-filter-value-mobile');
             if (criticFilterValue) criticFilterValue.textContent = 'Kaikki';
+            
+            // Update review word
+            const reviewWord = document.getElementById('review-word');
+            if (reviewWord) reviewWord.textContent = 'arvostelu';
             
             // Reset mobile stepper buttons
             const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
@@ -15804,15 +15908,30 @@ Farssin kirjoittamatt...">
                 filter.style.fontWeight = '';
             });
             
-            // HUOM: updateCriticColumnVisibility() ei kutsuta resetissä,
-            // koska olemme jo poistaneet .filter-hidden manuaalisesti yllä.
-            // Funktio kutsutaan vain filttereiden muuttuessa.
+            // Päivitä sarakkeiden väritys resetin jälkeen
+            // (Tämä poistaa .filter-hidden-luokat ja päivittää "joka toinen" -värityksen)
+            if (typeof updateCriticColumnVisibility === 'function') {
+                updateCriticColumnVisibility();
+            }
             
             hideResetButton();
-        });
+        }
         
-        // Näytä nappi kun jotain filtteröidään
+        // Lisää click-handlerit molemmille reset-napeille
+        if (resetButtonDesktop) {
+            resetButtonDesktop.addEventListener('click', resetAllFilters);
+        }
+        if (resetButtonMobile) {
+            resetButtonMobile.addEventListener('click', resetAllFilters);
+        }
+        
+        // Tee funktiot globaaleiksi, jotta muut voivat käyttää niitä
         window.showResetButton = showResetButton;
+        window.resetAllFilters = resetAllFilters;
+        window.isAnyFilterActive = function() {
+            return (resetButtonDesktop && resetButtonDesktop.style.display !== 'none') ||
+                   (resetButtonMobile && resetButtonMobile.style.display !== 'none');
+        };
         
         // Tee otsikosta klikattava reset-nappi
         const headerTitle = document.querySelector('h1');
@@ -15820,7 +15939,7 @@ Farssin kirjoittamatt...">
             headerTitle.style.cursor = 'pointer';
             headerTitle.title = 'Klikkaa nollataksesi kaikki hakufasetit';
             headerTitle.addEventListener('click', function() {
-                resetButton.click();
+                resetAllFilters();
             });
         }
     });
@@ -16021,12 +16140,11 @@ Farssin kirjoittamatt...">
                 const row = movieCell.parentElement;
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const resetButton = document.getElementById('reset-filters');
-                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    resetButton.click();
+                    if (window.resetAllFilters) window.resetAllFilters();
                     return;
                 }
                 
@@ -16091,12 +16209,12 @@ Farssin kirjoittamatt...">
             
             criticHeader.addEventListener('click', function() {
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const resetButton = document.getElementById('reset-filters');
-                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    resetButton.click();
+                    if (window.resetAllFilters) window.resetAllFilters();
                     return;
                 }
                 
@@ -16191,12 +16309,12 @@ Farssin kirjoittamatt...">
                 e.stopPropagation();
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const resetButton = document.getElementById('reset-filters');
-                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    resetButton.click();
+                    if (window.resetAllFilters) window.resetAllFilters();
                     return;
                 }
                 
@@ -16250,12 +16368,12 @@ Farssin kirjoittamatt...">
                 e.preventDefault();
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const resetButton = document.getElementById('reset-filters');
-                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    resetButton.click();
+                    if (window.resetAllFilters) window.resetAllFilters();
                     return;
                 }
                 
@@ -16323,12 +16441,12 @@ Farssin kirjoittamatt...">
                 e.preventDefault();
                 
                 // Tarkista onko JO JOKIN filtteri aktiivinen
-                const resetButton = document.getElementById('reset-filters');
-                const isAnyFilterActive = resetButton && resetButton.style.display !== 'none';
+                // Tarkista onko JO JOKIN filtteri aktiivinen
+                const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
                 
                 // Jos filtteri on aktiivinen, AINA resetoi
                 if (isAnyFilterActive) {
-                    resetButton.click();
+                    if (window.resetAllFilters) window.resetAllFilters();
                     return;
                 }
                 
