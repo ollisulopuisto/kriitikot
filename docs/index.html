@@ -49,116 +49,116 @@
         </header>
         
         
-        <!-- Desktop: Taulukkonäkymä -->
-        <div class="table-wrapper">
-            <!-- Desktop suodattimet (taulukon ulkopuolella) -->
-            <div class="desktop-filters">
-                <div class="filters-container">
-                    <!-- Fasetti 1: Arvioiden määrä -->
-                    <div class="filter-group">
-                        <label for="min-reviews-slider">
-                            <span class="filter-icon">🔍</span>
-                            Vähintään <span id="review-count-display"><strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
-                        </label>
-                        <div class="slider-container">
-                            <input 
-                                type="range" 
-                                id="min-reviews-slider" 
-                                min="1" 
-                                max="5" 
-                                value="1" 
-                                step="1"
-                                class="slider"
-                            >
-                            <div class="slider-labels">
-                                <span>1</span>
-                                <span>2</span>
-                                <span>3</span>
-                                <span>4</span>
-                                <span>5+</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Fasetti 2: Tähdet -->
-                    <div class="filter-group">
-                        <label for="star-filter-slider">
-                            <span class="filter-icon">⭐</span>
-                            Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
-                        </label>
-                        <div class="slider-container">
-                            <input 
-                                type="range" 
-                                id="star-filter-slider" 
-                                min="1" 
-                                max="5" 
-                                value="1" 
-                                step="1"
-                                class="slider"
-                            >
-                            <div class="slider-labels">
-                                <span>1</span>
-                                <span>2</span>
-                                <span>3</span>
-                                <span>4</span>
-                                <span>5</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Fasetti 3: Media -->
-                    <div class="filter-group">
-                        <label>
-                            <span class="filter-icon">📰</span>
-                            Julkaisu
-                        </label>
-                        <div class="media-filter-buttons">
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="EPISODI" title="Näytä EPISODI-arvostelut">
-                                EPISODI
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="FILMOHOLIC" title="Näytä FILMOHOLIC-arvostelut">
-                                FILMOHOLIC
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="HS" title="Näytä HS-arvostelut">
-                                HS
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="IL" title="Näytä IL-arvostelut">
-                                IL
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="IS" title="Näytä IS-arvostelut">
-                                IS
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="KSML" title="Näytä KSML-arvostelut">
-                                KSML
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="KULTTUURITOIMITUS" title="Näytä KULTTUURITOIMITUS-arvostelut">
-                                KULTTUURITOIMITUS
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="MUROPAKETTI" title="Näytä MUROPAKETTI-arvostelut">
-                                MUROPAKETTI
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="SK" title="Näytä SK-arvostelut">
-                                SK
-                            </button>
-                            
-                            <button class="media-filter-btn filter-publication" data-publication="TS" title="Näytä TS-arvostelut">
-                                TS
-                            </button>
-                            
+        <!-- Desktop suodattimet (ENNEN taulukkoa, jotta sticky toimii) -->
+        <div class="desktop-filters">
+            <div class="filters-container">
+                <!-- Fasetti 1: Arvioiden määrä -->
+                <div class="filter-group">
+                    <label for="min-reviews-slider">
+                        <span class="filter-icon">🔍</span>
+                        Vähintään <span id="review-count-display"><strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
+                    </label>
+                    <div class="slider-container">
+                        <input 
+                            type="range" 
+                            id="min-reviews-slider" 
+                            min="1" 
+                            max="5" 
+                            value="1" 
+                            step="1"
+                            class="slider"
+                        >
+                        <div class="slider-labels">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5+</span>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Fasetti 2: Tähdet -->
+                <div class="filter-group">
+                    <label for="star-filter-slider">
+                        <span class="filter-icon">⭐</span>
+                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
+                    </label>
+                    <div class="slider-container">
+                        <input 
+                            type="range" 
+                            id="star-filter-slider" 
+                            min="1" 
+                            max="5" 
+                            value="1" 
+                            step="1"
+                            class="slider"
+                        >
+                        <div class="slider-labels">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fasetti 3: Media -->
+                <div class="filter-group">
+                    <label>
+                        <span class="filter-icon">📰</span>
+                        Julkaisu
+                    </label>
+                    <div class="media-filter-buttons">
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="EPISODI" title="Näytä EPISODI-arvostelut">
+                            EPISODI
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="FILMOHOLIC" title="Näytä FILMOHOLIC-arvostelut">
+                            FILMOHOLIC
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="HS" title="Näytä HS-arvostelut">
+                            HS
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="IL" title="Näytä IL-arvostelut">
+                            IL
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="IS" title="Näytä IS-arvostelut">
+                            IS
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="KSML" title="Näytä KSML-arvostelut">
+                            KSML
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="KULTTUURITOIMITUS" title="Näytä KULTTUURITOIMITUS-arvostelut">
+                            KULTTUURITOIMITUS
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="MUROPAKETTI" title="Näytä MUROPAKETTI-arvostelut">
+                            MUROPAKETTI
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="SK" title="Näytä SK-arvostelut">
+                            SK
+                        </button>
+                        
+                        <button class="media-filter-btn filter-publication" data-publication="TS" title="Näytä TS-arvostelut">
+                            TS
+                        </button>
+                        
+                    </div>
+                </div>
             </div>
-            
+        </div>
+        
+        <!-- Desktop: Taulukkonäkymä -->
+        <div class="table-wrapper">
             <table>
                 <thead>
                     <!-- Rivi 2: Kriitikot -->
