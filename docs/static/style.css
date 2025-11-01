@@ -26,6 +26,19 @@
     border: 1px solid #c4b5fd;
 }
 
+/* Diagonaalinen jakoviiva kolmioiden välissä */
+.diagonal-sort-cell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom right, transparent calc(50% - 1px), #8b5cf6 calc(50% - 1px), #8b5cf6 calc(50% + 1px), transparent calc(50% + 1px));
+    z-index: 1;
+    pointer-events: none;
+}
+
 .sort-half {
     position: absolute;
     width: 100%;
@@ -36,7 +49,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(139, 92, 246, 0.08);
+    background: rgba(139, 92, 246, 0.15);
     transition: background 0.2s;
 }
 
