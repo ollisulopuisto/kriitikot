@@ -10,6 +10,7 @@ This package provides scrapers for:
 - Ilta-Sanomat (IS.fi)
 - Episodi (Episodi.fi)
 - Muropaketti (Muropaketti.com)
+- Film-O-Holic (Film-O-Holic.com)
 
 All scrapers return Review objects with standardized fields.
 """
@@ -28,6 +29,7 @@ from .sk import SKScraper
 from .is_scraper import ISScraper
 from .episodi import EpisodiScraper
 from .muropaketti import MuropakettiScraper
+from .filmoholic import FilmOHolicScraper
 
 
 # Scraper registry - maps source identifier to scraper instance
@@ -40,6 +42,7 @@ scrapers = {
     'is': ISScraper(),
     'episodi': EpisodiScraper(),
     'muropaketti': MuropakettiScraper(),
+    'filmoholic': FilmOHolicScraper(),
 }
 
 
@@ -49,7 +52,7 @@ def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[st
     
     Args:
         html_content: HTML content as string
-        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi', 'muropaketti')
+        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic')
         source_url: Original URL (optional)
         
     Returns:
@@ -85,6 +88,7 @@ __all__ = [
     'ISScraper',
     'EpisodiScraper',
     'MuropakettiScraper',
+    'FilmOHolicScraper',
     
     # Helper functions
     'scrape_review',

@@ -37,6 +37,7 @@ class CategoryCrawler:
         'is': 'https://www.is.fi/tv-ja-elokuvat/',
         'episodi': 'https://www.episodi.fi/wp-json/wp/v2/elokuvat',
         'muropaketti': 'https://muropaketti.com/kategoria/elokuvat/elokuva-arvostelut/',
+        'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
     }
     
     def __init__(self):
@@ -98,6 +99,11 @@ class CategoryCrawler:
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_muropaketti_reviews(soup, limit)
+        
+        elif source == 'filmoholic':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_filmoholic_reviews(soup, limit)
         
         return []
     
@@ -394,6 +400,47 @@ class CategoryCrawler:
                     # Poista "Arvostelu " tai "Arvio " alusta
                     title = full_text.replace(category_text, '').strip()
                     
+                    reviews.append({
+                        'title': title,
+                        'url': url
+                    })
+                    
+                    if len(reviews) >= limit:
+                        break
+        
+        return reviews
+    
+    def _find_filmoholic_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Film-O-Holic arvostelut kategoriasivulta.
+        
+        Film-O-Holic arvostelut ovat <ul class="article-list"> -listassa,
+        jossa on <li> elementtejä joiden sisällä on linkki arvosteluun.
+        """
+        reviews = []
+        
+        # Etsi article-list
+        article_list = soup.find('ul', class_='article-list')
+        if not article_list:
+            return reviews
+        
+        # Käy läpi kaikki linkit jotka osoittavat /arvostelut/-polkuun
+        for link in article_list.find_all('a', href=True):
+            href = link['href']
+            
+            # Tarkista että linkki on arvostelu (ei filtterit kuten ?grade=5)
+            if href.startswith('/arvostelut/') and '?' not in href:
+                # Otsikko on h4-tagissa
+                h4 = link.find('h4')
+                if not h4:
+                    continue
+                
+                title = h4.get_text(strip=True)
+                
+                # Muodosta absoluuttinen URL
+                url = 'https://www.film-o-holic.com' + href
+                
+                if title and url:
                     reviews.append({
                         'title': title,
                         'url': url

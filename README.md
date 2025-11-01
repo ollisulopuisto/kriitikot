@@ -14,23 +14,29 @@ Päivittyy automaattisesti päivittäin klo 08:00 Suomen aikaa (GitHub Actions).
 - **🔄 Refaktoroitu arkkitehtuuri**: Modulaarinen scrapers-paketti (ks. [docs/REFACTORING.md](docs/REFACTORING.md))
   - 1070 riviä → 49 riviä wrapper + 8 modulia
   - Jokainen scraper omassa tiedostossaan
-- **6 toimivaa scraperia**:
+- **8 toimivaa scraperia**:
   - **HS.fi**: Helsingin Sanomat (Next.js JSON, puhdas title extraction)
   - **KSML.fi**: Keskisuomalainen (aria-label + JSON-LD, maksumuurin takana)
-  - **IL.fi**: Iltalehti (⭐-symbolit, regex "IL-arvio: ⭐⭐")
+  - **IL.fi**: Iltalehti (⭐-symbolit, regex "IL-arvio: ⭐⭐", double-encoded UTF-8)
   - **TS.fi**: Turun Sanomat (★-symbolit, maksumuurin takana, intro-tag)
   - **SK.fi**: Suomen Kuvalehti (meta og:title, "[Nimi] kirjoittaa" pattern)
-  - **IS.fi**: Ilta-Sanomat (Next.js JSON, TV-lehti-tagit) ✨ **UUSI!**
+  - **IS.fi**: Ilta-Sanomat (Next.js JSON, TV-lehti-tagit)
+  - **Episodi.fi**: WordPress JSON API, JSON-LD schema ratings
+  - **Muropaketti.com**: Image filename ratings, structured info box
 - **🔍 Discovery-system**: Automaattinen arvostelujen löytäminen kaikista lähteistä!
   - HS: Next.js JSON parsing (storyLogo: "Elokuva-arvio")
   - TS: HTML category page (span "Elokuva-arvostelu")
-  - IL: JSON API embedded data
+  - IL: JSON API embedded data (fixed regex + UUID validation)
   - KSML: Search page parsing
   - SK: Tag-based category crawling
+  - IS: Next.js JSON (TV & Elokuvat tags)
+  - Episodi: WordPress JSON REST API (/wp-json/wp/v2/)
+  - Muropaketti: Category page with span.category-name
 - **📊 Tietokanta**: SQLite + SQLAlchemy ORM
   - Movies, Critics, Publications, Reviews
   - Automaattinen duplikaattien välttäminen (URL-perusteinen)
   - Fuzzy matching elokuvan nimille (0.9 threshold)
+  - **66 arvostelua 8 julkaisusta** (Nov 2025)
 - **🤖 Eräajo-system**: Automaattinen tietokannan päivitys
   - `batch_update.py`: Python-scripti päivityksiin
   - `run_batch_update.sh`: Bash wrapper backupilla ja logeilla
@@ -46,8 +52,10 @@ Päivittyy automaattisesti päivittäin klo 08:00 Suomen aikaa (GitHub Actions).
   - Sarakkeiden järjestyksen muuttaminen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
 - **Testit**: 13 pytest-testiä (100% passing) ✅
+- **🤖 AI Agent Instructions**: [AGENTS.md](AGENTS.md) - Ohjeet uusien scrapereiden lisäämiseen
 
 ### 🚧 Työn alla / Tulossa:
+- **Film-O-Holic scraper**: Työn alla 🚧
 - **Web UI -parannukset**: Suodattimet, haku, järjestely
 - **Ollama-integraatio**: AI-pohjainen arvosanojen generointi kun tähtiä ei ole
 - **Lisää lähteitä**: YLE Areena, Episodi.fi
@@ -57,6 +65,7 @@ Päivittyy automaattisesti päivittäin klo 08:00 Suomen aikaa (GitHub Actions).
 
 Kaikki dokumentaatio löytyy [docs/](docs/) -hakemistosta:
 
+- **[AGENTS.md](AGENTS.md)** - AI-ohje scrapereiden lisäämiseen (uusi!) 🤖
 - **[docs/PIKAOHJE.md](docs/PIKAOHJE.md)** - Pikaopas käyttöön (aloita tästä!)
 - **[docs/REFACTORING.md](docs/REFACTORING.md)** - Scrapers-paketin refaktorointi
 - **[docs/METASCRAPER_DESIGN.md](docs/METASCRAPER_DESIGN.md)** - Discovery-systeemin suunnitelma
@@ -201,7 +210,9 @@ kriitikot/
 │   │   ├── il.py           # Iltalehti
 │   │   ├── ts.py           # Turun Sanomat
 │   │   ├── sk.py           # Suomen Kuvalehti
-│   │   └── is_scraper.py   # Ilta-Sanomat
+│   │   ├── is_scraper.py   # Ilta-Sanomat
+│   │   ├── episodi.py      # Episodi.fi
+│   │   └── muropaketti.py  # Muropaketti.com
 │   ├── scraper.py          # Backward compatibility wrapper
 │   ├── app.py              # Flask web-sovellus
 │   ├── models.py           # SQLAlchemy-mallit
@@ -245,7 +256,7 @@ review = scraper.parse_html(html_content)
 
 # Tai yleistä funktiota
 from scrapers import scrape_review
-review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is
+review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is, episodi, muropaketti
 ```
 
 Ks. [docs/REFACTORING.md](docs/REFACTORING.md) lisätietoja modulaarisesta rakenteesta.
@@ -290,7 +301,7 @@ review = scraper.parse_file('review.html')
 print(f"{review.movie_title}: {review.rating_stars}★")
 
 # Yleinen funktio (suositeltu)
-review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is
+review = scrape_review(html_content, source='hs')  # hs, ksml, il, ts, sk, is, episodi, muropaketti
 data = review.to_dict()
 ```
 
