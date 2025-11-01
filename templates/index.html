@@ -645,7 +645,7 @@
         // Elokuvanimi: Himmennä muut rivit
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
             movieCell.style.cursor = 'pointer';
-            movieCell.title = 'Klikkaa nähdäksesi vain tämän elokuvan arvostelut';
+            movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
             
             movieCell.addEventListener('click', function() {
                 const row = movieCell.parentElement;
@@ -688,7 +688,7 @@
         
         criticHeaders.forEach((criticHeader, colIndex) => {
             criticHeader.style.cursor = 'pointer';
-            criticHeader.title = 'Klikkaa piilottaaksesi elokuvat joita ei arvosteltu';
+            criticHeader.title = 'Klikkaa piilottaaksesi elokuvat, joilla ei ole arvosteluja';
             
             criticHeader.addEventListener('click', function() {
                 // Tarkista onko JO JOKIN filtteri aktiivinen
