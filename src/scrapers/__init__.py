@@ -11,6 +11,7 @@ This package provides scrapers for:
 - Episodi (Episodi.fi)
 - Muropaketti (Muropaketti.com)
 - Film-O-Holic (Film-O-Holic.com)
+- Kulttuuritoimitus (Kulttuuritoimitus.fi)
 
 All scrapers return Review objects with standardized fields.
 """
@@ -30,6 +31,7 @@ from .is_scraper import ISScraper
 from .episodi import EpisodiScraper
 from .muropaketti import MuropakettiScraper
 from .filmoholic import FilmOHolicScraper
+from .kulttuuritoimitus import KulttuuritoimitusScraper
 
 
 # Scraper registry - maps source identifier to scraper instance
@@ -43,6 +45,7 @@ scrapers = {
     'episodi': EpisodiScraper(),
     'muropaketti': MuropakettiScraper(),
     'filmoholic': FilmOHolicScraper(),
+    'kulttuuritoimitus': KulttuuritoimitusScraper(),
 }
 
 
@@ -52,7 +55,7 @@ def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[st
     
     Args:
         html_content: HTML content as string
-        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic')
+        source: Source identifier ('hs', 'ksml', 'il', 'ts', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus')
         source_url: Original URL (optional)
         
     Returns:
@@ -89,6 +92,7 @@ __all__ = [
     'EpisodiScraper',
     'MuropakettiScraper',
     'FilmOHolicScraper',
+    'KulttuuritoimitusScraper',
     
     # Helper functions
     'scrape_review',

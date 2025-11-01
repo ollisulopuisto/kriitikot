@@ -38,6 +38,7 @@ class CategoryCrawler:
         'episodi': 'https://www.episodi.fi/wp-json/wp/v2/elokuvat',
         'muropaketti': 'https://muropaketti.com/kategoria/elokuvat/elokuva-arvostelut/',
         'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
+        'kulttuuritoimitus': 'https://www.kulttuuritoimitus.fi/wp-json/wp/v2/posts?categories=11',
     }
     
     def __init__(self):
@@ -50,7 +51,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -60,9 +61,12 @@ class CategoryCrawler:
         if not url:
             raise ValueError(f"Unknown source: {source}")
         
-        # Episodi käyttää JSON API:a suoraan
+        # Episodi ja Kulttuuritoimitus käyttävät JSON API:a suoraan
         if source == 'episodi':
             return self._find_episodi_reviews_json(url, limit)
+        
+        if source == 'kulttuuritoimitus':
+            return self._find_kulttuuritoimitus_reviews_json(url, limit)
         
         # Lähdekohtainen logiikka
         if source == 'sk':
@@ -448,6 +452,53 @@ class CategoryCrawler:
                     
                     if len(reviews) >= limit:
                         break
+        
+        return reviews
+    
+    def _find_kulttuuritoimitus_reviews_json(self, api_url: str, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Kulttuuritoimitus.fi:n elokuva-arvostelut WordPress JSON API:sta.
+        
+        API URL sisältää jo category=11 (Elokuvakritiikki) parametrin.
+        """
+        reviews = []
+        
+        try:
+            response = requests.get(
+                api_url,
+                params={'per_page': limit, 'orderby': 'date', 'order': 'desc', '_embed': '1'},
+                headers=self.headers,
+                timeout=10
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            for item in data:
+                # Title on rendered HTML, puhdistetaan
+                title_obj = item.get('title', {})
+                if isinstance(title_obj, dict):
+                    title = title_obj.get('rendered', '').strip()
+                else:
+                    title = str(title_obj).strip()
+                
+                # Poista HTML-tagit otsikosta
+                from bs4 import BeautifulSoup
+                title_soup = BeautifulSoup(title, 'html.parser')
+                title = title_soup.get_text(strip=True)
+                
+                url = item.get('link', '')
+                
+                if title and url:
+                    reviews.append({
+                        'title': title,
+                        'url': url
+                    })
+                    
+                    if len(reviews) >= limit:
+                        break
+        
+        except Exception as e:
+            print(f"  [Kulttuuritoimitus] JSON API virhe: {e}")
         
         return reviews
     

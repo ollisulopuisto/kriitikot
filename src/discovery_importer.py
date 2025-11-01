@@ -10,9 +10,11 @@ from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISS
 from scrapers.episodi import EpisodiScraper
 from scrapers.muropaketti import MuropakettiScraper
 from scrapers.filmoholic import FilmOHolicScraper
+from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
 from movie_normalizer import get_canonical_title
 from typing import List, Dict
 import re
+import requests
 
 
 class DiscoveryImporter:
@@ -40,6 +42,7 @@ class DiscoveryImporter:
             'episodi': EpisodiScraper(),
             'muropaketti': MuropakettiScraper(),
             'filmoholic': FilmOHolicScraper(),
+            'kulttuuritoimitus': KulttuuritoimitusScraper(),
         }
     
     def normalize_movie_title(self, title: str) -> str:
@@ -192,10 +195,9 @@ class DiscoveryImporter:
             
             # Scrape arvostelu
             try:
-                # Episodi käyttää JSON API:a suoraan
-                if source == 'episodi':
-                    # Käytä scraperin JSON API -metodia yksittäiselle URL:lle
-                    episodi_scraper = self.scrapers['episodi']
+                # Episodi ja Kulttuuritoimitus käyttävät JSON API:a
+                if source in ['episodi', 'kulttuuritoimitus']:
+                    scraper_obj = self.scrapers[source]
                     
                     # Hae JSON-data tälle yksittäiselle arvostelulle
                     import requests
@@ -206,7 +208,7 @@ class DiscoveryImporter:
                     response.raise_for_status()
                     html = response.text
                     
-                    review = episodi_scraper.parse_html(html, url)
+                    review = scraper_obj.parse_html(html, url)
                     if not review:
                         print(f"   ❌ Scraping epäonnistui")
                         failed += 1
