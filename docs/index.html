@@ -9896,6 +9896,11 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             </table>
         </div>
         
+        <!-- Mobile: Reset-nappi (ennen hakukorttia) -->
+        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
+            🔄 Näytä kaikki
+        </button>
+        
         <!-- Mobile: Suodattimet -->
             <div class="mobile-filter collapsed">
                 <!-- Toggle-nappi -->
@@ -9986,15 +9991,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                             <span>Aakkosta elokuvat</span>
                         </button>
                     </div>
-                    
-                    <!-- Reset-nappi -->
-                    <div class="mobile-filter-group">
-                        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
-                            🔄 Näytä kaikki
-                        </button>
-                    </div>
                 </div>
-            </div>        <!-- Mobile: Korttinäkymä -->
+            </div>
+            
+        <!-- Mobile: Korttinäkymä -->
         <div class="mobile-cards">
             
             <div class="movie-card" data-movie="Kapina elämän puolesta">
@@ -15775,15 +15775,25 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
     document.addEventListener('DOMContentLoaded', function() {
         const resetButtonDesktop = document.getElementById('reset-filters-desktop');
         const resetButtonMobile = document.getElementById('reset-filters-mobile');
+        const mobileFilterCard = document.querySelector('.mobile-filter');
         
         function showResetButton() {
             if (resetButtonDesktop) resetButtonDesktop.style.display = 'inline-block';
-            if (resetButtonMobile) resetButtonMobile.style.display = 'inline-block';
+            if (resetButtonMobile) {
+                resetButtonMobile.style.display = 'flex';
+                // Siirrä hakukortti alemmas kun reset-nappi näkyy
+                // Reset-napin korkeus: padding (0.875rem * 2) + sisältö (~2rem) + margin-top (0.5rem) + top (0.5rem) = ~4.25rem
+                if (mobileFilterCard) mobileFilterCard.style.top = '4.25rem';
+            }
         }
         
         function hideResetButton() {
             if (resetButtonDesktop) resetButtonDesktop.style.display = 'none';
-            if (resetButtonMobile) resetButtonMobile.style.display = 'none';
+            if (resetButtonMobile) {
+                resetButtonMobile.style.display = 'none';
+                // Palauta hakukortti alkuperäiseen paikkaan (0.5rem top + 0.5rem margin ylhäältä)
+                if (mobileFilterCard) mobileFilterCard.style.top = '0.5rem';
+            }
         }
         
         function resetAllFilters() {
