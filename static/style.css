@@ -572,8 +572,7 @@ tbody tr:hover td.movie-col {
 
 /* Himmennys/piilotus-efektit */
 tr.dimmed {
-    opacity: 0.9;
-    transition: opacity 0.3s ease;
+    display: none;
 }
 
 th.dimmed,
