@@ -262,16 +262,30 @@ tbody tr[style*="display: none"] {
 
 thead {
     position: sticky;
-    top: 0;
-    z-index: 20;
+    top: 90px; /* Hakupalkin korkeus + padding */
+    z-index: 9;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
     box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
 }
 
-/* Filter-rivi headerin sisällä */
+/* Desktop suodattimet (taulukon ulkopuolella) */
+.desktop-filters {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Filter-rivi headerin sisällä (deprecated, käytä .desktop-filters) */
 .filter-row {
     background: white;
+    display: none; /* Piilotettu koska käytetään .desktop-filters */
 }
 
 .filter-header {
@@ -848,6 +862,10 @@ footer {
     }
     
     /* Piilota desktop-suodatin, näytä mobile-suodatin */
+    .desktop-filters {
+        display: none !important;
+    }
+    
     .filter-row {
         display: none;
     }

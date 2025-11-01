@@ -51,82 +51,80 @@
         {% if grouped_reviews %}
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
+            <!-- Desktop suodattimet (taulukon ulkopuolella) -->
+            <div class="desktop-filters">
+                <div class="filters-container">
+                    <!-- Fasetti 1: Arvioiden määrä -->
+                    <div class="filter-group">
+                        <label for="min-reviews-slider">
+                            <span class="filter-icon">🔍</span>
+                            Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                        </label>
+                        <div class="slider-container">
+                            <input 
+                                type="range" 
+                                id="min-reviews-slider" 
+                                min="1" 
+                                max="5" 
+                                value="1" 
+                                step="1"
+                                class="slider"
+                            >
+                            <div class="slider-labels">
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                                <span>5+</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 2: Tähdet -->
+                    <div class="filter-group">
+                        <label for="star-filter-slider">
+                            <span class="filter-icon">⭐</span>
+                            Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
+                        </label>
+                        <div class="slider-container">
+                            <input 
+                                type="range" 
+                                id="star-filter-slider" 
+                                min="1" 
+                                max="5" 
+                                value="1" 
+                                step="1"
+                                class="slider"
+                            >
+                            <div class="slider-labels">
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                                <span>5</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 3: Media -->
+                    <div class="filter-group">
+                        <label>
+                            <span class="filter-icon">📰</span>
+                            Julkaisu
+                        </label>
+                        <div class="media-filter-buttons">
+                            {% for pub, count in pub_stats.items() %}
+                            <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
+                                {{ pub }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <table>
                 <thead>
-                    <!-- Rivi 1: Suodattimet -->
-                    <tr class="filter-row">
-                        {% set total_cols = all_critics|length + 1 %}
-                        <th colspan="{{ total_cols }}" class="filter-header">
-                            <div class="filters-container">
-                                <!-- Fasetti 1: Arvioiden määrä -->
-                                <div class="filter-group">
-                                    <label for="min-reviews-slider">
-                                        <span class="filter-icon">🔍</span>
-                                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
-                                    </label>
-                                    <div class="slider-container">
-                                        <input 
-                                            type="range" 
-                                            id="min-reviews-slider" 
-                                            min="1" 
-                                            max="5" 
-                                            value="1" 
-                                            step="1"
-                                            class="slider"
-                                        >
-                                        <div class="slider-labels">
-                                            <span>1</span>
-                                            <span>2</span>
-                                            <span>3</span>
-                                            <span>4</span>
-                                            <span>5+</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Fasetti 2: Tähdet -->
-                                <div class="filter-group">
-                                    <label for="star-filter-slider">
-                                        <span class="filter-icon">⭐</span>
-                                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
-                                    </label>
-                                    <div class="slider-container">
-                                        <input 
-                                            type="range" 
-                                            id="star-filter-slider" 
-                                            min="1" 
-                                            max="5" 
-                                            value="1" 
-                                            step="1"
-                                            class="slider"
-                                        >
-                                        <div class="slider-labels">
-                                            <span>1</span>
-                                            <span>2</span>
-                                            <span>3</span>
-                                            <span>4</span>
-                                            <span>5</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Fasetti 3: Media -->
-                                <div class="filter-group">
-                                    <label>
-                                        <span class="filter-icon">📰</span>
-                                        Julkaisu
-                                    </label>
-                                    <div class="media-filter-buttons">
-                                        {% for pub, count in pub_stats.items() %}
-                                        <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
-                                            {{ pub }}
-                                        </button>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </th>
-                    </tr>
                     <!-- Rivi 2: Kriitikot -->
                     <tr class="critic-row">
                         <th class="movie-col diagonal-sort-cell">
