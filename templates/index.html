@@ -77,7 +77,14 @@
                     </tr>
                     <!-- Rivi 2: Kriitikot -->
                     <tr>
-                        <th class="movie-col"></th>
+                        <th class="movie-col">
+                            <button id="sort-movie" class="sort-btn" title="Aakkosta elokuvat" style="background: none; border: none; cursor: pointer;">
+                                <span style="font-size: 1.2em; vertical-align: middle;">&#8597;</span>
+                            </button>
+                            <button id="sort-critic" class="sort-btn" title="Aakkosta kriitikot" style="background: none; border: none; cursor: pointer; margin-left: 0.5em;">
+                                <span style="font-size: 1.2em; transform: rotate(90deg); display: inline-block; vertical-align: middle;">&#8597;</span>
+                            </button>
+                        </th>
                         {% for critic in all_critics %}
                         <th class="rating-cell">
                             {{ critic.name }}
@@ -578,69 +585,92 @@
         }
     }
     
-    // Ylänurkka: Aakkosta elokuvat
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.querySelector('table');
-        if (!table) return;
-        
-        const topLeftCell = table.querySelector('thead th.movie-col');
-        const tbody = table.querySelector('tbody');
-        
-        let sortAscending = true;
-        
-        topLeftCell.style.cursor = 'pointer';
-        topLeftCell.title = 'Klikkaa aakkostaaksesi elokuvat';
-        topLeftCell.textContent = '▼'; // Näytä nuoli heti
-        
-        topLeftCell.addEventListener('click', function() {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            rows.sort((a, b) => {
-                const titleA = a.querySelector('.movie-col').textContent.trim();
-                const titleB = b.querySelector('.movie-col').textContent.trim();
-                
-                if (sortAscending) {
-                    return titleA.localeCompare(titleB, 'fi');
-                } else {
-                    return titleB.localeCompare(titleA, 'fi');
-                }
-            });
-            
-            // Päivitä järjestys
-            rows.forEach(row => tbody.appendChild(row));
-            
-            sortAscending = !sortAscending;
-            topLeftCell.textContent = sortAscending ? '▼' : '▲';
-        });
-        
-        // Mobiili: Aakkosta elokuvakortit
-        const mobileSortButton = document.getElementById('mobile-sort');
-        const mobileCardsContainer = document.querySelector('.mobile-cards');
-        
-        if (mobileSortButton && mobileCardsContainer) {
-            let mobileSortAscending = true;
-            
-            mobileSortButton.addEventListener('click', function() {
-                const cards = Array.from(mobileCardsContainer.querySelectorAll('.movie-card'));
-                
-                cards.sort((a, b) => {
-                    const titleA = a.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
-                    const titleB = b.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
-                    
-                    if (mobileSortAscending) {
-                        return titleA.localeCompare(titleB, 'fi');
-                    } else {
-                        return titleB.localeCompare(titleA, 'fi');
-                    }
+        // Ylänurkka: Aakkosta elokuvat ja kriitikot
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('table');
+            if (!table) return;
+            const topLeftCell = table.querySelector('thead th.movie-col');
+            const tbody = table.querySelector('tbody');
+            const sortMovieBtn = document.getElementById('sort-movie');
+            const sortCriticBtn = document.getElementById('sort-critic');
+            let sortAscending = true;
+            let sortCriticAscending = true;
+
+            // Elokuvanimi sort
+            if (sortMovieBtn) {
+                sortMovieBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.sort((a, b) => {
+                        const titleA = a.querySelector('.movie-col').textContent.trim();
+                        const titleB = b.querySelector('.movie-col').textContent.trim();
+                        if (sortAscending) {
+                            return titleA.localeCompare(titleB, 'fi');
+                        } else {
+                            return titleB.localeCompare(titleA, 'fi');
+                        }
+                    });
+                    rows.forEach(row => tbody.appendChild(row));
+                    sortAscending = !sortAscending;
                 });
-                
-                // Päivitä järjestys (lisää sorttausnapin jälkeen)
-                cards.forEach(card => mobileCardsContainer.appendChild(card));
-                
-                mobileSortAscending = !mobileSortAscending;
-                mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
-            });
-        }
+            }
+
+            // Kriitikonimi sort
+            if (sortCriticBtn) {
+                sortCriticBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Sort columns by critic name
+                    const theadRow = table.querySelector('thead tr:last-child');
+                    const criticHeaders = Array.from(theadRow.querySelectorAll('th.rating-cell'));
+                    // Get critic names and their index
+                    const critics = criticHeaders.map((th, idx) => ({
+                        name: th.textContent.trim(),
+                        idx: idx
+                    }));
+                    critics.sort((a, b) => {
+                        if (sortCriticAscending) {
+                            return a.name.localeCompare(b.name, 'fi');
+                        } else {
+                            return b.name.localeCompare(a.name, 'fi');
+                        }
+                    });
+                    // Rearrange header
+                    critics.forEach((c, newIdx) => {
+                        theadRow.appendChild(criticHeaders[c.idx]);
+                    });
+                    // Rearrange each row's critic cells
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.forEach(row => {
+                        const cells = Array.from(row.querySelectorAll('td.rating-cell'));
+                        critics.forEach((c, newIdx) => {
+                            row.appendChild(cells[c.idx]);
+                        });
+                    });
+                    sortCriticAscending = !sortCriticAscending;
+                });
+            }
+
+            // Mobiili: Aakkosta elokuvakortit
+            const mobileSortButton = document.getElementById('mobile-sort');
+            const mobileCardsContainer = document.querySelector('.mobile-cards');
+            if (mobileSortButton && mobileCardsContainer) {
+                let mobileSortAscending = true;
+                mobileSortButton.addEventListener('click', function() {
+                    const cards = Array.from(mobileCardsContainer.querySelectorAll('.movie-card'));
+                    cards.sort((a, b) => {
+                        const titleA = a.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
+                        const titleB = b.querySelector('.movie-card-title').textContent.replace('🎬 ', '').trim();
+                        if (mobileSortAscending) {
+                            return titleA.localeCompare(titleB, 'fi');
+                        } else {
+                            return titleB.localeCompare(titleA, 'fi');
+                        }
+                    });
+                    cards.forEach(card => mobileCardsContainer.appendChild(card));
+                    mobileSortAscending = !mobileSortAscending;
+                    mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
+                });
+            }
         
         // Elokuvanimi: Himmennä muut rivit
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
