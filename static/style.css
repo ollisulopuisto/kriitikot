@@ -572,13 +572,20 @@ tbody tr:hover td.movie-col {
 
 /* Himmennys/piilotus-efektit */
 tr.dimmed {
-    display: none;
+    opacity: 0.25;
+    transition: opacity 0.3s ease;
 }
 
 th.dimmed,
 td.dimmed {
-    opacity: 0.4;
+    opacity: 0.25;
     transition: opacity 0.3s ease;
+}
+
+/* Sarakkeiden piilotus filttereiden perusteella */
+th.filter-hidden,
+td.filter-hidden {
+    display: none;
 }
 
 tr:not(.dimmed) {
