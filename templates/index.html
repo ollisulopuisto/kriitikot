@@ -123,6 +123,9 @@
         
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
+            <!-- Fade-out indikaattori oikeassa reunassa -->
+            <div class="scroll-fade-indicator"></div>
+            
             <table>
                 <thead>
                     <!-- Rivi 2: Kriitikot -->
@@ -371,6 +374,11 @@
                         wrapper.style.boxShadow = '0 0.125rem 0.5rem rgba(0,0,0,0.1)';
                         wrapper.style.borderRadius = '0.5rem 0.5rem 0 0';
                         wrapper.style.background = '#f8f9fa';
+                        
+                        // Lisää fade-indikaattori sticky theadiin
+                        const stickyFade = document.createElement('div');
+                        stickyFade.className = 'scroll-fade-indicator-sticky';
+                        wrapper.appendChild(stickyFade);
                         
                         theadClone = document.createElement('table');
                         theadClone.id = 'sticky-thead-clone';
@@ -1761,6 +1769,54 @@
                     toggleText.textContent = 'Piilota';
                 }
             });
+        }
+    });
+    
+    // Fade-out efekti oikeassa reunassa - piilota kun skrollattu loppuun
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableWrapper = document.querySelector('.table-wrapper');
+        const fadeIndicator = document.querySelector('.scroll-fade-indicator');
+        
+        if (tableWrapper && fadeIndicator) {
+            function updateFadePosition() {
+                const scrollLeft = tableWrapper.scrollLeft;
+                const scrollWidth = tableWrapper.scrollWidth;
+                const clientWidth = tableWrapper.clientWidth;
+                
+                // Jos skrollattu lähes loppuun (10px toleranssi), piilota fade
+                const isAtEnd = (scrollLeft + clientWidth >= scrollWidth - 10);
+                
+                if (isAtEnd) {
+                    fadeIndicator.classList.add('hidden');
+                } else {
+                    fadeIndicator.classList.remove('hidden');
+                    
+                    // Laske fade-efektin oikea sijainti
+                    // Se alkaa siitä kohdasta missä näkyvä alue loppuu
+                    const fadeLeft = scrollLeft + clientWidth - 150; // 150px on fade-leveys
+                    fadeIndicator.style.left = fadeLeft + 'px';
+                }
+                
+                // Päivitä myös sticky thead fade (jos on olemassa)
+                const stickyFade = document.querySelector('.scroll-fade-indicator-sticky');
+                if (stickyFade) {
+                    if (isAtEnd) {
+                        stickyFade.classList.add('hidden');
+                    } else {
+                        stickyFade.classList.remove('hidden');
+                        stickyFade.style.left = fadeLeft + 'px';
+                    }
+                }
+            }
+            
+            // Kuuntele skrollausta
+            tableWrapper.addEventListener('scroll', updateFadePosition);
+            
+            // Tarkista myös alussa
+            updateFadePosition();
+            
+            // Tarkista uudelleen kun ikkunan kokoa muutetaan
+            window.addEventListener('resize', updateFadePosition);
         }
     });
     </script>

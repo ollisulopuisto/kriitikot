@@ -258,6 +258,38 @@ h2, h3, h4, h5, h6 {
     scrollbar-color: #667eea #e9ecef;
 }
 
+/* Fade-out efekti - liikkuu skrollauksen mukana */
+.scroll-fade-indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 150px;
+    background: linear-gradient(to left, white 0%, rgba(255, 255, 255, 0.95) 10%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    z-index: 60; /* Yli kaiken (thead 50, diagonal-cell 52, desktop-filters 100 mutta fade pitää olla myös theadin päällä) */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Fade-efekti sticky theadin päällä (kloonattu) */
+.scroll-fade-indicator-sticky {
+    position: absolute;
+    top: 0;
+    height: 100%; /* Kattaa vain theadin korkeuden */
+    width: 150px;
+    background: linear-gradient(to left, rgba(248, 249, 250, 1) 0%, rgba(248, 249, 250, 0.95) 10%, rgba(248, 249, 250, 0) 100%);
+    pointer-events: none;
+    z-index: 60; /* Yli sticky theadin (50) */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Piilota fade-efekti kun skrollattu loppuun */
+.scroll-fade-indicator.hidden,
+.scroll-fade-indicator-sticky.hidden {
+    opacity: 0;
+}
+
 /* Webkit scrollbar styling (Chrome, Safari, Edge) */
 .table-wrapper::-webkit-scrollbar {
     height: 12px;
