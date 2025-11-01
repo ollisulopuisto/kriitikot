@@ -165,8 +165,24 @@ class MetadataFetcher:
             }
             
             # Muunna nimi URL-ystävälliseksi slugiksi
-            # Poista erikoismerkit, muunna pieniksi kirjaimiksi, poista välilyönnit
-            slug = re.sub(r'[^\w\s-]', '', movie_title.lower())
+            # Nytleffaan.fi käyttää erikoista muunnosta: ä→A, ö→O (isoilla kirjaimilla!)
+            slug = movie_title.lower()
+            
+            # Translitteroi suomalaiset ääkköset Nytleffaan.fi:n tapaan
+            transliteration_map = {
+                'ä': 'A',
+                'ö': 'O',
+                'å': 'a',
+                'Ä': 'A',
+                'Ö': 'O',
+                'Å': 'a'
+            }
+            
+            for finnish_char, replacement in transliteration_map.items():
+                slug = slug.replace(finnish_char, replacement)
+            
+            # Poista erikoismerkit ja välilyönnit
+            slug = re.sub(r'[^\w\s-]', '', slug)
             slug = re.sub(r'[\s]+', '', slug)
             
             # Yritä muodostaa URL suoraan
