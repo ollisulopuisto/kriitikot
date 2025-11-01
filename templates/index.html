@@ -79,14 +79,18 @@
                     <tr>
                         <th class="movie-col diagonal-sort-cell">
                             <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat" aria-label="Aakkosta elokuvat" tabindex="0" role="button">
-                                <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                                    <path d="M16 8 L12 12 M16 8 L20 12" stroke="#764ba2" stroke-width="2.5" fill="none" />
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <polygon points="12,6 8,12 16,12" fill="#5b21b6" />
+                                    <polygon points="12,18 8,12 16,12" fill="#5b21b6" />
                                 </svg>
+                                
                             </div>
                             <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot" aria-label="Aakkosta kriitikot" tabindex="0" role="button">
-                                <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                                    <path d="M8 16 L12 20 M8 16 L12 12" stroke="#764ba2" stroke-width="2.5" fill="none" />
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <polygon points="6,12 12,8 12,16" fill="#5b21b6" />
+                                    <polygon points="18,12 12,8 12,16" fill="#5b21b6" />
                                 </svg>
+                                
                             </div>
                         </th>
                         {% for critic in all_critics %}
