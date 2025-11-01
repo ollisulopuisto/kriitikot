@@ -202,37 +202,21 @@
                 <div class="mobile-filters-container">
                     <!-- Fasetti 1: Arvioiden määrä -->
                     <div class="mobile-filter-group mobile-filter-inline">
-                        <label for="min-reviews-slider-mobile">
-                            Arvosteluja: <strong id="min-reviews-value-mobile">1</strong>
-                        </label>
-                        <div class="slider-container-inline">
-                            <input 
-                                type="range" 
-                                id="min-reviews-slider-mobile" 
-                                min="1" 
-                                max="5" 
-                                value="1" 
-                                step="1"
-                                class="slider"
-                            >
+                        <label>Arvosteluja:</label>
+                        <div class="mobile-stepper">
+                            <button class="stepper-btn" id="reviews-minus-mobile" aria-label="Vähemmän">−</button>
+                            <span class="stepper-value" id="min-reviews-value-mobile">1</span>
+                            <button class="stepper-btn" id="reviews-plus-mobile" aria-label="Enemmän">+</button>
                         </div>
                     </div>
                     
                     <!-- Fasetti 2: Tähdet -->
                     <div class="mobile-filter-group mobile-filter-inline">
-                        <label for="star-filter-slider-mobile">
-                            Arvio: <strong id="star-filter-value-mobile">Kaikki</strong>
-                        </label>
-                        <div class="slider-container-inline">
-                            <input 
-                                type="range" 
-                                id="star-filter-slider-mobile" 
-                                min="0" 
-                                max="5" 
-                                value="0" 
-                                step="1"
-                                class="slider"
-                            >
+                        <label>Arvosana:</label>
+                        <div class="mobile-stepper">
+                            <button class="stepper-btn" id="stars-minus-mobile" aria-label="Pienempi">−</button>
+                            <span class="stepper-value" id="star-filter-value-mobile">Kaikki</span>
+                            <button class="stepper-btn" id="stars-plus-mobile" aria-label="Suurempi">+</button>
                         </div>
                     </div>
                     
@@ -319,6 +303,83 @@
     </div>
 
     <script>
+    // Globaali funktio kriitikkosarakkeiden piilottamiseen
+    function updateCriticColumnVisibility() {
+        const table = document.querySelector('table');
+        if (!table) return;
+        
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        if (!thead || !tbody) return;
+        
+        // Hae kaikki kriitikkosarakkeet (th-elementit paitsi ensimmäinen)
+        const criticHeaders = thead.querySelectorAll('th:not(.movie-col)');
+        const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
+            return row.style.display !== 'none';
+        });
+        
+        // Tarkista onko tähtifiltteri aktiivinen
+        const starSlider = document.getElementById('star-filter-slider');
+        const activeStarFilter = starSlider ? parseInt(starSlider.value) : 0;
+        
+        // Käy läpi jokainen kriitikko (sarake)
+        criticHeaders.forEach((header, index) => {
+            // Sarakeindeksi taulukossa (lisää 1 koska ensimmäinen on elokuvasarake)
+            const columnIndex = index + 1;
+            
+            // Tarkista onko tässä sarakkeessa yhtään arvostelua näkyvissä riveissä
+            let hasVisibleReview = false;
+            
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const cell = cells[columnIndex];
+                
+                if (cell) {
+                    // Tarkista onko solussa arvostelu
+                    const hasLink = cell.querySelector('a.rating-link');
+                    const ratingStars = cell.querySelector('.rating-stars');
+                    const noRating = cell.querySelector('.no-rating');
+                    const isEmpty = noRating && noRating.textContent.trim() === '–';
+                    
+                    // Jos on arvostelu (ei tyhjä)
+                    if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
+                        // Jos tähtifiltteri on aktiivinen, tarkista tähtimäärä
+                        if (activeStarFilter > 0 && ratingStars) {
+                            const starCount = (ratingStars.textContent.match(/★/g) || []).length;
+                            if (starCount === activeStarFilter) {
+                                hasVisibleReview = true;
+                            }
+                        } else if (activeStarFilter === 0) {
+                            // Ei tähtifilteriä - mikä tahansa arvostelu kelpaa
+                            hasVisibleReview = true;
+                        }
+                    }
+                }
+            });
+            
+            // Piilota tai näytä sarake
+            if (hasVisibleReview) {
+                header.classList.remove('filter-hidden');
+                // Näytä vastaavat solut
+                tbody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells[columnIndex]) {
+                        cells[columnIndex].classList.remove('filter-hidden');
+                    }
+                });
+            } else {
+                header.classList.add('filter-hidden');
+                // Piilota vastaavat solut
+                tbody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells[columnIndex]) {
+                        cells[columnIndex].classList.add('filter-hidden');
+                    }
+                });
+            }
+        });
+    }
+    
     // Arvioiden määrä -suodatin (desktop + mobile)
     document.addEventListener('DOMContentLoaded', function() {
         const slider = document.getElementById('min-reviews-slider');
@@ -373,83 +434,6 @@
             card.dataset.reviewCount = reviewCount;
         });
         
-        // Funktio kriitikkosarakkeiden piilottamiseen
-        function updateCriticColumnVisibility() {
-            const table = document.querySelector('table');
-            if (!table) return;
-            
-            const thead = table.querySelector('thead');
-            const tbody = table.querySelector('tbody');
-            if (!thead || !tbody) return;
-            
-            // Hae kaikki kriitikkosarakkeet (th-elementit paitsi ensimmäinen)
-            const criticHeaders = thead.querySelectorAll('th:not(.movie-col)');
-            const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
-                return row.style.display !== 'none';
-            });
-            
-            // Tarkista onko tähtifiltteri aktiivinen
-            const starSlider = document.getElementById('star-filter-slider');
-            const activeStarFilter = starSlider ? parseInt(starSlider.value) : 0;
-            
-            // Käy läpi jokainen kriitikko (sarake)
-            criticHeaders.forEach((header, index) => {
-                // Sarakeindeksi taulukossa (lisää 1 koska ensimmäinen on elokuvasarake)
-                const columnIndex = index + 1;
-                
-                // Tarkista onko tässä sarakkeessa yhtään arvostelua näkyvissä riveissä
-                let hasVisibleReview = false;
-                
-                visibleRows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    const cell = cells[columnIndex];
-                    
-                    if (cell) {
-                        // Tarkista onko solussa arvostelu
-                        const hasLink = cell.querySelector('a.rating-link');
-                        const ratingStars = cell.querySelector('.rating-stars');
-                        const noRating = cell.querySelector('.no-rating');
-                        const isEmpty = noRating && noRating.textContent.trim() === '–';
-                        
-                        // Jos on arvostelu (ei tyhjä)
-                        if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
-                            // Jos tähtifiltteri on aktiivinen, tarkista tähtimäärä
-                            if (activeStarFilter > 0 && ratingStars) {
-                                const starCount = (ratingStars.textContent.match(/★/g) || []).length;
-                                if (starCount === activeStarFilter) {
-                                    hasVisibleReview = true;
-                                }
-                            } else if (activeStarFilter === 0) {
-                                // Ei tähtifilteriä - mikä tahansa arvostelu kelpaa
-                                hasVisibleReview = true;
-                            }
-                        }
-                    }
-                });
-                
-                // Piilota tai näytä sarake
-                if (hasVisibleReview) {
-                    header.classList.remove('filter-hidden');
-                    // Näytä vastaavat solut
-                    tbody.querySelectorAll('tr').forEach(row => {
-                        const cells = row.querySelectorAll('td');
-                        if (cells[columnIndex]) {
-                            cells[columnIndex].classList.remove('filter-hidden');
-                        }
-                    });
-                } else {
-                    header.classList.add('filter-hidden');
-                    // Piilota vastaavat solut
-                    tbody.querySelectorAll('tr').forEach(row => {
-                        const cells = row.querySelectorAll('td');
-                        if (cells[columnIndex]) {
-                            cells[columnIndex].classList.add('filter-hidden');
-                        }
-                    });
-                }
-            });
-        }
-        
         function filterByReviewCount(minCount) {
             let hiddenCount = 0;
             
@@ -489,9 +473,12 @@
                 }
             });
             
-            // Näytä/piilota reset-nappi
-            if (minCount > 1 && typeof window.showResetButton === 'function') {
-                window.showResetButton();
+            // Näytä reset-nappi kun filtteröidään
+            if (minCount > 1) {
+                const resetBtn = document.getElementById('reset-filters');
+                if (resetBtn) {
+                    resetBtn.style.display = 'inline-block';
+                }
             }
             
             // Päivitä kriitikkosarakkeiden näkyvyys
@@ -521,16 +508,31 @@
             filterByReviewCount(value);
         });
         
-        // Mobile slider
-        if (sliderMobile && valueDisplayMobile) {
-            sliderMobile.addEventListener('input', function() {
-                const value = parseInt(this.value);
-                valueDisplayMobile.textContent = value;
-                valueDisplay.textContent = value;
-                updateReviewWord(value);
-                slider.value = value;
-                filterByReviewCount(value);
-            });
+        // Mobile stepper buttons (korvaa sliderin)
+        const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
+        const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
+        
+        if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile) {
+            let currentValue = 1;
+            
+            const updateReviewStepper = (newValue) => {
+                currentValue = Math.max(1, Math.min(5, newValue));
+                valueDisplayMobile.textContent = currentValue;
+                valueDisplay.textContent = currentValue;
+                slider.value = currentValue;
+                updateReviewWord(currentValue);
+                filterByReviewCount(currentValue);
+                
+                // Disable buttons at limits
+                reviewsMinusBtn.disabled = currentValue <= 1;
+                reviewsPlusBtn.disabled = currentValue >= 5;
+            };
+            
+            reviewsMinusBtn.addEventListener('click', () => updateReviewStepper(currentValue - 1));
+            reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentValue + 1));
+            
+            // Initialize button states
+            updateReviewStepper(1);
         }
         
         // Lisää reset-toiminto
@@ -541,11 +543,16 @@
                 slider.value = 1;
                 valueDisplay.textContent = 1;
                 updateReviewWord(1);
-                if (sliderMobile && valueDisplayMobile) {
-                    sliderMobile.value = 1;
+                if (valueDisplayMobile) {
                     valueDisplayMobile.textContent = 1;
                 }
                 filterByReviewCount(1);
+                
+                // Reset stepper buttons
+                if (reviewsMinusBtn && reviewsPlusBtn) {
+                    reviewsMinusBtn.disabled = true;
+                    reviewsPlusBtn.disabled = false;
+                }
             });
         }
     });
@@ -653,8 +660,12 @@
             // Päivitä kriitikkosarakkeiden näkyvyys
             updateCriticColumnVisibility();
             
-            if (stars > 0 && typeof window.showResetButton === 'function') {
-                window.showResetButton();
+            // Näytä reset-nappi kun filtteröidään
+            if (stars > 0) {
+                const resetBtn = document.getElementById('reset-filters');
+                if (resetBtn) {
+                    resetBtn.style.display = 'inline-block';
+                }
             }
         }
         
@@ -662,20 +673,46 @@
         starSlider.addEventListener('input', function() {
             const value = parseInt(this.value);
             updateStarLabel(value);
-            if (starSliderMobile) {
-                starSliderMobile.value = value;
-            }
             filterByStars(value);
         });
         
-        // Mobile slider
-        if (starSliderMobile) {
-            starSliderMobile.addEventListener('input', function() {
-                const value = parseInt(this.value);
-                updateStarLabel(value);
-                starSlider.value = value;
-                filterByStars(value);
+        // Mobile stepper buttons (korvaa sliderin)
+        const starsMinusBtn = document.getElementById('stars-minus-mobile');
+        const starsPlusBtn = document.getElementById('stars-plus-mobile');
+        
+        if (starsMinusBtn && starsPlusBtn) {
+            let currentValue = 0;
+            
+            const updateStarStepper = (newValue) => {
+                currentValue = Math.max(0, Math.min(5, newValue));
+                
+                updateStarLabel(currentValue);
+                starSlider.value = currentValue;
+                filterByStars(currentValue);
+                
+                // Update button states
+                starsMinusBtn.disabled = (currentValue <= 0);
+                starsPlusBtn.disabled = (currentValue >= 5);
+            };
+            
+            starsMinusBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!this.disabled) {
+                    updateStarStepper(currentValue - 1);
+                }
             });
+            
+            starsPlusBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!this.disabled) {
+                    updateStarStepper(currentValue + 1);
+                }
+            });
+            
+            // Initialize button states
+            updateStarStepper(0);
         }
     });
     
@@ -695,14 +732,10 @@
         resetButton.addEventListener('click', function() {
             // Nollaa suodattimet
             const slider = document.getElementById('min-reviews-slider');
-            const sliderMobile = document.getElementById('min-reviews-slider-mobile');
             const starSlider = document.getElementById('star-filter-slider');
-            const starSliderMobile = document.getElementById('star-filter-slider-mobile');
             
             if (slider) slider.value = 1;
-            if (sliderMobile) sliderMobile.value = 1;
             if (starSlider) starSlider.value = 0;
-            if (starSliderMobile) starSliderMobile.value = 0;
             
             const valueDisplay = document.getElementById('min-reviews-value');
             const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
@@ -713,6 +746,17 @@
             if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
             if (starValueDisplay) starValueDisplay.innerHTML = 'Kaikki';
             if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Kaikki';
+            
+            // Reset mobile stepper buttons
+            const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
+            const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
+            const starsMinusBtn = document.getElementById('stars-minus-mobile');
+            const starsPlusBtn = document.getElementById('stars-plus-mobile');
+            
+            if (reviewsMinusBtn) reviewsMinusBtn.disabled = true;
+            if (reviewsPlusBtn) reviewsPlusBtn.disabled = false;
+            if (starsMinusBtn) starsMinusBtn.disabled = true;
+            if (starsPlusBtn) starsPlusBtn.disabled = false;
             
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
