@@ -87,20 +87,19 @@
                                 <div class="filter-group">
                                     <label for="star-filter-slider">
                                         <span class="filter-icon">⭐</span>
-                                        Arvosanat: <strong id="star-filter-value">Kaikki</strong>
+                                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
                                     </label>
                                     <div class="slider-container">
                                         <input 
                                             type="range" 
                                             id="star-filter-slider" 
-                                            min="0" 
+                                            min="1" 
                                             max="5" 
-                                            value="0" 
+                                            value="1" 
                                             step="1"
                                             class="slider"
                                         >
                                         <div class="slider-labels">
-                                            <span>Kaikki</span>
                                             <span>1</span>
                                             <span>2</span>
                                             <span>3</span>
@@ -567,46 +566,19 @@
         if (!starSlider || !starValueDisplay) return;
         
         function updateStarLabel(value) {
-            const labels = ['Kaikki', '★', '★★', '★★★', '★★★★', '★★★★★'];
-            const label = labels[value] || 'Kaikki';
+            const labels = {
+                1: 'Vähintään ★',
+                2: 'Vähintään ★★',
+                3: 'Vähintään ★★★',
+                4: 'Vähintään ★★★★',
+                5: 'Vähintään ★★★★★'
+            };
+            const label = labels[value] || 'Vähintään ★';
             if (starValueDisplay) starValueDisplay.innerHTML = label;
             if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = label;
         }
         
         function filterByStars(stars) {
-            if (stars === 0) {
-                // Näytä kaikki - poista tähtisuodatin
-                const table = document.querySelector('table');
-                if (table) {
-                    const tbody = table.querySelector('tbody');
-                    const allRows = tbody.querySelectorAll('tr');
-                    allRows.forEach(row => {
-                        // Poista tähtisuodattimen merkintä
-                        delete row.dataset.starFiltered;
-                        // Näytä rivi jos muut suodattimet eivät piilota sitä
-                        if (!row.dataset.reviewCountFiltered) {
-                            row.style.display = '';
-                        }
-                    });
-                }
-                
-                const allCards = document.querySelectorAll('.movie-card');
-                allCards.forEach(card => {
-                    delete card.dataset.starFiltered;
-                    if (!card.dataset.reviewCountFiltered) {
-                        card.style.display = '';
-                    }
-                    const reviewItems = card.querySelectorAll('.review-item');
-                    reviewItems.forEach(item => {
-                        delete item.dataset.starFiltered;
-                        if (!item.dataset.reviewCountFiltered) {
-                            item.style.display = '';
-                        }
-                    });
-                });
-                return;
-            }
-            
             // Desktop: Filtteröi rivit
             const table = document.querySelector('table');
             if (table) {
@@ -621,7 +593,7 @@
                         const ratingSpan = cell.querySelector('.rating-stars');
                         if (ratingSpan) {
                             const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
-                            if (starCount === stars) {
+                            if (starCount >= stars) {
                                 hasMatchingRating = true;
                             }
                         }
@@ -643,7 +615,7 @@
                     const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
                     const starCount = (ratingText.match(/★/g) || []).length;
                     
-                    if (starCount === stars) {
+                    if (starCount >= stars) {
                         hasMatchingReview = true;
                         item.style.display = '';
                         item.dataset.starFiltered = '';
@@ -681,17 +653,17 @@
         const starsPlusBtn = document.getElementById('stars-plus-mobile');
         
         if (starsMinusBtn && starsPlusBtn) {
-            let currentValue = 0;
+            let currentValue = 1;
             
             const updateStarStepper = (newValue) => {
-                currentValue = Math.max(0, Math.min(5, newValue));
+                currentValue = Math.max(1, Math.min(5, newValue));
                 
                 updateStarLabel(currentValue);
                 starSlider.value = currentValue;
                 filterByStars(currentValue);
                 
                 // Update button states
-                starsMinusBtn.disabled = (currentValue <= 0);
+                starsMinusBtn.disabled = (currentValue <= 1);
                 starsPlusBtn.disabled = (currentValue >= 5);
             };
             
@@ -712,7 +684,7 @@
             });
             
             // Initialize button states
-            updateStarStepper(0);
+            updateStarStepper(1);
         }
     });
     
@@ -735,7 +707,7 @@
             const starSlider = document.getElementById('star-filter-slider');
             
             if (slider) slider.value = 1;
-            if (starSlider) starSlider.value = 0;
+            if (starSlider) starSlider.value = 1;
             
             const valueDisplay = document.getElementById('min-reviews-value');
             const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
@@ -744,8 +716,8 @@
             
             if (valueDisplay) valueDisplay.textContent = '1';
             if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
-            if (starValueDisplay) starValueDisplay.innerHTML = 'Kaikki';
-            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Kaikki';
+            if (starValueDisplay) starValueDisplay.innerHTML = 'Vähintään ★';
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Vähintään ★';
             
             // Reset mobile stepper buttons
             const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
