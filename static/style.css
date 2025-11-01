@@ -276,7 +276,7 @@ tbody tr[style*="display: none"] {
 
 thead {
     position: sticky;
-    top: 90px; /* Hakupalkin korkeus + padding */
+    top: 95px; /* Desktop-filters korkeus + padding */
     z-index: 9;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
