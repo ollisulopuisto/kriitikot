@@ -78,16 +78,28 @@
                                 
                                 <!-- Fasetti 2: Tähdet -->
                                 <div class="filter-group">
-                                    <label>
-                                        <span class="filter-icon">⭐</span>
-                                        Näytä vain
+                                    <label for="star-filter-slider">
+                                        <span class="filter-icon"></span>
+                                        Näytä arviot: <strong id="star-filter-value">kaikki</strong> ⭐
                                     </label>
-                                    <div class="star-filter-buttons">
-                                        {% for stars in range(5, 0, -1) %}
-                                        <button class="star-filter-btn filter-rating" data-stars="{{ stars }}" title="Näytä {{ stars }}-tähden arvostelut">
-                                            {{ '★' * stars }}
-                                        </button>
-                                        {% endfor %}
+                                    <div class="slider-container">
+                                        <input 
+                                            type="range" 
+                                            id="star-filter-slider" 
+                                            min="0" 
+                                            max="5" 
+                                            value="0" 
+                                            step="1"
+                                            class="slider"
+                                        >
+                                        <div class="slider-labels">
+                                            <span>Kaikki</span>
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5</span>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -209,16 +221,28 @@
                     
                     <!-- Fasetti 2: Tähdet -->
                     <div class="mobile-filter-group">
-                        <label>
+                        <label for="star-filter-slider-mobile">
                             <span class="filter-icon">⭐</span>
-                            Näytä vain
+                            Vain <strong id="star-filter-value-mobile">kaikki</strong> tähteä
                         </label>
-                        <div class="star-filter-buttons">
-                            {% for stars in range(5, 0, -1) %}
-                            <button class="star-filter-btn filter-rating" data-stars="{{ stars }}" title="Näytä {{ stars }}-tähden arvostelut">
-                                {{ '★' * stars }}
-                            </button>
-                            {% endfor %}
+                        <div class="slider-container">
+                            <input 
+                                type="range" 
+                                id="star-filter-slider-mobile" 
+                                min="0" 
+                                max="5" 
+                                value="0" 
+                                step="1"
+                                class="slider"
+                            >
+                            <div class="slider-labels">
+                                <span>Kaikki</span>
+                                <span>★</span>
+                                <span>★★</span>
+                                <span>★★★</span>
+                                <span>★★★★</span>
+                                <span>★★★★★</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -467,6 +491,127 @@
         }
     });
     
+    // Tähtisuodatin
+    document.addEventListener('DOMContentLoaded', function() {
+        const starSlider = document.getElementById('star-filter-slider');
+        const starSliderMobile = document.getElementById('star-filter-slider-mobile');
+        const starValueDisplay = document.getElementById('star-filter-value');
+        const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+        
+        if (!starSlider || !starValueDisplay) return;
+        
+        function updateStarLabel(value) {
+            const labels = ['kaikki', '1', '2', '3', '4', '5'];
+            const label = labels[value] || 'kaikki';
+            if (starValueDisplay) starValueDisplay.textContent = label;
+            if (starValueDisplayMobile) starValueDisplayMobile.textContent = label;
+        }
+        
+        function filterByStars(stars) {
+            if (stars === 0) {
+                // Näytä kaikki
+                const table = document.querySelector('table');
+                if (table) {
+                    const tbody = table.querySelector('tbody');
+                    const allRows = tbody.querySelectorAll('tr');
+                    allRows.forEach(row => {
+                        if (!row.dataset.filtered) {
+                            row.style.display = '';
+                        }
+                    });
+                }
+                
+                const allCards = document.querySelectorAll('.movie-card');
+                allCards.forEach(card => {
+                    if (!card.dataset.filtered) {
+                        card.style.display = '';
+                    }
+                    const reviewItems = card.querySelectorAll('.review-item');
+                    reviewItems.forEach(item => {
+                        if (!item.dataset.filtered) {
+                            item.style.display = '';
+                        }
+                    });
+                });
+                return;
+            }
+            
+            // Desktop: Filtteröi rivit
+            const table = document.querySelector('table');
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const allRows = tbody.querySelectorAll('tr');
+                
+                allRows.forEach(row => {
+                    const ratingCells = row.querySelectorAll('.rating-cell');
+                    let hasMatchingRating = false;
+                    
+                    ratingCells.forEach(cell => {
+                        const ratingSpan = cell.querySelector('.rating-stars');
+                        if (ratingSpan) {
+                            const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                            if (starCount === stars) {
+                                hasMatchingRating = true;
+                            }
+                        }
+                    });
+                    
+                    row.style.display = hasMatchingRating ? '' : 'none';
+                    row.dataset.filtered = hasMatchingRating ? '' : 'true';
+                });
+            }
+            
+            // Mobile: Filtteröi kortit
+            const allCards = document.querySelectorAll('.movie-card');
+            allCards.forEach(card => {
+                const cardReviews = card.querySelectorAll('.review-item');
+                let hasMatchingReview = false;
+                
+                cardReviews.forEach(item => {
+                    const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                    const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+                    const starCount = (ratingText.match(/★/g) || []).length;
+                    
+                    if (starCount === stars) {
+                        hasMatchingReview = true;
+                        item.style.display = '';
+                        item.dataset.filtered = '';
+                    } else {
+                        item.style.display = 'none';
+                        item.dataset.filtered = 'true';
+                    }
+                });
+                
+                card.style.display = hasMatchingReview ? '' : 'none';
+                card.dataset.filtered = hasMatchingReview ? '' : 'true';
+            });
+            
+            if (stars > 0 && typeof window.showResetButton === 'function') {
+                window.showResetButton();
+            }
+        }
+        
+        // Desktop slider
+        starSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            updateStarLabel(value);
+            if (starSliderMobile) {
+                starSliderMobile.value = value;
+            }
+            filterByStars(value);
+        });
+        
+        // Mobile slider
+        if (starSliderMobile) {
+            starSliderMobile.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                updateStarLabel(value);
+                starSlider.value = value;
+                filterByStars(value);
+            });
+        }
+    });
+    
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
         const resetButton = document.getElementById('reset-filters');
@@ -481,6 +626,27 @@
         }
         
         resetButton.addEventListener('click', function() {
+            // Nollaa suodattimet
+            const slider = document.getElementById('min-reviews-slider');
+            const sliderMobile = document.getElementById('min-reviews-slider-mobile');
+            const starSlider = document.getElementById('star-filter-slider');
+            const starSliderMobile = document.getElementById('star-filter-slider-mobile');
+            
+            if (slider) slider.value = 1;
+            if (sliderMobile) sliderMobile.value = 1;
+            if (starSlider) starSlider.value = 0;
+            if (starSliderMobile) starSliderMobile.value = 0;
+            
+            const valueDisplay = document.getElementById('min-reviews-value');
+            const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
+            const starValueDisplay = document.getElementById('star-filter-value');
+            const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+            
+            if (valueDisplay) valueDisplay.textContent = '1';
+            if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
+            if (starValueDisplay) starValueDisplay.textContent = 'kaikki';
+            if (starValueDisplayMobile) starValueDisplayMobile.textContent = 'kaikki';
+            
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
             if (table) {
@@ -525,6 +691,7 @@
             
             allCards.forEach(card => {
                 card.style.display = '';
+                delete card.dataset.filtered;
             });
             
             allReviewItems.forEach(item => {
