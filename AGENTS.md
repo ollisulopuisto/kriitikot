@@ -668,3 +668,5 @@ Check existing scrapers for examples:
 - **UTF-8 encoding issues**: `src/scrapers/il.py`
 
 All scrapers follow the same pattern - study them and adapt to your target site's structure.
+
+Don't use ! exclamation marks in your prompts, because I use zsh and it can break zsh.

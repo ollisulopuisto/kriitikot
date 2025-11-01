@@ -6,6 +6,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from models import get_engine, get_session, Movie, Critic, Publication, Review as DBReview
 from sqlalchemy.orm import joinedload
 from typing import List, Dict
+from datetime import datetime
 import os
 
 
@@ -19,10 +20,12 @@ def get_all_reviews_grouped():
     """Hakee kaikki arvostelut ryhmiteltynä elokuvittain.
     
     Palauttaa:
-        - grouped: dict[movie_title][critic_name] = [review1, review2, ...]
+        - grouped: OrderedDict[movie_title][critic_name] = [review1, review2, ...]
+          Järjestetty uusimman arvion mukaan (uusin ensin)
         - critics: List[Critic] - kaikki kriitikot
         - total_reviews: int - arvostelujen määrä
     """
+    from collections import OrderedDict
     session = get_session(engine)
     
     try:
@@ -38,6 +41,7 @@ def get_all_reviews_grouped():
         
         # Ryhmittele elokuvittain (kriitikon NIMI → LISTA arvosteluja)
         grouped = {}
+        movie_latest_review = {}  # Tallenna jokaisen elokuvan uusin arvio
         
         for review in reviews:
             movie_title = review.movie.title
@@ -51,8 +55,26 @@ def get_all_reviews_grouped():
             
             # Lisää arvostelu listaan (sama kriitikko voi olla useassa mediassa)
             grouped[movie_title][critic_name].append(review)
+            
+            # Päivitä elokuvan uusin arvio
+            # Käytä published_date jos saatavilla, muuten scraped_at
+            review_date = review.published_date or review.scraped_at
+            if movie_title not in movie_latest_review or review_date > movie_latest_review[movie_title]:
+                movie_latest_review[movie_title] = review_date
         
-        return grouped, sorted(critics, key=lambda c: c.name), len(reviews)
+        # Järjestä elokuvat uusimman arvion mukaan (uusin ensin)
+        sorted_movies = sorted(
+            grouped.keys(), 
+            key=lambda title: movie_latest_review.get(title, datetime(1900, 1, 1)), 
+            reverse=True
+        )
+        
+        # Luo järjestetty dict
+        grouped_ordered = OrderedDict()
+        for movie_title in sorted_movies:
+            grouped_ordered[movie_title] = grouped[movie_title]
+        
+        return grouped_ordered, sorted(critics, key=lambda c: c.name), len(reviews)
     
     finally:
         session.close()
