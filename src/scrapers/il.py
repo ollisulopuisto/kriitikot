@@ -43,19 +43,28 @@ class ILScraper:
             raw_data={}
         )
     
-    def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
-        """Poimii otsikon."""
-        # h1 tag
+    def _extract_title(self, soup):
+        """Etsi elokuvan nimi artikkelista.
+        
+        Elokuvan nimi on h3-tagissa juuri ennen "Suomi, 20XX" tietoja.
+        """
+        # Etsi kaikki h3-tagit
+        h3_list = soup.find_all('h3')
+        for i, h3 in enumerate(h3_list):
+            text = h3.get_text().strip()
+            # Jos löytyy "Suomi, 20XX", edellinen h3 sisältää elokuvan nimen
+            if text.startswith('Suomi, 20') and i > 0:
+                title = h3_list[i-1].get_text(strip=True)
+                # Varmista ettei ole "IL-arvio" tms
+                if title and 'IL-arvio' not in title:
+                    return title
+        
+        # Fallback: käytä h1-otsikkoa ja poista "IL-arvio: " etuliite
         h1 = soup.find('h1')
         if h1:
             title = h1.get_text(strip=True)
-            
-            # Poista "IL-arvio: " prefix jos löytyy
-            title = re.sub(r'^IL-arvio:\s*', '', title, flags=re.I)
-            
-            # Poista tähdet otsikosta
-            title = re.sub(r'[⭐★]+', '', title).strip()
-            
+            if title.startswith('IL-arvio: '):
+                title = title[len('IL-arvio: '):]
             return title
         
         return None
@@ -84,8 +93,24 @@ class ILScraper:
     
     def _extract_rating(self, html_content: str, soup: BeautifulSoup) -> Optional[int]:
         """Poimii tähtiarvion (1-5)."""
-        # Iltalehti käyttää muotoa "IL-arvio: ⭐⭐⭐"
-        # Etsi tämä pattern suoraan HTML:stä (ei parsitusta soup:sta)
+        # Iltalehti näyttää tähdet <h3> tagissa muodossa "IL-arvio: ⭐⭐⭐⭐"
+        # HUOM: Tähdet saattavat olla väärin koodattuja (double-encoded UTF-8)
+        h3_tags = soup.find_all('h3')
+        for h3 in h3_tags:
+            text = h3.get_text()
+            if 'IL-arvio' in text:
+                # Laske tähtisymbolit (sekä oikeat että väärin koodatut)
+                stars = text.count('⭐') + text.count('★')
+                
+                # Jos ei löytynyt, yritä laskea väärin koodatut merkit
+                # â­\x90 on double-encoded ⭐
+                if stars == 0:
+                    stars = text.count('â\xad\x90')
+                
+                if stars > 0:
+                    return stars
+        
+        # Fallback: Etsi HTML:stä suoraan
         pattern = re.search(r'IL-arvio:\s*([⭐★]{1,5})', html_content)
         if pattern:
             stars = pattern.group(1)

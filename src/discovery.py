@@ -207,30 +207,32 @@ class CategoryCrawler:
         """Find IL movie reviews from embedded JSON data"""
         reviews = []
         
-        # IL embeds article data in a script tag with __NUXT_DATA__
+        # IL embeds article data in script tags
         scripts = soup.find_all('script')
         for script in scripts:
             if script.string and '"headline"' in script.string and 'IL-arvio' in script.string:
                 try:
                     # Try to extract article data from JSON
-                    # Look for patterns like: "headline":"IL-arvio: ..."
+                    # Look for patterns like: "article_id":"xxx"..."headline":"IL-arvio: ..."
                     import re
                     
-                    # Find all articles with IL-arvio in headline
-                    article_pattern = r'"article_id":"([^"]+)".*?"headline":"(IL-arvio[^"]+)"'
-                    matches = re.findall(article_pattern, script.string, re.DOTALL)
+                    # Tarkempi pattern: article_id tulee ennen headlinea samassa objektissa
+                    # Haetaan max 200 merkkiä article_id:n ja headline:n väliltä
+                    article_pattern = r'"article_id":"([a-f0-9-]+)"[^}]{0,200}?"headline":"(IL-arvio[^"]+)"'
+                    matches = re.findall(article_pattern, script.string)
                     
                     for article_id, headline in matches:
-                        # Construct URL from article ID
-                        url = f"https://www.iltalehti.fi/tv-ja-leffat/a/{article_id}"
-                        reviews.append({
-                            'title': headline.strip(),
-                            'url': url
-                        })
-                        
-                        # Limit to a few reviews
-                        if len(reviews) >= 5:
-                            break
+                        # Varmista että article_id on UUID-muotoinen
+                        if '-' in article_id and len(article_id) > 30:
+                            url = f"https://www.iltalehti.fi/tv-ja-leffat/a/{article_id}"
+                            reviews.append({
+                                'title': headline.strip(),
+                                'url': url
+                            })
+                            
+                            # Limit to a few reviews
+                            if len(reviews) >= 5:
+                                break
                 except Exception as e:
                     print(f"  [IL] JSON parsing error: {e}")
                     continue
