@@ -197,7 +197,13 @@
         
         <!-- Mobile: Suodattimet -->
             <div class="mobile-filter">
-                <div class="mobile-filters-container">
+                <!-- Toggle-nappi -->
+                <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
+                    <span class="toggle-icon">▲</span>
+                    <span class="toggle-text">Kutista</span>
+                </button>
+                
+                <div class="mobile-filters-container" id="mobile-filters-content">
                     <!-- Fasetti 1: Arvioiden määrä -->
                     <div class="mobile-filter-group mobile-filter-inline">
                         <label>Arvosteluja:</label>
@@ -213,7 +219,7 @@
                         <label>Arvosana:</label>
                         <div class="mobile-stepper">
                             <button class="stepper-btn" id="stars-minus-mobile" aria-label="Pienempi">−</button>
-                            <span class="stepper-value" id="star-filter-value-mobile">Kaikki</span>
+                            <span class="stepper-value" id="star-filter-value-mobile">Vähintään ★</span>
                             <button class="stepper-btn" id="stars-plus-mobile" aria-label="Suurempi">+</button>
                         </div>
                     </div>
@@ -1418,6 +1424,25 @@
                 if (window.showResetButton) window.showResetButton();
             });
         });
+    });
+    
+    // Mobile filter toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('mobile-filter-toggle');
+        const mobileFilter = document.querySelector('.mobile-filter');
+        const toggleText = toggleBtn?.querySelector('.toggle-text');
+        
+        if (toggleBtn && mobileFilter) {
+            toggleBtn.addEventListener('click', function() {
+                mobileFilter.classList.toggle('collapsed');
+                
+                if (mobileFilter.classList.contains('collapsed')) {
+                    toggleText.textContent = 'Laajenna';
+                } else {
+                    toggleText.textContent = 'Kutista';
+                }
+            });
+        }
     });
     </script>
 </body>
