@@ -1074,7 +1074,7 @@
             });
         });
         
-        // Kriitikon nimi: Piilota rivit joissa ei tähtiä + himmennä muut sarakkeet
+        // Kriitikon nimi: Piilota rivit joissa ei tähtiä + piilota muut kriitikkosarakkeet joilla ei arvosteluja samoille elokuville
         const criticHeaders = table.querySelectorAll('thead th.rating-cell');
         const thead = table.querySelector('thead tr');
         
@@ -1097,12 +1097,17 @@
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
+                // Kerää näkyviin jäävät rivit (joilla on arvostelu tältä kriitikolta)
+                const visibleRows = [];
+                
                 rows.forEach(row => {
                     const ratingCell = row.querySelectorAll('.rating-cell')[colIndex];
                     const hasStars = ratingCell.querySelector('.rating-stars');
                     
                     if (!hasStars) {
                         row.style.display = 'none';
+                    } else {
+                        visibleRows.push(row);
                     }
                 });
                 
@@ -1114,6 +1119,41 @@
                         tbody.querySelectorAll('tr').forEach(row => {
                             if (row.style.display !== 'none') {
                                 row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
+                            }
+                        });
+                    }
+                });
+                
+                // Piilota kriitikkosarakkeet, joilla ei ole arvosteluja näkyville jääneille elokuville
+                allCriticHeaders.forEach((header, idx) => {
+                    if (idx === colIndex) return; // Älä piilota klikattu sarake
+                    
+                    let hasAnyReview = false;
+                    
+                    // Tarkista onko tällä kriitikolla arvostelua jollekin näkyvistä elokuvista
+                    visibleRows.forEach(row => {
+                        const cell = row.querySelectorAll('.rating-cell')[idx];
+                        if (cell) {
+                            const hasLink = cell.querySelector('a.rating-link');
+                            const hasStars = cell.querySelector('.rating-stars');
+                            const noRating = cell.querySelector('.no-rating');
+                            const isEmpty = noRating && noRating.textContent.trim() === '–';
+                            
+                            if ((hasLink || hasStars) && !isEmpty) {
+                                hasAnyReview = true;
+                            }
+                        }
+                    });
+                    
+                    // Jos ei yhtään arvostelua näkyville jääneille elokuville, piilota sarake
+                    if (!hasAnyReview) {
+                        header.classList.add('filter-hidden');
+                        
+                        // Piilota kaikki solut tässä sarakkeessa
+                        tbody.querySelectorAll('tr').forEach(row => {
+                            const cells = row.querySelectorAll('.rating-cell');
+                            if (cells[idx]) {
+                                cells[idx].classList.add('filter-hidden');
                             }
                         });
                     }
