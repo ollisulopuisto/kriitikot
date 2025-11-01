@@ -183,6 +183,22 @@ h2, h3, h4, h5, h6 {
     font-size: 1.3em;
 }
 
+.header-stats {
+    display: inline-block;
+    margin-left: 1.5rem;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.header-stat {
+    display: inline-block;
+    margin: 0 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 1rem;
+    white-space: nowrap;
+}
+
 .reset-button {
     background: white;
     color: #764ba2;
@@ -261,6 +277,76 @@ thead {
 .filter-header {
     padding: 0.75rem 1rem !important;
     border-bottom: 1px solid #e9ecef;
+}
+
+.filters-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+}
+
+.filter-group label strong {
+    display: inline-block;
+    min-width: 5.5em;
+    text-align: left;
+}
+
+/* Mediasuodatin - pakota yhteen riviin */
+.media-filter-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.25rem;
+}
+
+.media-filter-buttons::-webkit-scrollbar {
+    height: 4px;
+}
+
+.media-filter-buttons::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+
+.media-filter-btn {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.8em;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.media-filter-btn:hover {
+    border-color: #667eea;
+    background: #f0e6ff;
+    transform: translateY(-1px);
+}
+
+.media-filter-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 .review-count-filter-inline {
@@ -686,8 +772,8 @@ footer {
 }
 
 .pub-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(6.25rem, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 0.9375rem;
 }
@@ -699,6 +785,7 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
     border: 0.125rem solid #e9ecef;
     transition: all 0.2s;
 }
@@ -712,6 +799,8 @@ footer {
 .pub-name {
     font-weight: 600;
     color: #333;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .pub-count {
@@ -721,6 +810,7 @@ footer {
     border-radius: 0.75rem;
     font-size: 0.85em;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .footer-links {
@@ -766,19 +856,57 @@ footer {
         padding-top: 0.5rem;
     }
     
-    .review-count-filter-mobile {
+    .mobile-filters-container {
         background: white;
         padding: 1rem 1.25rem;
         border-radius: 0.5rem;
         box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
     }
     
-    .review-count-filter-mobile label {
+    .mobile-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .mobile-filter-group.mobile-filter-inline {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .mobile-filter-group.mobile-filter-inline label {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 0.9em;
+    }
+    
+    .mobile-filter-group.mobile-filter-inline .slider-container-inline {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .mobile-filter-group label {
         display: block;
-        font-size: 0.95em;
-        font-weight: 500;
+        font-size: 0.9em;
+        font-weight: 600;
         color: #333;
-        margin-bottom: 0.75rem;
+    }
+    
+    .mobile-filter-group label strong {
+        display: inline-block;
+        min-width: 5.5em;
+        text-align: left;
+    }
+    
+    /* Grid layout muuttuu yhdeksi sarakkeeksi mobiililla */
+    .filters-container {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
     }
     
     .mobile-sort-button {

@@ -33,7 +33,14 @@
             <div class="header-content">
                 <div class="header-text">
                     <h1>🎬 Kriitikon valinta</h1>
-                    <p class="subtitle">Suomalaisten elokuva-arvostelijoiden kritiikkejä</p>
+                    <p class="subtitle">
+                        Suomalaisten elokuva-arvostelijoiden kritiikkejä. 
+                        <span class="header-stats">
+                            <span class="header-stat">{{ total_reviews }} arvostelua</span>
+                            <span class="header-stat">{{ grouped_reviews|length }} elokuvaa</span>
+                            <span class="header-stat">{{ all_critics|length }} kriitikkoa</span>
+                        </span>
+                    </p>
                 </div>
                 <button id="reset-filters" class="reset-button" style="display: none;">
                     🔄 Näytä kaikki
@@ -194,12 +201,11 @@
             <div class="mobile-filter">
                 <div class="mobile-filters-container">
                     <!-- Fasetti 1: Arvioiden määrä -->
-                    <div class="mobile-filter-group">
+                    <div class="mobile-filter-group mobile-filter-inline">
                         <label for="min-reviews-slider-mobile">
-                            <span class="filter-icon">🔍</span>
-                            Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
+                            Arvosteluja: <strong id="min-reviews-value-mobile">1</strong>
                         </label>
-                        <div class="slider-container">
+                        <div class="slider-container-inline">
                             <input 
                                 type="range" 
                                 id="min-reviews-slider-mobile" 
@@ -209,23 +215,15 @@
                                 step="1"
                                 class="slider"
                             >
-                            <div class="slider-labels">
-                                <span>1</span>
-                                <span>2</span>
-                                <span>3</span>
-                                <span>4</span>
-                                <span>5+</span>
-                            </div>
                         </div>
                     </div>
                     
                     <!-- Fasetti 2: Tähdet -->
-                    <div class="mobile-filter-group">
+                    <div class="mobile-filter-group mobile-filter-inline">
                         <label for="star-filter-slider-mobile">
-                            <span class="filter-icon">⭐</span>
-                            Arvosanat: <strong id="star-filter-value-mobile">Kaikki</strong>
+                            Arvio: <strong id="star-filter-value-mobile">Kaikki</strong>
                         </label>
-                        <div class="slider-container">
+                        <div class="slider-container-inline">
                             <input 
                                 type="range" 
                                 id="star-filter-slider-mobile" 
@@ -235,23 +233,12 @@
                                 step="1"
                                 class="slider"
                             >
-                            <div class="slider-labels">
-                                <span>Kaikki</span>
-                                <span>★</span>
-                                <span>★★</span>
-                                <span>★★★</span>
-                                <span>★★★★</span>
-                                <span>★★★★★</span>
-                            </div>
                         </div>
                     </div>
                     
                     <!-- Fasetti 3: Media -->
                     <div class="mobile-filter-group">
-                        <label>
-                            <span class="filter-icon">📰</span>
-                            Julkaisu
-                        </label>
+                        <label>Julkaisu:</label>
                         <div class="media-filter-buttons">
                             {% for pub, count in pub_stats.items() %}
                             <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
@@ -260,11 +247,15 @@
                             {% endfor %}
                         </div>
                     </div>
+                    
+                    <!-- Fasetti 4: Aakkostus -->
+                    <div class="mobile-filter-group">
+                        <div class="mobile-sort-button" id="mobile-sort" style="cursor: pointer; text-align: center; padding: 0.75rem; background: #f0f0f0; border-radius: 0.5rem; font-weight: bold; border: 1px solid #ddd;">
+                            ▼ Aakkosta elokuvat
+                        </div>
+                    </div>
                 </div>
             </div>        <!-- Mobile: Korttinäkymä -->
-        <div class="mobile-sort-button" id="mobile-sort" style="display: none; cursor: pointer; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: bold;">
-            ▼ Aakkosta elokuvat
-        </div>
         <div class="mobile-cards">
             {% for movie_title, critics_reviews in grouped_reviews.items() %}
             <div class="movie-card" data-movie="{{ movie_title }}">
@@ -325,27 +316,6 @@
             <p>Scraper on valmis, mutta tietokannassa ei ole vielä dataa.</p>
         </div>
         {% endif %}
-        
-        <footer>
-            <div class="footer-content">
-                <h3>📊 Tilastot</h3>
-                
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number">{{ total_reviews }}</div>
-                        <div class="stat-label">arvostelua</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">{{ grouped_reviews|length }}</div>
-                        <div class="stat-label">elokuvaa</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">{{ all_critics|length }}</div>
-                        <div class="stat-label">kriitikkoa</div>
-                    </div>
-                </div>
-            </div>
-        </footer>
     </div>
 
     <script>
@@ -415,9 +385,14 @@
                     const count = parseInt(row.dataset.reviewCount || 0);
                     if (count < minCount) {
                         row.style.display = 'none';
+                        row.dataset.reviewCountFiltered = 'true';
                         hiddenCount++;
                     } else {
-                        row.style.display = '';
+                        delete row.dataset.reviewCountFiltered;
+                        // Näytä vain jos tähtisuodatin ei piilota
+                        if (!row.dataset.starFiltered) {
+                            row.style.display = '';
+                        }
                     }
                 });
             }
@@ -427,9 +402,13 @@
                 const count = parseInt(card.dataset.reviewCount || 0);
                 if (count < minCount) {
                     card.style.display = 'none';
+                    card.dataset.reviewCountFiltered = 'true';
                     hiddenCount++;
                 } else {
-                    card.style.display = '';
+                    delete card.dataset.reviewCountFiltered;
+                    if (!card.dataset.starFiltered) {
+                        card.style.display = '';
+                    }
                 }
             });
             
@@ -509,13 +488,16 @@
         
         function filterByStars(stars) {
             if (stars === 0) {
-                // Näytä kaikki
+                // Näytä kaikki - poista tähtisuodatin
                 const table = document.querySelector('table');
                 if (table) {
                     const tbody = table.querySelector('tbody');
                     const allRows = tbody.querySelectorAll('tr');
                     allRows.forEach(row => {
-                        if (!row.dataset.filtered) {
+                        // Poista tähtisuodattimen merkintä
+                        delete row.dataset.starFiltered;
+                        // Näytä rivi jos muut suodattimet eivät piilota sitä
+                        if (!row.dataset.reviewCountFiltered) {
                             row.style.display = '';
                         }
                     });
@@ -523,12 +505,14 @@
                 
                 const allCards = document.querySelectorAll('.movie-card');
                 allCards.forEach(card => {
-                    if (!card.dataset.filtered) {
+                    delete card.dataset.starFiltered;
+                    if (!card.dataset.reviewCountFiltered) {
                         card.style.display = '';
                     }
                     const reviewItems = card.querySelectorAll('.review-item');
                     reviewItems.forEach(item => {
-                        if (!item.dataset.filtered) {
+                        delete item.dataset.starFiltered;
+                        if (!item.dataset.reviewCountFiltered) {
                             item.style.display = '';
                         }
                     });
@@ -557,7 +541,7 @@
                     });
                     
                     row.style.display = hasMatchingRating ? '' : 'none';
-                    row.dataset.filtered = hasMatchingRating ? '' : 'true';
+                    row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
                 });
             }
             
@@ -575,15 +559,15 @@
                     if (starCount === stars) {
                         hasMatchingReview = true;
                         item.style.display = '';
-                        item.dataset.filtered = '';
+                        item.dataset.starFiltered = '';
                     } else {
                         item.style.display = 'none';
-                        item.dataset.filtered = 'true';
+                        item.dataset.starFiltered = 'true';
                     }
                 });
                 
                 card.style.display = hasMatchingReview ? '' : 'none';
-                card.dataset.filtered = hasMatchingReview ? '' : 'true';
+                card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
             });
             
             if (stars > 0 && typeof window.showResetButton === 'function') {
@@ -659,6 +643,8 @@
                     row.style.display = '';
                     row.classList.remove('dimmed');
                     delete row.dataset.filtered;
+                    delete row.dataset.starFiltered;
+                    delete row.dataset.reviewCountFiltered;
                     const movieCell = row.querySelector('.movie-col');
                     if (movieCell) {
                         movieCell.classList.remove('selected');
@@ -692,6 +678,8 @@
             allCards.forEach(card => {
                 card.style.display = '';
                 delete card.dataset.filtered;
+                delete card.dataset.starFiltered;
+                delete card.dataset.reviewCountFiltered;
             });
             
             allReviewItems.forEach(item => {

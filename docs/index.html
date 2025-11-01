@@ -33,7 +33,14 @@
             <div class="header-content">
                 <div class="header-text">
                     <h1>🎬 Kriitikon valinta</h1>
-                    <p class="subtitle">Suomalaisten elokuva-arvostelijoiden kritiikkejä</p>
+                    <p class="subtitle">
+                        Suomalaisten elokuva-arvostelijoiden kritiikkejä. 
+                        <span class="header-stats">
+                            <span class="header-stat">80 arvostelua</span>
+                            <span class="header-stat">39 elokuvaa</span>
+                            <span class="header-stat">35 kriitikkoa</span>
+                        </span>
+                    </p>
                 </div>
                 <button id="reset-filters" class="reset-button" style="display: none;">
                     🔄 Näytä kaikki
@@ -46,30 +53,111 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <!-- Rivi 1: Arvioiden määrä -suodatin -->
+                    <!-- Rivi 1: Suodattimet -->
                     <tr class="filter-row">
                         <th colspan="6" class="filter-header">
-                            <div class="review-count-filter-inline">
-                                <label for="min-reviews-slider">
-                                    <span class="filter-icon">🔍</span>
-                                    Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
-                                </label>
-                                <div class="slider-container">
-                                    <input 
-                                        type="range" 
-                                        id="min-reviews-slider" 
-                                        min="1" 
-                                        max="5" 
-                                        value="1" 
-                                        step="1"
-                                        class="slider"
-                                    >
-                                    <div class="slider-labels">
-                                        <span>1</span>
-                                        <span>2</span>
-                                        <span>3</span>
-                                        <span>4</span>
-                                        <span>5+</span>
+                            <div class="filters-container">
+                                <!-- Fasetti 1: Arvioiden määrä -->
+                                <div class="filter-group">
+                                    <label for="min-reviews-slider">
+                                        <span class="filter-icon">🔍</span>
+                                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input 
+                                            type="range" 
+                                            id="min-reviews-slider" 
+                                            min="1" 
+                                            max="5" 
+                                            value="1" 
+                                            step="1"
+                                            class="slider"
+                                        >
+                                        <div class="slider-labels">
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5+</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Fasetti 2: Tähdet -->
+                                <div class="filter-group">
+                                    <label for="star-filter-slider">
+                                        <span class="filter-icon">⭐</span>
+                                        Arvosanat: <strong id="star-filter-value">Kaikki</strong>
+                                    </label>
+                                    <div class="slider-container">
+                                        <input 
+                                            type="range" 
+                                            id="star-filter-slider" 
+                                            min="0" 
+                                            max="5" 
+                                            value="0" 
+                                            step="1"
+                                            class="slider"
+                                        >
+                                        <div class="slider-labels">
+                                            <span>Kaikki</span>
+                                            <span>1</span>
+                                            <span>2</span>
+                                            <span>3</span>
+                                            <span>4</span>
+                                            <span>5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Fasetti 3: Media -->
+                                <div class="filter-group">
+                                    <label>
+                                        <span class="filter-icon">📰</span>
+                                        Julkaisu
+                                    </label>
+                                    <div class="media-filter-buttons">
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="EPISODI" title="Näytä EPISODI-arvostelut">
+                                            EPISODI
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="FILMOHOLIC" title="Näytä FILMOHOLIC-arvostelut">
+                                            FILMOHOLIC
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="HS" title="Näytä HS-arvostelut">
+                                            HS
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="IL" title="Näytä IL-arvostelut">
+                                            IL
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="IS" title="Näytä IS-arvostelut">
+                                            IS
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="KSML" title="Näytä KSML-arvostelut">
+                                            KSML
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="KULTTUURITOIMITUS" title="Näytä KULTTUURITOIMITUS-arvostelut">
+                                            KULTTUURITOIMITUS
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="MUROPAKETTI" title="Näytä MUROPAKETTI-arvostelut">
+                                            MUROPAKETTI
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="SK" title="Näytä SK-arvostelut">
+                                            SK
+                                        </button>
+                                        
+                                        <button class="media-filter-btn filter-publication" data-publication="TS" title="Näytä TS-arvostelut">
+                                            TS
+                                        </button>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -79,16 +167,24 @@
                     <tr>
                         <th class="movie-col diagonal-sort-cell">
                             <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat" aria-label="Aakkosta elokuvat" tabindex="0" role="button">
-                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <polygon points="12,6 8,12 16,12" fill="#5b21b6" />
-                                    <polygon points="12,18 8,12 16,12" fill="#5b21b6" />
+                                <svg width="20" height="28" viewBox="0 0 20 28" aria-hidden="true" focusable="false">
+                                    <!-- Ylänuoli -->
+                                    <polygon points="10,2 6,8 14,8" fill="#5b21b6" />
+                                    <!-- Alanuoli -->
+                                    <polygon points="10,26 6,20 14,20" fill="#5b21b6" />
+                                    <!-- Varsi -->
+                                    <rect x="8.5" y="8" width="3" height="12" fill="#5b21b6" />
                                 </svg>
                                 
                             </div>
                             <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot" aria-label="Aakkosta kriitikot" tabindex="0" role="button">
-                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                    <polygon points="6,12 12,8 12,16" fill="#5b21b6" />
-                                    <polygon points="18,12 12,8 12,16" fill="#5b21b6" />
+                                <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true" focusable="false">
+                                    <!-- Vasen nuoli -->
+                                    <polygon points="2,10 8,6 8,14" fill="#5b21b6" />
+                                    <!-- Oikea nuoli -->
+                                    <polygon points="26,10 20,6 20,14" fill="#5b21b6" />
+                                    <!-- Varsi -->
+                                    <rect x="8" y="8.5" width="12" height="3" fill="#5b21b6" />
                                 </svg>
                                 
                             </div>
@@ -9802,36 +9898,101 @@ Farssin kirjoittamatt...">
             </table>
         </div>
         
-        <!-- Mobile: Suodatin -->
+        <!-- Mobile: Suodattimet -->
             <div class="mobile-filter">
-                <div class="review-count-filter-mobile">
-                    <label for="min-reviews-slider-mobile">
-                        <span class="filter-icon">🔍</span>
-                        Vähintään <strong id="min-reviews-value-mobile">1</strong> <span id="review-word-mobile">arvostelu</span>
-                    </label>
-                    <div class="slider-container">
-                        <input 
-                            type="range" 
-                            id="min-reviews-slider-mobile" 
-                            min="1" 
-                            max="5" 
-                            value="1" 
-                            step="1"
-                            class="slider"
-                        >
-                        <div class="slider-labels">
-                            <span>1</span>
-                            <span>2</span>
-                            <span>3</span>
-                            <span>4</span>
-                            <span>5+</span>
+                <div class="mobile-filters-container">
+                    <!-- Fasetti 1: Arvioiden määrä -->
+                    <div class="mobile-filter-group mobile-filter-inline">
+                        <label for="min-reviews-slider-mobile">
+                            Arvosteluja: <strong id="min-reviews-value-mobile">1</strong>
+                        </label>
+                        <div class="slider-container-inline">
+                            <input 
+                                type="range" 
+                                id="min-reviews-slider-mobile" 
+                                min="1" 
+                                max="5" 
+                                value="1" 
+                                step="1"
+                                class="slider"
+                            >
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 2: Tähdet -->
+                    <div class="mobile-filter-group mobile-filter-inline">
+                        <label for="star-filter-slider-mobile">
+                            Arvio: <strong id="star-filter-value-mobile">Kaikki</strong>
+                        </label>
+                        <div class="slider-container-inline">
+                            <input 
+                                type="range" 
+                                id="star-filter-slider-mobile" 
+                                min="0" 
+                                max="5" 
+                                value="0" 
+                                step="1"
+                                class="slider"
+                            >
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 3: Media -->
+                    <div class="mobile-filter-group">
+                        <label>Julkaisu:</label>
+                        <div class="media-filter-buttons">
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="EPISODI" title="Näytä EPISODI-arvostelut">
+                                EPISODI
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="FILMOHOLIC" title="Näytä FILMOHOLIC-arvostelut">
+                                FILMOHOLIC
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="HS" title="Näytä HS-arvostelut">
+                                HS
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="IL" title="Näytä IL-arvostelut">
+                                IL
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="IS" title="Näytä IS-arvostelut">
+                                IS
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="KSML" title="Näytä KSML-arvostelut">
+                                KSML
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="KULTTUURITOIMITUS" title="Näytä KULTTUURITOIMITUS-arvostelut">
+                                KULTTUURITOIMITUS
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="MUROPAKETTI" title="Näytä MUROPAKETTI-arvostelut">
+                                MUROPAKETTI
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="SK" title="Näytä SK-arvostelut">
+                                SK
+                            </button>
+                            
+                            <button class="media-filter-btn filter-publication" data-publication="TS" title="Näytä TS-arvostelut">
+                                TS
+                            </button>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Fasetti 4: Aakkostus -->
+                    <div class="mobile-filter-group">
+                        <div class="mobile-sort-button" id="mobile-sort" style="cursor: pointer; text-align: center; padding: 0.75rem; background: #f0f0f0; border-radius: 0.5rem; font-weight: bold; border: 1px solid #ddd;">
+                            ▼ Aakkosta elokuvat
                         </div>
                     </div>
                 </div>
             </div>        <!-- Mobile: Korttinäkymä -->
-        <div class="mobile-sort-button" id="mobile-sort" style="display: none; cursor: pointer; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: bold;">
-            ▼ Aakkosta elokuvat
-        </div>
         <div class="mobile-cards">
             
             <div class="movie-card" data-movie="Huutamisen taito">
@@ -15107,142 +15268,6 @@ Farssin kirjoittamatt...">
             
         </div>
         
-        
-        <footer>
-            <div class="footer-content">
-                <h3>📊 Tilastot</h3>
-                
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number">80</div>
-                        <div class="stat-label">arvostelua</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">39</div>
-                        <div class="stat-label">elokuvaa</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">35</div>
-                        <div class="stat-label">kriitikkoa</div>
-                    </div>
-                </div>
-                
-                <div class="rating-distribution">
-                    <h4>⭐ Arvosanajakauma</h4>
-                    <div class="rating-bars">
-                        
-                        <div class="rating-bar-row filter-rating" data-stars="5" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 5-tähden arvostelut">
-                            <span class="rating-stars-label">★★★★★</span>
-                            <div class="rating-bar-container">
-                                
-                                
-                                <div class="rating-bar" style="width: 8.75%"></div>
-                            </div>
-                            <span class="rating-count">7</span>
-                        </div>
-                        
-                        <div class="rating-bar-row filter-rating" data-stars="4" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 4-tähden arvostelut">
-                            <span class="rating-stars-label">★★★★</span>
-                            <div class="rating-bar-container">
-                                
-                                
-                                <div class="rating-bar" style="width: 36.25%"></div>
-                            </div>
-                            <span class="rating-count">29</span>
-                        </div>
-                        
-                        <div class="rating-bar-row filter-rating" data-stars="3" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 3-tähden arvostelut">
-                            <span class="rating-stars-label">★★★</span>
-                            <div class="rating-bar-container">
-                                
-                                
-                                <div class="rating-bar" style="width: 32.5%"></div>
-                            </div>
-                            <span class="rating-count">26</span>
-                        </div>
-                        
-                        <div class="rating-bar-row filter-rating" data-stars="2" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 2-tähden arvostelut">
-                            <span class="rating-stars-label">★★</span>
-                            <div class="rating-bar-container">
-                                
-                                
-                                <div class="rating-bar" style="width: 20.0%"></div>
-                            </div>
-                            <span class="rating-count">16</span>
-                        </div>
-                        
-                        <div class="rating-bar-row filter-rating" data-stars="1" style="cursor: pointer;" title="Klikkaa nähdäksesi vain 1-tähden arvostelut">
-                            <span class="rating-stars-label">★</span>
-                            <div class="rating-bar-container">
-                                
-                                
-                                <div class="rating-bar" style="width: 2.5%"></div>
-                            </div>
-                            <span class="rating-count">2</span>
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="publication-stats">
-                    <h4>📰 Arvostelut julkaisuittain</h4>
-                    <div class="pub-stats-grid">
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="HS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain HS-arvostelut">
-                            <span class="pub-name">HS</span>
-                            <span class="pub-count">20</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="KSML" style="cursor: pointer;" title="Klikkaa nähdäksesi vain KSML-arvostelut">
-                            <span class="pub-name">KSML</span>
-                            <span class="pub-count">5</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="IL" style="cursor: pointer;" title="Klikkaa nähdäksesi vain IL-arvostelut">
-                            <span class="pub-name">IL</span>
-                            <span class="pub-count">1</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="TS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain TS-arvostelut">
-                            <span class="pub-name">TS</span>
-                            <span class="pub-count">7</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="SK" style="cursor: pointer;" title="Klikkaa nähdäksesi vain SK-arvostelut">
-                            <span class="pub-name">SK</span>
-                            <span class="pub-count">20</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="IS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain IS-arvostelut">
-                            <span class="pub-name">IS</span>
-                            <span class="pub-count">3</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="EPISODI" style="cursor: pointer;" title="Klikkaa nähdäksesi vain EPISODI-arvostelut">
-                            <span class="pub-name">EPISODI</span>
-                            <span class="pub-count">5</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="MUROPAKETTI" style="cursor: pointer;" title="Klikkaa nähdäksesi vain MUROPAKETTI-arvostelut">
-                            <span class="pub-name">MUROPAKETTI</span>
-                            <span class="pub-count">4</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="FILMOHOLIC" style="cursor: pointer;" title="Klikkaa nähdäksesi vain FILMOHOLIC-arvostelut">
-                            <span class="pub-name">FILMOHOLIC</span>
-                            <span class="pub-count">5</span>
-                        </div>
-                        
-                        <div class="pub-stat-item filter-publication" data-publication="KULTTUURITOIMITUS" style="cursor: pointer;" title="Klikkaa nähdäksesi vain KULTTUURITOIMITUS-arvostelut">
-                            <span class="pub-name">KULTTUURITOIMITUS</span>
-                            <span class="pub-count">10</span>
-                        </div>
-                        
-                    </div>
-                </div>
-                
-            </div>
-        </footer>
     </div>
 
     <script>
@@ -15312,9 +15337,14 @@ Farssin kirjoittamatt...">
                     const count = parseInt(row.dataset.reviewCount || 0);
                     if (count < minCount) {
                         row.style.display = 'none';
+                        row.dataset.reviewCountFiltered = 'true';
                         hiddenCount++;
                     } else {
-                        row.style.display = '';
+                        delete row.dataset.reviewCountFiltered;
+                        // Näytä vain jos tähtisuodatin ei piilota
+                        if (!row.dataset.starFiltered) {
+                            row.style.display = '';
+                        }
                     }
                 });
             }
@@ -15324,9 +15354,13 @@ Farssin kirjoittamatt...">
                 const count = parseInt(card.dataset.reviewCount || 0);
                 if (count < minCount) {
                     card.style.display = 'none';
+                    card.dataset.reviewCountFiltered = 'true';
                     hiddenCount++;
                 } else {
-                    card.style.display = '';
+                    delete card.dataset.reviewCountFiltered;
+                    if (!card.dataset.starFiltered) {
+                        card.style.display = '';
+                    }
                 }
             });
             
@@ -15388,6 +15422,132 @@ Farssin kirjoittamatt...">
         }
     });
     
+    // Tähtisuodatin
+    document.addEventListener('DOMContentLoaded', function() {
+        const starSlider = document.getElementById('star-filter-slider');
+        const starSliderMobile = document.getElementById('star-filter-slider-mobile');
+        const starValueDisplay = document.getElementById('star-filter-value');
+        const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+        
+        if (!starSlider || !starValueDisplay) return;
+        
+        function updateStarLabel(value) {
+            const labels = ['Kaikki', '★', '★★', '★★★', '★★★★', '★★★★★'];
+            const label = labels[value] || 'Kaikki';
+            if (starValueDisplay) starValueDisplay.innerHTML = label;
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = label;
+        }
+        
+        function filterByStars(stars) {
+            if (stars === 0) {
+                // Näytä kaikki - poista tähtisuodatin
+                const table = document.querySelector('table');
+                if (table) {
+                    const tbody = table.querySelector('tbody');
+                    const allRows = tbody.querySelectorAll('tr');
+                    allRows.forEach(row => {
+                        // Poista tähtisuodattimen merkintä
+                        delete row.dataset.starFiltered;
+                        // Näytä rivi jos muut suodattimet eivät piilota sitä
+                        if (!row.dataset.reviewCountFiltered) {
+                            row.style.display = '';
+                        }
+                    });
+                }
+                
+                const allCards = document.querySelectorAll('.movie-card');
+                allCards.forEach(card => {
+                    delete card.dataset.starFiltered;
+                    if (!card.dataset.reviewCountFiltered) {
+                        card.style.display = '';
+                    }
+                    const reviewItems = card.querySelectorAll('.review-item');
+                    reviewItems.forEach(item => {
+                        delete item.dataset.starFiltered;
+                        if (!item.dataset.reviewCountFiltered) {
+                            item.style.display = '';
+                        }
+                    });
+                });
+                return;
+            }
+            
+            // Desktop: Filtteröi rivit
+            const table = document.querySelector('table');
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const allRows = tbody.querySelectorAll('tr');
+                
+                allRows.forEach(row => {
+                    const ratingCells = row.querySelectorAll('.rating-cell');
+                    let hasMatchingRating = false;
+                    
+                    ratingCells.forEach(cell => {
+                        const ratingSpan = cell.querySelector('.rating-stars');
+                        if (ratingSpan) {
+                            const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                            if (starCount === stars) {
+                                hasMatchingRating = true;
+                            }
+                        }
+                    });
+                    
+                    row.style.display = hasMatchingRating ? '' : 'none';
+                    row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
+                });
+            }
+            
+            // Mobile: Filtteröi kortit
+            const allCards = document.querySelectorAll('.movie-card');
+            allCards.forEach(card => {
+                const cardReviews = card.querySelectorAll('.review-item');
+                let hasMatchingReview = false;
+                
+                cardReviews.forEach(item => {
+                    const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                    const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+                    const starCount = (ratingText.match(/★/g) || []).length;
+                    
+                    if (starCount === stars) {
+                        hasMatchingReview = true;
+                        item.style.display = '';
+                        item.dataset.starFiltered = '';
+                    } else {
+                        item.style.display = 'none';
+                        item.dataset.starFiltered = 'true';
+                    }
+                });
+                
+                card.style.display = hasMatchingReview ? '' : 'none';
+                card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
+            });
+            
+            if (stars > 0 && typeof window.showResetButton === 'function') {
+                window.showResetButton();
+            }
+        }
+        
+        // Desktop slider
+        starSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            updateStarLabel(value);
+            if (starSliderMobile) {
+                starSliderMobile.value = value;
+            }
+            filterByStars(value);
+        });
+        
+        // Mobile slider
+        if (starSliderMobile) {
+            starSliderMobile.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                updateStarLabel(value);
+                starSlider.value = value;
+                filterByStars(value);
+            });
+        }
+    });
+    
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
         const resetButton = document.getElementById('reset-filters');
@@ -15402,6 +15562,27 @@ Farssin kirjoittamatt...">
         }
         
         resetButton.addEventListener('click', function() {
+            // Nollaa suodattimet
+            const slider = document.getElementById('min-reviews-slider');
+            const sliderMobile = document.getElementById('min-reviews-slider-mobile');
+            const starSlider = document.getElementById('star-filter-slider');
+            const starSliderMobile = document.getElementById('star-filter-slider-mobile');
+            
+            if (slider) slider.value = 1;
+            if (sliderMobile) sliderMobile.value = 1;
+            if (starSlider) starSlider.value = 0;
+            if (starSliderMobile) starSliderMobile.value = 0;
+            
+            const valueDisplay = document.getElementById('min-reviews-value');
+            const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
+            const starValueDisplay = document.getElementById('star-filter-value');
+            const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+            
+            if (valueDisplay) valueDisplay.textContent = '1';
+            if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
+            if (starValueDisplay) starValueDisplay.innerHTML = 'Kaikki';
+            if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = 'Kaikki';
+            
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
             if (table) {
@@ -15414,6 +15595,8 @@ Farssin kirjoittamatt...">
                     row.style.display = '';
                     row.classList.remove('dimmed');
                     delete row.dataset.filtered;
+                    delete row.dataset.starFiltered;
+                    delete row.dataset.reviewCountFiltered;
                     const movieCell = row.querySelector('.movie-col');
                     if (movieCell) {
                         movieCell.classList.remove('selected');
@@ -15446,6 +15629,9 @@ Farssin kirjoittamatt...">
             
             allCards.forEach(card => {
                 card.style.display = '';
+                delete card.dataset.filtered;
+                delete card.dataset.starFiltered;
+                delete card.dataset.reviewCountFiltered;
             });
             
             allReviewItems.forEach(item => {
