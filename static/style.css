@@ -601,6 +601,13 @@ tbody tr:hover {
     background: transparent;
 }
 
+/* Desktop: Poista katkoviiva viimeiseltä riviltä */
+@media (min-width: 769px) {
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+}
+
 tbody tr:hover td {
     background: #f8f9fa;
 }
