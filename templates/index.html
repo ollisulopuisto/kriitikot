@@ -994,6 +994,7 @@
     
     // Tallennetaan skrollausasento ennen filtterin aktivointia
     let savedScrollLeft = 0;
+    let originalTableWidth = 0; // Tallennetaan alkuperäinen leveys
     
     // Funktio joka lisää näkymättömiä täytesarakkeita säilyttämään taulukon leveyden
     function addFillerColumns() {
@@ -1007,21 +1008,16 @@
         const thead = table.querySelector('thead tr');
         const tbody = table.querySelector('tbody');
         
-        // Laske kuinka monta saraketta on TODELLA näkyvissä (ei dimmed eikä display:none)
-        const allHeaders = Array.from(thead.querySelectorAll('th'));
+        // Laske nykyinen näkyvien sarakkeiden leveys
+        const allHeaders = Array.from(thead.querySelectorAll('th:not(.filler-column)'));
         const visibleHeaders = allHeaders.filter(th => {
             const style = window.getComputedStyle(th);
-            const isVisible = style.display !== 'none' && 
-                             style.opacity !== '0' && 
-                             !th.classList.contains('dimmed') && 
-                             !th.classList.contains('filter-hidden');
-            return isVisible;
+            return style.display !== 'none';
         });
         
         console.log('Kaikki headerit:', allHeaders.length);
         console.log('Näkyvät headerit:', visibleHeaders.length);
         
-        // Laske taulukon todellinen leveys ja viewportin leveys
         const wrapperWidth = tableWrapper.clientWidth;
         let currentTableWidth = 0;
         visibleHeaders.forEach(th => {
@@ -1029,15 +1025,18 @@
         });
         
         console.log('Wrapper leveys:', wrapperWidth);
-        console.log('Taulukon leveys:', currentTableWidth);
+        console.log('Nykyinen taulukon leveys:', currentTableWidth);
+        console.log('Alkuperäinen taulukon leveys:', originalTableWidth);
         
-        // Laske kuinka paljon tilaa jää yli
-        const remainingWidth = wrapperWidth - currentTableWidth;
+        // Käytä alkuperäistä leveyttä tai wrapper-leveyttä
+        const targetWidth = originalTableWidth > 0 ? originalTableWidth : wrapperWidth;
+        const remainingWidth = targetWidth - currentTableWidth;
+        
         console.log('Jäljellä oleva tila:', remainingWidth);
         
-        if (remainingWidth > 100) { // Vähintään 100px vapaata tilaa
-            // Laske keskimääräinen sarakeleveys (ilman ensimmäistä movie-col saraketta)
-            const regularColumns = visibleHeaders.slice(1); // Ohita ensimmäinen
+        if (remainingWidth > 100) {
+            // Laske keskimääräinen sarakeleveys näkyvistä sarakkeista (ilman ensimmäistä)
+            const regularColumns = visibleHeaders.slice(1);
             const avgColumnWidth = regularColumns.length > 0 ? 
                 regularColumns.reduce((sum, th) => sum + th.offsetWidth, 0) / regularColumns.length : 100;
             
@@ -1056,10 +1055,9 @@
                 thead.appendChild(fillerTh);
             }
             
-            // Lisää täytesarakkeet jokaiseen tbody-riviin
+            // Lisää täytesarakkeet näkyviin riveihin
             tbody.querySelectorAll('tr').forEach(row => {
-                // Ohita piilotetut rivit
-                if (row.style.display === 'none' || row.classList.contains('dimmed')) return;
+                if (row.style.display === 'none') return;
                 
                 for (let i = 0; i < fillersNeeded; i++) {
                     const fillerTd = document.createElement('td');
@@ -1157,6 +1155,9 @@
             
             // Poista täytesarakkeet
             removeFillerColumns();
+            
+            // Nollaa alkuperäinen leveys
+            originalTableWidth = 0;
             
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
@@ -1487,6 +1488,12 @@
                 const allRows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
+                // Tallenna alkuperäinen taulukon leveys ENNEN filtteröintiä
+                if (!originalTableWidth) {
+                    originalTableWidth = table.offsetWidth;
+                    console.log('Tallennettu alkuperäinen taulukon leveys:', originalTableWidth);
+                }
+                
                 // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
                 if (tableWrapper) {
@@ -1591,6 +1598,12 @@
                 // Aktivoi uusi filtteri
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Tallenna alkuperäinen taulukon leveys ENNEN filtteröintiä
+                if (!originalTableWidth) {
+                    originalTableWidth = table.offsetWidth;
+                    console.log('Tallennettu alkuperäinen taulukon leveys:', originalTableWidth);
+                }
                 
                 // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
