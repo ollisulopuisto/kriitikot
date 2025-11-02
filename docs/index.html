@@ -15965,6 +15965,9 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             }
         }
         
+        // Tallennetaan skrollausasento ennen filtterin aktivointia
+        let savedScrollLeft = 0;
+        
         function resetAllFilters() {
             // Nollaa suodattimet
             const slider = document.getElementById('min-reviews-slider');
@@ -16002,12 +16005,12 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             if (starsMinusBtn) starsMinusBtn.disabled = true;
             if (starsPlusBtn) starsPlusBtn.disabled = false;
             
-            // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+            // Palauta vaakasuuntainen skrollaus tallennettuun asentoon
             const tableWrapper = document.querySelector('.table-wrapper');
             if (tableWrapper) {
                 const originalScrollBehavior = tableWrapper.style.scrollBehavior;
                 tableWrapper.style.scrollBehavior = 'auto';
-                tableWrapper.scrollLeft = 0;
+                tableWrapper.scrollLeft = savedScrollLeft;
                 setTimeout(() => {
                     tableWrapper.style.scrollBehavior = originalScrollBehavior;
                 }, 50);
@@ -16342,9 +16345,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const allRows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
-                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI (poista smooth scroll hetkeksi)
+                // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
                 if (tableWrapper) {
+                    savedScrollLeft = tableWrapper.scrollLeft; // Tallenna
                     const originalScrollBehavior = tableWrapper.style.scrollBehavior;
                     tableWrapper.style.scrollBehavior = 'auto';
                     tableWrapper.scrollLeft = 0;
@@ -16358,6 +16362,12 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 allRows.forEach(r => {
                     if (r !== row) {
                         r.classList.add('dimmed');
+                        // Aseta display: none vasta animaation jälkeen
+                        setTimeout(() => {
+                            if (r.classList.contains('dimmed')) {
+                                r.style.display = 'none';
+                            }
+                        }, 300);
                     }
                 });
                 
@@ -16377,12 +16387,22 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         // Jos ei arvostelua, piilota sarake
                         if (!hasLink && !hasStars && isEmpty) {
                             header.classList.add('filter-hidden');
+                            setTimeout(() => {
+                                if (header.classList.contains('filter-hidden')) {
+                                    header.style.display = 'none';
+                                }
+                            }, 300);
                             
                             // Piilota kaikki solut tässä sarakkeessa
                             allRows.forEach(r => {
                                 const cells = r.querySelectorAll('.rating-cell');
                                 if (cells[colIndex]) {
                                     cells[colIndex].classList.add('filter-hidden');
+                                    setTimeout(() => {
+                                        if (cells[colIndex].classList.contains('filter-hidden')) {
+                                            cells[colIndex].style.display = 'none';
+                                        }
+                                    }, 300);
                                 }
                             });
                         }
@@ -16424,9 +16444,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
-                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI (poista smooth scroll hetkeksi)
+                // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
                 if (tableWrapper) {
+                    savedScrollLeft = tableWrapper.scrollLeft; // Tallenna
                     const originalScrollBehavior = tableWrapper.style.scrollBehavior;
                     tableWrapper.style.scrollBehavior = 'auto';
                     tableWrapper.scrollLeft = 0;
@@ -16444,7 +16465,13 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     const hasStars = ratingCell.querySelector('.rating-stars');
                     
                     if (!hasStars) {
-                        row.style.display = 'none';
+                        row.classList.add('dimmed');
+                        // Aseta display: none vasta animaation jälkeen (300ms)
+                        setTimeout(() => {
+                            if (row.classList.contains('dimmed')) {
+                                row.style.display = 'none';
+                            }
+                        }, 300);
                     } else {
                         visibleRows.push(row);
                     }
@@ -16454,10 +16481,22 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 allCriticHeaders.forEach((header, idx) => {
                     if (idx !== colIndex) {
                         header.classList.add('dimmed');
+                        // Aseta display: none vasta animaation jälkeen
+                        setTimeout(() => {
+                            if (header.classList.contains('dimmed')) {
+                                header.style.display = 'none';
+                            }
+                        }, 300);
                         
                         tbody.querySelectorAll('tr').forEach(row => {
-                            if (row.style.display !== 'none') {
-                                row.querySelectorAll('.rating-cell')[idx].classList.add('dimmed');
+                            if (!row.classList.contains('dimmed')) {
+                                const cell = row.querySelectorAll('.rating-cell')[idx];
+                                cell.classList.add('dimmed');
+                                setTimeout(() => {
+                                    if (cell.classList.contains('dimmed')) {
+                                        cell.style.display = 'none';
+                                    }
+                                }, 300);
                             }
                         });
                     }
@@ -16595,9 +16634,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const allCards = document.querySelectorAll('.movie-card');
                 const allReviewItems = document.querySelectorAll('.review-item');
                 
-                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+                // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
                 if (tableWrapper) {
+                    savedScrollLeft = tableWrapper.scrollLeft; // Tallenna
                     const originalScrollBehavior = tableWrapper.style.scrollBehavior;
                     tableWrapper.style.scrollBehavior = 'auto';
                     tableWrapper.scrollLeft = 0;
@@ -16678,9 +16718,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const selectedPub = this.dataset.publication;
                 const allCards = document.querySelectorAll('.movie-card');
                 
-                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+                // Tallenna nykyinen skrollausasento ja nollaa se
                 const tableWrapper = document.querySelector('.table-wrapper');
                 if (tableWrapper) {
+                    savedScrollLeft = tableWrapper.scrollLeft; // Tallenna
                     const originalScrollBehavior = tableWrapper.style.scrollBehavior;
                     tableWrapper.style.scrollBehavior = 'auto';
                     tableWrapper.scrollLeft = 0;

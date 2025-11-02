@@ -759,29 +759,39 @@ tbody tr:hover td.movie-col {
 
 /* Himmennys/piilotus-efektit */
 tr.dimmed {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
 th.dimmed,
 td.dimmed {
-    opacity: 0.6;
+    opacity: 0;
+    pointer-events: none;
     transition: opacity 0.3s ease;
 }
 
 /* Sarakkeiden piilotus filttereiden perusteella */
 th.filter-hidden,
 td.filter-hidden {
-    display: none;
+    opacity: 0;
+    max-width: 0;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, max-width 0.3s ease, padding 0.3s ease;
 }
 
 tr:not(.dimmed) {
     opacity: 1;
+    pointer-events: auto;
     transition: opacity 0.3s ease;
 }
 
 th:not(.dimmed),
 td:not(.dimmed) {
     opacity: 1;
+    pointer-events: auto;
     transition: opacity 0.3s ease;
 }
 
