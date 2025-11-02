@@ -16002,6 +16002,17 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             if (starsMinusBtn) starsMinusBtn.disabled = true;
             if (starsPlusBtn) starsPlusBtn.disabled = false;
             
+            // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+            const tableWrapper = document.querySelector('.table-wrapper');
+            if (tableWrapper) {
+                const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                tableWrapper.style.scrollBehavior = 'auto';
+                tableWrapper.scrollLeft = 0;
+                setTimeout(() => {
+                    tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                }, 50);
+            }
+            
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
             if (table) {
@@ -16331,6 +16342,18 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const allRows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
+                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI (poista smooth scroll hetkeksi)
+                const tableWrapper = document.querySelector('.table-wrapper');
+                if (tableWrapper) {
+                    const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                    tableWrapper.style.scrollBehavior = 'auto';
+                    tableWrapper.scrollLeft = 0;
+                    // Palauta smooth scroll pienellä viiveellä
+                    setTimeout(() => {
+                        tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                    }, 50);
+                }
+                
                 // Himmennä muut rivit
                 allRows.forEach(r => {
                     if (r !== row) {
@@ -16400,6 +16423,18 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 // Aktivoi uusi filtteri
                 const rows = tbody.querySelectorAll('tr');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI (poista smooth scroll hetkeksi)
+                const tableWrapper = document.querySelector('.table-wrapper');
+                if (tableWrapper) {
+                    const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                    tableWrapper.style.scrollBehavior = 'auto';
+                    tableWrapper.scrollLeft = 0;
+                    // Palauta smooth scroll pienellä viiveellä
+                    setTimeout(() => {
+                        tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                    }, 50);
+                }
                 
                 // Kerää näkyviin jäävät rivit (joilla on arvostelu tältä kriitikolta)
                 const visibleRows = [];
@@ -16560,6 +16595,17 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 const allCards = document.querySelectorAll('.movie-card');
                 const allReviewItems = document.querySelectorAll('.review-item');
                 
+                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+                const tableWrapper = document.querySelector('.table-wrapper');
+                if (tableWrapper) {
+                    const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                    tableWrapper.style.scrollBehavior = 'auto';
+                    tableWrapper.scrollLeft = 0;
+                    setTimeout(() => {
+                        tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                    }, 50);
+                }
+                
                 // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
                 allCards.forEach(card => {
                     const cardReviews = card.querySelectorAll('.review-item');
@@ -16631,6 +16677,17 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 
                 const selectedPub = this.dataset.publication;
                 const allCards = document.querySelectorAll('.movie-card');
+                
+                // Nollaa vaakasuuntainen skrollaus VÄLITTÖMÄSTI
+                const tableWrapper = document.querySelector('.table-wrapper');
+                if (tableWrapper) {
+                    const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                    tableWrapper.style.scrollBehavior = 'auto';
+                    tableWrapper.scrollLeft = 0;
+                    setTimeout(() => {
+                        tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                    }, 50);
+                }
                 
                 // Mobiili: Piilota kortit ja arvostelut jotka eivät täsmää
                 allCards.forEach(card => {

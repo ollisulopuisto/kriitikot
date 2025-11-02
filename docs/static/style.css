@@ -764,7 +764,7 @@ tr.dimmed {
 
 th.dimmed,
 td.dimmed {
-    opacity: 0.7;
+    opacity: 0.6;
     transition: opacity 0.3s ease;
 }
 
