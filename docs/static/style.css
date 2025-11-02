@@ -369,7 +369,7 @@ thead th {
     border-radius: 0.5rem;
     margin-bottom: 1rem; /* Väli taulukkoon */
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-    position: sticky;
+    position: sticky; /* Sticky toimii, absolute-lapset myös */
     top: 0;
     z-index: 100; /* Ylimpänä kaikista */
     border-bottom: 2px solid #e9ecef;
@@ -379,9 +379,12 @@ thead th {
 }
 
 .desktop-filters .reset-button {
-    flex-shrink: 0;
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
     margin: 0;
-    margin-top: 1.8rem; /* Sama kuin filter-group label korkeus */
+    padding: 0.5rem 1rem;
+    font-size: 0.9em;
 }
 
 /* Filter-rivi headerin sisällä (deprecated, käytä .desktop-filters) */
