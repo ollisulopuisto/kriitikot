@@ -15939,7 +15939,101 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             updateStarStepper(1, false);
         }
     });
+    </script>
     
+    <script>
+    // Globaalit funktiot ja muuttujat (saatavilla kaikille event handlerseille)
+    
+    // Tallennetaan skrollausasento ennen filtterin aktivointia
+    let savedScrollLeft = 0;
+    
+    // Funktio joka lisää näkymättömiä täytesarakkeita säilyttämään taulukon leveyden
+    function addFillerColumns() {
+        const table = document.querySelector('table');
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (!table || !tableWrapper) {
+            console.log('Table tai wrapper ei löydy');
+            return;
+        }
+        
+        const thead = table.querySelector('thead tr');
+        const tbody = table.querySelector('tbody');
+        
+        // Laske kuinka monta saraketta on TODELLA näkyvissä (ei dimmed eikä display:none)
+        const allHeaders = Array.from(thead.querySelectorAll('th'));
+        const visibleHeaders = allHeaders.filter(th => {
+            const style = window.getComputedStyle(th);
+            const isVisible = style.display !== 'none' && 
+                             style.opacity !== '0' && 
+                             !th.classList.contains('dimmed') && 
+                             !th.classList.contains('filter-hidden');
+            return isVisible;
+        });
+        
+        console.log('Kaikki headerit:', allHeaders.length);
+        console.log('Näkyvät headerit:', visibleHeaders.length);
+        
+        // Laske taulukon todellinen leveys ja viewportin leveys
+        const wrapperWidth = tableWrapper.clientWidth;
+        let currentTableWidth = 0;
+        visibleHeaders.forEach(th => {
+            currentTableWidth += th.offsetWidth;
+        });
+        
+        console.log('Wrapper leveys:', wrapperWidth);
+        console.log('Taulukon leveys:', currentTableWidth);
+        
+        // Laske kuinka paljon tilaa jää yli
+        const remainingWidth = wrapperWidth - currentTableWidth;
+        console.log('Jäljellä oleva tila:', remainingWidth);
+        
+        if (remainingWidth > 100) { // Vähintään 100px vapaata tilaa
+            // Laske keskimääräinen sarakeleveys (ilman ensimmäistä movie-col saraketta)
+            const regularColumns = visibleHeaders.slice(1); // Ohita ensimmäinen
+            const avgColumnWidth = regularColumns.length > 0 ? 
+                regularColumns.reduce((sum, th) => sum + th.offsetWidth, 0) / regularColumns.length : 100;
+            
+            const fillersNeeded = Math.ceil(remainingWidth / avgColumnWidth);
+            console.log('Keskimääräinen sarakeleveys:', avgColumnWidth);
+            console.log('Täytesarakkeita tarvitaan:', fillersNeeded);
+            
+            // Lisää täytesarakkeet theadiin
+            for (let i = 0; i < fillersNeeded; i++) {
+                const fillerTh = document.createElement('th');
+                fillerTh.className = 'filler-column rating-cell';
+                fillerTh.style.width = avgColumnWidth + 'px';
+                fillerTh.style.minWidth = avgColumnWidth + 'px';
+                fillerTh.style.backgroundColor = '#f8f9fa';
+                fillerTh.innerHTML = '&nbsp;';
+                thead.appendChild(fillerTh);
+            }
+            
+            // Lisää täytesarakkeet jokaiseen tbody-riviin
+            tbody.querySelectorAll('tr').forEach(row => {
+                // Ohita piilotetut rivit
+                if (row.style.display === 'none' || row.classList.contains('dimmed')) return;
+                
+                for (let i = 0; i < fillersNeeded; i++) {
+                    const fillerTd = document.createElement('td');
+                    fillerTd.className = 'filler-column rating-cell';
+                    fillerTd.style.backgroundColor = i % 2 === 0 ? '#f5faff' : 'white';
+                    fillerTd.innerHTML = '&nbsp;';
+                    row.appendChild(fillerTd);
+                }
+            });
+            
+            console.log('Täytesarakkeet lisätty!');
+        }
+    }
+    
+    // Funktio joka poistaa täytesarakkeet
+    function removeFillerColumns() {
+        const fillers = document.querySelectorAll('.filler-column');
+        fillers.forEach(filler => filler.remove());
+    }
+    </script>
+    
+    <script>
     // Reset-nappi
     document.addEventListener('DOMContentLoaded', function() {
         const resetButtonDesktop = document.getElementById('reset-filters-desktop');
@@ -15964,9 +16058,6 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 if (mobileFilterCard) mobileFilterCard.style.top = '0.5rem';
             }
         }
-        
-        // Tallennetaan skrollausasento ennen filtterin aktivointia
-        let savedScrollLeft = 0;
         
         function resetAllFilters() {
             // Nollaa suodattimet
@@ -16015,6 +16106,9 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     tableWrapper.style.scrollBehavior = originalScrollBehavior;
                 }, 50);
             }
+            
+            // Poista täytesarakkeet
+            removeFillerColumns();
             
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
@@ -16411,6 +16505,12 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 
                 row.dataset.filtered = 'true';
                 movieCell.classList.add('selected');
+                
+                // Lisää täytesarakkeet säilyttämään taulukon leveyden
+                setTimeout(() => {
+                    addFillerColumns();
+                }, 350); // Vasta fade-out animaation jälkeen
+                
                 if (window.showResetButton) window.showResetButton();
                 
                 // Näytä poster nimisolussa jos saatavilla
@@ -16540,6 +16640,12 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 criticHeader.dataset.filtered = 'true';
                 criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
                 criticHeader.classList.add('selected');
+                
+                // Lisää täytesarakkeet säilyttämään taulukon leveyden
+                setTimeout(() => {
+                    addFillerColumns();
+                }, 350); // Vasta fade-out animaation jälkeen
+                
                 if (window.showResetButton) window.showResetButton();
             });
         });
