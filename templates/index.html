@@ -197,21 +197,18 @@
                 </tbody>
             </table>
         </div>
+            </div>
+        </div>
         
-        <!-- Mobile: Reset-nappi (ennen hakukorttia) -->
-        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
-            🔄 Näytä kaikki
-        </button>
-        
-        <!-- Mobile: Suodattimet -->
-            <div class="mobile-filter collapsed">
-                <!-- Toggle-nappi -->
-                <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
-                    <span class="toggle-icon">▼</span>
-                    <span class="toggle-text">Hakuehdot</span>
-                </button>
-                
-                <div class="mobile-filters-container" id="mobile-filters-content">
+        <!-- Mobile: Suodattimet (ENSIN) -->
+        <div class="mobile-filter collapsed">
+            <!-- Toggle-nappi -->
+            <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
+                <span class="toggle-icon">▼</span>
+                <span class="toggle-text">Hakuehdot</span>
+            </button>
+            
+            <div class="mobile-filters-container" id="mobile-filters-content">
                     <!-- Fasetti 1: Arvioiden määrä -->
                     <div class="mobile-filter-group mobile-filter-inline">
                         <label>Arvosteluja:</label>
@@ -259,6 +256,11 @@
                     </div>
                 </div>
             </div>
+        
+        <!-- Mobile: Reset-nappi (HAKUKORTIN JÄLKEEN) -->
+        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
+            🔄 Näytä kaikki
+        </button>
             
         <!-- Mobile: Korttinäkymä -->
         <div class="mobile-cards">
@@ -1090,9 +1092,7 @@
             if (resetButtonDesktop) resetButtonDesktop.style.display = 'inline-block';
             if (resetButtonMobile) {
                 resetButtonMobile.style.display = 'flex';
-                // Siirrä hakukortti alemmas kun reset-nappi näkyy
-                // Reset-napin korkeus: padding (0.875rem * 2) + sisältö (~2rem) + margin-top (0.5rem) + top (0.5rem) = ~4.25rem
-                if (mobileFilterCard) mobileFilterCard.style.top = '4.25rem';
+                // Ei tarvitse enää siirtää hakukorttia, koska reset-nappi on sen jälkeen
             }
         }
         
@@ -1100,8 +1100,7 @@
             if (resetButtonDesktop) resetButtonDesktop.style.display = 'none';
             if (resetButtonMobile) {
                 resetButtonMobile.style.display = 'none';
-                // Palauta hakukortti alkuperäiseen paikkaan (0.5rem top + 0.5rem margin ylhäältä)
-                if (mobileFilterCard) mobileFilterCard.style.top = '0.5rem';
+                // Ei tarvitse palauttaa hakukorttia
             }
         }
         
@@ -1975,6 +1974,18 @@
         const toggleBtn = document.getElementById('mobile-filter-toggle');
         const mobileFilter = document.querySelector('.mobile-filter');
         const toggleText = toggleBtn?.querySelector('.toggle-text');
+        const resetButtonMobile = document.getElementById('reset-filters-mobile');
+        
+        function updateResetButtonPosition() {
+            if (mobileFilter && resetButtonMobile) {
+                // Laske hakukortin korkeus
+                const filterHeight = mobileFilter.offsetHeight;
+                const filterTop = parseFloat(window.getComputedStyle(mobileFilter).top);
+                
+                // Aseta reset-napin top hakukortin alle
+                resetButtonMobile.style.top = (filterTop + filterHeight + 8) + 'px'; // 8px = 0.5rem väli
+            }
+        }
         
         if (toggleBtn && mobileFilter) {
             toggleBtn.addEventListener('click', function() {
@@ -1985,7 +1996,14 @@
                 } else {
                     toggleText.textContent = 'Piilota';
                 }
+                
+                // Päivitä reset-napin sijainti heti kun hakukortti on toglattu
+                // Käytetään viivettä, jotta CSS-transition (0.3s) ehtii tapahtua
+                setTimeout(updateResetButtonPosition, 350);
             });
+            
+            // Päivitä sijainti myös sivun latautuessa
+            updateResetButtonPosition();
         }
     });
     

@@ -1145,8 +1145,10 @@ footer {
         letter-spacing: 0.5px;
         transition: all 0.2s ease;
         position: sticky;
-        top: 0.5rem;
-        z-index: 100;
+        /* Collapsed hakukortti on n. 3.5rem korkea (0.875rem padding * 2 + 1em teksti + 0.5rem ylä-margin)
+           + 0.5rem väli = 4rem */
+        top: 4rem;
+        z-index: 14; /* Alle hakukortin (z-index: 15) */
     }
     
     .mobile-reset-button:active {
