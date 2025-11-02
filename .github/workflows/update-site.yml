@@ -1,3 +1,4 @@
+# update-site.yml
 name: Päivitä staattiset sivut
 
 on:
