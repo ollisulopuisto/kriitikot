@@ -17342,81 +17342,42 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
     // Tallennetaan skrollausasento ennen filtterin aktivointia
     let savedScrollLeft = 0;
     let originalTableWidth = 0; // Tallennetaan alkuperäinen leveys
+    let originalVisibleColumns = 0; // Tallennetaan alkuperäinen näkyvien sarakkeiden määrä
     
-    // Funktio joka lisää näkymättömiä täytesarakkeita säilyttämään taulukon leveyden
+    // Funktio joka lisää YHDEN täytesarakkeen joka venyy täyttämään tyhjän tilan
     function addFillerColumns() {
         const table = document.querySelector('table');
         const tableWrapper = document.querySelector('.table-wrapper');
         if (!table || !tableWrapper) {
-            console.log('Table tai wrapper ei löydy');
             return;
         }
         
         const thead = table.querySelector('thead tr');
         const tbody = table.querySelector('tbody');
         
-        // Laske nykyinen näkyvien sarakkeiden leveys
-        const allHeaders = Array.from(thead.querySelectorAll('th:not(.filler-column)'));
-        const visibleHeaders = allHeaders.filter(th => {
-            const style = window.getComputedStyle(th);
-            return style.display !== 'none';
-        });
-        
-        console.log('Kaikki headerit:', allHeaders.length);
-        console.log('Näkyvät headerit:', visibleHeaders.length);
-        
-        const wrapperWidth = tableWrapper.clientWidth;
-        let currentTableWidth = 0;
-        visibleHeaders.forEach(th => {
-            currentTableWidth += th.offsetWidth;
-        });
-        
-        console.log('Wrapper leveys:', wrapperWidth);
-        console.log('Nykyinen taulukon leveys:', currentTableWidth);
-        console.log('Alkuperäinen taulukon leveys:', originalTableWidth);
-        
-        // Käytä alkuperäistä leveyttä tai wrapper-leveyttä
-        const targetWidth = originalTableWidth > 0 ? originalTableWidth : wrapperWidth;
-        const remainingWidth = targetWidth - currentTableWidth;
-        
-        console.log('Jäljellä oleva tila:', remainingWidth);
-        
-        if (remainingWidth > 100) {
-            // Laske keskimääräinen sarakeleveys näkyvistä sarakkeista (ilman ensimmäistä)
-            const regularColumns = visibleHeaders.slice(1);
-            const avgColumnWidth = regularColumns.length > 0 ? 
-                regularColumns.reduce((sum, th) => sum + th.offsetWidth, 0) / regularColumns.length : 100;
-            
-            const fillersNeeded = Math.ceil(remainingWidth / avgColumnWidth);
-            console.log('Keskimääräinen sarakeleveys:', avgColumnWidth);
-            console.log('Täytesarakkeita tarvitaan:', fillersNeeded);
-            
-            // Lisää täytesarakkeet theadiin
-            for (let i = 0; i < fillersNeeded; i++) {
-                const fillerTh = document.createElement('th');
-                fillerTh.className = 'filler-column rating-cell';
-                fillerTh.style.width = avgColumnWidth + 'px';
-                fillerTh.style.minWidth = avgColumnWidth + 'px';
-                fillerTh.style.backgroundColor = '#f8f9fa';
-                fillerTh.innerHTML = '&nbsp;';
-                thead.appendChild(fillerTh);
-            }
-            
-            // Lisää täytesarakkeet näkyviin riveihin
-            tbody.querySelectorAll('tr').forEach(row => {
-                if (row.style.display === 'none') return;
-                
-                for (let i = 0; i < fillersNeeded; i++) {
-                    const fillerTd = document.createElement('td');
-                    fillerTd.className = 'filler-column rating-cell';
-                    fillerTd.style.backgroundColor = i % 2 === 0 ? '#f5faff' : 'white';
-                    fillerTd.innerHTML = '&nbsp;';
-                    row.appendChild(fillerTd);
-                }
-            });
-            
-            console.log('Täytesarakkeet lisätty!');
+        // Tarkista onko jo filler-sarake
+        if (thead.querySelector('.filler-column')) {
+            return; // Ei lisätä uutta jos jo on
         }
+        
+        // Lisää YKSI täytesarake theadiin
+        const fillerTh = document.createElement('th');
+        fillerTh.className = 'filler-column';
+        fillerTh.style.width = 'auto'; // Venyy täyttämään jäljellä olevan tilan
+        fillerTh.style.backgroundColor = '#f8f9fa';
+        fillerTh.innerHTML = '&nbsp;';
+        thead.appendChild(fillerTh);
+        
+        // Lisää YKSI täytesarake jokaiselle näkyvissä olevalle riville
+        tbody.querySelectorAll('tr').forEach(row => {
+            if (row.style.display === 'none') return;
+            
+            const fillerTd = document.createElement('td');
+            fillerTd.className = 'filler-column';
+            fillerTd.style.backgroundColor = 'white';
+            fillerTd.innerHTML = '&nbsp;';
+            row.appendChild(fillerTd);
+        });
     }
     
     // Funktio joka poistaa täytesarakkeet
@@ -17497,18 +17458,23 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 }, 50);
             }
             
-            // Poista täytesarakkeet
+            // Poista täytesarake
             removeFillerColumns();
             
             // Nollaa alkuperäinen leveys
             originalTableWidth = 0;
+            originalVisibleColumns = 0;
             
             // Desktop: Poista kaikki filtterit ja himmennykset
             const table = document.querySelector('table');
             if (table) {
                 const tbody = table.querySelector('tbody');
-                const allRows = tbody.querySelectorAll('tr');
+                const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Poista poster-rivit
+                const posterRows = tbody.querySelectorAll('.poster-row');
+                posterRows.forEach(row => row.remove());
                 
                 // Näytä kaikki rivit
                 allRows.forEach(row => {
@@ -17626,59 +17592,62 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
     
     // Poster functions
     function showPosterInCell(movieCell, posterUrl) {
-        // Poista vanha poster jos on
+        // Poista vanhat posterit ja linkit
         const existingPoster = movieCell.querySelector('.movie-poster');
+        const existingLinks = movieCell.querySelectorAll('a');
         if (existingPoster) {
             existingPoster.remove();
         }
+        existingLinks.forEach(link => link.remove());
         
-        // Lisää uusi poster
+        // Tallenna alkuperäinen elokuvan nimi
+        const movieTitle = movieCell.textContent.trim();
+        
+        // Tyhjennä solu
+        movieCell.innerHTML = '';
+        
+        // 1. Lisää posterikuva
         const posterImg = document.createElement('img');
         posterImg.src = posterUrl;
         posterImg.alt = 'Elokuvan juliste';
         posterImg.className = 'movie-poster';
-        posterImg.style.maxWidth = '120px';
-        posterImg.style.float = 'left';
-        posterImg.style.marginRight = '12px';
-        posterImg.style.marginBottom = '8px';
-        posterImg.style.borderRadius = '4px';
-        posterImg.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        
         movieCell.appendChild(posterImg);
         
-        // Lisää Nytleffaan-linkki jos saatavilla
+        // 2. Lisää elokuvan nimi
+        const titleSpan = document.createElement('div');
+        titleSpan.textContent = movieTitle;
+        titleSpan.className = 'movie-title';
+        movieCell.appendChild(titleSpan);
+        
+        // 3. Lisää linkit
+        const linksDiv = document.createElement('div');
+        linksDiv.className = 'movie-links';
+        
+        // Nytleffaan-linkki
         const nytleffaanUrl = movieCell.dataset.nytleffaan;
         if (nytleffaanUrl) {
             const nytleffaanLink = document.createElement('a');
             nytleffaanLink.href = nytleffaanUrl;
             nytleffaanLink.target = '_blank';
-            nytleffaanLink.innerHTML = '&#127916; Osta liput';
-            nytleffaanLink.style.display = 'block';
-            nytleffaanLink.style.marginTop = '8px';
-            nytleffaanLink.style.fontSize = '0.9em';
-            nytleffaanLink.style.color = '#059669';
-            nytleffaanLink.style.textDecoration = 'none';
+            nytleffaanLink.innerHTML = '🎬 Osta liput';
+            nytleffaanLink.className = 'movie-link nytleffaan-link';
             nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
-            
-            movieCell.appendChild(nytleffaanLink);
+            linksDiv.appendChild(nytleffaanLink);
         }
         
-        // Lisää Letterboxd-linkki jos saatavilla
+        // Letterboxd-linkki
         const letterboxdUrl = movieCell.dataset.letterboxd;
         if (letterboxdUrl) {
             const letterboxdLink = document.createElement('a');
             letterboxdLink.href = letterboxdUrl;
             letterboxdLink.target = '_blank';
             letterboxdLink.textContent = '📽️ Letterboxd';
-            letterboxdLink.style.display = 'block';
-            letterboxdLink.style.marginTop = '8px';
-            letterboxdLink.style.fontSize = '0.9em';
-            letterboxdLink.style.color = '#8b5cf6';
-            letterboxdLink.style.textDecoration = 'none';
+            letterboxdLink.className = 'movie-link letterboxd-link';
             letterboxdLink.title = 'Katso Letterboxd:ssä';
-            
-            movieCell.appendChild(letterboxdLink);
+            linksDiv.appendChild(letterboxdLink);
         }
+        
+        movieCell.appendChild(linksDiv);
     }
     
     function hidePosterInCell(movieCell) {
@@ -17844,8 +17813,14 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     return;
                 }
                 
+                // Poista vanha poster-rivi ensin
+                const oldPosterRow = tbody.querySelector('.poster-row');
+                if (oldPosterRow) {
+                    oldPosterRow.remove();
+                }
+                
                 // Aktivoi uusi filtteri
-                const allRows = tbody.querySelectorAll('tr');
+                const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
                 // Tallenna alkuperäinen taulukon leveys ENNEN filtteröintiä
@@ -17928,17 +17903,47 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     }, 350); // Vasta fade-out animaation jälkeen
                 }
                 
-                // Lisää täytesarakkeet säilyttämään taulukon leveyden
+                // Lisää yksi täytesarake joka venyy
                 setTimeout(() => {
                     addFillerColumns();
-                }, 350); // Vasta fade-out animaation jälkeen
+                }, 350);
                 
                 if (window.showResetButton) window.showResetButton();
                 
-                // Näytä poster nimisolussa jos saatavilla
+                // Luo erillinen poster-rivi valitun rivin jälkeen
                 const posterUrl = movieCell.dataset.poster;
                 if (posterUrl) {
-                    showPosterInCell(movieCell, posterUrl);
+                    // Poista vanha poster-rivi jos on
+                    const oldPosterRow = tbody.querySelector('.poster-row');
+                    if (oldPosterRow) {
+                        oldPosterRow.remove();
+                    }
+                    
+                    // Luo uusi poster-rivi
+                    const posterRow = document.createElement('tr');
+                    posterRow.className = 'poster-row';
+                    
+                    const posterCell = document.createElement('td');
+                    posterCell.colSpan = 1; // Vain ensimmäinen sarake
+                    
+                    const posterImg = document.createElement('img');
+                    posterImg.src = posterUrl;
+                    posterImg.alt = 'Elokuvan juliste';
+                    posterImg.className = 'movie-poster-inline';
+                    
+                    posterCell.appendChild(posterImg);
+                    posterRow.appendChild(posterCell);
+                    
+                    // Lisää tyhjät solut muille sarakkeille
+                    const columnCount = table.querySelectorAll('thead th').length;
+                    for (let i = 1; i < columnCount; i++) {
+                        const emptyCell = document.createElement('td');
+                        emptyCell.className = 'poster-row-empty';
+                        posterRow.appendChild(emptyCell);
+                    }
+                    
+                    // Lisää poster-rivi heti valitun rivin jälkeen
+                    row.parentNode.insertBefore(posterRow, row.nextSibling);
                 }
             });
         });
@@ -18076,10 +18081,10 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                     }, 350); // Vasta fade-out animaation jälkeen
                 }
                 
-                // Lisää täytesarakkeet säilyttämään taulukon leveyden
+                // Lisää yksi täytesarake joka venyy
                 setTimeout(() => {
                     addFillerColumns();
-                }, 350); // Vasta fade-out animaation jälkeen
+                }, 350);
                 
                 if (window.showResetButton) window.showResetButton();
             });
@@ -18441,6 +18446,20 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             
             // Tarkista uudelleen kun ikkunan kokoa muutetaan
             window.addEventListener('resize', updateFadePosition);
+        }
+    });
+    </script>
+    
+    <script>
+    // Tallenna alkuperäinen sarakkeiden määrä heti kun sivu latautuu
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('table');
+        if (table && originalVisibleColumns === 0) {
+            const allHeaders = Array.from(table.querySelectorAll('thead th:not(.filler-column)'));
+            originalVisibleColumns = allHeaders.filter(th => {
+                const style = window.getComputedStyle(th);
+                return style.display !== 'none';
+            }).length;
         }
     });
     </script>
