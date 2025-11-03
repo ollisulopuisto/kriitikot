@@ -2055,7 +2055,7 @@
                         stickyFade.classList.add('hidden');
                     } else {
                         stickyFade.classList.remove('hidden');
-                        stickyFade.style.left = fadeLeft + 'px';
+                        // Don't set left position - it's positioned with right: 0 in CSS
                     }
                 }
             }

@@ -318,6 +318,7 @@ h2, h3, h4, h5, h6 {
 .scroll-fade-indicator-sticky {
     position: absolute;
     top: 0;
+    right: 0; /* Position at right edge */
     height: 100%; /* Kattaa vain theadin korkeuden */
     width: 150px;
     background: linear-gradient(to left, rgba(248, 249, 250, 1) 0%, rgba(248, 249, 250, 0.95) 10%, rgba(248, 249, 250, 0) 100%);
