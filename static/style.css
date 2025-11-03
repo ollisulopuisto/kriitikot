@@ -674,8 +674,9 @@ th {
 }
 
 th.movie-col {
-    min-width: 11.25em;
-    max-width: none;
+    width: 16rem;
+    min-width: 16rem;
+    max-width: 16rem;
     position: sticky;
     left: 0;
     background: #f8f9fa;
@@ -699,6 +700,9 @@ th.rating-cell {
     background: #f8f9fa;
     user-select: none;
     transition: background-color 0.2s;
+    width: 6.25em;
+    min-width: 6.25em;
+    max-width: 6.25em;
 }
 
 th.rating-cell:hover {
@@ -816,6 +820,8 @@ td.movie-col {
     background: white;
     border-right: 0.125rem solid #e9ecef;
     padding: 1rem 0.625rem;
+    width: 16rem;
+    min-width: 16rem;
     max-width: 16rem;
     overflow: visible;
     white-space: normal;
