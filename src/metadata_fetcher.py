@@ -81,7 +81,8 @@ class MetadataFetcher:
             url = f"{self.tmdb_base_url}/movie/{tmdb_id}"
             params = {
                 'api_key': self.tmdb_api_key,
-                'language': 'fi-FI'
+                'language': 'fi-FI',
+                'append_to_response': 'external_ids'  # Hae myös IMDB ID
             }
             
             response = requests.get(url, params=params, timeout=10)
@@ -89,8 +90,14 @@ class MetadataFetcher:
             
             movie = response.json()
             
+            # Hae IMDB ID external_ids:stä
+            imdb_id = None
+            if 'external_ids' in movie:
+                imdb_id = movie['external_ids'].get('imdb_id')
+            
             return {
                 'tmdb_id': movie['id'],
+                'imdb_id': imdb_id,
                 'title': movie['title'],
                 'original_title': movie.get('original_title', ''),
                 'release_date': movie.get('release_date', ''),
@@ -108,6 +115,71 @@ class MetadataFetcher:
             print(f"TMDB details error for ID {tmdb_id}: {e}")
         
         return None
+    
+    def get_poster_by_tmdb_id(self, tmdb_id: str) -> Optional[str]:
+        """Hae elokuvan juliste TMDB ID:n perusteella.
+        
+        Args:
+            tmdb_id: TMDB elokuva ID (voi olla string tai int)
+            
+        Returns:
+            Julisteen URL tai None
+        """
+        try:
+            # Varmista että ID on numero
+            numeric_id = int(tmdb_id)
+            details = self.get_movie_details_tmdb(numeric_id)
+            
+            if details and details.get('poster_url'):
+                return details['poster_url']
+                
+        except (ValueError, TypeError) as e:
+            print(f"Invalid TMDB ID '{tmdb_id}': {e}")
+        except Exception as e:
+            print(f"Error fetching poster for TMDB ID {tmdb_id}: {e}")
+        
+        return None
+    
+    def fetch_tmdb_data(self, movie_title: str) -> Optional[Dict]:
+        """Hae TMDB data elokuvan nimellä.
+        
+        Args:
+            movie_title: Elokuvan nimi
+            
+        Returns:
+            Dict TMDB datalla (sisältää myös imdb_id:n)
+        """
+        movie_data = self.search_movie_tmdb(movie_title)
+        
+        if movie_data and movie_data.get('tmdb_id'):
+            # Hae lisätiedot (ml. IMDB ID)
+            details = self.get_movie_details_tmdb(movie_data['tmdb_id'])
+            if details:
+                return details
+        
+        return movie_data
+    
+    def generate_letterboxd_url(self, movie_title: str) -> Optional[str]:
+        """Generoi Letterboxd URL elokuvan nimestä.
+        
+        Args:
+            movie_title: Elokuvan nimi
+            
+        Returns:
+            Letterboxd URL
+        """
+        return self.search_movie_letterboxd(movie_title)
+    
+    def generate_nytleffaan_url(self, movie_title: str) -> Optional[str]:
+        """Generoi Nytleffaan URL elokuvan nimestä.
+        
+        Args:
+            movie_title: Elokuvan nimi
+            
+        Returns:
+            Nytleffaan URL
+        """
+        return self.search_movie_nytleffaan(movie_title)
     
     def search_movie_letterboxd(self, movie_title: str) -> Optional[str]:
         """Hae Letterboxd-linkki elokuvalle.
@@ -226,8 +298,8 @@ class MetadataFetcher:
             'nytleffaan_url': None
         }
         
-        # TMDB
-        tmdb_data = self.search_movie_tmdb(movie_title)
+        # TMDB (käytä fetch_tmdb_data joka hakee myös IMDB ID:n)
+        tmdb_data = self.fetch_tmdb_data(movie_title)
         if tmdb_data:
             result['tmdb_data'] = tmdb_data
         

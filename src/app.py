@@ -486,27 +486,64 @@ def fetch_movie_metadata(movie_id):
     try:
         data = request.get_json()
         movie_title = data.get('title', '')
+        tmdb_id = data.get('tmdb_id', '').strip()
         
         if not movie_title:
             return jsonify({'error': 'Elokuvan nimi puuttuu'}), 400
         
         fetcher = MetadataFetcher()
-        metadata = fetcher.fetch_all_metadata(movie_title)
-        
         result = {}
         
-        if metadata.get('tmdb_data'):
-            tmdb = metadata['tmdb_data']
-            result.update({
-                'tmdb_id': tmdb['tmdb_id'],
-                'poster_url': tmdb['poster_url']
-            })
+        # Jos TMDB ID on annettu, käytä sitä suoraan
+        if tmdb_id:
+            # Poimi numeerinen ID URL:sta tai pelkästä ID:stä
+            import re
+            numeric_id = None
+            
+            # Jos URL, poimi ID siitä
+            if 'themoviedb.org' in tmdb_id:
+                match = re.search(r'/movie/(\d+)', tmdb_id)
+                if match:
+                    numeric_id = match.group(1)
+            # Jos pelkkä numero
+            elif tmdb_id.isdigit():
+                numeric_id = tmdb_id
+            
+            if numeric_id:
+                # Hae kaikki tiedot TMDB ID:llä (juliste + IMDB ID)
+                details = fetcher.get_movie_details_tmdb(int(numeric_id))
+                if details:
+                    result['poster_url'] = details.get('poster_url')
+                    result['tmdb_id'] = tmdb_id  # Palauta alkuperäinen arvo
+                    result['imdb_id'] = details.get('imdb_id')
+        else:
+            # Jos TMDB ID:tä ei annettu, hae kaikki metatiedot normaalisti
+            metadata = fetcher.fetch_all_metadata(movie_title)
+            
+            if metadata.get('tmdb_data'):
+                tmdb = metadata['tmdb_data']
+                result.update({
+                    'tmdb_id': tmdb.get('tmdb_id'),
+                    'poster_url': tmdb.get('poster_url'),
+                    'imdb_id': tmdb.get('imdb_id')
+                })
+            
+            if metadata.get('letterboxd_url'):
+                result['letterboxd_url'] = metadata['letterboxd_url']
+            
+            if metadata.get('nytleffaan_url'):
+                result['nytleffaan_url'] = metadata['nytleffaan_url']
         
-        if metadata.get('letterboxd_url'):
-            result['letterboxd_url'] = metadata['letterboxd_url']
+        # Hae linkit aina (jos ei vielä haettu)
+        if 'letterboxd_url' not in result:
+            letterboxd_url = fetcher.generate_letterboxd_url(movie_title)
+            if letterboxd_url:
+                result['letterboxd_url'] = letterboxd_url
         
-        if metadata.get('nytleffaan_url'):
-            result['nytleffaan_url'] = metadata['nytleffaan_url']
+        if 'nytleffaan_url' not in result:
+            nytleffaan_url = fetcher.generate_nytleffaan_url(movie_title)
+            if nytleffaan_url:
+                result['nytleffaan_url'] = nytleffaan_url
         
         return jsonify(result)
     

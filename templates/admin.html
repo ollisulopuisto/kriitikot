@@ -321,6 +321,29 @@
             background: #0056b3;
             transform: scale(1.1) translateY(0);
         }
+        
+        /* Poster preview hover effect */
+        .poster-preview {
+            transition: all 0.3s ease;
+        }
+        
+        .poster-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Link preview styling */
+        .link-display {
+            background: #f8f9fa;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid #007bff;
+        }
+        
+        .link-display:hover {
+            background: #e9ecef;
+        }
     </style>
     <script>
         // Highlightaa aktiivinen osio navigaatiossa
@@ -519,29 +542,98 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Elokuva</th>
+                        <th>Juliste</th>
                         <th>TMDB ID</th>
                         <th>IMDB ID</th>
-                        <th>Juliste</th>
-                        <th>Letterboxd</th>
-                        <th>Nytleffaan.fi</th>
+                        <th>Linkit</th>
                         <th>Toiminnot</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for movie in movies %}
                     <tr>
-                        <td>{{ movie.id }}</td>
-                        <td><strong>{{ movie.title }}</strong></td>
-                        <td><input type="number" id="tmdb_id_{{ movie.id }}" value="{{ movie.tmdb_id or '' }}" class="edit-input" placeholder="esim. 12345"></td>
-                        <td><input type="text" id="imdb_id_{{ movie.id }}" value="{{ movie.imdb_id or '' }}" class="edit-input" placeholder="esim. tt1234567"></td>
-                        <td><input type="url" id="poster_url_{{ movie.id }}" value="{{ movie.poster_url or '' }}" class="edit-input" placeholder="https://..."></td>
-                        <td><input type="url" id="letterboxd_url_{{ movie.id }}" value="{{ movie.letterboxd_url or '' }}" class="edit-input" placeholder="https://..."></td>
-                        <td><input type="url" id="nytleffaan_url_{{ movie.id }}" value="{{ movie.nytleffaan_url or '' }}" class="edit-input" placeholder="https://..."></td>
-                        <td>
-                            <button type="button" class="btn btn-primary" onclick="saveMetadata({{ movie.id }})">Tallenna</button>
-                            <button type="button" class="btn btn-secondary fetch-metadata-btn" data-movie-id="{{ movie.id }}" data-movie-title="{{ movie.title }}">Hae automaattisesti</button>
+                        <td style="min-width: 200px;">
+                            <strong>{{ movie.title }}</strong>
+                            <br>
+                            <small style="color: #999;">ID: {{ movie.id }}</small>
+                        </td>
+                        <td style="width: 180px; text-align: center;">
+                            {% if movie.poster_url %}
+                            <div style="position: relative;">
+                                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" 
+                                     class="poster-preview"
+                                     style="max-width: 120px; max-height: 180px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer;"
+                                     onclick="window.open('{{ movie.poster_url }}', '_blank')"
+                                     title="Klikkaa avataksesi täysikokoisena">
+                                <div style="margin-top: 5px;">
+                                    <input type="text" id="poster_url_{{ movie.id }}" value="{{ movie.poster_url }}" 
+                                           class="edit-input" placeholder="https://image.tmdb.org/t/p/..." 
+                                           style="font-size: 0.75em; padding: 4px 6px; font-family: monospace;"
+                                           title="{{ movie.poster_url }}">
+                                </div>
+                            </div>
+                            {% else %}
+                            <div style="background: #f0f0f0; padding: 20px; border-radius: 4px; color: #999; font-size: 0.85em;">
+                                Ei julistetta
+                                <div style="margin-top: 5px;">
+                                    <input type="text" id="poster_url_{{ movie.id }}" value="" 
+                                           class="edit-input" placeholder="https://image.tmdb.org/t/p/..." 
+                                           style="font-size: 0.75em; padding: 4px 6px; font-family: monospace;">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="width: 120px;">
+                            <input type="text" id="tmdb_id_{{ movie.id }}" value="{{ movie.tmdb_id or '' }}" 
+                                   class="edit-input" placeholder="https://www.themoviedb.org/movie/..." style="width: 100%; font-size: 0.8em;">
+                        </td>
+                        <td style="width: 140px;">
+                            <input type="text" id="imdb_id_{{ movie.id }}" value="{{ movie.imdb_id or '' }}" 
+                                   class="edit-input" placeholder="https://www.imdb.com/title/..." style="width: 100%; font-size: 0.8em;">
+                        </td>
+                        <td style="min-width: 300px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                {% if movie.letterboxd_url %}
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 0.85em; font-weight: 600; color: #6c757d; min-width: 80px;">Letterboxd:</span>
+                                    <a href="{{ movie.letterboxd_url }}" target="_blank" 
+                                       style="flex: 1; color: #007bff; text-decoration: none; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                       title="{{ movie.letterboxd_url }}">
+                                        {{ movie.letterboxd_url.split('/')[-2] or movie.letterboxd_url }}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                <input type="text" id="letterboxd_url_{{ movie.id }}" value="{{ movie.letterboxd_url or '' }}" 
+                                       class="edit-input" placeholder="https://letterboxd.com/film/..." 
+                                       style="font-size: 0.8em; padding: 6px 8px; font-family: monospace;"
+                                       title="{{ movie.letterboxd_url or 'Ei linkkiä' }}">
+                                
+                                {% if movie.nytleffaan_url %}
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                    <span style="font-size: 0.85em; font-weight: 600; color: #6c757d; min-width: 80px;">Nytleffaan:</span>
+                                    <a href="{{ movie.nytleffaan_url }}" target="_blank" 
+                                       style="flex: 1; color: #28a745; text-decoration: none; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                       title="{{ movie.nytleffaan_url }}">
+                                        {{ movie.nytleffaan_url.split('/')[-2] or movie.nytleffaan_url }}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                <input type="text" id="nytleffaan_url_{{ movie.id }}" value="{{ movie.nytleffaan_url or '' }}" 
+                                       class="edit-input" placeholder="https://nytleffaan.fi/elokuva/..." 
+                                       style="font-size: 0.8em; padding: 6px 8px; font-family: monospace;"
+                                       title="{{ movie.nytleffaan_url or 'Ei linkkiä' }}">
+                            </div>
+                        </td>
+                        <td style="min-width: 200px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="saveMetadata({{ movie.id }})">💾 Tallenna</button>
+                                <button type="button" class="btn btn-secondary btn-sm fetch-metadata-btn" 
+                                        data-movie-id="{{ movie.id }}" data-movie-title="{{ movie.title }}" 
+                                        style="background: #6c757d; font-size: 0.8em;">
+                                    🔄 Hae auto
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -762,16 +854,25 @@
                     const movieTitle = this.dataset.movieTitle;
                     const originalText = this.textContent;
                     
+                    // Tarkista onko TMDB ID jo olemassa
+                    const existingTmdbId = document.getElementById(`tmdb_id_${movieId}`).value.trim();
+                    
                     this.textContent = 'Haetaan...';
                     this.disabled = true;
                     
                     try {
+                        // Jos TMDB ID on olemassa, käytä sitä suoraan julisteen hakemiseen
+                        const requestBody = { title: movieTitle };
+                        if (existingTmdbId) {
+                            requestBody.tmdb_id = existingTmdbId;
+                        }
+                        
                         const response = await fetch(`/admin/movie/${movieId}/fetch-metadata`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ title: movieTitle })
+                            body: JSON.stringify(requestBody)
                         });
                         
                         if (!response.ok) {
@@ -781,13 +882,29 @@
                         const data = await response.json();
                         
                         // Päivitä formin kentät
-                        document.getElementById(`tmdb_id_${movieId}`).value = data.tmdb_id || '';
-                        document.getElementById(`imdb_id_${movieId}`).value = data.imdb_id || '';
-                        document.getElementById(`poster_url_${movieId}`).value = data.poster_url || '';
-                        document.getElementById(`letterboxd_url_${movieId}`).value = data.letterboxd_url || '';
-                        document.getElementById(`nytleffaan_url_${movieId}`).value = data.nytleffaan_url || '';
+                        // Jos TMDB ID oli jo olemassa, älä ylikirjoita sitä
+                        if (!existingTmdbId && data.tmdb_id) {
+                            document.getElementById(`tmdb_id_${movieId}`).value = data.tmdb_id;
+                        }
                         
-                        alert('Metatiedot haettu onnistuneesti! Muista tallentaa muutokset.');
+                        // Muut kentät päivitetään aina
+                        if (data.imdb_id) {
+                            document.getElementById(`imdb_id_${movieId}`).value = data.imdb_id;
+                        }
+                        if (data.poster_url) {
+                            document.getElementById(`poster_url_${movieId}`).value = data.poster_url;
+                        }
+                        if (data.letterboxd_url) {
+                            document.getElementById(`letterboxd_url_${movieId}`).value = data.letterboxd_url;
+                        }
+                        if (data.nytleffaan_url) {
+                            document.getElementById(`nytleffaan_url_${movieId}`).value = data.nytleffaan_url;
+                        }
+                        
+                        const message = existingTmdbId 
+                            ? 'Metatiedot haettu TMDB ID:n perusteella! Muista tallentaa muutokset.'
+                            : 'Metatiedot haettu onnistuneesti! Muista tallentaa muutokset.';
+                        alert(message);
                         
                     } catch (error) {
                         console.error('Metadata fetch error:', error);
