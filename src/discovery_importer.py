@@ -12,6 +12,7 @@ from scrapers.muropaketti import MuropakettiScraper
 from scrapers.filmoholic import FilmOHolicScraper
 from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
 from movie_normalizer import get_canonical_title
+from metadata_fetcher import MetadataFetcher
 from typing import List, Dict
 import re
 import requests
@@ -30,6 +31,7 @@ class DiscoveryImporter:
         self.meta_scraper = MetaScraper()
         self.engine = get_engine()
         self.session = get_session(self.engine)
+        self.metadata_fetcher = MetadataFetcher()
         
         # Scrapers per source
         self.scrapers = {
@@ -117,7 +119,27 @@ class DiscoveryImporter:
             movie = Movie(title=canonical_title)
             self.session.add(movie)
             self.session.flush()
+            
+            # Hae metatiedot uudelle elokuvalle
             print(f"   🎬 Luotiin uusi elokuva: {canonical_title}")
+            try:
+                metadata = self.metadata_fetcher.fetch_all_metadata(canonical_title)
+                
+                if metadata.get('tmdb_data'):
+                    tmdb_data = metadata['tmdb_data']
+                    movie.tmdb_id = tmdb_data.get('tmdb_id')
+                    movie.poster_url = tmdb_data.get('poster_url')
+                    # IMDb ID voidaan hakea myöhemmin jos tarpeen
+                
+                movie.letterboxd_url = metadata.get('letterboxd_url')
+                movie.nytleffaan_url = metadata.get('nytleffaan_url')
+                
+                self.session.commit()
+                print(f"   📊 Metatiedot haettu: TMDB={movie.tmdb_id is not None}, Letterboxd={movie.letterboxd_url is not None}, Nytleffaan={movie.nytleffaan_url is not None}")
+                
+            except Exception as e:
+                print(f"   ⚠️  Metatietojen haku epäonnistui: {e}")
+                # Jatka normaalisti vaikka metadata haku epäonnistuu
         elif canonical_title != normalized:
             # Löytyi vastaava, käytetään olemassa olevaa
             print(f"   🔗 Yhdistetty olemassa olevaan: {canonical_title}")
