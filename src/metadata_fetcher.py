@@ -27,31 +27,81 @@ class MetadataFetcher:
         self.tmdb_base_url = "https://api.themoviedb.org/3"
         self.tmdb_image_base_url = "https://image.tmdb.org/t/p/w500"  # Keskitason koko julisteille
         
-    def search_movie_tmdb(self, movie_title: str) -> Optional[Dict]:
+    def search_movie_tmdb(self, movie_title: str, prefer_recent: bool = True) -> Optional[Dict]:
         """Hae elokuva TMDB:stä nimellä.
         
         Args:
             movie_title: Elokuvan nimi
+            prefer_recent: Jos True, suosii tuoreita elokuvia (oletuksena True)
             
         Returns:
             Dict elokuvan tiedoilla tai None jos ei löydy
         """
+        from datetime import datetime
+        
         try:
             url = f"{self.tmdb_base_url}/search/movie"
-            params = {
+            base_params = {
                 'api_key': self.tmdb_api_key,
                 'query': movie_title,
                 'language': 'fi-FI'  # Suomipainotteinen
             }
             
-            response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()
+            # Jos halutaan suosia tuoreita elokuvia, kokeile ensin viime vuosien elokuvia
+            if prefer_recent:
+                current_year = datetime.now().year
+                
+                # Kokeile ensin nykyinen vuosi, sitten edellinen
+                for year_offset in [0, 1]:  # 2025, 2024
+                    try_year = current_year - year_offset
+                    params = base_params.copy()
+                    params['primary_release_year'] = try_year
+                    
+                    response = requests.get(url, params=params, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    if data.get('results') and len(data['results']) > 0:
+                        movie = data['results'][0]
+                        return {
+                            'tmdb_id': movie['id'],
+                            'title': movie['title'],
+                            'original_title': movie.get('original_title', ''),
+                            'release_date': movie.get('release_date', ''),
+                            'poster_path': movie.get('poster_path'),
+                            'overview': movie.get('overview', ''),
+                            'vote_average': movie.get('vote_average', 0),
+                            'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
+                        }
             
+            # Jos ei löytynyt vuosien perusteella, hae ilman vuotta
+            response = requests.get(url, params=base_params, timeout=10)
+            response.raise_for_status()
             data = response.json()
             
             if data.get('results') and len(data['results']) > 0:
-                # Palauta ensimmäinen osuma (yleensä paras)
-                movie = data['results'][0]
+                # Järjestä tulokset julkaisuvuoden mukaan (uusin ensin) jos prefer_recent
+                if prefer_recent:
+                    results = data['results']
+                    
+                    results_with_year = []
+                    for movie in results:
+                        release_date = movie.get('release_date', '')
+                        if release_date:
+                            try:
+                                year = int(release_date[:4])
+                                results_with_year.append((movie, year))
+                            except (ValueError, IndexError):
+                                results_with_year.append((movie, 0))
+                        else:
+                            results_with_year.append((movie, 0))
+                    
+                    # Järjestä vuoden mukaan laskevasti (uusin ensin)
+                    results_with_year.sort(key=lambda x: x[1], reverse=True)
+                    movie = results_with_year[0][0]
+                else:
+                    movie = data['results'][0]
+                
                 return {
                     'tmdb_id': movie['id'],
                     'title': movie['title'],
@@ -181,21 +231,37 @@ class MetadataFetcher:
         """
         return self.search_movie_nytleffaan(movie_title)
     
-    def search_movie_letterboxd(self, movie_title: str) -> Optional[str]:
+    def search_movie_letterboxd(self, movie_title: str, prefer_recent: bool = True) -> Optional[str]:
         """Hae Letterboxd-linkki elokuvalle.
         
         Args:
             movie_title: Elokuvan nimi
+            prefer_recent: Jos True, yritä ensin nykyisen vuoden elokuvaa
             
         Returns:
             Letterboxd URL tai None
         """
+        from datetime import datetime
+        
         try:
             # Yritä muodostaa URL suoraan (usein toimii)
             # Muunna nimi URL-ystävälliseksi
             slug = re.sub(r'[^\w\s-]', '', movie_title.lower())
             slug = re.sub(r'[\s]+', '-', slug)
             
+            # Jos halutaan suosia tuoreita elokuvia, yritä ensin vuoden kanssa
+            if prefer_recent:
+                current_year = datetime.now().year
+                url_with_year = f"https://letterboxd.com/film/{slug}-{current_year}/"
+                
+                try:
+                    response = requests.head(url_with_year, timeout=5)
+                    if response.status_code == 200:
+                        return url_with_year
+                except:
+                    pass  # Jatka ilman vuotta
+            
+            # Yritä ilman vuotta
             url = f"https://letterboxd.com/film/{slug}/"
             
             # Tarkista että sivu löytyy
@@ -219,7 +285,7 @@ class MetadataFetcher:
         
         return None
     
-    def search_movie_nytleffaan(self, movie_title: str) -> Optional[str]:
+    def search_movie_nytleffaan(self, movie_title: str, prefer_recent: bool = True) -> Optional[str]:
         """Hae Nytleffaan.fi-linkki elokuvalle.
         
         Koska sivusto käyttää bot protectionia, käytetään direct URL muodostamista
@@ -227,10 +293,13 @@ class MetadataFetcher:
         
         Args:
             movie_title: Elokuvan nimi
+            prefer_recent: Jos True, yritä ensin nykyisen vuoden elokuvaa
             
         Returns:
             Nytleffaan.fi elokuva-sivu URL tai None
         """
+        from datetime import datetime
+        
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -257,7 +326,19 @@ class MetadataFetcher:
             slug = re.sub(r'[^\w\s-]', '', slug)
             slug = re.sub(r'[\s]+', '', slug)
             
-            # Yritä muodostaa URL suoraan
+            # Jos halutaan suosia tuoreita elokuvia, yritä ensin vuoden kanssa
+            if prefer_recent:
+                current_year = datetime.now().year
+                year_url = f"https://www.nytleffaan.fi/elokuva/{slug}{current_year}/"
+                
+                try:
+                    check_response = requests.head(year_url, headers=headers, timeout=5)
+                    if check_response.status_code < 400:
+                        return year_url
+                except:
+                    pass  # Jatka ilman vuotta
+            
+            # Yritä muodostaa URL suoraan ilman vuotta
             direct_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
             
             # Tarkista että sivu löytyy (hyväksy myös 202 status bot protection vuoksi)
