@@ -420,7 +420,7 @@ thead tr {
 
 thead th {
     background: #f8f9fa;
-    transition: all 0.35s ease;
+    transition: background-color 0.35s ease;
 }
 
 /* Hover-efekti ensimmäiselle th:lle (elokuva-sarake) */
@@ -700,14 +700,24 @@ th.rating-cell {
     background: #f8f9fa;
     user-select: none;
     transition: background-color 0.2s;
-    width: 6.25em;
-    min-width: 6.25em;
-    max-width: 6.25em;
+    min-width: 5.9em;
 }
 
 th.rating-cell:hover {
     background: rgba(139, 92, 246, 0.2);
     cursor: pointer;
+}
+
+td.rating-cell {
+    min-width: 5.9em;
+}
+
+/* Filler-sarake vie kaiken jäljellä olevan tilan */
+th.filler-column,
+td.filler-column {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
 }
 
 th .critic-media {
@@ -967,7 +977,7 @@ th.filter-hidden,
 td.filter-hidden {
     opacity: 0;
     max-width: 0;
-    padding: 0;
+    padding: 0 !important;
     overflow: hidden;
     pointer-events: none;
     transition: opacity 0.3s ease, max-width 0.3s ease, padding 0.3s ease;
