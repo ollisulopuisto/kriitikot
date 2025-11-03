@@ -28,6 +28,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Käytä luotua salaisuutta
+          token: ${{ secrets.ACTIONS_PAT }}
+          # On suositeltavaa ladata koko historia, jos tehdään committeja
+          fetch-depth: 0         
       
       - name: Set up Python
         uses: actions/setup-python@v5
