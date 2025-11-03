@@ -10985,6 +10985,11 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 </tbody>
             </table>
         </div>
+        
+        <!-- Sticky horizontal scrollbar (desktop only) -->
+        <div class="sticky-scrollbar-container desktop-only">
+            <div class="sticky-scrollbar-content"></div>
+        </div>
             </div>
         </div>
         
@@ -16911,10 +16916,21 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 
                 originalCells.forEach((cell, index) => {
                     if (clonedCells[index]) {
-                        const width = cell.offsetWidth;
+                        // Get computed width including padding and border
+                        const computedStyle = window.getComputedStyle(cell);
+                        const width = cell.getBoundingClientRect().width;
+                        
                         clonedCells[index].style.width = width + 'px';
                         clonedCells[index].style.minWidth = width + 'px';
                         clonedCells[index].style.maxWidth = width + 'px';
+                        
+                        // Also sync height for the diagonal cell
+                        if (cell.classList.contains('diagonal-sort-cell')) {
+                            const height = cell.getBoundingClientRect().height;
+                            clonedCells[index].style.height = height + 'px';
+                            clonedCells[index].style.minHeight = height + 'px';
+                            clonedCells[index].style.maxHeight = height + 'px';
+                        }
                     }
                 });
             }
@@ -18605,7 +18621,7 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         stickyFade.classList.add('hidden');
                     } else {
                         stickyFade.classList.remove('hidden');
-                        stickyFade.style.left = fadeLeft + 'px';
+                        // Don't set left position - it's positioned with right: 0 in CSS
                     }
                 }
             }
@@ -18619,6 +18635,75 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
             // Tarkista uudelleen kun ikkunan kokoa muutetaan
             window.addEventListener('resize', updateFadePosition);
         }
+    });
+    </script>
+    
+    <script>
+    // Sticky horizontal scrollbar synchronization (desktop only)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we're on desktop (viewport width >= 769px)
+        const isDesktop = () => window.innerWidth >= 769;
+        
+        if (!isDesktop()) return;
+        
+        const tableWrapper = document.querySelector('.table-wrapper');
+        const stickyScrollbar = document.querySelector('.sticky-scrollbar-container');
+        const stickyScrollbarContent = document.querySelector('.sticky-scrollbar-content');
+        
+        if (!tableWrapper || !stickyScrollbar || !stickyScrollbarContent) return;
+        
+        let isTableScrolling = false;
+        let isStickyScrolling = false;
+        
+        // Function to update scrollbar width to match table content width
+        function updateScrollbarWidth() {
+            const table = tableWrapper.querySelector('table');
+            if (table) {
+                const tableWidth = table.scrollWidth;
+                const wrapperWidth = tableWrapper.clientWidth;
+                stickyScrollbarContent.style.width = tableWidth + 'px';
+                
+                // Hide sticky scrollbar if table doesn't overflow
+                if (tableWidth <= wrapperWidth) {
+                    stickyScrollbar.style.display = 'none';
+                } else {
+                    stickyScrollbar.style.display = 'block';
+                }
+            }
+        }
+        
+        // Sync scroll from table to sticky scrollbar
+        tableWrapper.addEventListener('scroll', function() {
+            if (isStickyScrolling) return;
+            isTableScrolling = true;
+            stickyScrollbar.scrollLeft = tableWrapper.scrollLeft;
+            setTimeout(() => { isTableScrolling = false; }, 50);
+        });
+        
+        // Sync scroll from sticky scrollbar to table
+        stickyScrollbar.addEventListener('scroll', function() {
+            if (isTableScrolling) return;
+            isStickyScrolling = true;
+            tableWrapper.scrollLeft = stickyScrollbar.scrollLeft;
+            setTimeout(() => { isStickyScrolling = false; }, 50);
+        });
+        
+        // Update scrollbar width on initial load and when window resizes
+        updateScrollbarWidth();
+        window.addEventListener('resize', function() {
+            if (isDesktop()) {
+                updateScrollbarWidth();
+            }
+        });
+        
+        // Update scrollbar width when table content changes (e.g., after filtering)
+        const observer = new MutationObserver(updateScrollbarWidth);
+        observer.observe(tableWrapper, { 
+            childList: true, 
+            subtree: true, 
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
     });
     </script>
     
