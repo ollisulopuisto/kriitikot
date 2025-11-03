@@ -508,6 +508,99 @@
         }
     });
     
+    // Globaali funktio kriitikkosarakkeiden järjestelyyn
+    function sortCriticColumnsByReviews() {
+        const table = document.querySelector('table');
+        if (!table) return;
+        
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        if (!thead || !tbody) return;
+        
+        const criticRow = thead.querySelector('tr.critic-row');
+        if (!criticRow) return;
+        
+        // Hae kaikki kriitikkosarakkeet (paitsi ensimmäinen joka on elokuvanimi)
+        const criticHeaders = Array.from(criticRow.querySelectorAll('th:not(.movie-col)'));
+        const allRows = Array.from(tbody.querySelectorAll('tr'));
+        
+        // Käy rivit läpi järjestyksessä ja kerää kriitikot siinä järjestyksessä kun ne ensimmäisen kerran arvioivat elokuvan
+        const orderedCritics = [];
+        const seenCriticIndices = new Set();
+        
+        allRows.forEach(row => {
+            if (row.style.display === 'none') return; // Ohita piilotetut rivit
+            
+            const cells = row.querySelectorAll('td');
+            
+            // Käy tämän rivin kriitikkosarakkeet läpi vasemmalta oikealle
+            criticHeaders.forEach((header, criticIndex) => {
+                const columnIndex = criticIndex + 1; // +1 koska ensimmäinen on elokuvanimi
+                const cell = cells[columnIndex];
+                
+                // Jos tämä kriitikko on jo lisätty, ohita
+                if (seenCriticIndices.has(criticIndex)) return;
+                
+                // Tarkista onko tällä kriitikolla arvostelu tälle elokuvalle
+                if (cell) {
+                    const hasLink = cell.querySelector('a.rating-link');
+                    const ratingStars = cell.querySelector('.rating-stars');
+                    
+                    if (hasLink || ratingStars) {
+                        // Tämä kriitikko on arvostellut tämän elokuvan - lisää listaan
+                        orderedCritics.push({
+                            header: header,
+                            originalIndex: criticIndex,
+                            columnIndex: columnIndex
+                        });
+                        seenCriticIndices.add(criticIndex);
+                    }
+                }
+            });
+        });
+        
+        // Lisää loput kriitikot (jotka eivät ole arvostelleet yhtään näkyvää elokuvaa) loppuun
+        criticHeaders.forEach((header, criticIndex) => {
+            if (!seenCriticIndices.has(criticIndex)) {
+                orderedCritics.push({
+                    header: header,
+                    originalIndex: criticIndex,
+                    columnIndex: criticIndex + 1
+                });
+            }
+        });
+        
+        // Tallenna kaikki solut alkuperäisessä järjestyksessä
+        const rowCells = allRows.map(row => {
+            return Array.from(row.querySelectorAll('td:not(.movie-col)'));
+        });
+        
+        // Tyhjennä headerit (jätä vain movie-col)
+        criticHeaders.forEach(h => h.remove());
+        
+        // Lisää headerit uudessa järjestyksessä
+        orderedCritics.forEach(item => {
+            criticRow.appendChild(item.header);
+        });
+        
+        // Järjestä jokaisen rivin solut samassa järjestyksessä
+        allRows.forEach((row, rowIndex) => {
+            const cells = rowCells[rowIndex];
+            
+            // Poista kaikki solut paitsi movie-col
+            cells.forEach(c => c.remove());
+            
+            // Lisää solut uudessa järjestyksessä
+            orderedCritics.forEach(item => {
+                // originalIndex kertoo mistä alkuperäisestä paikasta solu löytyy
+                const cell = cells[item.originalIndex];
+                if (cell) {
+                    row.appendChild(cell);
+                }
+            });
+        });
+    }
+    
     // Globaali funktio kriitikkosarakkeiden piilottamiseen
     function updateCriticColumnVisibility() {
         const table = document.querySelector('table');
@@ -1393,6 +1486,14 @@
                 rows.forEach(row => tbody.appendChild(row));
                 sortAscending = !sortAscending;
                 
+                // Järjestä sarakkeet uudelleen arvioiden mukaan
+                if (typeof sortCriticColumnsByReviews === 'function') {
+                    sortCriticColumnsByReviews();
+                    if (typeof updateCriticColumnVisibility === 'function') {
+                        updateCriticColumnVisibility();
+                    }
+                }
+                
                 // Add visual feedback
                 sortMovieArea.classList.add('active');
                 setTimeout(() => sortMovieArea.classList.remove('active'), 300);
@@ -1481,6 +1582,14 @@
                     mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
                 });
             }
+            
+        // Järjestä kriitikkosarakkeet arvioiden mukaan sivun latauksen yhteydessä
+        if (typeof sortCriticColumnsByReviews === 'function') {
+            sortCriticColumnsByReviews();
+            if (typeof updateCriticColumnVisibility === 'function') {
+                updateCriticColumnVisibility();
+            }
+        }
         
         // Elokuvanimi: Himmennä muut rivit + piilota sarakkeet ilman arvostelua
         tbody.querySelectorAll('.movie-col').forEach((movieCell, rowIndex) => {
