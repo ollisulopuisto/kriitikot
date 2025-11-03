@@ -190,7 +190,7 @@ function initMovieClickHandlers() {
                         if (r.classList.contains('dimmed')) {
                             r.style.display = 'none';
                         }
-                    }, 300);
+                    }, 150);
                 }
             });
             
@@ -212,7 +212,7 @@ function initMovieClickHandlers() {
                             if (header.classList.contains('filter-hidden')) {
                                 header.style.display = 'none';
                             }
-                        }, 300);
+                        }, 150);
                         
                         allRows.forEach(r => {
                             const cells = r.querySelectorAll('.rating-cell');
@@ -222,7 +222,7 @@ function initMovieClickHandlers() {
                                     if (cells[colIndex].classList.contains('filter-hidden')) {
                                         cells[colIndex].style.display = 'none';
                                     }
-                                }, 300);
+                                }, 150);
                             }
                         });
                     }
@@ -312,12 +312,12 @@ function initMovieClickHandlers() {
             if (typeof updateCriticColumnVisibility === 'function') {
                 setTimeout(() => {
                     updateCriticColumnVisibility();
-                }, 350);
+                }, 200);
             }
             
             setTimeout(() => {
                 if (window.addFillerColumns) window.addFillerColumns();
-            }, 350);
+            }, 200);
             
             if (window.showResetButton) window.showResetButton();
         });
@@ -376,7 +376,7 @@ function initCriticClickHandlers() {
                         if (row.classList.contains('dimmed')) {
                             row.style.display = 'none';
                         }
-                    }, 300);
+                    }, 150);
                 } else {
                     visibleRows.push(row);
                 }
@@ -390,7 +390,7 @@ function initCriticClickHandlers() {
                         if (header.classList.contains('dimmed')) {
                             header.style.display = 'none';
                         }
-                    }, 300);
+                    }, 150);
                     
                     tbody.querySelectorAll('tr').forEach(row => {
                         if (!row.classList.contains('dimmed')) {
@@ -400,7 +400,7 @@ function initCriticClickHandlers() {
                                 if (cell.classList.contains('dimmed')) {
                                     cell.style.display = 'none';
                                 }
-                            }, 300);
+                            }, 150);
                         }
                     });
                 }
@@ -445,12 +445,12 @@ function initCriticClickHandlers() {
             if (typeof updateCriticColumnVisibility === 'function') {
                 setTimeout(() => {
                     updateCriticColumnVisibility();
-                }, 350);
+                }, 200);
             }
             
             setTimeout(() => {
                 if (window.addFillerColumns) window.addFillerColumns();
-            }, 350);
+            }, 200);
             
             if (window.showResetButton) window.showResetButton();
         });
@@ -600,7 +600,7 @@ function initRatingFilterClickHandlers() {
                 if (typeof updateCriticColumnVisibility === 'function') {
                     setTimeout(() => {
                         updateCriticColumnVisibility();
-                    }, 350);
+                    }, 200);
                 }
             }
             
@@ -705,7 +705,7 @@ function initPublicationFilterClickHandlers() {
                 if (typeof updateCriticColumnVisibility === 'function') {
                     setTimeout(() => {
                         updateCriticColumnVisibility();
-                    }, 350);
+                    }, 200);
                 }
             }
             

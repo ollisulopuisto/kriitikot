@@ -397,7 +397,7 @@ tbody {
 }
 
 tbody tr {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 tbody tr[style*="display: none"] {
@@ -957,7 +957,7 @@ tbody tr:hover td.movie-col {
 tr.dimmed {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
     /* ÄLÄ käytä display: none - se piilottaisi myös absoluuttiset lapset */
     max-height: 0;
     overflow: visible !important; /* Tärkeä - posteri voi vuotaa ulos */
@@ -972,7 +972,7 @@ th.dimmed,
 td.dimmed {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
 }
 
 /* Sarakkeiden piilotus filttereiden perusteella */
@@ -992,14 +992,14 @@ td.filter-hidden {
 tr:not(.dimmed) {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
 }
 
 th:not(.dimmed),
 td:not(.dimmed) {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
 }
 
 .rating-cell {
