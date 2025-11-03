@@ -250,8 +250,8 @@ h2, h3, h4, h5, h6 {
     overflow-x: auto;
     overflow-y: visible;
     position: relative;
-    /* Smooth scrolling */
-    scroll-behavior: smooth;
+    /* Instant scrolling for smooth sync with sticky scrollbar */
+    scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
     /* Hide the built-in scrollbar since we have a sticky one */
     scrollbar-width: none; /* Firefox */
@@ -277,6 +277,7 @@ h2, h3, h4, h5, h6 {
     border-top: 1px solid #dee2e6;
     scrollbar-width: thin;
     scrollbar-color: #667eea #e9ecef;
+    scroll-behavior: auto; /* Disable smooth scrolling for instant response */
 }
 
 .sticky-scrollbar-container::-webkit-scrollbar {
