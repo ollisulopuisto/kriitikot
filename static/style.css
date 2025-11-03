@@ -431,7 +431,7 @@ thead th:first-child:hover {
 
 /* Hover-efekti kriitikkojen nimille (paitsi ensimmäinen sarake = elokuva-sarake) */
 thead th:not(:first-child):hover {
-    background: linear-gradient(135deg, #f0f4ff 0%, #e3eeff 100%);
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
     cursor: pointer;
     font-weight: 900;
     transition: all 0.5s ease;
@@ -800,13 +800,11 @@ td.movie-col {
 }
 
 td.movie-col:hover {
-    background: linear-gradient(135deg, #f0f4ff 0%, #e3eeff 100%) !important;
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
     cursor: pointer;
     font-weight: 600;
-    
     transform: scale(1.02);
     transition: all 0.25s ease;
-
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
     z-index: 30;
 }
