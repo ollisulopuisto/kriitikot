@@ -2055,5 +2055,17 @@
         }
     });
     </script>
+    
+    <footer>
+        <div class="footer-content">
+        
+            {% if last_updated %}
+            <div class="last-updated">
+                <p>Viimeksi päivitetty: {{ last_updated.strftime('%d.%m.%Y %H:%M') }}</p>
+            </div>
+            {% endif %}
+            
+        </div>
+    </footer>
 </body>
 </html>

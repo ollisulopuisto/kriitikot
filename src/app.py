@@ -143,6 +143,15 @@ def index():
                 poster_urls[movie.title] = movie.poster_url
             if movie.letterboxd_url:
                 letterboxd_urls[movie.title] = movie.letterboxd_url
+        
+        # Laske viimeisin päivitysaika (uusin scraped_at tai published_date)
+        latest_update = session.query(DBReview).filter_by(is_published=1).order_by(
+            DBReview.scraped_at.desc()
+        ).first()
+        last_updated = None
+        if latest_update:
+            # Käytä published_date jos saatavilla, muuten scraped_at
+            last_updated = latest_update.published_date or latest_update.scraped_at
     finally:
         session.close()
     
@@ -156,7 +165,8 @@ def index():
         critic_media_map=critic_media_map,
         nytleffaan_urls=nytleffaan_urls,
         poster_urls=poster_urls,
-        letterboxd_urls=letterboxd_urls
+        letterboxd_urls=letterboxd_urls,
+        last_updated=last_updated
     )
 
 
