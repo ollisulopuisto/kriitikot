@@ -1576,6 +1576,13 @@
                 row.dataset.filtered = 'true';
                 movieCell.classList.add('selected');
                 
+                // Päivitä sarakkeiden väritys
+                if (typeof updateCriticColumnVisibility === 'function') {
+                    setTimeout(() => {
+                        updateCriticColumnVisibility();
+                    }, 350); // Vasta fade-out animaation jälkeen
+                }
+                
                 // Lisää täytesarakkeet säilyttämään taulukon leveyden
                 setTimeout(() => {
                     addFillerColumns();
@@ -1716,6 +1723,13 @@
                 criticHeader.dataset.filtered = 'true';
                 criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
                 criticHeader.classList.add('selected');
+                
+                // Päivitä sarakkeiden väritys
+                if (typeof updateCriticColumnVisibility === 'function') {
+                    setTimeout(() => {
+                        updateCriticColumnVisibility();
+                    }, 350); // Vasta fade-out animaation jälkeen
+                }
                 
                 // Lisää täytesarakkeet säilyttämään taulukon leveyden
                 setTimeout(() => {
@@ -1871,6 +1885,13 @@
                         
                         row.style.display = hasMatchingRating ? '' : 'none';
                     });
+                    
+                    // Päivitä sarakkeiden väritys
+                    if (typeof updateCriticColumnVisibility === 'function') {
+                        setTimeout(() => {
+                            updateCriticColumnVisibility();
+                        }, 350);
+                    }
                 }
                 
                 // Korosta valittu tähtijakauma
@@ -1974,6 +1995,13 @@
                         
                         row.style.display = hasVisibleRating ? '' : 'none';
                     });
+                    
+                    // Päivitä sarakkeiden väritys
+                    if (typeof updateCriticColumnVisibility === 'function') {
+                        setTimeout(() => {
+                            updateCriticColumnVisibility();
+                        }, 350);
+                    }
                 }
                 
                 // Korosta valittu julkaisu
