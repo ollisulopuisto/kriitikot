@@ -240,20 +240,23 @@ function updateCriticColumnVisibility() {
     if (!criticRow) return;
     
     const criticHeaders = criticRow.querySelectorAll('th:not(.movie-col)');
-    const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
-        return row.style.display !== 'none';
-    });
+    const allRows = Array.from(tbody.querySelectorAll('tr'));
     
     const starSlider = document.getElementById('star-filter-slider');
     const activeStarFilter = starSlider ? parseInt(starSlider.value) : 1;
     const hasActiveStarFilter = activeStarFilter > 1;
     
+    console.log(`🔍 updateCriticColumnVisibility: activeStarFilter=${activeStarFilter}, hasActiveStarFilter=${hasActiveStarFilter}`);
+    
     // Käy läpi jokainen kriitikko (sarake)
     criticHeaders.forEach((header, index) => {
         const columnIndex = index + 1;
-        let hasVisibleReview = false;
+        const criticName = header.textContent.trim().split('\n')[0];
+        let hasQualifyingReview = false;
+        let reviewsFound = [];
         
-        visibleRows.forEach(row => {
+        // Tarkista KAIKKI rivit taulukossa
+        allRows.forEach(row => {
             const cells = row.querySelectorAll('td');
             const cell = cells[columnIndex];
             
@@ -263,21 +266,38 @@ function updateCriticColumnVisibility() {
                 const noRating = cell.querySelector('.no-rating');
                 const isEmpty = noRating && noRating.textContent.trim() === '–';
                 
-                if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
-                    if (hasActiveStarFilter && ratingStars) {
-                        const starCount = (ratingStars.textContent.match(/★/g) || []).length;
-                        if (starCount >= activeStarFilter) {
-                            hasVisibleReview = true;
+                // Tarkista onko solussa mitään sisältöä
+                const hasContent = (hasLink || ratingStars) || (noRating && !isEmpty);
+                
+                if (hasContent) {
+                    // Jos tähtifiltteri on aktiivinen, vaadi vähintään N tähteä
+                    if (hasActiveStarFilter) {
+                        if (ratingStars) {
+                            const starCount = (ratingStars.textContent.match(/★/g) || []).length;
+                            reviewsFound.push(starCount);
+                            if (starCount >= activeStarFilter) {
+                                hasQualifyingReview = true;
+                            }
                         }
-                    } else if (!hasActiveStarFilter) {
-                        hasVisibleReview = true;
+                        // Jos ei ole tähtiä mutta on muuta sisältöä, älä laske
+                    } else {
+                        // Ei tähtifiltteröintiä, näytä kaikki jossa on sisältöä
+                        hasQualifyingReview = true;
                     }
                 }
             }
         });
         
+        if (hasActiveStarFilter) {
+            if (!hasQualifyingReview && reviewsFound.length > 0) {
+                console.log(`🚫 Piilotetaan ${criticName}: arvostelut ${reviewsFound.join(',')}⭐, ei yhtään ${activeStarFilter}⭐`);
+            } else if (hasQualifyingReview) {
+                console.log(`✅ Näytetään ${criticName}: löytyi vähintään ${activeStarFilter}⭐ arvostelu`);
+            }
+        }
+        
         // Piilota tai näytä sarake
-        if (hasVisibleReview) {
+        if (hasQualifyingReview) {
             header.classList.remove('filter-hidden');
             tbody.querySelectorAll('tr').forEach(row => {
                 const cells = row.querySelectorAll('td');
@@ -295,6 +315,33 @@ function updateCriticColumnVisibility() {
             });
         }
     });
+    
+    // Synkronoi filter-hidden luokat myös kloonattuun sticky headeriin
+    const stickyTheadClone = document.getElementById('sticky-thead-clone');
+    if (stickyTheadClone) {
+        const clonedCriticRow = stickyTheadClone.querySelector('tr.critic-row');
+        if (clonedCriticRow) {
+            const clonedHeaders = clonedCriticRow.querySelectorAll('th:not(.movie-col)');
+            criticHeaders.forEach((header, index) => {
+                if (clonedHeaders[index]) {
+                    if (header.classList.contains('filter-hidden')) {
+                        clonedHeaders[index].classList.add('filter-hidden');
+                    } else {
+                        clonedHeaders[index].classList.remove('filter-hidden');
+                    }
+                    
+                    // Synkronoi myös even/odd väritys
+                    clonedHeaders[index].classList.remove('even-column', 'odd-column');
+                    if (header.classList.contains('even-column')) {
+                        clonedHeaders[index].classList.add('even-column');
+                    }
+                    if (header.classList.contains('odd-column')) {
+                        clonedHeaders[index].classList.add('odd-column');
+                    }
+                }
+            });
+        }
+    }
     
     // Päivitä "joka toinen" -väritys
     const visibleHeaders = Array.from(criticHeaders).filter(header => 

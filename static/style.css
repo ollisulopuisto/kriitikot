@@ -421,6 +421,9 @@ thead tr {
 thead th {
     background: #f8f9fa;
     transition: background-color 0.35s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Hover-efekti ensimmäiselle th:lle (elokuva-sarake) */
@@ -975,12 +978,15 @@ td.dimmed {
 /* Sarakkeiden piilotus filttereiden perusteella */
 th.filter-hidden,
 td.filter-hidden {
-    opacity: 0;
-    max-width: 0;
+    visibility: collapse;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
     padding: 0 !important;
-    overflow: hidden;
+    margin: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
     pointer-events: none;
-    transition: opacity 0.3s ease, max-width 0.3s ease, padding 0.3s ease;
 }
 
 tr:not(.dimmed) {
