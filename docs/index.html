@@ -18142,6 +18142,13 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 row.dataset.filtered = 'true';
                 movieCell.classList.add('selected');
                 
+                // Päivitä sarakkeiden väritys
+                if (typeof updateCriticColumnVisibility === 'function') {
+                    setTimeout(() => {
+                        updateCriticColumnVisibility();
+                    }, 350); // Vasta fade-out animaation jälkeen
+                }
+                
                 // Lisää täytesarakkeet säilyttämään taulukon leveyden
                 setTimeout(() => {
                     addFillerColumns();
@@ -18282,6 +18289,13 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                 criticHeader.dataset.filtered = 'true';
                 criticHeader.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
                 criticHeader.classList.add('selected');
+                
+                // Päivitä sarakkeiden väritys
+                if (typeof updateCriticColumnVisibility === 'function') {
+                    setTimeout(() => {
+                        updateCriticColumnVisibility();
+                    }, 350); // Vasta fade-out animaation jälkeen
+                }
                 
                 // Lisää täytesarakkeet säilyttämään taulukon leveyden
                 setTimeout(() => {
@@ -18437,6 +18451,13 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         row.style.display = hasMatchingRating ? '' : 'none';
                     });
+                    
+                    // Päivitä sarakkeiden väritys
+                    if (typeof updateCriticColumnVisibility === 'function') {
+                        setTimeout(() => {
+                            updateCriticColumnVisibility();
+                        }, 350);
+                    }
                 }
                 
                 // Korosta valittu tähtijakauma
@@ -18540,6 +18561,13 @@ ItalialaisohjaajaLuca Guadagninoelää tuotteliaita vuosia. Viime vuonna ohjaaja
                         
                         row.style.display = hasVisibleRating ? '' : 'none';
                     });
+                    
+                    // Päivitä sarakkeiden väritys
+                    if (typeof updateCriticColumnVisibility === 'function') {
+                        setTimeout(() => {
+                            updateCriticColumnVisibility();
+                        }, 350);
+                    }
                 }
                 
                 // Korosta valittu julkaisu
