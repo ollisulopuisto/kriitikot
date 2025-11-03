@@ -1233,8 +1233,12 @@
             const table = document.querySelector('table');
             if (table) {
                 const tbody = table.querySelector('tbody');
-                const allRows = tbody.querySelectorAll('tr');
+                const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+                
+                // Poista poster-rivit
+                const posterRows = tbody.querySelectorAll('.poster-row');
+                posterRows.forEach(row => row.remove());
                 
                 // Näytä kaikki rivit
                 allRows.forEach(row => {
@@ -1352,59 +1356,62 @@
     
     // Poster functions
     function showPosterInCell(movieCell, posterUrl) {
-        // Poista vanha poster jos on
+        // Poista vanhat posterit ja linkit
         const existingPoster = movieCell.querySelector('.movie-poster');
+        const existingLinks = movieCell.querySelectorAll('a');
         if (existingPoster) {
             existingPoster.remove();
         }
+        existingLinks.forEach(link => link.remove());
         
-        // Lisää uusi poster
+        // Tallenna alkuperäinen elokuvan nimi
+        const movieTitle = movieCell.textContent.trim();
+        
+        // Tyhjennä solu
+        movieCell.innerHTML = '';
+        
+        // 1. Lisää posterikuva
         const posterImg = document.createElement('img');
         posterImg.src = posterUrl;
         posterImg.alt = 'Elokuvan juliste';
         posterImg.className = 'movie-poster';
-        posterImg.style.maxWidth = '120px';
-        posterImg.style.float = 'left';
-        posterImg.style.marginRight = '12px';
-        posterImg.style.marginBottom = '8px';
-        posterImg.style.borderRadius = '4px';
-        posterImg.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        
         movieCell.appendChild(posterImg);
         
-        // Lisää Nytleffaan-linkki jos saatavilla
+        // 2. Lisää elokuvan nimi
+        const titleSpan = document.createElement('div');
+        titleSpan.textContent = movieTitle;
+        titleSpan.className = 'movie-title';
+        movieCell.appendChild(titleSpan);
+        
+        // 3. Lisää linkit
+        const linksDiv = document.createElement('div');
+        linksDiv.className = 'movie-links';
+        
+        // Nytleffaan-linkki
         const nytleffaanUrl = movieCell.dataset.nytleffaan;
         if (nytleffaanUrl) {
             const nytleffaanLink = document.createElement('a');
             nytleffaanLink.href = nytleffaanUrl;
             nytleffaanLink.target = '_blank';
-            nytleffaanLink.innerHTML = '&#127916; Osta liput';
-            nytleffaanLink.style.display = 'block';
-            nytleffaanLink.style.marginTop = '8px';
-            nytleffaanLink.style.fontSize = '0.9em';
-            nytleffaanLink.style.color = '#059669';
-            nytleffaanLink.style.textDecoration = 'none';
+            nytleffaanLink.innerHTML = '🎬 Osta liput';
+            nytleffaanLink.className = 'movie-link nytleffaan-link';
             nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
-            
-            movieCell.appendChild(nytleffaanLink);
+            linksDiv.appendChild(nytleffaanLink);
         }
         
-        // Lisää Letterboxd-linkki jos saatavilla
+        // Letterboxd-linkki
         const letterboxdUrl = movieCell.dataset.letterboxd;
         if (letterboxdUrl) {
             const letterboxdLink = document.createElement('a');
             letterboxdLink.href = letterboxdUrl;
             letterboxdLink.target = '_blank';
             letterboxdLink.textContent = '📽️ Letterboxd';
-            letterboxdLink.style.display = 'block';
-            letterboxdLink.style.marginTop = '8px';
-            letterboxdLink.style.fontSize = '0.9em';
-            letterboxdLink.style.color = '#8b5cf6';
-            letterboxdLink.style.textDecoration = 'none';
+            letterboxdLink.className = 'movie-link letterboxd-link';
             letterboxdLink.title = 'Katso Letterboxd:ssä';
-            
-            movieCell.appendChild(letterboxdLink);
+            linksDiv.appendChild(letterboxdLink);
         }
+        
+        movieCell.appendChild(linksDiv);
     }
     
     function hidePosterInCell(movieCell) {
@@ -1570,8 +1577,14 @@
                     return;
                 }
                 
+                // Poista vanha poster-rivi ensin
+                const oldPosterRow = tbody.querySelector('.poster-row');
+                if (oldPosterRow) {
+                    oldPosterRow.remove();
+                }
+                
                 // Aktivoi uusi filtteri
-                const allRows = tbody.querySelectorAll('tr');
+                const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
                 const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
                 
                 // Tallenna alkuperäinen taulukon leveys ENNEN filtteröintiä
@@ -1661,10 +1674,40 @@
                 
                 if (window.showResetButton) window.showResetButton();
                 
-                // Näytä poster nimisolussa jos saatavilla
+                // Luo erillinen poster-rivi valitun rivin jälkeen
                 const posterUrl = movieCell.dataset.poster;
                 if (posterUrl) {
-                    showPosterInCell(movieCell, posterUrl);
+                    // Poista vanha poster-rivi jos on
+                    const oldPosterRow = tbody.querySelector('.poster-row');
+                    if (oldPosterRow) {
+                        oldPosterRow.remove();
+                    }
+                    
+                    // Luo uusi poster-rivi
+                    const posterRow = document.createElement('tr');
+                    posterRow.className = 'poster-row';
+                    
+                    const posterCell = document.createElement('td');
+                    posterCell.colSpan = 1; // Vain ensimmäinen sarake
+                    
+                    const posterImg = document.createElement('img');
+                    posterImg.src = posterUrl;
+                    posterImg.alt = 'Elokuvan juliste';
+                    posterImg.className = 'movie-poster-inline';
+                    
+                    posterCell.appendChild(posterImg);
+                    posterRow.appendChild(posterCell);
+                    
+                    // Lisää tyhjät solut muille sarakkeille
+                    const columnCount = table.querySelectorAll('thead th').length;
+                    for (let i = 1; i < columnCount; i++) {
+                        const emptyCell = document.createElement('td');
+                        emptyCell.className = 'poster-row-empty';
+                        posterRow.appendChild(emptyCell);
+                    }
+                    
+                    // Lisää poster-rivi heti valitun rivin jälkeen
+                    row.parentNode.insertBefore(posterRow, row.nextSibling);
                 }
             });
         });
