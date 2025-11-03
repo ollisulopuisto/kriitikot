@@ -323,6 +323,14 @@ h2, h3, h4, h5, h6 {
     .mobile-filter {
         display: none !important;
     }
+    
+    .mobile-reset-button {
+        display: none !important;
+    }
+    
+    .mobile-cards {
+        display: none !important;
+    }
 }
 
 table {
