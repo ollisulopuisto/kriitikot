@@ -229,6 +229,9 @@ function initStarFilter() {
             
             updateCriticColumnVisibility();
             
+            // Poista täytesarakkeet (dummy columns) kun filtteri nollataan
+            if (window.removeFillerColumns) window.removeFillerColumns();
+            
             console.log('✅ Star filter removed, NOT showing reset button');
             return;
         }
@@ -297,13 +300,20 @@ function initStarFilter() {
             else hiddenCards++;
         });
         
-        console.log('📱 Mobile: Visible:', visibleCards, 'Hidden:', hiddenCards);
+        console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
         
         updateCriticColumnVisibility();
         
         if (stars > 1) {
             console.log('🔴 Showing reset button (stars > 1)');
             if (window.showResetButton) window.showResetButton();
+            
+            // Poista vanhat täytesarakkeet ensin, sitten lisää uudet
+            // Pieni viive varmistaa että updateCriticColumnVisibility() on valmis
+            setTimeout(() => {
+                if (window.removeFillerColumns) window.removeFillerColumns();
+                if (window.addFillerColumns) window.addFillerColumns();
+            }, 50);
         }
     }
     
