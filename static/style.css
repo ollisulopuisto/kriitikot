@@ -975,12 +975,7 @@ td.dimmed {
 /* Sarakkeiden piilotus filttereiden perusteella */
 th.filter-hidden,
 td.filter-hidden {
-    opacity: 0;
-    max-width: 0;
-    padding: 0 !important;
-    overflow: hidden;
-    pointer-events: none;
-    transition: opacity 0.3s ease, max-width 0.3s ease, padding 0.3s ease;
+    display: none !important;
 }
 
 tr:not(.dimmed) {

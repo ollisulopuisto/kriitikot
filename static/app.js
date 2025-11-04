@@ -296,32 +296,31 @@ function updateCriticColumnVisibility() {
         }
     });
     
-    // Päivitä "joka toinen" -väritys
+    // Päivitä "joka toinen" -väritys VAIN näkyville sarakkeille
     const visibleHeaders = Array.from(criticHeaders).filter(header => 
         !header.classList.contains('filter-hidden') && header.style.display !== 'none'
     );
     
+    // Poista KAIKKI väritysluokat ensin
     criticHeaders.forEach(header => {
         header.classList.remove('even-column', 'odd-column');
     });
+    tbody.querySelectorAll('tr').forEach(row => {
+        row.querySelectorAll('td.rating-cell').forEach(cell => {
+            cell.classList.remove('even-column', 'odd-column');
+        });
+    });
     
+    // Lisää väritysluokat VAIN näkyville sarakkeille
     visibleHeaders.forEach((header, visibleIndex) => {
-        if (visibleIndex % 2 === 0) {
-            header.classList.add('even-column');
-        } else {
-            header.classList.add('odd-column');
-        }
+        const columnClass = visibleIndex % 2 === 0 ? 'even-column' : 'odd-column';
+        header.classList.add(columnClass);
         
         const columnIndex = Array.from(criticHeaders).indexOf(header) + 1;
         tbody.querySelectorAll('tr').forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells[columnIndex]) {
-                cells[columnIndex].classList.remove('even-column', 'odd-column');
-                if (visibleIndex % 2 === 0) {
-                    cells[columnIndex].classList.add('even-column');
-                } else {
-                    cells[columnIndex].classList.add('odd-column');
-                }
+            if (cells[columnIndex] && !cells[columnIndex].classList.contains('filter-hidden')) {
+                cells[columnIndex].classList.add(columnClass);
             }
         });
     });
