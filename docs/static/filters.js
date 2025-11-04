@@ -1,0 +1,559 @@
+// Kriitikon valinta - Filter Functionality
+// =========================================
+
+/**
+ * Arvioiden määrä -suodatin (desktop + mobile)
+ */
+function initReviewCountFilter() {
+    const slider = document.getElementById('min-reviews-slider');
+    const valueDisplay = document.getElementById('min-reviews-value');
+    const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
+    const table = document.querySelector('table');
+    const mobileCards = document.querySelectorAll('.movie-card');
+    
+    if (!slider || !valueDisplay) return;
+    
+    // Laske jokaisen elokuvan arvioiden määrä
+    const movieReviewCounts = new Map();
+    
+    // Desktop: Laske taulukon riveiltä
+    if (table) {
+        const tbody = table.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const movieCell = row.querySelector('.movie-col');
+            if (!movieCell) return;
+            
+            const movieTitle = movieCell.textContent.trim();
+            const ratingCells = row.querySelectorAll('.rating-cell');
+            
+            let reviewCount = 0;
+            ratingCells.forEach(cell => {
+                const hasLink = cell.querySelector('a.rating-link');
+                const hasStars = cell.querySelector('.rating-stars');
+                const noRating = cell.querySelector('.no-rating');
+                
+                if (hasLink || hasStars || (noRating && !noRating.textContent.includes('–'))) {
+                    reviewCount++;
+                }
+            });
+            
+            movieReviewCounts.set(movieTitle, reviewCount);
+            row.dataset.reviewCount = reviewCount;
+        });
+    }
+    
+    // Mobile: Laske korteista
+    mobileCards.forEach(card => {
+        const movieTitle = card.dataset.movie;
+        const reviewItems = card.querySelectorAll('.review-item');
+        const reviewCount = reviewItems.length;
+        
+        movieReviewCounts.set(movieTitle, reviewCount);
+        card.dataset.reviewCount = reviewCount;
+    });
+    
+    function filterByReviewCount(minCount) {
+        let hiddenCount = 0;
+        
+        // Desktop: Piilota rivit
+        if (table) {
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const count = parseInt(row.dataset.reviewCount || 0);
+                if (count < minCount) {
+                    row.style.display = 'none';
+                    row.dataset.reviewCountFiltered = 'true';
+                    hiddenCount++;
+                } else {
+                    delete row.dataset.reviewCountFiltered;
+                    if (!row.dataset.starFiltered) {
+                        row.style.display = '';
+                    }
+                }
+            });
+        }
+        
+        // Mobile: Piilota kortit
+        mobileCards.forEach(card => {
+            const count = parseInt(card.dataset.reviewCount || 0);
+            if (count < minCount) {
+                card.style.display = 'none';
+                card.dataset.reviewCountFiltered = 'true';
+                hiddenCount++;
+            } else {
+                delete card.dataset.reviewCountFiltered;
+                if (!card.dataset.starFiltered) {
+                    card.style.display = '';
+                }
+            }
+        });
+        
+        if (minCount > 1) {
+            if (window.showResetButton) window.showResetButton();
+        }
+        
+        updateCriticColumnVisibility();
+        
+        return hiddenCount;
+    }
+    
+    function updateReviewWord(value) {
+        const reviewWord = document.getElementById('review-word');
+        const word = value === 1 ? 'arvostelu' : 'arvostelua';
+        if (reviewWord) reviewWord.textContent = word;
+    }
+    
+    // Desktop slider
+    slider.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        valueDisplay.textContent = value;
+        updateReviewWord(value);
+        if (valueDisplayMobile) {
+            valueDisplayMobile.textContent = value;
+        }
+        filterByReviewCount(value);
+    });
+    
+    // Mobile stepper buttons
+    const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
+    const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
+    
+    if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile) {
+        let currentValue = 1;
+        
+        const updateReviewStepper = (newValue, shouldFilter = true) => {
+            currentValue = Math.max(1, Math.min(5, newValue));
+            valueDisplayMobile.textContent = currentValue;
+            valueDisplay.textContent = currentValue;
+            slider.value = currentValue;
+            updateReviewWord(currentValue);
+            
+            if (shouldFilter) {
+                filterByReviewCount(currentValue);
+            }
+            
+            reviewsMinusBtn.disabled = currentValue <= 1;
+            reviewsPlusBtn.disabled = currentValue >= 5;
+        };
+        
+        reviewsMinusBtn.addEventListener('click', () => updateReviewStepper(currentValue - 1));
+        reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentValue + 1));
+        
+        updateReviewStepper(1, false);
+    }
+}
+
+/**
+ * Tähtisuodatin
+ */
+function initStarFilter() {
+    const starSlider = document.getElementById('star-filter-slider');
+    const starValueDisplay = document.getElementById('star-filter-value');
+    const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+    
+    if (!starSlider || !starValueDisplay) return;
+    
+    function updateStarLabel(value) {
+        const labels = {
+            1: 'Vähintään ★',
+            2: 'Vähintään ★★',
+            3: 'Vähintään ★★★',
+            4: 'Vähintään ★★★★',
+            5: 'Vähintään ★★★★★'
+        };
+        const mobileLabels = {
+            1: '★',
+            2: '★★',
+            3: '★★★',
+            4: '★★★★',
+            5: '★★★★★'
+        };
+        const label = labels[value] || 'Vähintään ★';
+        const mobileLabel = mobileLabels[value] || '★';
+        if (starValueDisplay) starValueDisplay.innerHTML = label;
+        if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
+    }
+    
+    function filterByStars(stars) {
+        console.log('🔍 filterByStars called with stars:', stars);
+        
+        const table = document.querySelector('table');
+        const allCards = document.querySelectorAll('.movie-card');
+        
+        // Jos stars on 1, poista tähtifiltteri kokonaan
+        if (stars === 1) {
+            console.log('✅ Stars = 1, removing star filter');
+            
+            // Desktop
+            if (table) {
+                const tbody = table.querySelector('tbody');
+                const allRows = tbody.querySelectorAll('tr');
+                
+                let visibleCount = 0;
+                allRows.forEach(row => {
+                    delete row.dataset.starFiltered;
+                    const hasOtherFilters = row.dataset.reviewCountFiltered === 'true';
+                    
+                    if (!hasOtherFilters) {
+                        row.style.display = '';
+                        visibleCount++;
+                    }
+                });
+                
+                console.log('👀 Desktop: Visible rows:', visibleCount);
+            }
+            
+            // Mobile
+            let visibleCards = 0;
+            allCards.forEach(card => {
+                delete card.dataset.starFiltered;
+                const hasOtherFilters = card.dataset.reviewCountFiltered === 'true';
+                
+                if (!hasOtherFilters) {
+                    card.style.display = '';
+                    visibleCards++;
+                }
+                
+                const cardReviews = card.querySelectorAll('.review-item');
+                cardReviews.forEach(item => {
+                    delete item.dataset.starFiltered;
+                    item.style.display = '';
+                });
+            });
+            
+            console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
+            
+            updateCriticColumnVisibility();
+            
+            console.log('✅ Star filter removed, NOT showing reset button');
+            return;
+        }
+        
+        console.log('🔽 Filtering for stars >=', stars);
+        
+        // Desktop: Filtteröi rivit (stars > 1)
+        if (table) {
+            const tbody = table.querySelector('tbody');
+            const allRows = tbody.querySelectorAll('tr');
+            
+            let visibleRows = 0;
+            let hiddenRows = 0;
+            
+            allRows.forEach(row => {
+                const ratingCells = row.querySelectorAll('.rating-cell');
+                let hasMatchingRating = false;
+                
+                ratingCells.forEach(cell => {
+                    const ratingSpan = cell.querySelector('.rating-stars');
+                    if (ratingSpan) {
+                        const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                        if (starCount >= stars) {
+                            hasMatchingRating = true;
+                        }
+                    }
+                });
+                
+                row.style.display = hasMatchingRating ? '' : 'none';
+                row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
+                
+                if (hasMatchingRating) visibleRows++;
+                else hiddenRows++;
+            });
+            
+            console.log('📊 Desktop: Visible:', visibleRows, 'Hidden:', hiddenRows);
+        }
+        
+        // Mobile: Filtteröi kortit (stars > 1)
+        let visibleCards = 0;
+        let hiddenCards = 0;
+        
+        allCards.forEach(card => {
+            const cardReviews = card.querySelectorAll('.review-item');
+            let hasMatchingReview = false;
+            
+            cardReviews.forEach(item => {
+                const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+                const starCount = (ratingText.match(/★/g) || []).length;
+                
+                if (starCount >= stars) {
+                    hasMatchingReview = true;
+                    item.style.display = '';
+                    item.dataset.starFiltered = '';
+                } else {
+                    item.style.display = 'none';
+                    item.dataset.starFiltered = 'true';
+                }
+            });
+            
+            card.style.display = hasMatchingReview ? '' : 'none';
+            card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
+            
+            if (hasMatchingReview) visibleCards++;
+            else hiddenCards++;
+        });
+        
+        console.log('📱 Mobile: Visible:', visibleCards, 'Hidden:', hiddenCards);
+        
+        updateCriticColumnVisibility();
+        
+        if (stars > 1) {
+            console.log('🔴 Showing reset button (stars > 1)');
+            if (window.showResetButton) window.showResetButton();
+        }
+    }
+    
+    // Desktop slider
+    starSlider.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        console.log('🌟 Star slider changed to:', value);
+        updateStarLabel(value);
+        filterByStars(value);
+    });
+    
+    // Mobile stepper buttons
+    const starsMinusBtn = document.getElementById('stars-minus-mobile');
+    const starsPlusBtn = document.getElementById('stars-plus-mobile');
+    
+    if (starsMinusBtn && starsPlusBtn) {
+        let currentValue = 1;
+        
+        const updateStarStepper = (newValue, shouldFilter = true) => {
+            currentValue = Math.max(1, Math.min(5, newValue));
+            
+            updateStarLabel(currentValue);
+            starSlider.value = currentValue;
+            
+            if (shouldFilter) {
+                filterByStars(currentValue);
+            }
+            
+            starsMinusBtn.disabled = (currentValue <= 1);
+            starsPlusBtn.disabled = (currentValue >= 5);
+        };
+        
+        starsMinusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!this.disabled) {
+                updateStarStepper(currentValue - 1);
+            }
+        });
+        
+        starsPlusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!this.disabled) {
+                updateStarStepper(currentValue + 1);
+            }
+        });
+        
+        updateStarStepper(1, false);
+    }
+}
+
+/**
+ * Reset-nappi
+ */
+function initResetButton() {
+    const resetButtonDesktop = document.getElementById('reset-filters-desktop');
+    const resetButtonMobile = document.getElementById('reset-filters-mobile');
+    
+    function showResetButton() {
+        if (resetButtonDesktop) resetButtonDesktop.style.display = 'inline-block';
+        if (resetButtonMobile) resetButtonMobile.style.display = 'flex';
+    }
+    
+    function hideResetButton() {
+        if (resetButtonDesktop) resetButtonDesktop.style.display = 'none';
+        if (resetButtonMobile) resetButtonMobile.style.display = 'none';
+    }
+    
+    function resetAllFilters() {
+        // Nollaa suodattimet
+        const slider = document.getElementById('min-reviews-slider');
+        const starSlider = document.getElementById('star-filter-slider');
+        
+        if (slider) slider.value = 1;
+        if (starSlider) starSlider.value = 1;
+        
+        const valueDisplay = document.getElementById('min-reviews-value');
+        const valueDisplayMobile = document.getElementById('min-reviews-value-mobile');
+        const starValueDisplay = document.getElementById('star-filter-value');
+        const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
+        
+        if (valueDisplay) valueDisplay.textContent = '1';
+        if (valueDisplayMobile) valueDisplayMobile.textContent = '1';
+        if (starValueDisplay) starValueDisplay.innerHTML = 'Vähintään ★';
+        if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = '★';
+        
+        const criticFilterValue = document.getElementById('critic-filter-value-mobile');
+        if (criticFilterValue) criticFilterValue.textContent = 'Kaikki';
+        
+        const reviewWord = document.getElementById('review-word');
+        if (reviewWord) reviewWord.textContent = 'arvostelu';
+        
+        // Reset mobile stepper buttons
+        const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
+        const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
+        const starsMinusBtn = document.getElementById('stars-minus-mobile');
+        const starsPlusBtn = document.getElementById('stars-plus-mobile');
+        
+        if (reviewsMinusBtn) reviewsMinusBtn.disabled = true;
+        if (reviewsPlusBtn) reviewsPlusBtn.disabled = false;
+        if (starsMinusBtn) starsMinusBtn.disabled = true;
+        if (starsPlusBtn) starsPlusBtn.disabled = false;
+        
+        // Palauta skrollaus
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (tableWrapper) {
+            const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+            tableWrapper.style.scrollBehavior = 'auto';
+            tableWrapper.scrollLeft = window.savedScrollLeft || 0;
+            setTimeout(() => {
+                tableWrapper.style.scrollBehavior = originalScrollBehavior;
+            }, 50);
+        }
+        
+        // Poista täytesarake
+        if (window.removeFillerColumns) window.removeFillerColumns();
+        
+        // Nollaa leveydet
+        window.originalTableWidth = 0;
+        window.originalVisibleColumns = 0;
+        
+        // Desktop: Poista kaikki filtterit ja himmennykset
+        const table = document.querySelector('table');
+        if (table) {
+            const tbody = table.querySelector('tbody');
+            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+            const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+            
+            // Poista poster-rivit
+            const posterRows = tbody.querySelectorAll('.poster-row');
+            posterRows.forEach(row => row.remove());
+            
+            // Näytä kaikki rivit
+            allRows.forEach(row => {
+                row.style.display = '';
+                row.classList.remove('dimmed');
+                delete row.dataset.filtered;
+                delete row.dataset.starFiltered;
+                delete row.dataset.reviewCountFiltered;
+                const movieCell = row.querySelector('.movie-col');
+                if (movieCell) {
+                    movieCell.classList.remove('selected');
+                    if (window.resetMovieCell) window.resetMovieCell(movieCell);
+                }
+            });
+            
+            // Näytä kaikki sarakkeet
+            allCriticHeaders.forEach((header, idx) => {
+                header.style.display = '';
+                header.classList.remove('dimmed');
+                header.classList.remove('filter-hidden');
+                delete header.dataset.highlighted;
+                delete header.dataset.filtered;
+                header.style.backgroundColor = '';
+                header.classList.remove('selected');
+                
+                tbody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('.rating-cell');
+                    if (cells[idx]) {
+                        cells[idx].style.display = '';
+                        cells[idx].classList.remove('dimmed');
+                        cells[idx].classList.remove('filter-hidden');
+                    }
+                });
+            });
+            
+            allRows.forEach(row => {
+                row.querySelectorAll('.rating-cell').forEach(cell => {
+                    cell.style.display = '';
+                    cell.classList.remove('dimmed');
+                    cell.classList.remove('filter-hidden');
+                });
+            });
+        }
+        
+        // Mobile: Poista kaikki filtterit
+        const allCards = document.querySelectorAll('.movie-card');
+        const allReviewItems = document.querySelectorAll('.review-item');
+        
+        allCards.forEach(card => {
+            card.style.display = '';
+            delete card.dataset.filtered;
+            delete card.dataset.starFiltered;
+            delete card.dataset.reviewCountFiltered;
+        });
+        
+        allReviewItems.forEach(item => {
+            item.style.display = '';
+            const area = item.querySelector('.review-critic');
+            const name = item.querySelector('.review-critic-name');
+            if (area && name) {
+                name.classList.remove('selected');
+                delete area.dataset.filtered;
+            }
+        });
+        
+        // Footer: Poista korostukset
+        const ratingFilters = document.querySelectorAll('.filter-rating');
+        ratingFilters.forEach(filter => {
+            filter.style.backgroundColor = '';
+            filter.style.fontWeight = '';
+        });
+        
+        const publicationFilters = document.querySelectorAll('.filter-publication');
+        publicationFilters.forEach(filter => {
+            filter.style.backgroundColor = '';
+            filter.style.fontWeight = '';
+        });
+        
+        // Päivitä sarakkeiden väritys
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
+        
+        hideResetButton();
+    }
+    
+    function isAnyFilterActive() {
+        return (resetButtonDesktop && resetButtonDesktop.style.display !== 'none') ||
+               (resetButtonMobile && resetButtonMobile.style.display !== 'none');
+    }
+    
+    // Click-handlerit
+    if (resetButtonDesktop) {
+        resetButtonDesktop.addEventListener('click', resetAllFilters);
+    }
+    if (resetButtonMobile) {
+        resetButtonMobile.addEventListener('click', resetAllFilters);
+    }
+    
+    // Tee otsikosta klikattava reset-nappi
+    const headerTitle = document.querySelector('h1');
+    if (headerTitle) {
+        headerTitle.style.cursor = 'pointer';
+        headerTitle.title = 'Klikkaa nollataksesi kaikki hakufasetit';
+        headerTitle.addEventListener('click', function() {
+            resetAllFilters();
+        });
+    }
+    
+    // Export funktiot
+    window.showResetButton = showResetButton;
+    window.resetAllFilters = resetAllFilters;
+    window.isAnyFilterActive = isAnyFilterActive;
+}
+
+// Initialize all filters
+document.addEventListener('DOMContentLoaded', function() {
+    initReviewCountFilter();
+    initStarFilter();
+    initResetButton();
+});
