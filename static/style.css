@@ -397,7 +397,7 @@ tbody {
 }
 
 tbody tr {
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 tbody tr[style*="display: none"] {
@@ -421,9 +421,6 @@ thead tr {
 thead th {
     background: #f8f9fa;
     transition: background-color 0.35s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Hover-efekti ensimmäiselle th:lle (elokuva-sarake) */
@@ -957,7 +954,7 @@ tbody tr:hover td.movie-col {
 tr.dimmed {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.3s ease;
     /* ÄLÄ käytä display: none - se piilottaisi myös absoluuttiset lapset */
     max-height: 0;
     overflow: visible !important; /* Tärkeä - posteri voi vuotaa ulos */
@@ -972,34 +969,26 @@ th.dimmed,
 td.dimmed {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.3s ease;
 }
 
 /* Sarakkeiden piilotus filttereiden perusteella */
 th.filter-hidden,
 td.filter-hidden {
-    visibility: collapse;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-    pointer-events: none;
+    display: none !important;
 }
 
 tr:not(.dimmed) {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.3s ease;
 }
 
 th:not(.dimmed),
 td:not(.dimmed) {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.3s ease;
 }
 
 .rating-cell {
