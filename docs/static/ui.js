@@ -206,7 +206,27 @@ function initScrollFadeIndicator() {
         
         const isAtEnd = (scrollLeft + clientWidth >= scrollWidth - 10);
         
-        if (isAtEnd) {
+        // Tarkista onko kaikki kriitikkosarakkeet näkyvissä
+        const table = tableWrapper.querySelector('table');
+        let allColumnsVisible = false;
+        
+        if (table) {
+            const thead = table.querySelector('thead');
+            if (thead) {
+                const allCriticHeaders = thead.querySelectorAll('th.rating-cell');
+                const visibleCriticHeaders = Array.from(allCriticHeaders).filter(th => {
+                    return th.style.display !== 'none' && !th.classList.contains('filter-hidden');
+                });
+                
+                // Jos kaikki sarakkeet ovat näkyvissä, ei tarvita fadea
+                if (visibleCriticHeaders.length === allCriticHeaders.length) {
+                    allColumnsVisible = true;
+                }
+            }
+        }
+        
+        // Piilota fade jos skrollattu loppuun TAI jos kaikki sarakkeet näkyvissä
+        if (isAtEnd || allColumnsVisible) {
             fadeIndicator.classList.add('hidden');
         } else {
             fadeIndicator.classList.remove('hidden');
@@ -217,7 +237,7 @@ function initScrollFadeIndicator() {
         
         const stickyFade = document.querySelector('.scroll-fade-indicator-sticky');
         if (stickyFade) {
-            if (isAtEnd) {
+            if (isAtEnd || allColumnsVisible) {
                 stickyFade.classList.add('hidden');
             } else {
                 stickyFade.classList.remove('hidden');
@@ -228,6 +248,9 @@ function initScrollFadeIndicator() {
     tableWrapper.addEventListener('scroll', updateFadePosition);
     updateFadePosition();
     window.addEventListener('resize', updateFadePosition);
+    
+    // Exportoi funktio globaalisti
+    window.updateScrollFadeIndicator = updateFadePosition;
 }
 
 /**
