@@ -1,40 +1,84 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const tableWrapper = document.querySelector('.table-wrapper');
 
-    // Check if the table wrapper exists and we are on a desktop view
     if (!tableWrapper || window.innerWidth <= 768) {
         return;
     }
 
     let scrollTimeout;
+    const stickyColumn = document.querySelector('th.movie-col');
+    if (!stickyColumn) return;
 
-    // This is the column we want to scroll past.
-    const movieTitleHeader = document.querySelector('th.movie-col');
-    if (!movieTitleHeader) {
-        return;
-    }
+    const criticHeaders = Array.from(document.querySelectorAll('thead th.rating-cell'));
+    const movieRows = Array.from(document.querySelectorAll('tbody tr'));
 
-    // Calculate the target scroll position.
-    // We want to scroll just enough to hide the movie title column.
-    const targetScrollLeft = movieTitleHeader.offsetWidth;
+    const columnsWithReviews = criticHeaders.map((header, index) => {
+        for (const row of movieRows) {
+            const cell = row.cells[index + 1];
+            if (cell && cell.innerHTML.trim() !== '') {
+                return true;
+            }
+        }
+        return false;
+    });
 
     window.addEventListener('scroll', () => {
-        // Clear the previous timeout to reset the timer
         clearTimeout(scrollTimeout);
 
-        // Set a new timeout
         scrollTimeout = setTimeout(() => {
-            // Check if the user has scrolled down past the header
-            if (window.scrollY > 200) {
-                // Check if the table is not already scrolled enough
-                if (tableWrapper.scrollLeft < targetScrollLeft) {
+            if (window.scrollY <= 200) {
+                return;
+            }
+
+            const stickyWidth = stickyColumn.offsetWidth;
+            const scrollLeft = tableWrapper.scrollLeft;
+            const viewportWidth = tableWrapper.clientWidth;
+
+            // The "effective" viewport is the visible area to the right of the sticky column.
+            const effectiveViewportStart = scrollLeft + stickyWidth;
+            const effectiveViewportEnd = scrollLeft + viewportWidth;
+
+            let reviewInView = false;
+            for (let i = 0; i < criticHeaders.length; i++) {
+                if (!columnsWithReviews[i]) continue;
+
+                const header = criticHeaders[i];
+                const headerStart = header.offsetLeft;
+                const headerEnd = headerStart + header.offsetWidth;
+
+                // Check if any part of a column with a review overlaps with the effective viewport.
+                if (headerEnd > effectiveViewportStart && headerStart < effectiveViewportEnd) {
+                    reviewInView = true;
+                    break;
+                }
+            }
+
+            if (!reviewInView) {
+                // Find the first column with a review that is to the right of the current view.
+                let targetColumn = null;
+                for (let i = 0; i < criticHeaders.length; i++) {
+                    if (!columnsWithReviews[i]) continue;
+
+                    const header = criticHeaders[i];
+                    // Find the first review column that starts at or after the beginning of the effective viewport.
+                    if (header.offsetLeft >= scrollLeft + stickyWidth) {
+                         targetColumn = header;
+                         break;
+                    }
+                }
+
+                if (targetColumn) {
+                    // We want the target column's left edge to be where the sticky column ends.
+                    // The new scrollLeft should be target.offsetLeft - stickyWidth.
+                    const newScrollLeft = targetColumn.offsetLeft - stickyWidth;
+
                     tableWrapper.scrollTo({
-                        left: targetScrollLeft,
+                        left: newScrollLeft,
                         behavior: 'smooth'
                     });
                 }
             }
-        }, 150); // A 150ms delay to wait for scrolling to stop
+
+        }, 250);
     });
 });
