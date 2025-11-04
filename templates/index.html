@@ -179,22 +179,20 @@
                             {% if critic.name in critics_reviews %}
                                 {% set reviews_list = critics_reviews[critic.name] %}
                                 {% for review in reviews_list %}
-                                    {% if review.source_url %}
-                                    {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                    <a href="{{ review.source_url }}" class="rating-link" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                                    {% endif %}
-                                        {% if review.rating_stars %}
-                                        <span class="rating-stars">{{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}</span>
+                                    {% if review.rating_stars %}
+                                        {% if review.source_url %}
+                                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                                            <a href="{{ review.source_url }}" class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
+                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                                            </a>
                                         {% else %}
-                                        <span class="no-rating">Ei arvosanaa</span>
+                                            <span class="rating-pill stars-{{ review.rating_stars }}">
+                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                                            </span>
                                         {% endif %}
-                                    {% if review.source_url %}
-                                    </a>
                                     {% endif %}
                                     {% if not loop.last %}<br>{% endif %}
                                 {% endfor %}
-                            {% else %}
-                                <span class="no-rating">–</span>
                             {% endif %}
                         </td>
                         {% endfor %}
@@ -294,15 +292,15 @@
                                 <div class="review-rating">
                                     {% if review.rating_stars %}
                                         {% if review.source_url %}
-                                        {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                        <a href="{{ review.source_url }}" target="_blank" style="text-decoration: none; color: inherit;" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                                            {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
-                                        </a>
+                                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                                            <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
+                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                                            </a>
                                         {% else %}
-                                            {{ '★' * review.rating_stars }}{{ '☆' * (5 - review.rating_stars) }}
+                                            <span class="rating-pill stars-{{ review.rating_stars }}">
+                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                                            </span>
                                         {% endif %}
-                                    {% else %}
-                                        <span style="color: #adb5bd; font-size: 0.85em;">Ei arvosanaa</span>
                                     {% endif %}
                                 </div>
                                 <div class="review-critic">
