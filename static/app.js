@@ -324,11 +324,6 @@ function updateCriticColumnVisibility() {
             }
         });
     });
-    
-    // Päivitä fade-efekti kun sarakkeiden näkyvyys muuttuu
-    if (window.updateScrollFadeIndicator) {
-        window.updateScrollFadeIndicator();
-    }
 }
 
 // Export global functions
