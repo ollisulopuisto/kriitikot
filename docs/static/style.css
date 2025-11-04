@@ -674,7 +674,8 @@ th.rating-cell {
     background: #f8f9fa;
     user-select: none;
     transition: background-color 0.2s;
-    min-width: 5.2em;
+    width: 5.5em;
+    min-width: 5.5em;
 }
 
 th.rating-cell:hover {
@@ -683,7 +684,8 @@ th.rating-cell:hover {
 }
 
 td.rating-cell {
-    min-width: 5.2em;
+    width: 5.5em;
+    min-width: 5.5em;
 }
 
 /* Filler-sarake vie kaiken jäljellä olevan tilan */
@@ -967,8 +969,8 @@ td:not(.dimmed) {
 
 .rating-cell {
     text-align: center;
-    min-width: 4.5em;
-    max-width: 5.5em;
+    width: 5.5em;
+    min-width: 5.5em;
     cursor: pointer;
     transition: background-color 0.2s ease;
     padding: 0.5rem 0.2rem;
