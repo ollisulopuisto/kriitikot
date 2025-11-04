@@ -59,10 +59,6 @@ function initStickyTableHeader() {
                 wrapper.style.borderRadius = '0.5rem 0.5rem 0 0';
                 wrapper.style.background = '#f8f9fa';
                 
-                const stickyFade = document.createElement('div');
-                stickyFade.className = 'scroll-fade-indicator-sticky';
-                wrapper.appendChild(stickyFade);
-                
                 theadClone = document.createElement('table');
                 theadClone.id = 'sticky-thead-clone';
                 theadClone.style.borderCollapse = 'collapse';
@@ -191,69 +187,6 @@ function initMobileFilterToggle() {
 }
 
 /**
- * Fade-out efekti oikeassa reunassa
- */
-function initScrollFadeIndicator() {
-    const tableWrapper = document.querySelector('.table-wrapper');
-    const fadeIndicator = document.querySelector('.scroll-fade-indicator');
-    
-    if (!tableWrapper || !fadeIndicator) return;
-    
-    function updateFadePosition() {
-        const scrollLeft = tableWrapper.scrollLeft;
-        const scrollWidth = tableWrapper.scrollWidth;
-        const clientWidth = tableWrapper.clientWidth;
-        
-        const isAtEnd = (scrollLeft + clientWidth >= scrollWidth - 10);
-        
-        // Tarkista onko kaikki kriitikkosarakkeet näkyvissä
-        const table = tableWrapper.querySelector('table');
-        let allColumnsVisible = false;
-        
-        if (table) {
-            const thead = table.querySelector('thead');
-            if (thead) {
-                const allCriticHeaders = thead.querySelectorAll('th.rating-cell');
-                const visibleCriticHeaders = Array.from(allCriticHeaders).filter(th => {
-                    return th.style.display !== 'none' && !th.classList.contains('filter-hidden');
-                });
-                
-                // Jos kaikki sarakkeet ovat näkyvissä, ei tarvita fadea
-                if (visibleCriticHeaders.length === allCriticHeaders.length) {
-                    allColumnsVisible = true;
-                }
-            }
-        }
-        
-        // Piilota fade jos skrollattu loppuun TAI jos kaikki sarakkeet näkyvissä
-        if (isAtEnd || allColumnsVisible) {
-            fadeIndicator.classList.add('hidden');
-        } else {
-            fadeIndicator.classList.remove('hidden');
-            
-            const fadeLeft = scrollLeft + clientWidth - 150;
-            fadeIndicator.style.left = fadeLeft + 'px';
-        }
-        
-        const stickyFade = document.querySelector('.scroll-fade-indicator-sticky');
-        if (stickyFade) {
-            if (isAtEnd || allColumnsVisible) {
-                stickyFade.classList.add('hidden');
-            } else {
-                stickyFade.classList.remove('hidden');
-            }
-        }
-    }
-    
-    tableWrapper.addEventListener('scroll', updateFadePosition);
-    updateFadePosition();
-    window.addEventListener('resize', updateFadePosition);
-    
-    // Exportoi funktio globaalisti
-    window.updateScrollFadeIndicator = updateFadePosition;
-}
-
-/**
  * Sticky horizontal scrollbar synchronization (desktop only)
  */
 function initStickyScrollbar() {
@@ -333,7 +266,6 @@ function initColumnCount() {
 document.addEventListener('DOMContentLoaded', function() {
     initStickyTableHeader();
     initMobileFilterToggle();
-    initScrollFadeIndicator();
     initStickyScrollbar();
     initColumnCount();
 });

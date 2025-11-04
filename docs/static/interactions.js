@@ -602,6 +602,12 @@ function initRatingFilterClickHandlers() {
                         updateCriticColumnVisibility();
                     }, 200);
                 }
+                
+                // Poista vanhat täytesarakkeet ensin, sitten lisää uudet
+                setTimeout(() => {
+                    if (window.removeFillerColumns) window.removeFillerColumns();
+                    if (window.addFillerColumns) window.addFillerColumns();
+                }, 250);
             }
             
             this.style.backgroundColor = '#f0e6ff';
@@ -707,6 +713,12 @@ function initPublicationFilterClickHandlers() {
                         updateCriticColumnVisibility();
                     }, 200);
                 }
+                
+                // Poista vanhat täytesarakkeet ensin, sitten lisää uudet
+                setTimeout(() => {
+                    if (window.removeFillerColumns) window.removeFillerColumns();
+                    if (window.addFillerColumns) window.addFillerColumns();
+                }, 250);
             }
             
             this.style.backgroundColor = '#f0e6ff';
