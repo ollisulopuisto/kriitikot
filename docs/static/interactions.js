@@ -623,110 +623,120 @@ function initRatingFilterClickHandlers() {
  */
 function initPublicationFilterClickHandlers() {
     const publicationFilters = document.querySelectorAll('.filter-publication');
+    let activePublications = [];
+
     publicationFilters.forEach(pubFilter => {
         pubFilter.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
-            
-            if (isAnyFilterActive) {
-                if (window.resetAllFilters) window.resetAllFilters();
-                return;
-            }
-            
             const selectedPub = this.dataset.publication;
-            const allCards = document.querySelectorAll('.movie-card');
-            
-            const tableWrapper = document.querySelector('.table-wrapper');
-            if (tableWrapper) {
-                window.savedScrollLeft = tableWrapper.scrollLeft;
-                const originalScrollBehavior = tableWrapper.style.scrollBehavior;
-                tableWrapper.style.scrollBehavior = 'auto';
-                tableWrapper.scrollLeft = 0;
-                setTimeout(() => {
-                    tableWrapper.style.scrollBehavior = originalScrollBehavior;
-                }, 50);
+            const index = activePublications.indexOf(selectedPub);
+
+            if (index > -1) {
+                activePublications.splice(index, 1);
+                this.style.backgroundColor = '';
+                this.style.fontWeight = '';
+            } else {
+                activePublications.push(selectedPub);
+                this.style.backgroundColor = '#f0e6ff';
+                this.style.fontWeight = 'bold';
             }
-            
-            // Mobile
-            allCards.forEach(card => {
-                const cardReviews = card.querySelectorAll('.review-item');
-                let hasMatchingReview = false;
-                
-                cardReviews.forEach(item => {
+
+            applyPublicationFilter(activePublications);
+
+            if (activePublications.length > 0) {
+                if (window.showResetButton) window.showResetButton();
+            }
+        });
+    });
+
+    function applyPublicationFilter(publications) {
+        const allCards = document.querySelectorAll('.movie-card');
+        const table = document.querySelector('table');
+        const noFilter = publications.length === 0;
+
+        // Mobile
+        allCards.forEach(card => {
+            const cardReviews = card.querySelectorAll('.review-item');
+            let hasMatchingReview = false;
+
+            cardReviews.forEach(item => {
+                if (noFilter) {
+                    item.style.display = '';
+                } else {
                     const mediaElement = item.querySelector('.review-media');
                     const mediaText = mediaElement ? mediaElement.textContent.trim().replace('/ ', '') : '';
-                    
-                    if (mediaText === selectedPub) {
-                        hasMatchingReview = true;
+                    if (publications.includes(mediaText)) {
                         item.style.display = '';
+                        hasMatchingReview = true;
                     } else {
                         item.style.display = 'none';
                     }
-                });
-                
-                card.style.display = hasMatchingReview ? '' : 'none';
+                }
             });
-            
-            // Desktop
-            const table = document.querySelector('table');
-            if (table) {
-                const thead = table.querySelector('thead');
-                const tbody = table.querySelector('tbody');
-                const headerCells = thead.querySelectorAll('th.rating-cell');
-                const allRows = tbody.querySelectorAll('tr');
+
+            if (noFilter) {
+                card.style.display = '';
+            } else {
+                card.style.display = hasMatchingReview ? '' : 'none';
+            }
+        });
+
+        // Desktop
+        if (table) {
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+            const headerCells = thead.querySelectorAll('th.rating-cell');
+            const allRows = tbody.querySelectorAll('tr');
+
+            headerCells.forEach((th, index) => {
+                const mediaSpan = th.querySelector('.critic-media');
+                const criticPublications = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
+                const isVisible = noFilter || publications.some(pub => criticPublications.includes(pub));
                 
-                headerCells.forEach((th, index) => {
-                    const mediaSpan = th.querySelector('.critic-media');
-                    const mediaText = mediaSpan ? mediaSpan.textContent.trim() : '';
-                    
-                    if (mediaText !== selectedPub) {
-                        th.style.display = 'none';
-                        allRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            if (cells[index + 1]) {
-                                cells[index + 1].style.display = 'none';
-                            }
-                        });
+                const displayStyle = isVisible ? '' : 'none';
+                th.style.display = displayStyle;
+                allRows.forEach(row => {
+                    const cells = row.querySelectorAll('td.rating-cell');
+                    if (cells[index]) {
+                        cells[index].style.display = displayStyle;
+                    }
+                });
+            });
+
+            allRows.forEach(row => {
+                const ratingCells = row.querySelectorAll('.rating-cell');
+                let hasVisibleRating = false;
+                
+                ratingCells.forEach(cell => {
+                    if (cell.style.display !== 'none') {
+                        const ratingLink = cell.querySelector('.rating-link');
+                        const noRating = cell.querySelector('.no-rating');
+                        if (ratingLink || (cell.textContent.trim() !== '' && (!noRating || cell.textContent.trim() !== '–'))) {
+                            hasVisibleRating = true;
+                        }
                     }
                 });
                 
-                allRows.forEach(row => {
-                    const ratingCells = row.querySelectorAll('.rating-cell');
-                    let hasVisibleRating = false;
-                    
-                    ratingCells.forEach(cell => {
-                        if (cell.style.display !== 'none') {
-                            const ratingLink = cell.querySelector('.rating-link');
-                            const noRating = cell.querySelector('.no-rating');
-                            if (ratingLink || (!noRating && cell.textContent.trim() !== '–')) {
-                                hasVisibleRating = true;
-                            }
-                        }
-                    });
-                    
+                if (noFilter) {
+                    row.style.display = '';
+                } else {
                     row.style.display = hasVisibleRating ? '' : 'none';
-                });
-                
-                if (typeof updateCriticColumnVisibility === 'function') {
-                    setTimeout(() => {
-                        updateCriticColumnVisibility();
-                    }, 200);
                 }
-                
-                // Poista vanhat täytesarakkeet ensin, sitten lisää uudet
+            });
+
+            if (typeof updateCriticColumnVisibility === 'function') {
                 setTimeout(() => {
-                    if (window.removeFillerColumns) window.removeFillerColumns();
-                    if (window.addFillerColumns) window.addFillerColumns();
-                }, 250);
+                    updateCriticColumnVisibility();
+                }, 200);
             }
             
-            this.style.backgroundColor = '#f0e6ff';
-            this.style.fontWeight = 'bold';
-            
-            if (window.showResetButton) window.showResetButton();
-        });
-    });
+            setTimeout(() => {
+                if (window.removeFillerColumns) window.removeFillerColumns();
+                if (window.addFillerColumns) window.addFillerColumns();
+            }, 250);
+        }
+    }
 }
 
 // Initialize all click handlers
