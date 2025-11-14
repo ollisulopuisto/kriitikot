@@ -3,7 +3,7 @@
 {
 	"name": "Debian Kriitikon valinta",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -21,14 +21,13 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"chat.tools.terminal.autoApprove": true,
 				"chat.tools.terminal.autoApprove": {
         			"/.*/": true,
         			"*": true,
 					"curl .*": true,
 					"python3 .*": true,
 					"cd .*": true
-    			},
+    			}
 			}
 		}
 	}
