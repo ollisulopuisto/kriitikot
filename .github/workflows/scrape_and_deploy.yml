@@ -5,15 +5,30 @@ on:
     # Run every 4 hours
     - cron: '0 */4 * * *'
   workflow_dispatch:
-
-concurrency:
-  group: scrape-and-update
-  cancel-in-progress: true
-
-jobs:
-  scrape_and_deploy:
-    runs-on: ubuntu-latest
-
+      - name: Create issue on test failures
+        if: env.TESTS_FAILED == '1'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = 'Automated tests failed in scheduled scraper workflow'
+            const body = `The scheduled workflow failed unit tests. Please check the Actions run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            // Try to find an existing open issue with the same title
+            const { data: openIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 })
+            const existingOpen = openIssues.find(i => i.title === title)
+            if (existingOpen) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existingOpen.number, body: body + '\n\n(Automated notification - tests failed again)' })
+            } else {
+              // Check for a closed issue and reopen + comment instead of creating duplicates
+              const { data: allIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'all', per_page: 200 })
+              const closed = allIssues.find(i => i.title === title)
+              if (closed) {
+                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, state: 'open' })
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, body: body + '\n\n(Reopened by automation)' })
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
+              }
+            }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,7 +74,20 @@ jobs:
         id: pre_count
         run: |
           before=$(python3 - <<'PY'
-import sys
+            const { data: openIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 })
+            const existingOpen = openIssues.find(i => i.title === title)
+            if (existingOpen) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existingOpen.number, body: body + '\n\n(Automated notification - workflow failed again)' })
+            } else {
+              const { data: allIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'all', per_page: 200 })
+              const closed = allIssues.find(i => i.title === title)
+              if (closed) {
+                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, state: 'open' })
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, body: body + '\n\n(Reopened by automation)' })
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
+              }
+            }
 sys.path.insert(0,'src')
 from models import get_session, Review
 print(get_session().query(Review).count())
