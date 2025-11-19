@@ -161,7 +161,7 @@
                             </div>
                         </th>
                         {% for critic in all_critics %}
-                        <th class="rating-cell">
+                        <th class="rating-cell" data-critic-id="{{ critic.id }}">
                             {{ critic.name }}
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
                             <span class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</span>
@@ -288,7 +288,7 @@
                         {% if critic.name in critics_reviews %}
                             {% set reviews_list = critics_reviews[critic.name] %}
                             {% for review in reviews_list %}
-                            <div class="review-item" data-critic="{{ critic.name }}" data-publication="{{ review.publication.short_name }}">
+                            <div class="review-item" data-critic="{{ critic.id }}" data-publication="{{ review.publication.short_name }}">
                                 <div class="review-rating">
                                     {% if review.rating_stars %}
                                         {% if review.source_url %}
