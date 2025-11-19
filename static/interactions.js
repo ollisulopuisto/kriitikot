@@ -334,7 +334,7 @@ function initCriticClickHandlers() {
     const tbody = table.querySelector('tbody');
     const criticHeaders = table.querySelectorAll('thead th.rating-cell');
     
-    criticHeaders.forEach((criticHeader, colIndex) => {
+    criticHeaders.forEach((criticHeader) => {
         criticHeader.style.cursor = 'pointer';
         criticHeader.title = 'Klikkaa piilottaaksesi elokuvat, joilla ei ole arvosteluja';
         
@@ -348,6 +348,7 @@ function initCriticClickHandlers() {
             
             const rows = tbody.querySelectorAll('tr');
             const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+            const colIndex = Array.prototype.indexOf.call(allCriticHeaders, criticHeader);
             
             if (!window.originalTableWidth) {
                 window.originalTableWidth = table.offsetWidth;

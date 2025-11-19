@@ -7,6 +7,11 @@ from models import get_engine, get_session, Movie, Critic, Publication, Review a
 from sqlalchemy.orm import joinedload
 from typing import List, Dict
 from datetime import datetime
+try:
+    # Python 3.9+: zoneinfo is preferred
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 import os
 
 
@@ -152,6 +157,20 @@ def index():
         if latest_update:
             # Käytä published_date jos saatavilla, muuten scraped_at
             last_updated = latest_update.published_date or latest_update.scraped_at
+            # Normalize timezone: if datetime is naive, assume UTC, then convert
+            # to desired display timezone. The display timezone can be set
+            # via environment variable `DISPLAY_TIMEZONE` (default: Europe/Helsinki).
+            display_tz = os.environ.get('DISPLAY_TIMEZONE', 'Europe/Helsinki')
+            if ZoneInfo is not None and last_updated is not None:
+                try:
+                    if last_updated.tzinfo is None:
+                        # Assume stored timestamps are in UTC if naive
+                        last_updated = last_updated.replace(tzinfo=ZoneInfo('UTC'))
+                    # Convert to target timezone
+                    last_updated = last_updated.astimezone(ZoneInfo(display_tz))
+                except Exception:
+                    # If anything goes wrong with zoneinfo (unknown zone), leave as-is
+                    pass
     finally:
         session.close()
     
