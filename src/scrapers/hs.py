@@ -46,6 +46,7 @@ class HSScraper:
         # Pura tiedot
         movie_title = self._extract_movie_title(asset_data)
         critic_name = asset_data.get('byLine', 'Unknown')
+        critic_name = self._normalize_critic_name(critic_name)
         rating_stars = self._extract_rating(asset_data)
         review_text = self._extract_review_text(asset_data)
         
@@ -162,6 +163,23 @@ class HSScraper:
         
         # Myöhemmin voidaan laajentaa keräämään koko leipäteksti splitBodystä
         return ingress if ingress else None
+
+    def _normalize_critic_name(self, name: str) -> str:
+        """Normalize critic name by removing trailing publication suffixes like 'HS' or 'Helsingin Sanomat'.
+
+        Examples handled:
+        - 'Mikko-Pekka Heikkinen HS' -> 'Mikko-Pekka Heikkinen'
+        - 'Mikko-Pekka Heikkinen, HS' -> 'Mikko-Pekka Heikkinen'
+        - 'Mikko-Pekka Heikkinen Helsingin Sanomat' -> 'Mikko-Pekka Heikkinen'
+        """
+        if not name or not isinstance(name, str):
+            return name
+
+        # Remove common trailing publication markers
+        original = name
+        name = re.sub(r"\s*(?:,)?\s*(?:HS|Helsingin\s+Sanomat)\s*$", "", name, flags=re.IGNORECASE)
+        name = name.strip()
+        return name if name else original.strip()
     
     def parse_file(self, file_path: str) -> Optional[Review]:
         """Avaa tiedoston ja parsii sen."""
