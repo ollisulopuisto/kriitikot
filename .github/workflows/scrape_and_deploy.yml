@@ -39,18 +39,68 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Run unit tests
+        id: run_tests
+        run: |
+          # Run pytest; if tests fail, mark TESTS_FAILED in env for subsequent steps
+          pytest -q || echo "TESTS_FAILED=1" >> $GITHUB_ENV
+
+      - name: Create issue on test failures
+        if: env.TESTS_FAILED == '1'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = 'Automated tests failed in scheduled scraper workflow'
+            const body = `The scheduled workflow failed unit tests. Please check the Actions run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            await github.rest.issues.create({owner: context.repo.owner, repo: context.repo.repo, title, body})
+
+      - name: Get pre-scrape review count
+        id: pre_count
+        run: |
+          before=$(python3 - <<'PY'
+import sys
+sys.path.insert(0,'src')
+from models import get_session, Review
+print(get_session().query(Review).count())
+PY
+          echo "before=$before" >> $GITHUB_OUTPUT
+
       - name: Run scrapers (batch update)
         env:
           DISPLAY_TIMEZONE: 'Europe/Helsinki'
         run: |
-          # Run the batch importer which discovers and scrapes reviews
           python3 src/batch_update.py
+
+      - name: Get post-scrape review count and compute delta
+        id: post_count
+        run: |
+          after=$(python3 - <<'PY'
+import sys
+sys.path.insert(0,'src')
+from models import get_session, Review
+print(get_session().query(Review).count())
+PY
+          echo "after=$after" >> $GITHUB_OUTPUT
+          added=$((after - ${{ steps.pre_count.outputs.before }}))
+          echo "added=$added" >> $GITHUB_OUTPUT
+
+      - name: Create issue if no new reviews were imported
+        if: ${{ steps.post_count.outputs.added == '0' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = 'Scrapers ran but imported 0 new reviews'
+            const body = `The scheduled scrapers run completed but did not import any new reviews. Check the run logs: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            await github.rest.issues.create({owner: context.repo.owner, repo: context.repo.repo, title, body})
 
       - name: Generate static site
         run: |
           python3 scripts/generate_static.py
 
       - name: Commit & push changes
+        if: ${{ success() }}
         env:
           GIT_COMMITTER_NAME: 'github-actions[bot]'
           GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
@@ -66,3 +116,13 @@ jobs:
             git commit -m "Automated site update: $ts [skip ci]"
             git push origin HEAD:main
           fi
+
+      - name: Create issue on job failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = 'Scheduled scraper workflow failed'
+            const body = `The scheduled scraper workflow failed. Inspect the run here: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            await github.rest.issues.create({owner: context.repo.owner, repo: context.repo.repo, title, body})
