@@ -704,6 +704,34 @@ th .critic-media {
     margin-top: 0.25rem;
 }
 
+/* Review count badges */
+.review-count {
+    display: inline-block;
+    font-size: 0.75em;
+    font-weight: normal;
+    color: #6c757d;
+    margin-left: 0.35rem;
+    opacity: 0.8;
+}
+
+th .review-count {
+    display: block;
+    font-size: 0.7em;
+    margin-top: 0.15rem;
+    margin-left: 0;
+}
+
+td.movie-col .review-count {
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.movie-card-title .review-count {
+    font-size: 0.85em;
+    color: #6c757d;
+    font-weight: normal;
+}
+
 /* Vuorottelevat taustavärit sarakkeille - parempi kontrasti */
 th:nth-child(even):not(.movie-col) {
     background: #e3f2fd;

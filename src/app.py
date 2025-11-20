@@ -104,20 +104,29 @@ def index():
         except (ValueError, KeyError):
             pass  # Jos virhe, käytä oletusta
     
+    # Laske arvioiden määrät elokuville ja kriitikoille
+    movie_review_counts = {}
+    for movie_title, critics_reviews in grouped_reviews.items():
+        count = sum(len(reviews) for reviews in critics_reviews.values())
+        movie_review_counts[movie_title] = count
+    
     # Laske kritikoiden mediat (kriitikko voi kirjoittaa useaan mediaan)
     session = get_session(engine)
     try:
         critic_media_map = {}  # critic_id -> list of publication short_names
+        critic_review_counts = {}  # critic_id -> review count
         for critic in all_critics:
             # Hae kaikki kriitikon arvostelut
             reviews = session.query(DBReview).filter(
-                DBReview.critic_id == critic.id
+                DBReview.critic_id == critic.id,
+                DBReview.is_published == 1
             ).options(joinedload(DBReview.publication)).all()
             
             # Kerää uniikit julkaisut
             publications = list(set([r.publication.short_name.upper() for r in reviews if r.publication]))
             publications.sort()  # Aakkosjärjestys
             critic_media_map[critic.id] = publications
+            critic_review_counts[critic.id] = len(reviews)
         
         # Laske arvosanajakauma
         rating_distribution = {}
@@ -182,6 +191,8 @@ def index():
         rating_distribution=rating_distribution,
         pub_stats=pub_stats,
         critic_media_map=critic_media_map,
+        critic_review_counts=critic_review_counts,
+        movie_review_counts=movie_review_counts,
         nytleffaan_urls=nytleffaan_urls,
         poster_urls=poster_urls,
         letterboxd_urls=letterboxd_urls,
