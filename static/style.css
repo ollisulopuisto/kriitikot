@@ -9,6 +9,7 @@
     transition: color 0.2s;
     vertical-align: middle;
 }
+
 .sort-btn:hover {
     color: #495057;
 }
@@ -26,7 +27,8 @@
     overflow: hidden;
     border: 1px solid #c4b5fd;
     /* Tärkeä: sticky-asemointi että pysyy näkyvissä vaakasuuntaisessa skrollauksessa */
-    z-index: 52; /* Korkeampi kuin th.movie-col (51) että pysyy päällä */
+    z-index: 52;
+    /* Korkeampi kuin th.movie-col (51) että pysyy päällä */
 }
 
 /* Diagonaalinen jakoviiva kolmioiden välissä */
@@ -126,7 +128,7 @@ header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 3.75rem 1.875rem;
     border-radius: 0.5rem;
-    box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.15);
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
     margin-bottom: 1.875rem;
     text-align: center;
     overflow: hidden;
@@ -134,31 +136,7 @@ header {
     /* Header ei ole sticky, koska se vie liikaa tilaa */
 }
 
-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 70%
-    );
-    animation: shimmer 3s infinite;
-    pointer-events: none;
-}
 
-@keyframes shimmer {
-    0% {
-        transform: translateX(-100%) translateY(-100%) rotate(45deg);
-    }
-    100% {
-        transform: translateX(100%) translateY(100%) rotate(45deg);
-    }
-}
 
 .header-content {
     display: flex;
@@ -182,7 +160,7 @@ h1 {
     font-size: 4.5em;
     margin-bottom: 0.625rem;
     line-height: 1.1;
-    text-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+    text-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
     transform: perspective(500px) rotateX(10deg);
     transition: transform 0.3s ease;
 }
@@ -191,7 +169,11 @@ h1:hover {
     transform: perspective(500px) rotateX(-10deg) scale(1.02);
 }
 
-h2, h3, h4, h5, h6 {
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: 'Afacad', sans-serif;
     font-weight: 700;
 }
@@ -245,7 +227,7 @@ h2, h3, h4, h5, h6 {
 .table-wrapper {
     background: white;
     border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     /* Vaakasuuntainen skrollaus */
     overflow-x: auto;
     overflow-y: visible;
@@ -254,8 +236,10 @@ h2, h3, h4, h5, h6 {
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
     /* Hide the built-in scrollbar since we have a sticky one */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
 }
 
 /* Hide scrollbar for Chrome/Safari/Opera */
@@ -277,7 +261,8 @@ h2, h3, h4, h5, h6 {
     border-top: 1px solid #dee2e6;
     scrollbar-width: thin;
     scrollbar-color: #667eea #e9ecef;
-    scroll-behavior: auto; /* Disable smooth scrolling for instant response */
+    scroll-behavior: auto;
+    /* Disable smooth scrolling for instant response */
 }
 
 .sticky-scrollbar-container::-webkit-scrollbar {
@@ -342,11 +327,11 @@ h2, h3, h4, h5, h6 {
     .mobile-filter {
         display: none !important;
     }
-    
+
     .mobile-reset-button {
         display: none !important;
     }
-    
+
     .mobile-cards {
         display: none !important;
     }
@@ -380,11 +365,12 @@ tbody tr[style*="display: none"] {
 }
 
 thead {
-    position: relative; /* Sticky ei toimi overflow:n sisällä, käytä JS:ää */
+    position: relative;
+    /* Sticky ei toimi overflow:n sisällä, käytä JS:ää */
     z-index: 50;
     background: #f8f9fa;
     border-bottom: 0.125rem solid #dee2e6;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 /* Varmista että thead-rivit ovat myös sticky */
@@ -409,9 +395,9 @@ thead th:not(:first-child):hover {
     cursor: pointer;
     font-weight: 900;
     transition: all 0.5s ease;
-    
+
     transform: scale(1.02);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
     z-index: 35;
 }
 
@@ -420,14 +406,18 @@ thead th:not(:first-child):hover {
     background: white;
     padding: 1rem 1.5rem;
     border-radius: 0.5rem;
-    margin-bottom: 1rem; /* Väli taulukkoon */
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-    position: sticky; /* Sticky toimii, absolute-lapset myös */
+    margin-bottom: 1rem;
+    /* Väli taulukkoon */
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    position: sticky;
+    /* Sticky toimii, absolute-lapset myös */
     top: 0;
-    z-index: 100; /* Ylimpänä kaikista */
+    z-index: 100;
+    /* Ylimpänä kaikista */
     border-bottom: 2px solid #e9ecef;
     display: flex;
-    align-items: flex-start; /* Tasaus ylhäältä */
+    align-items: flex-start;
+    /* Tasaus ylhäältä */
     gap: 1.5rem;
 }
 
@@ -443,7 +433,8 @@ thead th:not(:first-child):hover {
 /* Filter-rivi headerin sisällä (deprecated, käytä .desktop-filters) */
 .filter-row {
     background: white;
-    display: none; /* Piilotettu koska käytetään .desktop-filters */
+    display: none;
+    /* Piilotettu koska käytetään .desktop-filters */
 }
 
 .filter-header {
@@ -554,7 +545,7 @@ thead th:not(:first-child):hover {
         align-items: flex-start;
         gap: 0.75rem;
     }
-    
+
     .slider-container {
         width: 100%;
         max-width: 100%;
@@ -596,7 +587,7 @@ thead th:not(:first-child):hover {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     cursor: pointer;
     border-radius: 50%;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
 }
 
@@ -615,7 +606,7 @@ thead th:not(:first-child):hover {
     cursor: pointer;
     border-radius: 50%;
     border: none;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
 }
 
@@ -654,7 +645,8 @@ th.movie-col {
     position: sticky;
     left: 0;
     background: #f8f9fa;
-    z-index: 51; /* Korkeampi kuin thead (50) että pysyy päällä */
+    z-index: 51;
+    /* Korkeampi kuin thead (50) että pysyy päällä */
     white-space: nowrap;
     user-select: none;
     transition: background-color 0.2s;
@@ -662,7 +654,7 @@ th.movie-col {
     vertical-align: middle;
     font-family: 'Afacad', sans-serif;
     /* Varmista että varjo näkyy vaakasuuntaisessa skrollauksessa */
-    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 th.movie-col:hover {
@@ -827,7 +819,7 @@ td.movie-col {
     word-wrap: break-word;
     line-height: 1.3;
     z-index: 25;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
     user-select: none;
     font-size: 1.0em;
 }
@@ -838,28 +830,30 @@ td.movie-col:hover {
     font-weight: 600;
     transform: scale(1.02);
     transition: all 0.25s ease;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
     z-index: 30;
 }
 
 /* Hover-tilassa nosta z-index korkeammalle */
 tbody tr:hover td.movie-col {
     background: #f8f9fa;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
     z-index: 200;
 }
 
 /* Posterikuva - PIILOTETTU oletuksena */
 .movie-poster {
     position: absolute;
-    top: 100%; /* Rivin alapuolelle */
+    top: 100%;
+    /* Rivin alapuolelle */
     left: 0;
     max-width: 14rem !important;
     width: 14rem;
     height: auto;
-    display: none; /* Piilotettu oletuksena */
+    display: none;
+    /* Piilotettu oletuksena */
     border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     z-index: 250;
     background: white;
     padding: 6px;
@@ -888,7 +882,7 @@ tbody tr:not(.dimmed) .movie-poster {
     left: 0;
     background: white;
     z-index: 25;
-    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
 .poster-row-empty {
@@ -901,7 +895,7 @@ tbody tr:not(.dimmed) .movie-poster {
     height: auto;
     display: block;
     border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     background: white;
     padding: 6px;
 }
@@ -951,7 +945,7 @@ tbody tr:not(.dimmed) .movie-poster {
 tbody tr:hover td.movie-col {
     background: #f8f9fa;
     /* Pidä varjo näkyvissä hover-tilassa */
-    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Himmennys/piilotus-efektit */
@@ -961,7 +955,8 @@ tr.dimmed {
     transition: opacity 0.3s ease;
     /* ÄLÄ käytä display: none - se piilottaisi myös absoluuttiset lapset */
     max-height: 0;
-    overflow: visible !important; /* Tärkeä - posteri voi vuotaa ulos */
+    overflow: visible !important;
+    /* Tärkeä - posteri voi vuotaa ulos */
 }
 
 /* Posterit näkyvät aina kun niiden pitää näkyä */
@@ -1026,12 +1021,12 @@ td:not(.dimmed) {
     color: white;
     text-decoration: none;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .rating-pill:hover {
     transform: scale(1.08);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.24);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.24);
     filter: brightness(1.1);
 }
 
@@ -1041,24 +1036,33 @@ td:not(.dimmed) {
     font-size: 0.9em;
     letter-spacing: 0.05rem;
     display: inline-block;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Pill background colors based on rating - with gradients and improved brightness/saturation */
-.stars-5 { 
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); /* Bright gold */
+.stars-5 {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    /* Bright gold */
 }
-.stars-4 { 
-    background: linear-gradient(135deg, #34d399 0%, #10b981 100%); /* Vibrant green */
+
+.stars-4 {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    /* Vibrant green */
 }
-.stars-3 { 
-    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); /* Clear blue */
+
+.stars-3 {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    /* Clear blue */
 }
-.stars-2 { 
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); /* Warm orange */
+
+.stars-2 {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    /* Warm orange */
 }
-.stars-1 { 
-    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); /* Soft red */
+
+.stars-1 {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    /* Soft red */
 }
 
 .rating-stars {
@@ -1066,7 +1070,8 @@ td:not(.dimmed) {
     letter-spacing: 0.0625rem;
     display: inline-block;
     transition: color 0.2s ease;
-    color: #f39c12; /* Default color for non-pill stars, if any */
+    color: #f39c12;
+    /* Default color for non-pill stars, if any */
 }
 
 .pub-badge {
@@ -1103,7 +1108,7 @@ td:not(.dimmed) {
 
 footer {
     border-radius: 0.1rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     margin-top: 1.5rem;
     padding: 1.5rem 1.875rem;
     /* Footer pysyy näkyvissä vaakasuuntaisen skrollauksen aikana */
@@ -1143,7 +1148,7 @@ footer {
     padding: 1.25rem 1.875rem;
     border-radius: 0.625rem;
     text-align: center;
-    box-shadow: 0 0.25rem 0.375rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
 }
 
@@ -1200,7 +1205,7 @@ footer {
     background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
     border-radius: 0.75rem;
     transition: width 0.3s ease;
-    box-shadow: inset 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    box-shadow: inset 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }
 
 .rating-count {
@@ -1237,7 +1242,7 @@ footer {
 .pub-stat-item:hover {
     border-color: #667eea;
     transform: translateY(-0.125rem);
-    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 .pub-name {
@@ -1296,17 +1301,17 @@ footer {
     footer {
         padding: 1.875rem 1.25rem;
     }
-    
+
     /* Piilota desktop-suodatin ja desktop-only elementit, näytä mobile-suodatin */
     .desktop-filters,
     .desktop-only {
         display: none !important;
     }
-    
+
     .filter-row {
         display: none;
     }
-    
+
     .mobile-filter {
         display: block !important;
         margin: 0.5rem 0.5rem 1rem 0.5rem;
@@ -1317,7 +1322,7 @@ footer {
         padding: 0;
         transition: top 0.2s ease;
     }
-    
+
     .mobile-filter-toggle {
         display: flex;
         align-items: center;
@@ -1337,21 +1342,21 @@ footer {
         letter-spacing: 0.5px;
         transition: all 0.2s ease;
     }
-    
+
     .mobile-filter-toggle:active {
         transform: translateY(2px);
         box-shadow: 0 0.125rem 0.25rem rgba(139, 92, 246, 0.3);
     }
-    
+
     .toggle-icon {
         font-size: 1.2em;
         transition: transform 0.3s ease;
     }
-    
+
     .mobile-filter.collapsed .toggle-icon {
         transform: rotate(180deg);
     }
-    
+
     .mobile-filters-container {
         background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
         border: 2px solid #c4b5fd;
@@ -1366,7 +1371,7 @@ footer {
         overflow: hidden;
         transition: max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
     }
-    
+
     .mobile-filter.collapsed .mobile-filters-container {
         max-height: 0;
         padding-top: 0;
@@ -1374,7 +1379,7 @@ footer {
         margin-top: 0;
         opacity: 0;
     }
-    
+
     .mobile-reset-button {
         display: flex;
         align-items: center;
@@ -1398,33 +1403,34 @@ footer {
         /* Collapsed hakukortti on n. 3.5rem korkea (0.875rem padding * 2 + 1em teksti + 0.5rem ylä-margin)
            + 0.5rem väli = 4rem */
         top: 4rem;
-        z-index: 14; /* Alle hakukortin (z-index: 15) */
+        z-index: 14;
+        /* Alle hakukortin (z-index: 15) */
     }
-    
+
     .mobile-reset-button:active {
         transform: translateY(2px);
         box-shadow: 0 0.125rem 0.25rem rgba(245, 158, 11, 0.3);
     }
-    
+
     .mobile-filter-group {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .mobile-filter-group.mobile-filter-inline {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
     }
-    
+
     .mobile-filter-group.mobile-filter-inline label {
         flex-shrink: 0;
         white-space: nowrap;
         font-size: 0.9em;
     }
-    
+
     .mobile-stepper {
         display: flex;
         align-items: center;
@@ -1432,7 +1438,7 @@ footer {
         flex: 1;
         justify-content: flex-end;
     }
-    
+
     .stepper-btn {
         width: 44px;
         height: 44px;
@@ -1450,18 +1456,18 @@ footer {
         user-select: none;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .stepper-btn:active {
         background: #8b5cf6;
         color: white;
         transform: scale(0.95);
     }
-    
+
     .stepper-btn:disabled {
         opacity: 0.3;
         cursor: not-allowed;
     }
-    
+
     .stepper-value {
         min-width: 60px;
         text-align: center;
@@ -1469,12 +1475,12 @@ footer {
         font-size: 1em;
         color: #333;
     }
-    
+
     .mobile-filter-group.mobile-filter-inline .slider-container-inline {
         flex: 1;
         min-width: 120px;
     }
-    
+
     .mobile-sort-button {
         display: flex;
         align-items: center;
@@ -1491,81 +1497,81 @@ footer {
         transition: all 0.2s ease;
         width: 100%;
     }
-    
+
     .mobile-sort-button:active {
         background: #f5f5f5;
         border-color: #8b5cf6;
         color: #8b5cf6;
     }
-    
+
     .mobile-sort-button .sort-icon {
         font-size: 1.1em;
         opacity: 0.7;
     }
-    
+
     .mobile-filter-group label {
         display: block;
         font-size: 0.9em;
         font-weight: 600;
         color: #333;
     }
-    
+
     .mobile-filter-group label strong {
         display: inline-block;
         min-width: 5.5em;
         text-align: left;
     }
-    
+
     /* Grid layout muuttuu yhdeksi sarakkeeksi mobiililla */
     .filters-container {
         grid-template-columns: 1fr;
         gap: 1.25rem;
     }
-    
+
     .mobile-sort-button {
         transition: all 0.2s ease;
     }
-    
+
     .mobile-sort-button:hover {
         background: #e9ecef !important;
         transform: translateY(-2px);
-        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
     }
-    
+
     .mobile-sort-button:active {
         transform: translateY(0);
-        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     }
-    
+
     .stats {
         flex-wrap: wrap;
         gap: 0.75rem;
     }
-    
+
     .stat-box {
         flex: 1;
         min-width: 7.5rem;
         padding: 1rem 1.25rem;
     }
-    
+
     .stat-number {
         font-size: 2em;
     }
-    
+
     .rating-stars-label {
         min-width: 3.75rem;
         font-size: 1em;
     }
-    
+
     .pub-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .footer-links {
         flex-direction: column;
         gap: 0.625rem;
     }
-    
+
     .footer-link {
         text-align: center;
     }
@@ -1581,7 +1587,7 @@ footer {
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     overflow: hidden;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
 }
 
 .movie-card-header {
@@ -1612,7 +1618,7 @@ footer {
     margin-bottom: 0.5rem;
     float: right;
     margin-left: 1rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
 }
 
@@ -1682,58 +1688,59 @@ footer {
     header {
         padding: 2rem 1.25rem;
     }
-    
+
     h1 {
         font-size: 2.5em;
     }
-    
+
     .subtitle {
         font-size: 1em;
     }
-    
+
     .header-content {
         flex-direction: column;
         align-items: center;
         gap: 1.25rem;
     }
-    
+
     .reset-button {
-        display: none !important; /* Piilotettu mobiilissa, käytä .mobile-reset-button */
+        display: none !important;
+        /* Piilotettu mobiilissa, käytä .mobile-reset-button */
     }
-    
+
     .stats {
         flex-wrap: wrap;
     }
-    
+
     /* Piilota taulukko mobiililla */
     .table-wrapper {
         display: none;
     }
-    
+
     /* Poista sticky-asemointi mobiililla (vaikka taulukko on piilotettu) */
     thead {
         position: static;
     }
-    
+
     /* Näytä kortit mobiililla */
     .mobile-cards {
         display: block;
     }
-    
+
     /* Näytä sorttausnappi mobiililla */
     .mobile-sort-button {
         display: block !important;
     }
-    
+
     /* Mobiili movie card layout */
     .movie-card-title-row {
         align-items: flex-end;
     }
-    
+
     .movie-card-title {
         font-size: 1.6em;
     }
-    
+
     .movie-card-poster {
         max-width: 100px;
         margin-left: 0;

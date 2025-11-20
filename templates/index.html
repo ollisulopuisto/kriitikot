@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html lang="fi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kriitikon valinta</title>
-    <meta name="description" content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja Helsingin Sanomista, Iltalehdestä, Keskisuomalaisesta, Turun Sanomista, Suomen Kuvalehdestä ja Ilta-Sanomista.">
-    
+    <meta name="description"
+        content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja Helsingin Sanomista, Iltalehdestä, Keskisuomalaisesta, Turun Sanomista, Suomen Kuvalehdestä ja Ilta-Sanomista.">
+
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ollisulopuisto.github.io/kriitikot/">
     <meta property="og:title" content="Kriitikon valinta 🎬">
-    <meta property="og:description" content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja eri medioista.">
+    <meta property="og:description"
+        content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja eri medioista.">
     <meta property="og:image" content="https://ollisulopuisto.github.io/kriitikot/static/valinta.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://ollisulopuisto.github.io/kriitikot/">
     <meta name="twitter:title" content="Kriitikon valinta 🎬">
-    <meta name="twitter:description" content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja eri medioista.">
+    <meta name="twitter:description"
+        content="Suomalaisten elokuva-arvostelijoiden kritiikkejä yhdessä paikassa. Vertaile arviointeja eri medioista.">
     <meta name="twitter:image" content="https://ollisulopuisto.github.io/kriitikot/static/valinta.png">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800;900&family=Bitter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800;900&family=Bitter:wght@400;500;600;700;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="static/style.css">
-    
+
     <!-- JavaScript modules -->
     <script src="static/app.js" defer></script>
     <script src="static/filters.js" defer></script>
     <script src="static/interactions.js" defer></script>
     <script src="static/ui.js" defer></script>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -40,7 +47,7 @@
                 <div class="header-text">
                     <h1>🎬 Kriitikon valinta</h1>
                     <p class="subtitle">
-                        Suomalaisten elokuva-arvostelijoiden kritiikkejä. 
+                        Suomalaisten elokuva-arvostelijoiden kritiikkejä.
                         <span class="header-stats">
                             <span class="header-stat">{{ total_reviews }} arvostelua</span>
                             <span class="header-stat">{{ grouped_reviews|length }} elokuvaa</span>
@@ -50,7 +57,7 @@
                 </div>
             </div>
         </header>
-        
+
         {% if grouped_reviews %}
         <!-- Desktop suodattimet (ENNEN taulukkoa, jotta sticky toimii) -->
         <div class="desktop-filters">
@@ -65,15 +72,7 @@
                         Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
                     </label>
                     <div class="slider-container">
-                        <input 
-                            type="range" 
-                            id="min-reviews-slider" 
-                            min="1" 
-                            max="5" 
-                            value="1" 
-                            step="1"
-                            class="slider"
-                        >
+                        <input type="range" id="min-reviews-slider" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -83,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Fasetti 2: Tähdet -->
                 <div class="filter-group">
                     <label for="star-filter-slider">
@@ -91,15 +90,7 @@
                         Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
                     </label>
                     <div class="slider-container">
-                        <input 
-                            type="range" 
-                            id="star-filter-slider" 
-                            min="1" 
-                            max="5" 
-                            value="1" 
-                            step="1"
-                            class="slider"
-                        >
+                        <input type="range" id="star-filter-slider" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -109,7 +100,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Fasetti 3: Media -->
                 <div class="filter-group">
                     <label>
@@ -118,7 +109,8 @@
                     </label>
                     <div class="media-filter-buttons">
                         {% for pub, count in pub_stats.items() %}
-                        <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
+                        <button class="media-filter-btn filter-publication" data-publication="{{ pub }}"
+                            title="Näytä {{ pub }}-arvostelut">
                             {{ pub }}
                         </button>
                         {% endfor %}
@@ -126,18 +118,19 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Desktop: Taulukkonäkymä -->
         <div class="table-wrapper">
             <!-- Fade-out indikaattori oikeassa reunassa -->
             <div class="scroll-fade-indicator"></div>
-            
+
             <table>
                 <thead>
                     <!-- Rivi 2: Kriitikot -->
                     <tr class="critic-row">
                         <th class="movie-col diagonal-sort-cell">
-                            <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat" aria-label="Aakkosta elokuvat" tabindex="0" role="button">
+                            <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat"
+                                aria-label="Aakkosta elokuvat" tabindex="0" role="button">
                                 <svg width="20" height="28" viewBox="0 0 20 28" aria-hidden="true" focusable="false">
                                     <!-- Ylänuoli -->
                                     <polygon points="10,2 6,8 14,8" fill="#5b21b6" />
@@ -146,9 +139,10 @@
                                     <!-- Varsi -->
                                     <rect x="8.5" y="8" width="3" height="12" fill="#5b21b6" />
                                 </svg>
-                                
+
                             </div>
-                            <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot" aria-label="Aakkosta kriitikot" tabindex="0" role="button">
+                            <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot"
+                                aria-label="Aakkosta kriitikot" tabindex="0" role="button">
                                 <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true" focusable="false">
                                     <!-- Vasen nuoli -->
                                     <polygon points="2,10 8,6 8,14" fill="#5b21b6" />
@@ -157,7 +151,7 @@
                                     <!-- Varsi -->
                                     <rect x="8" y="8.5" width="12" height="3" fill="#5b21b6" />
                                 </svg>
-                                
+
                             </div>
                         </th>
                         {% for critic in all_critics %}
@@ -176,7 +170,9 @@
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     <tr>
-                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}" data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}" data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
+                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}"
+                            data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}"
+                            data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
                             {{ movie_title }}
                             {% if movie_review_counts and movie_title in movie_review_counts %}
                             <span class="review-count">({{ movie_review_counts[movie_title] }})</span>
@@ -185,22 +181,24 @@
                         {% for critic in all_critics %}
                         <td class="rating-cell">
                             {% if critic.name in critics_reviews %}
-                                {% set reviews_list = critics_reviews[critic.name] %}
-                                {% for review in reviews_list %}
-                                    {% if review.rating_stars %}
-                                        {% if review.source_url %}
-                                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                            <a href="{{ review.source_url }}" class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                                            </a>
-                                        {% else %}
-                                            <span class="rating-pill stars-{{ review.rating_stars }}">
-                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                                            </span>
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if not loop.last %}<br>{% endif %}
-                                {% endfor %}
+                            {% set reviews_list = critics_reviews[critic.name] %}
+                            {% for review in reviews_list %}
+                            {% if review.rating_stars %}
+                            {% if review.source_url %}
+                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                            <a href="{{ review.source_url }}"
+                                class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
+                                title="{{ review.publication.name }}: {{ tooltip_text }}...">
+                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                            </a>
+                            {% else %}
+                            <span class="rating-pill stars-{{ review.rating_stars }}">
+                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                            </span>
+                            {% endif %}
+                            {% endif %}
+                            {% if not loop.last %}<br>{% endif %}
+                            {% endfor %}
                             {% endif %}
                         </td>
                         {% endfor %}
@@ -209,154 +207,160 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Sticky horizontal scrollbar (desktop only) -->
         <div class="sticky-scrollbar-container desktop-only">
             <div class="sticky-scrollbar-content"></div>
         </div>
+    </div>
+    </div>
+
+    <!-- Mobile: Suodattimet (ENSIN) -->
+    <div class="mobile-filter collapsed">
+        <!-- Toggle-nappi -->
+        <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
+            <span class="toggle-icon">△</span>
+            <span class="toggle-text">Hakuehdot</span>
+        </button>
+
+        <div class="mobile-filters-container" id="mobile-filters-content">
+            <!-- Fasetti 1: Arvioiden määrä -->
+            <div class="mobile-filter-group mobile-filter-inline">
+                <label>Arvosteluja:</label>
+                <div class="mobile-stepper">
+                    <button class="stepper-btn" id="reviews-minus-mobile" aria-label="Vähemmän">−</button>
+                    <span class="stepper-value" id="min-reviews-value-mobile">1</span>
+                    <button class="stepper-btn" id="reviews-plus-mobile" aria-label="Enemmän">+</button>
+                </div>
+            </div>
+
+            <!-- Fasetti 2: Tähdet -->
+            <div class="mobile-filter-group mobile-filter-inline">
+                <label>Vähintään:</label>
+                <div class="mobile-stepper">
+                    <button class="stepper-btn" id="stars-minus-mobile" aria-label="Pienempi">−</button>
+                    <span class="stepper-value" id="star-filter-value-mobile">★</span>
+                    <button class="stepper-btn" id="stars-plus-mobile" aria-label="Suurempi">+</button>
+                </div>
+            </div>
+
+            <!-- Fasetti 3: Kriitikko -->
+            <div class="mobile-filter-group mobile-filter-inline">
+                <label>Kriitikko:</label>
+                <span class="stepper-value" id="critic-filter-value-mobile">Kaikki</span>
+            </div>
+
+            <!-- Fasetti 4: Media -->
+            <div class="mobile-filter-group">
+                <label>Julkaisu:</label>
+                <div class="media-filter-buttons">
+                    {% for pub, count in pub_stats.items() %}
+                    <button class="media-filter-btn filter-publication" data-publication="{{ pub }}"
+                        title="Näytä {{ pub }}-arvostelut">
+                        {{ pub }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Fasetti 5: Aakkostus -->
+            <div class="mobile-filter-group">
+                <button class="mobile-sort-button" id="mobile-sort">
+                    <span class="sort-icon">⇅</span>
+                    <span>Aakkosta elokuvat</span>
+                </button>
             </div>
         </div>
-        
-        <!-- Mobile: Suodattimet (ENSIN) -->
-        <div class="mobile-filter collapsed">
-            <!-- Toggle-nappi -->
-            <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
-                <span class="toggle-icon">△</span>
-                <span class="toggle-text">Hakuehdot</span>
-            </button>
-            
-            <div class="mobile-filters-container" id="mobile-filters-content">
-                    <!-- Fasetti 1: Arvioiden määrä -->
-                    <div class="mobile-filter-group mobile-filter-inline">
-                        <label>Arvosteluja:</label>
-                        <div class="mobile-stepper">
-                            <button class="stepper-btn" id="reviews-minus-mobile" aria-label="Vähemmän">−</button>
-                            <span class="stepper-value" id="min-reviews-value-mobile">1</span>
-                            <button class="stepper-btn" id="reviews-plus-mobile" aria-label="Enemmän">+</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Fasetti 2: Tähdet -->
-                    <div class="mobile-filter-group mobile-filter-inline">
-                        <label>Vähintään:</label>
-                        <div class="mobile-stepper">
-                            <button class="stepper-btn" id="stars-minus-mobile" aria-label="Pienempi">−</button>
-                            <span class="stepper-value" id="star-filter-value-mobile">★</span>
-                            <button class="stepper-btn" id="stars-plus-mobile" aria-label="Suurempi">+</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Fasetti 3: Kriitikko -->
-                    <div class="mobile-filter-group mobile-filter-inline">
-                        <label>Kriitikko:</label>
-                        <span class="stepper-value" id="critic-filter-value-mobile">Kaikki</span>
-                    </div>
-                    
-                    <!-- Fasetti 4: Media -->
-                    <div class="mobile-filter-group">
-                        <label>Julkaisu:</label>
-                        <div class="media-filter-buttons">
-                            {% for pub, count in pub_stats.items() %}
-                            <button class="media-filter-btn filter-publication" data-publication="{{ pub }}" title="Näytä {{ pub }}-arvostelut">
-                                {{ pub }}
-                            </button>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                    <!-- Fasetti 5: Aakkostus -->
-                    <div class="mobile-filter-group">
-                        <button class="mobile-sort-button" id="mobile-sort">
-                            <span class="sort-icon">⇅</span>
-                            <span>Aakkosta elokuvat</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        
-        <!-- Mobile: Reset-nappi (HAKUKORTIN JÄLKEEN) -->
-        <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
-            🔄 Näytä kaikki
-        </button>
-            
-        <!-- Mobile: Korttinäkymä -->
-        <div class="mobile-cards">
-            {% for movie_title, critics_reviews in grouped_reviews.items() %}
-            <div class="movie-card" data-movie="{{ movie_title }}">
-                <div class="movie-card-header">
-                    <div class="movie-card-title-row">
-                        <div class="movie-card-title">
-                            &#127916; {{ movie_title }}
-                            {% if movie_review_counts and movie_title in movie_review_counts %}
-                            <span class="review-count">({{ movie_review_counts[movie_title] }})</span>
-                            {% endif %}
-                        </div>
-                        {% if poster_urls.get(movie_title) %}
-                        <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
+    </div>
+
+    <!-- Mobile: Reset-nappi (HAKUKORTIN JÄLKEEN) -->
+    <button id="reset-filters-mobile" class="mobile-reset-button" style="display: none;">
+        🔄 Näytä kaikki
+    </button>
+
+    <!-- Mobile: Korttinäkymä -->
+    <div class="mobile-cards">
+        {% for movie_title, critics_reviews in grouped_reviews.items() %}
+        <div class="movie-card" data-movie="{{ movie_title }}">
+            <div class="movie-card-header">
+                <div class="movie-card-title-row">
+                    <div class="movie-card-title">
+                        {{ movie_title }}
+                        {% if movie_review_counts and movie_title in movie_review_counts %}
+                        <span class="review-count">({{ movie_review_counts[movie_title] }})</span>
                         {% endif %}
                     </div>
-                </div>
-                <div class="movie-card-body">
-                    {% for critic in all_critics %}
-                        {% if critic.name in critics_reviews %}
-                            {% set reviews_list = critics_reviews[critic.name] %}
-                            {% for review in reviews_list %}
-                            <div class="review-item" data-critic="{{ critic.id }}" data-publication="{{ review.publication.short_name }}">
-                                <div class="review-rating">
-                                    {% if review.rating_stars %}
-                                        {% if review.source_url %}
-                                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                                            <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}" target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                                            </a>
-                                        {% else %}
-                                            <span class="rating-pill stars-{{ review.rating_stars }}">
-                                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                                            </span>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                                <div class="review-critic">
-                                    <span class="review-critic-name">{{ critic.name }}</span>
-                                    <span class="review-media">/ {{ review.publication.short_name.upper() }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if nytleffaan_urls.get(movie_title) or letterboxd_urls.get(movie_title) %}
-                    <div class="movie-card-links">
-                        {% if nytleffaan_urls.get(movie_title) %}
-                        <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" class="movie-link nytleffaan-link">Osta liput</a>
-                        {% endif %}
-                        {% if letterboxd_urls.get(movie_title) %}
-                        <a href="{{ letterboxd_urls[movie_title] }}" target="_blank" class="movie-link letterboxd-link">Letterboxd</a>
-                        {% endif %}
-                    </div>
+                    {% if poster_urls.get(movie_title) %}
+                    <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
                     {% endif %}
                 </div>
             </div>
-            {% endfor %}
+            <div class="movie-card-body">
+                {% for critic in all_critics %}
+                {% if critic.name in critics_reviews %}
+                {% set reviews_list = critics_reviews[critic.name] %}
+                {% for review in reviews_list %}
+                <div class="review-item" data-critic="{{ critic.id }}"
+                    data-publication="{{ review.publication.short_name }}">
+                    <div class="review-critic">
+                        <span class="review-critic-name">{{ critic.name }}</span>
+                        <span class="review-media">/ {{ review.publication.short_name.upper() }}</span>
+                    </div>
+                    <div class="review-rating">
+                        {% if review.rating_stars %}
+                        {% if review.source_url %}
+                        {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+                        <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}"
+                            target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
+                            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                        </a>
+                        {% else %}
+                        <span class="rating-pill stars-{{ review.rating_stars }}">
+                            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                        </span>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
+
+                {% if nytleffaan_urls.get(movie_title) or letterboxd_urls.get(movie_title) %}
+                <div class="movie-card-links">
+                    {% if nytleffaan_urls.get(movie_title) %}
+                    <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" class="movie-link nytleffaan-link">Osta
+                        liput</a>
+                    {% endif %}
+                    {% if letterboxd_urls.get(movie_title) %}
+                    <a href="{{ letterboxd_urls[movie_title] }}" target="_blank"
+                        class="movie-link letterboxd-link">Letterboxd</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
         </div>
-        {% else %}
-        <div class="empty-state">
-            <h2>Ei vielä arvosteluja</h2>
-            <p>Scraper on valmis, mutta tietokannassa ei ole vielä dataa.</p>
-        </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>Ei vielä arvosteluja</h2>
+        <p>Scraper on valmis, mutta tietokannassa ei ole vielä dataa.</p>
+    </div>
+    {% endif %}
     </div>
 
     <footer>
         <div class="footer-content">
-        
+
             {% if last_updated %}
             <div class="last-updated">
                 <p>Viimeksi päivitetty: {{ last_updated.strftime('%d.%m.%Y %H:%M %Z') }}</p>
             </div>
             {% endif %}
-            
+
         </div>
     </footer>
 </body>
+
 </html>
