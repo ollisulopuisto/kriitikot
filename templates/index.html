@@ -157,11 +157,12 @@
                         {% for critic in all_critics %}
                         <th class="rating-cell" data-critic-id="{{ critic.id }}">
                             {{ critic.name }}
-                            {% if critic_review_counts and critic.id in critic_review_counts %}
-                            <span class="review-count">({{ critic_review_counts[critic.id] }})</span>
-                            {% endif %}
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
                             <span class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</span>
+                            {% endif %}
+                            {% if critic_review_counts and critic.id in critic_review_counts %}
+                            <span class="review-count">({{ critic_review_counts[critic.id] }} {% if
+                                critic_review_counts[critic.id] == 1 %}kritiikki{% else %}kritiikkiä{% endif %})</span>
                             {% endif %}
                         </th>
                         {% endfor %}
@@ -173,9 +174,10 @@
                         <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}"
                             data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}"
                             data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
-                            {{ movie_title }}
+                            <div class="movie-title-main">{{ movie_title }}</div>
                             {% if movie_review_counts and movie_title in movie_review_counts %}
-                            <span class="review-count">({{ movie_review_counts[movie_title] }})</span>
+                            <div class="movie-review-count">{{ movie_review_counts[movie_title] }} {% if
+                                movie_review_counts[movie_title] == 1 %}kritiikki{% else %}kritiikkiä{% endif %}</div>
                             {% endif %}
                         </td>
                         {% for critic in all_critics %}
@@ -286,10 +288,11 @@
                 <div class="movie-card-title-row">
                     <div class="movie-card-title">
                         {{ movie_title }}
-                        {% if movie_review_counts and movie_title in movie_review_counts %}
-                        <span class="review-count">({{ movie_review_counts[movie_title] }})</span>
-                        {% endif %}
                     </div>
+                    {% if movie_review_counts and movie_title in movie_review_counts %}
+                    <div class="movie-card-review-count">{{ movie_review_counts[movie_title] }} {% if
+                        movie_review_counts[movie_title] == 1 %}kritiikki{% else %}kritiikkiä{% endif %}</div>
+                    {% endif %}
                     {% if poster_urls.get(movie_title) %}
                     <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
                     {% endif %}

@@ -699,11 +699,11 @@ th .critic-media {
 /* Review count badges */
 .review-count {
     display: inline-block;
-    font-size: 0.75em;
+    font-size: 0.7em;
     font-weight: normal;
     color: #6c757d;
     margin-left: 0.35rem;
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
 th .review-count {
@@ -713,14 +713,24 @@ th .review-count {
     margin-left: 0;
 }
 
-td.movie-col .review-count {
-    font-size: 0.8em;
-    white-space: nowrap;
+/* Movie title and count in table */
+.movie-title-main {
+    font-weight: 600;
+    line-height: 1.3;
 }
 
-.movie-card-title .review-count {
-    font-size: 0.85em;
+.movie-review-count {
+    font-size: 0.75em;
     color: #6c757d;
+    margin-top: 0.25rem;
+    font-weight: normal;
+}
+
+/* Mobile card review count */
+.movie-card-review-count {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 0.25rem;
     font-weight: normal;
 }
 
