@@ -701,16 +701,19 @@ th .critic-media {
     display: inline-block;
     font-size: 0.7em;
     font-weight: normal;
-    color: #6c757d;
+    color: #999;
     margin-left: 0.35rem;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 
 th .review-count {
     display: block;
     font-size: 0.7em;
-    margin-top: 0.15rem;
+    margin-top: 0.35rem;
     margin-left: 0;
+    padding-top: 0.25rem;
+    border-top: 1px solid #e9ecef;
+    color: #999;
 }
 
 /* Movie title and count in table */
@@ -720,18 +723,20 @@ th .review-count {
 }
 
 .movie-review-count {
-    font-size: 0.75em;
-    color: #6c757d;
-    margin-top: 0.25rem;
+    font-size: 0.7em;
+    color: #aaa;
+    margin-top: 0.4rem;
     font-weight: normal;
+    opacity: 0.85;
 }
 
 /* Mobile card review count */
 .movie-card-review-count {
-    font-size: 0.8em;
-    color: #6c757d;
-    margin-top: 0.25rem;
+    font-size: 0.75em;
+    color: #aaa;
+    margin-top: 0.35rem;
     font-weight: normal;
+    opacity: 0.85;
 }
 
 /* Vuorottelevat taustavärit sarakkeille - parempi kontrasti */
