@@ -161,8 +161,7 @@
                             <span class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</span>
                             {% endif %}
                             {% if critic_review_counts and critic.id in critic_review_counts %}
-                            <span class="review-count">({{ critic_review_counts[critic.id] }} {% if
-                                critic_review_counts[critic.id] == 1 %}kritiikki{% else %}kritiikkiä{% endif %})</span>
+                            <span class="review-count">🎬 {{ critic_review_counts[critic.id] }}</span>
                             {% endif %}
                         </th>
                         {% endfor %}
@@ -176,8 +175,7 @@
                             data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
                             <div class="movie-title-main">{{ movie_title }}</div>
                             {% if movie_review_counts and movie_title in movie_review_counts %}
-                            <div class="movie-review-count">{{ movie_review_counts[movie_title] }} {% if
-                                movie_review_counts[movie_title] == 1 %}kritiikki{% else %}kritiikkiä{% endif %}</div>
+                            <div class="movie-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
                             {% endif %}
                         </td>
                         {% for critic in all_critics %}
@@ -290,8 +288,7 @@
                         {{ movie_title }}
                     </div>
                     {% if movie_review_counts and movie_title in movie_review_counts %}
-                    <div class="movie-card-review-count">{{ movie_review_counts[movie_title] }} {% if
-                        movie_review_counts[movie_title] == 1 %}kritiikki{% else %}kritiikkiä{% endif %}</div>
+                    <div class="movie-card-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
                     {% endif %}
                     {% if poster_urls.get(movie_title) %}
                     <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />

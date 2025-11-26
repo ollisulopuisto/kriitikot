@@ -714,6 +714,7 @@ th .review-count {
     padding-top: 0.25rem;
     border-top: 1px solid #e9ecef;
     color: #999;
+    text-align: center;
 }
 
 /* Movie title and count in table */
@@ -728,6 +729,7 @@ th .review-count {
     margin-top: 0.4rem;
     font-weight: normal;
     opacity: 0.85;
+    text-align: right;
 }
 
 /* Mobile card review count */
