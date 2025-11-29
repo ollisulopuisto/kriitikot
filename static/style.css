@@ -820,7 +820,7 @@ td {
     padding: 1rem 0.5rem;
 
 /* Hide review-count badges on small and narrow tablet screens */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .review-count,
     th .review-count,
     .movie-review-count,
@@ -1752,6 +1752,11 @@ footer {
     /* Näytä kortit mobiililla */
     .mobile-cards {
         display: block;
+    }
+
+    /* Varmista, että review count on piilotettu mobiililla, vaikka .mobile-cards näytetään. */
+    .movie-card-review-count {
+        display: none !important;
     }
 
     /* Näytä sorttausnappi mobiililla */
