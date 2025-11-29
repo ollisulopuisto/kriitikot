@@ -818,6 +818,16 @@ tbody tr:hover td:nth-child(even) {
 
 td {
     padding: 1rem 0.5rem;
+
+/* Hide review-count badges on small screens (mobile) */
+@media (max-width: 768px) {
+    .review-count,
+    th .review-count,
+    .movie-review-count,
+    .movie-card-review-count {
+        display: none !important;
+    }
+}
     vertical-align: top;
 }
 
