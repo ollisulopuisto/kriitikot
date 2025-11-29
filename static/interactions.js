@@ -516,7 +516,9 @@ function initMobileCriticClickHandlers() {
             
             const criticFilterValue = document.getElementById('critic-filter-value-mobile');
             if (criticFilterValue) {
-                criticFilterValue.textContent = selectedCritic;
+                // Show the critic's display name (not the internal id) in the mobile filter UI
+                const displayName = (criticName && criticName.textContent) ? criticName.textContent.trim() : selectedCritic;
+                criticFilterValue.textContent = displayName;
             }
             
             if (window.showResetButton) window.showResetButton();
