@@ -84,17 +84,16 @@ function hidePosterInCell(movieCell) {
  * Palauta elokuvan nimi alkuperäiseen muotoon (poista linkit)
  */
 function resetMovieCell(movieCell) {
-    // Tarkista onko linkkejä
-    const linksDiv = movieCell.querySelector('.movie-links');
-    if (linksDiv) {
-        // Tallenna elokuvan nimi
-        const titleDiv = movieCell.querySelector('.movie-title-text');
-        const movieTitle = titleDiv ? titleDiv.textContent.trim() : movieCell.textContent.trim();
-        
-        // Palauta vain elokuvan nimi
-        movieCell.innerHTML = '';
-        movieCell.textContent = movieTitle;
+    if (!movieCell) return;
+
+    if (movieCell.__originalContent !== undefined) {
+        movieCell.innerHTML = movieCell.__originalContent;
+        return;
     }
+
+    // Fallback: poista mahdolliset lisätyt linkkiblokit ja jätä muu sisältö koskemattomaksi
+    const extraLinks = movieCell.querySelectorAll('.movie-links');
+    extraLinks.forEach(el => el.remove());
 }
 
 /**

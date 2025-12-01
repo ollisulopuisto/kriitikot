@@ -143,6 +143,12 @@ function initMovieClickHandlers() {
     if (!table) return;
     
     const tbody = table.querySelector('tbody');
+    // Tallenna jokaisen elokuvasolun alkuperäinen sisältö, jotta se voidaan palauttaa
+    tbody.querySelectorAll('.movie-col').forEach(cell => {
+        if (!cell.__originalContent) {
+            cell.__originalContent = cell.innerHTML;
+        }
+    });
     
     tbody.querySelectorAll('.movie-col').forEach((movieCell) => {
         movieCell.style.cursor = 'pointer';
