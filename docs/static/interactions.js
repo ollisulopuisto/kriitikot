@@ -232,52 +232,40 @@ function initMovieClickHandlers() {
             row.dataset.filtered = 'true';
             movieCell.classList.add('selected');
             
-            // Lisää linkit elokuvan nimen alapuolelle samaan soluun
+            // Lisää linkit elokuvan nimen / laskurin alapuolelle koskematta alkuperäiseen rakenteeseen
             const nytleffaanUrl = movieCell.dataset.nytleffaan;
             const letterboxdUrl = movieCell.dataset.letterboxd;
-            
-            // Tarkista onko linkit jo lisätty
-            if (!movieCell.querySelector('.movie-links')) {
-                // Tallenna alkuperäinen elokuvan nimi
-                const movieTitle = movieCell.textContent.trim();
-                
-                // Tyhjennä solu
-                movieCell.innerHTML = '';
-                
-                // Lisää elokuvan nimi takaisin
-                const titleDiv = document.createElement('div');
-                titleDiv.textContent = movieTitle;
-                titleDiv.className = 'movie-title-text';
-                movieCell.appendChild(titleDiv);
-                
-                // Lisää linkit jos niitä on
-                if (nytleffaanUrl || letterboxdUrl) {
-                    const linksDiv = document.createElement('div');
-                    linksDiv.className = 'movie-links';
-                    linksDiv.style.marginTop = '0.5rem';
-                    
-                    // Nytleffaan-linkki
-                    if (nytleffaanUrl) {
-                        const nytleffaanLink = document.createElement('a');
-                        nytleffaanLink.href = nytleffaanUrl;
-                        nytleffaanLink.target = '_blank';
-                        nytleffaanLink.innerHTML = '🎬 Osta liput';
-                        nytleffaanLink.className = 'movie-link nytleffaan-link';
-                        nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
-                        linksDiv.appendChild(nytleffaanLink);
-                    }
-                    
-                    // Letterboxd-linkki
-                    if (letterboxdUrl) {
-                        const letterboxdLink = document.createElement('a');
-                        letterboxdLink.href = letterboxdUrl;
-                        letterboxdLink.target = '_blank';
-                        letterboxdLink.textContent = '📽️ Letterboxd';
-                        letterboxdLink.className = 'movie-link letterboxd-link';
-                        letterboxdLink.title = 'Katso Letterboxd:ssä';
-                        linksDiv.appendChild(letterboxdLink);
-                    }
-                    
+            const existingLinks = movieCell.querySelector('.movie-links');
+
+            if (!existingLinks && (nytleffaanUrl || letterboxdUrl)) {
+                const linksDiv = document.createElement('div');
+                linksDiv.className = 'movie-links';
+                linksDiv.style.marginTop = '0.5rem';
+
+                if (nytleffaanUrl) {
+                    const nytleffaanLink = document.createElement('a');
+                    nytleffaanLink.href = nytleffaanUrl;
+                    nytleffaanLink.target = '_blank';
+                    nytleffaanLink.innerHTML = '🎬 Osta liput';
+                    nytleffaanLink.className = 'movie-link nytleffaan-link';
+                    nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
+                    linksDiv.appendChild(nytleffaanLink);
+                }
+
+                if (letterboxdUrl) {
+                    const letterboxdLink = document.createElement('a');
+                    letterboxdLink.href = letterboxdUrl;
+                    letterboxdLink.target = '_blank';
+                    letterboxdLink.textContent = '📽️ Letterboxd';
+                    letterboxdLink.className = 'movie-link letterboxd-link';
+                    letterboxdLink.title = 'Katso Letterboxd:ssä';
+                    linksDiv.appendChild(letterboxdLink);
+                }
+
+                const insertAfterTarget = movieCell.querySelector('.movie-review-count') || movieCell.querySelector('.movie-title-main');
+                if (insertAfterTarget) {
+                    insertAfterTarget.insertAdjacentElement('afterend', linksDiv);
+                } else {
                     movieCell.appendChild(linksDiv);
                 }
             }
