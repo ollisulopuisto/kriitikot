@@ -77,39 +77,85 @@ class KSMLScraper:
         """
         Poimii otsikon.
         Käyttää järjestyksessä:
-        1. <meta name="description"> - KSML käyttää tätä pelkälle elokuvan nimelle
-        2. JSON-LD headline
-        3. h1
-        4. og:title
-        5. <title>
+        1. <meta name="description"> - KSML käyttää tätä pelkälle elokuvan nimelle (mikäli lyhyt)
+        2. <p class="diks-storyline__lead-paragraph"> - Usein elokuvan nimi
+        3. Ensimmäiset kappaleet (p-tagit) - Fallback
+        4. Regex-mätsäys descriptionista (jos pitkä kuvaus)
+        5. JSON-LD headline
+        6. h1
+        7. og:title
+        8. <title>
         """
         title = None
         
         # 1. <meta name="description"> - KSML:llä usein pelkkä elokuvan nimi
         meta_desc = soup.find('meta', attrs={'name': 'description'})
-        if meta_desc and meta_desc.get('content'):
-            desc = meta_desc['content'].strip()
-            # Jos description on lyhyt (< 50 merkkiä), se on todennäköisesti elokuvan nimi
-            if desc and len(desc) < 50 and not desc.startswith('Elokuva'):
-                return desc
+        desc_content = meta_desc.get('content', '').strip() if meta_desc else ''
         
-        # 2. Yritä JSON-LD
+        if desc_content:
+            # Jos description on lyhyt (< 50 merkkiä), se on todennäköisesti elokuvan nimi
+            if len(desc_content) < 50 and not desc_content.startswith('Elokuva'):
+                return desc_content
+
+        # 2. Etsi spesifillä luokalla: diks-storyline__lead-paragraph
+        lead_p = soup.find('p', class_='diks-storyline__lead-paragraph')
+        if lead_p:
+            text = lead_p.get_text(strip=True)
+            if text and len(text) < 100: # Sallitaan hieman pidempi, mutta ei koko kappaletta
+                return text
+
+        # 3. Etsi ensimmäisistä kappaleista lyhyttä tekstiä (KSML-spesifi rakenne) fallbackina
+        article = soup.find('article')
+        if article:
+            # Käy läpi ensimmäiset 5 kappaletta
+            paragraphs = article.find_all('p', limit=5)
+            for p in paragraphs:
+                # SKIPPAA tunnetut ei-otsikko luokat
+                classes = p.get('class', [])
+                if classes:
+                    if any(c in classes for c in ['diks-byline__author', 'diks-article__lead', 'diks-storyline__stars']):
+                        continue
+                
+                text = p.get_text(strip=True)
+                # Kriteerit:
+                # - Lyhyt (< 80 merkkiä)
+                # - Ei ole tyhjä
+                # - Ei sisällä "Teksti:", "Kuva:" tms. metatietoa
+                if text and len(text) < 80 and len(text) > 1:
+                    if any(x in text for x in ['Teksti:', 'Kuva:', 'Arvio:', 'Tähdet:', 'Ohjaus:']):
+                        continue
+                     # Hylkää jos näyttää päivämäärältä tai kellonajalta
+                    if re.search(r'\d{1,2}\.\d{1,2}\.', text) or re.search(r'\d{1,2}:\d{2}', text):
+                        continue
+                    
+                    return text
+
+        # 4. Yritä poimia descriptionista regexillä jos se on pitkä
+        if desc_content:
+            # "Ohjaajan X elokuva Y on..."
+            match = re.search(r'(?:.*ohjaama\s+)?(.+?)\s+(?:on|tarjoaa|kertoo|vie)\s+', desc_content)
+            if match:
+                candidate = match.group(1).strip()
+                if len(candidate) < 50:
+                    return candidate
+        
+        # 5. Yritä JSON-LD
         if ld_json:
             title = ld_json.get('headline') or ld_json.get('name')
         
-        # 3. Fallback: h1
+        # 6. Fallback: h1
         if not title:
             h1 = soup.find('h1')
             if h1:
                 title = h1.get_text(strip=True)
         
-        # 4. Fallback: meta og:title
+        # 7. Fallback: meta og:title
         if not title:
             meta_og = soup.find('meta', property='og:title')
             if meta_og and meta_og.get('content'):
                 title = meta_og['content']
         
-        # 5. Fallback: <title>
+        # 8. Fallback: <title>
         if not title and soup.title:
             title = soup.title.string.strip() if soup.title.string else None
         
