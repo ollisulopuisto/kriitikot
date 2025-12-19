@@ -504,12 +504,25 @@ thead th:not(:first-child):hover {
     text-align: left;
 }
 
-/* Mediasuodatin - rivitys sallittu */
+/* Mediasuodatin - rivitys sallittu, ja label samalle riville */
 .media-filter-buttons {
-    display: flex;
+    display: contents;
+}
+
+/* Media-group specific overrides */
+.media-group {
+    flex-direction: row !important;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.4rem;
-    padding-bottom: 0.25rem;
+}
+
+.media-group label {
+    margin-bottom: 0;
+    margin-right: 0.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .media-filter-buttons::-webkit-scrollbar {
