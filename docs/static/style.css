@@ -443,11 +443,34 @@ thead th:not(:first-child):hover {
 }
 
 .filters-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
+    /* Changed from grid to flex for better width control */
+    flex-wrap: wrap;
     gap: 1.5rem;
     flex: 1;
-    align-items: end;
+    align-items: flex-end;
+    /* Ensure bottom alignment */
+}
+
+/* Specific sizing */
+.group-reviews,
+.group-stars {
+    flex: 1 1 180px;
+    /* Base width, allowed to shrink/grow slightly */
+    max-width: 220px;
+    /* Don't get too wide */
+}
+
+.media-group {
+    flex: 10 1 300px;
+    /* Grow eagerly to take available space */
+}
+
+.group-favorites {
+    flex: 0 0 auto;
+    /* Fit to content only */
+    padding-bottom: 0.5rem;
+    /* Optical alignment with sliders inputs */
 }
 
 .filter-group {
