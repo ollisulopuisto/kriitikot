@@ -444,9 +444,10 @@ thead th:not(:first-child):hover {
 
 .filters-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
     flex: 1;
+    align-items: end;
 }
 
 .filter-group {
@@ -480,13 +481,11 @@ thead th:not(:first-child):hover {
     text-align: left;
 }
 
-/* Mediasuodatin - pakota yhteen riviin */
+/* Mediasuodatin - rivitys sallittu */
 .media-filter-buttons {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 0.4rem;
-    overflow-x: auto;
-    overflow-y: hidden;
     padding-bottom: 0.25rem;
 }
 
