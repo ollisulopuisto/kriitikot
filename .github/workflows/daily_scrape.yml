@@ -1,0 +1,57 @@
+name: Daily Scraper and Site Update
+
+on:
+  schedule:
+    # Run daily at 6:00 UTC (8:00 or 9:00 Finland time)
+    - cron: '0 6 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run scraper (batch update)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          echo "🚀 Running batch update..."
+          python src/batch_update.py --limit 10 --source all
+
+      - name: Generate static site
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          echo "📝 Generating static site..."
+          python scripts/generate_static.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+          # Add database and docs folder
+          git add reviews.db docs/
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "🤖 Daily scrape update [skip ci]"
+            git push
+          fi
