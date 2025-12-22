@@ -45,19 +45,40 @@ class SKScraper:
         # Esim: "Andrzej Żuławski: Possession. Elokuvateattereissa 3.10."
         # Esim: "Stanley Nelson: Chaos: The Manson Murders. Elokuvateattereissa 31.10."
         
-        # Etsi kaikki <em> ja <p> tagit jotka sisältävät "Elokuvateattereissa"
+        # Etsi kaikki <em> ja <p> tagit jotka ovat potentiaalisesti lopussa
+        # SK:n tyyli on: "Ohjaaja: Elokuva. Jakelija/Alusta. ★★★★★"
         paragraphs = soup.find_all(['p', 'em'])
+        
+        # Lista tunnetuista jakelijoista/alustoista (case-insensitive myöhemmin)
+        distributors = [
+            r'Elokuvateattereissa', r'Netflix', r'HBO', r'Disney\+', r'Prime Video', 
+            r'Apple TV\+', r'SkyShowtime', r'Viaplay', r'Yle Areena', r'Mubi', r'Max'
+        ]
+        distributors_pattern = '|'.join(distributors)
+        
         for p in reversed(paragraphs):  # Käy läpi lopusta alkuun
             text = p.get_text(strip=True)
-            # Tarkista onko muotoa "Nimi: Elokuva. Elokuvateattereissa..."
-            # Käytä non-greedy matchingia .*? ensimmäiselle osalle (ohjaaja)
-            # ja ota kaikki ennen pistettä toiseksi osaksi (elokuvan nimi, voi sisältää :)
-            movie_info_match = re.search(r'^([A-ZÅÄÖa-zåäö\s]+?):\s*(.+?)\.\s*Elokuvateattereissa', text)
-            if movie_info_match:
-                director = movie_info_match.group(1).strip()
-                title = movie_info_match.group(2).strip()
-                # Tarkista että ohjaajan nimi on järkevä (max 4 sanaa)
-                if len(director.split()) <= 4:
+            
+            # Etsitään muotoa "Ohjaaja: Elokuva. Jakelija."
+            # Käytetään regexiä joka etsii lopusta tunnettua jakelijaa/alustaa
+            # Regex selitys:
+            # ^([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s\-\.]+)  -> Ohjaajan nimi (alkaa isolla, voi sisältää väliviivoja/pisteitä)
+            # :\s*                              -> Erotin ja välilyönnit
+            # (.+?)                             -> Elokuvan nimi (non-greedy)
+            # \.\s*                             -> Piste ja välilyönnit
+            # (?:                               -> Jakelija ryhmä (non-capturing)
+            #   Elokuvateattereissa|Netflix...  -> Vaihtoehdot
+            # )
+            
+            pattern = r'^([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s\-\.]+?):\s*(.+?)\.\s*(?:' + distributors_pattern + r')'
+            
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                director = match.group(1).strip()
+                title = match.group(2).strip()
+                
+                # Tarkistetaan että ohjaajan nimi on järkevä (max 5 sanaa)
+                if len(director.split()) <= 5:
                     return title
         
         # 2. FALLBACK: Käytä og:title metatagia
