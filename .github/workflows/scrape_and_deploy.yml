@@ -46,6 +46,7 @@ jobs:
         id: run_tests
         run: |
           # Run pytest; if tests fail, mark TESTS_FAILED in env
+          export TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}"
           pytest -q || echo "TESTS_FAILED=1" >> $GITHUB_ENV
 
       - name: Create issue on test failures
@@ -86,6 +87,7 @@ jobs:
       - name: Run scrapers (batch update)
         env:
           DISPLAY_TIMEZONE: 'Europe/Helsinki'
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
           python3 src/batch_update.py
 

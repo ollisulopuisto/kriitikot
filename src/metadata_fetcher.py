@@ -16,7 +16,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from models import Movie
-from config import TMDB_API_KEY
+try:
+    from config import TMDB_API_KEY
+except ImportError:
+    TMDB_API_KEY = os.environ.get('TMDB_API_KEY')
+
 
 
 class MetadataFetcher:
