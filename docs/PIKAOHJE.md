@@ -12,7 +12,7 @@ python3 quick_import.py
 
 # 3. Käynnistä web-sovellus
 python3 app.py
-# Avaa http://localhost:5000
+# Avaa http://localhost:5432
 ```
 
 ## Tietokannan päivitys
@@ -64,7 +64,7 @@ python3 discovery.py
 cd src
 python3 app.py
 
-# Avaa selaimessa: http://localhost:5000
+# Avaa selaimessa: http://localhost:5432
 ```
 
 ## Cron-asennus (päivittäinen päivitys klo 08:00)

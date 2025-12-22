@@ -92,30 +92,30 @@ python3 src/app.py
 ```
 
 #### Paikallinen kehitys (kontti samalla koneella)
-Avaa selaimessa: `http://localhost:5000`
+Avaa selaimessa: `http://localhost:5432`
 
 #### Remote-kehitys (VS Code Dev Container)
 
 **Vaihtoehto A: VS Code Simple Browser (suositeltu)**
 1. Paina `Ctrl+Shift+P` (tai `Cmd+Shift+P` macOS)
 2. Kirjoita: "Simple Browser: Show"
-3. Anna URL: `http://localhost:5000`
+3. Anna URL: `http://localhost:5432`
 
 **Vaihtoehto B: SSH-tunneli läppärille**
 
 Jos Flask pyörii remote-koneella (esim. `dev.sulopuis.to`), luo SSH-tunneli **läppärilläsi**:
 
 ```bash
-# Jos VS Code jo forwardaa portin 5000, käytä eri porttia:
-ssh -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
+# Jos VS Code jo forwardaa portin 5432, käytä eri porttia:
+ssh -L 8000:localhost:5432 käyttäjä@dev.sulopuis.to
 
-# Tai jos portti 5000 on vapaa:
-ssh -L 5000:localhost:5000 käyttäjä@dev.sulopuis.to
+# Tai jos portti 5432 on vapaa:
+ssh -L 5432:localhost:5432 käyttäjä@dev.sulopuis.to
 ```
 
 Sitten avaa läppärin selaimessa:
 - `http://localhost:8000` (jos käytit porttia 8000)
-- `http://localhost:5000` (jos käytit porttia 5000)
+- `http://localhost:5432` (jos käytit porttia 5432)
 
 **Huom:** `forwardPorts` devcontainer.json:ssa ei riitä remote-käytössä - tarvitaan SSH-tunneli tai Simple Browser.
 
@@ -128,7 +128,7 @@ Voit automatisoida tunnelin autossh-työkalulla:
 # Linux: sudo apt-get install autossh
 
 # Luo pysyvä tunneli
-autossh -M 0 -f -N -L 8000:localhost:5000 käyttäjä@dev.sulopuis.to
+autossh -M 0 -f -N -L 8000:localhost:5432 käyttäjä@dev.sulopuis.to
 ```
 
 Tunneli pysyy pystyssä ja yhdistää automaattisesti uudelleen jos yhteys katkeaa.
@@ -349,10 +349,10 @@ for rev_meta in reviews:
 ### HTTP API
 ```bash
 # Hae kaikki arvostelut
-curl http://localhost:5000/api/reviews
+curl http://localhost:5432/api/reviews
 
 # Hae yksittäinen arvostelu
-curl http://localhost:5000/api/reviews/0
+curl http://localhost:5432/api/reviews/0
 ```
 
 ## 📝 Seuraavat Askeleet

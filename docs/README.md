@@ -169,4 +169,4 @@ class Review:
 
 - **Pääprojekti:** [../README.md](../README.md)
 - **Testit:** [../tests/](../tests/)
-- **Web UI:** http://localhost:5000 (kun app.py käynnissä)
+- **Web UI:** http://localhost:5432 (kun app.py käynnissä)

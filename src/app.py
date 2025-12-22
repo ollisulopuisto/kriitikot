@@ -694,7 +694,14 @@ def fetch_all_metadata():
 
 
 if __name__ == '__main__':
-    print(f"Starting Flask app with SQLite database")
-    print("Open http://localhost:5000 to view reviews")
+    import argparse
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    parser = argparse.ArgumentParser(description='Elokuvakritiikkien Kerääjä Web App')
+    parser.add_argument('--port', type=int, default=5432, help='Port to run the server on (default: 5432)')
+    
+    args = parser.parse_args()
+    
+    print(f"Starting Flask app with SQLite database")
+    print(f"Open http://localhost:{args.port} to view reviews")
+    
+    app.run(debug=True, host='0.0.0.0', port=args.port)

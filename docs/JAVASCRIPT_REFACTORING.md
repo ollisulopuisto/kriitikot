@@ -115,7 +115,7 @@ Sovellus on testattu:
 Testaa selaimessa:
 ```bash
 cd src && python3 app.py
-# Avaa http://localhost:5000
+# Avaa http://localhost:5432
 ```
 
 Tarkista:
