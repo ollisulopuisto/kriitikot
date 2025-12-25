@@ -25,8 +25,8 @@ def main():
     parser.add_argument(
         '--limit',
         type=int,
-        default=5,
-        help='Montako arvostelua per lähde (oletus: 5)'
+        default=10,
+        help='Montako arvostelua per lähde (oletus: 10)'
     )
     parser.add_argument(
         '--source',

@@ -52,7 +52,7 @@ case $UPDATE_TYPE in
         LIMIT=20
         ;;
     *)
-        LIMIT=5
+        LIMIT=10
         ;;
 esac
 

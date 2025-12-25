@@ -88,6 +88,17 @@ class ISScraper:
         HUOM: Hylkää arvostelut jotka koskevat vain suoratoistoa/TV:tä.
         Hyväksytään vain elokuvateattereissa esitettävät elokuvat.
         """
+        # TARKISTUS 0: Jos metaTitle tai Title sisältää "-arvio", se on aina arvio!
+        # Tämä ohittaa suoratoisto/teatteri-tarkistuksen, koska jos otsikossa on
+        # nimenomaan mainittu se arvioksi, se on relevantti.
+        meta_title = asset_data.get('metaTitle', '')
+        title = asset_data.get('title', '')
+        
+        if '-arvio' in meta_title or 'Arvio:' in meta_title:
+            return True
+        if '-arvio' in title or 'Arvio:' in title:
+            return True
+
         tags = asset_data.get('tags', [])
         tag_keys = [tag.get('key', '').lower() for tag in tags]
         
@@ -145,6 +156,14 @@ class ISScraper:
         Tai JSON-datasta voi löytyä suoraan elokuvan nimi theme_tagseista.
         """
         title = asset_data.get('title', '')
+        meta_title = asset_data.get('metaTitle', '')
+        
+        # 0) Priority: Check metaTitle for "[Movie] -arvio" pattern
+        # IS meta titles often have format: "MovieName -arvio: Subtitle"
+        if meta_title:
+            match = re.search(r'^(.+?)\s+-arvio', meta_title)
+            if match:
+                return match.group(1).strip()
         
         # Yritä poimia elokuvan nimi – patterns:
         # 1) "Sisu 2 -arvio:"

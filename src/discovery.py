@@ -281,7 +281,7 @@ class CategoryCrawler:
             page_data = page_data_wrapper.get('data', [])
             
             # Tunnetut IS.fi:n elokuvakriitikot
-            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen']
+            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu']
             
             # Hylättävät otsikkopatternit (TV-arvostelut)
             excluded_patterns = [
@@ -291,10 +291,21 @@ class CategoryCrawler:
                 'katsomo+',
                 'netflix',
                 'viaplay',
-                'hbo'
+                'hbo',
+                'suoratoistossa',
+                'illalla tv:ssä',
+                'tv-vinkki',
+                'valitse katsottavaksi'
             ]
             
-            # Käy läpi kaikki lanes ja items
+            # Arvosteluun viittaavat avainsanat
+            review_keywords = [
+                'tähden arvoinen', 'elokuva', 'arvio', 'arvostelu', 
+                'leffassa', 'leffa', 'ensi-ilta', 'ensi-illassa', 
+                'valkokanka', 'teattereissa', 'komedia', 'traileri'
+            ]
+            
+            # Käy läpi kaikki lanes ja items. IS on usein satoja artikkeleita JSONissa.
             for data_item in page_data:
                 lanes = data_item.get('lanes', [])
                 for lane in lanes:
@@ -306,22 +317,25 @@ class CategoryCrawler:
                         url_path = item.get('url', '').strip()
                         ingress = item.get('ingress', '').strip().lower()
                         
-                        # Jos kriitikko on tunnettu JA otsikossa viitteitä arvioon
-                        if byline in known_critics and title and url_path:
+                        if not title or not url_path:
+                            continue
+                            
+                        # Jos kriitikko on tunnettu JA otsikossa tai ingressissä viitteitä arvioon
+                        if byline in known_critics:
                             title_lower = title.lower()
                             
-                            # Hylkää TV-arvostelut
+                            # Hylkää selkeät TV-vinkit
                             if any(pattern in title_lower for pattern in excluded_patterns):
                                 continue
                             
-                            # Hylkää jos ingressissä mainitaan suoratoisto
-                            if any(word in ingress for word in ['katsomo+', 'netflix', 'suoratoistossa']):
-                                continue
-                            
-                            # Hyväksy vain jos otsikossa viitteitä ELOKUVA-arvioon
-                            # (ei "tv:ssä" joka viittaa TV-esitykseen)
-                            review_keywords = ['tähden arvoinen', 'elokuva', 'arvio', 'leffassa', 'leffa']
+                            # Tarkistetaan sekä otsikko että ingress
+                            found_keyword = False
                             if any(kw in title_lower for kw in review_keywords):
+                                found_keyword = True
+                            elif any(kw in ingress for kw in review_keywords):
+                                found_keyword = True
+                            
+                            if found_keyword:
                                 # Muodosta absoluuttinen URL
                                 if url_path.startswith('/'):
                                     url = 'https://www.is.fi' + url_path

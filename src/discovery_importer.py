@@ -163,7 +163,7 @@ class DiscoveryImporter:
         """Hakee julkaisun."""
         return self.session.query(Publication).filter_by(short_name=short_name).first()
     
-    def import_discovered_reviews(self, source: str, limit: int = 10) -> int:
+    def import_discovered_reviews(self, source: str, limit: int = 20) -> int:
         """
         Löytää ja importoi uudet arvostelut lähteestä.
         
@@ -289,7 +289,7 @@ class DiscoveryImporter:
         
         return imported
     
-    def import_all_sources(self, limit_per_source: int = 5) -> Dict[str, int]:
+    def import_all_sources(self, limit_per_source: int = 10) -> Dict[str, int]:
         """
         Importoi kaikista lähteistä.
         
@@ -350,5 +350,5 @@ if __name__ == '__main__':
         else:
             importer.import_discovered_reviews(source, limit)
     else:
-        # Default: importoi kaikista lähteistä 3 arvostelua
-        importer.import_all_sources(limit_per_source=3)
+        # Default: importoi kaikista lähteistä 10 arvostelua
+        importer.import_all_sources(limit_per_source=10)
