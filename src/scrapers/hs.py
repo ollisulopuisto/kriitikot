@@ -91,8 +91,12 @@ class HSScraper:
             crumbs = item.get('crumbs', [])
             full_text = ''.join([c.get('content', '') for c in crumbs])
             
-            # Jos löytyy tähtimerkintä, tämä on elokuvatietokappale
-            if '★' in full_text:
+            # Tunnistusmerkit: tähdet TAI (ohjaus + kesto)
+            # Joskus tähdet ovat eri kappaleessa kuin faktatiedot.
+            has_stars = '★' in full_text
+            has_facts = 'ohjaus' in full_text.lower() and re.search(r'\d+\s*min', full_text)
+
+            if has_stars or has_facts:
                 # Muoto voi olla:
                 # "A Big Bold Beautiful Journey, ohjaus Brady Corbet. 143 min. K12. ★★★"
                 # "Elokuvan nimi. Ohjaus X. Y min. ★★★★"
