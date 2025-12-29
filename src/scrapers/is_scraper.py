@@ -115,18 +115,30 @@ class ISScraper:
             'katsomo+', 'katsomo +', 'mtv katsomo',
             'netflix', 'hbo', 'disney+', 'viaplay', 'ruutu',
             'suoratoistossa', 'suoratoistopalvelu',
-            'tv:ssä', 'televisiossa'
+            'tv:ssä', 'televisiossa',
+            'tv-ensi-ilta', 'televisioensi-ilta'
         ]
         
         # Elokuvateatteriviittaukset jotka HYVÄKSYTÄÄN
         theater_keywords = [
             'elokuvateatter', 'valkokangas', 'teattereissa',
-            'ensi-ilta', 'elokuvakino', 'finnkino'
+            'elokuvakino', 'finnkino'
         ]
+        
+        # Ensi-ilta on erikoistapaus: se voi olla myös tv-ensi-ilta
+        # Poistetaan tekstistä tv-ensi-illat ennen tarkistusta
+        clean_text_for_premiere_check = text_content \
+            .replace('tv-ensi-ilta', '') \
+            .replace('televisioensi-ilta', '')
+            
+        has_premiere = 'ensi-ilta' in clean_text_for_premiere_check
         
         # Jos mainitaan suoratoisto MUTTA EI teatteria → hylkää
         has_streaming = any(kw in text_content for kw in streaming_keywords)
-        has_theater = any(kw in text_content for kw in theater_keywords)
+        has_theater_keyword = any(kw in text_content for kw in theater_keywords)
+        
+        # Hyväksytään jos on teatterisana TAI (aito) ensi-ilta
+        has_theater = has_theater_keyword or has_premiere
         
         if has_streaming and not has_theater:
             return False  # Pelkkä suoratoistoarvostelu
