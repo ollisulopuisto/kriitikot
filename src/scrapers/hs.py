@@ -122,8 +122,11 @@ class HSScraper:
                     candidates.append(title)
                 
                 # Valitse lyhyin (ensimmäinen erottelumerkki)
-                if candidates:
                     title = min(candidates, key=len)
+                    
+                    # Poista mahdollinen alkuperäisnimi suluissa lopusta
+                    title = re.sub(r'\s*\([^)]+\)$', '', title)
+                    
                     if title and len(title) > 2:
                         return title
         
@@ -132,6 +135,10 @@ class HSScraper:
         if '|' in title:
             parts = title.split('|')
             title = parts[-1].strip()
+        
+        # Poista mahdollinen alkuperäisnimi suluissa lopusta
+        # Esim. "Kotiapulainen (The Housemaid)" -> "Kotiapulainen"
+        title = re.sub(r'\s*\([^)]+\)$', '', title)
         
         return title
     
