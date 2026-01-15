@@ -334,11 +334,82 @@ function updateCriticColumnVisibility() {
             }
         });
     });
+
+    // Päivitä rivien näkyvyys (piilota rivit joilla ei ole näkyviä arvioita)
+    updateRowVisibility();
+}
+
+/**
+ * Päivitä rivien näkyvyys visuaalisten sarakkeiden perusteella
+ * Piilottaa rivit, joilla ei ole yhtään näkyvää arvostelua aktiivisissa sarakkeissa
+ */
+function updateRowVisibility() {
+    const table = document.querySelector('table');
+    if (!table) return;
+
+    const tbody = table.querySelector('tbody');
+    const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+
+    // Hae kaikki näkyvät kriitikkosarakkeet
+    const headerRow = table.querySelector('thead tr.critic-row');
+    if (!headerRow) return;
+
+    const allHeaders = Array.from(headerRow.querySelectorAll('th.rating-cell'));
+    const visibleColumnIndices = [];
+
+    allHeaders.forEach((header, index) => {
+        if (header.style.display !== 'none' && !header.classList.contains('filter-hidden')) {
+            visibleColumnIndices.push(index + 1); // +1 because index 0 is movie title
+        }
+    });
+
+    allRows.forEach(row => {
+        // Jos rivi on jo piilotettu muista syistä (esim. tekstihaku, tähdet), älä koske
+        // Mutta meidän pitää erottaa "ei arvosteluja" -piilotus "filtteri"-piilotuksesta logic chainissa.
+        // Tässä oletamme, että tämä ajetaan viimeisenä.
+
+        // Emme koske riveihin, jotka on piilotettu review-count tai star filtterillä
+        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true') {
+            return;
+        }
+
+        let hasVisibleReview = false;
+        const cells = row.querySelectorAll('td');
+
+        for (const colIndex of visibleColumnIndices) {
+            const cell = cells[colIndex];
+            if (cell) {
+                const hasLink = cell.querySelector('a.rating-link');
+                const ratingStars = cell.querySelector('.rating-stars');
+                const noRating = cell.querySelector('.no-rating');
+                const isEmpty = noRating && noRating.textContent.trim() === '–';
+
+                if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
+                    hasVisibleReview = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasVisibleReview) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Päivitä myös sticky scrollbar
+    const stickyScrollbar = document.querySelector('.sticky-scrollbar-container');
+    if (stickyScrollbar && getComputedStyle(stickyScrollbar).display !== 'none') {
+        // Trigger resize event implies scrollbar update
+        window.dispatchEvent(new Event('resize'));
+    }
 }
 
 // Export global functions
 window.sortCriticColumnsByReviews = sortCriticColumnsByReviews;
 window.updateCriticColumnVisibility = updateCriticColumnVisibility;
+window.updateRowVisibility = updateRowVisibility;
 window.showPosterInCell = showPosterInCell;
 window.hidePosterInCell = hidePosterInCell;
 window.resetMovieCell = resetMovieCell;
