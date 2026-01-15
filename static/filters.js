@@ -620,7 +620,7 @@ function initFavoriteFilter() {
                 heart = document.createElement('span');
                 heart.className = 'heart-icon';
                 heart.innerHTML = '♥';
-                heart.title = 'Merkitse suosikiksi';
+                heart.title = 'Merkitse suosikkikriitikoksi';
                 heart.onclick = (e) => window.toggleFavorite(criticId, e);
 
                 // Insert after the name text node (which is usually the first child)
