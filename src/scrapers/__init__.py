@@ -28,10 +28,13 @@ from .il import ILScraper
 from .ts import TSScraper
 from .sk import SKScraper
 from .is_scraper import ISScraper
+from .kaleva import KalevaScraper
 from .episodi import EpisodiScraper
 from .muropaketti import MuropakettiScraper
 from .filmoholic import FilmOHolicScraper
 from .kulttuuritoimitus import KulttuuritoimitusScraper
+from .demokraatti import DemokraattiScraper
+from .seura import SeuraScraper
 
 
 # Scraper registry - maps source identifier to scraper instance
@@ -46,6 +49,9 @@ scrapers = {
     'muropaketti': MuropakettiScraper(),
     'filmoholic': FilmOHolicScraper(),
     'kulttuuritoimitus': KulttuuritoimitusScraper(),
+    'demokraatti': DemokraattiScraper(),
+    'seura': SeuraScraper(),
+    'kaleva': KalevaScraper(),
 }
 
 
@@ -89,10 +95,13 @@ __all__ = [
     'TSScraper',
     'SKScraper',
     'ISScraper',
+    'KalevaScraper',
     'EpisodiScraper',
     'MuropakettiScraper',
     'FilmOHolicScraper',
     'KulttuuritoimitusScraper',
+    'DemokraattiScraper',
+    'SeuraScraper',
     
     # Helper functions
     'scrape_review',
