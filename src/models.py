@@ -159,7 +159,6 @@ def seed_publications(session):
         Publication(name='Kulttuuritoimitus', short_name='kulttuuritoimitus'),
         Publication(name='Demokraatti', short_name='demokraatti'),
         Publication(name='Kaleva', short_name='kaleva'),
-        Publication(name='Seura', short_name='seura'),
     ]
     
     for pub in publications:

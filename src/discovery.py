@@ -40,7 +40,6 @@ class CategoryCrawler:
         'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
         'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
         'kulttuuritoimitus': 'https://www.kulttuuritoimitus.fi/wp-json/wp/v2/posts?categories=11',
-        'seura': 'https://seura.fi/tv/',
         'demokraatti': 'https://demokraatti.fi/elokuva/',
         'kaleva': 'https://www.kaleva.fi/aihe/elokuvat/286',
     }
@@ -55,7 +54,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva', 'seura')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -122,11 +121,6 @@ class CategoryCrawler:
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_filmoholic_reviews(soup, limit)
-        
-        elif source == 'seura':
-            html = self._fetch_url(url)
-            soup = BeautifulSoup(html, 'html.parser')
-            return self._find_seura_reviews(soup, limit)
         
         return []
     
@@ -486,54 +480,6 @@ class CategoryCrawler:
                     if len(reviews) >= limit:
                         break
         
-        return reviews
-    
-    def _find_seura_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
-        """Löytää Seura.fi:n arvostelut /tv/ -sivulta."""
-        reviews = []
-        
-        # Etsi kaikki linkit
-        for link in soup.find_all('a', href=True):
-            text = link.get_text(strip=True)
-            href = link['href']
-            
-            # Arvostelut alkavat usein "Elokuva-arvio:"
-            if text.startswith('Elokuva-arvio:'):
-                title = text.replace('Elokuva-arvio:', '').strip()
-                url = href
-                
-                # Muodosta absoluuttinen URL tarvittaessa
-                if url.startswith('/'):
-                    url = 'https://seura.fi' + url
-                    
-                reviews.append({
-                    'title': title,
-                    'url': url
-                })
-                
-                if len(reviews) >= limit:
-                    break
-            
-            # Tai jos URL sisältää "elokuva-arvio" ja teksti on järkevä
-            elif 'elokuva-arvio' in href and len(text) > 10:
-                title = text
-                if title.startswith('Elokuva-arvio:'):
-                    title = title.replace('Elokuva-arvio:', '').strip()
-                
-                url = href
-                if url.startswith('/'):
-                    url = 'https://seura.fi' + url
-                
-                # Vältä duplikaatteja
-                if not any(r['url'] == url for r in reviews):
-                    reviews.append({
-                        'title': title,
-                        'url': url
-                    })
-                    
-                    if len(reviews) >= limit:
-                        break
-
         return reviews
     
     def _find_kulttuuritoimitus_reviews_json(self, api_url: str, limit: int) -> List[Dict[str, str]]:

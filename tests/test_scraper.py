@@ -2,7 +2,7 @@
 import pytest
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
-from scrapers import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, SeuraScraper, scrape_review
+from scrapers import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review
 from scrapers.base import Review
 
 
@@ -286,31 +286,3 @@ def test_is_scraper():
     assert result.source_publication == "Ilta-Sanomat"
 
 
-
-
-def test_seura_scraper_basic():
-    """
-    Testaa Seura-scraperin perustoiminnallisuutta.
-    """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/seura_review_1.html"
-    
-    scraper = SeuraScraper()
-    review = scraper.parse_file(test_file)
-    
-    # Varmista että saimme Review-objektin
-    assert review is not None, "Seura scraper did not return a Review object"
-    assert isinstance(review, Review), "Return value is not a Review instance"
-    
-    # Tarkista kentät
-    print(f"\n=== Seura Parsed Review ===")
-    print(f"Movie: {review.movie_title}")
-    print(f"Critic: {review.critic_name}")
-    print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
-    print(f"Publication: {review.source_publication}")
-    
-    # Validoi tiedot
-    assert review.critic_name == "Jukka Vuorio", f"Expected critic 'Jukka Vuorio', got '{review.critic_name}'"
-    assert review.source_publication == "Seura"
-    assert review.rating_stars == 5, f"Expected rating 5/5, got {review.rating_stars}"
-    assert review.movie_title, "Movie title should not be empty"
-    assert "Kalevala" in review.movie_title, f"Movie title seems wrong: {review.movie_title}"

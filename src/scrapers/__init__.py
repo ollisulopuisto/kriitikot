@@ -34,7 +34,6 @@ from .muropaketti import MuropakettiScraper
 from .filmoholic import FilmOHolicScraper
 from .kulttuuritoimitus import KulttuuritoimitusScraper
 from .demokraatti import DemokraattiScraper
-from .seura import SeuraScraper
 
 
 # Scraper registry - maps source identifier to scraper instance
@@ -50,7 +49,6 @@ scrapers = {
     'filmoholic': FilmOHolicScraper(),
     'kulttuuritoimitus': KulttuuritoimitusScraper(),
     'demokraatti': DemokraattiScraper(),
-    'seura': SeuraScraper(),
     'kaleva': KalevaScraper(),
 }
 
@@ -101,7 +99,6 @@ __all__ = [
     'FilmOHolicScraper',
     'KulttuuritoimitusScraper',
     'DemokraattiScraper',
-    'SeuraScraper',
     
     # Helper functions
     'scrape_review',

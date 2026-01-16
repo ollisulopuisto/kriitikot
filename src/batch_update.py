@@ -31,7 +31,7 @@ def main():
     parser.add_argument(
         '--source',
         type=str,
-        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva', 'seura', 'all'],
+        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva', 'all'],
         default='all',
         help='Lähde josta importoidaan (oletus: all)'
     )

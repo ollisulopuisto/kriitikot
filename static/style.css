@@ -703,6 +703,8 @@ th.rating-cell {
     transition: background-color 0.2s;
     width: 5.5em;
     min-width: 5.5em;
+    z-index: 50;
+    /* Sama kuin thead, jotta pysyy td.movie-col:n (z-index 25-30) yläpuolella */
 }
 
 th.rating-cell:hover {
