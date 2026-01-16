@@ -152,6 +152,14 @@ def seed_publications(session):
         Publication(name='Iltalehti', short_name='il'),
         Publication(name='Turun Sanomat', short_name='ts'),
         Publication(name='Suomen Kuvalehti', short_name='sk'),
+        Publication(name='Ilta-Sanomat', short_name='is'),
+        Publication(name='Episodi', short_name='episodi'),
+        Publication(name='Muropaketti', short_name='muropaketti'),
+        Publication(name='Film-O-Holic', short_name='filmoholic'),
+        Publication(name='Kulttuuritoimitus', short_name='kulttuuritoimitus'),
+        Publication(name='Demokraatti', short_name='demokraatti'),
+        Publication(name='Kaleva', short_name='kaleva'),
+        Publication(name='Seura', short_name='seura'),
     ]
     
     for pub in publications:

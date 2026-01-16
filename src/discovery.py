@@ -41,6 +41,8 @@ class CategoryCrawler:
         'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
         'kulttuuritoimitus': 'https://www.kulttuuritoimitus.fi/wp-json/wp/v2/posts?categories=11',
         'seura': 'https://seura.fi/tv/',
+        'demokraatti': 'https://demokraatti.fi/elokuva/',
+        'kaleva': 'https://www.kaleva.fi/aihe/elokuvat/286',
     }
     
     def __init__(self):
@@ -53,7 +55,7 @@ class CategoryCrawler:
         Palauttaa arvostelu-URL:t kategoriasivulta.
         
         Args:
-            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus')
+            source: Lähteen tunniste ('sk', 'hs', 'ts', 'il', 'ksml', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva', 'seura')
             limit: Montako arvostelua max palautetaan
             
         Returns:
@@ -71,7 +73,17 @@ class CategoryCrawler:
             return self._find_kulttuuritoimitus_reviews_json(url, limit)
         
         # Lähdekohtainen logiikka
-        if source == 'sk':
+        if source == 'demokraatti':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_demokraatti_reviews(soup, limit)
+        
+        elif source == 'kaleva':
+            html = self._fetch_url(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            return self._find_kaleva_reviews(soup, limit)
+
+        elif source == 'sk':
             html = self._fetch_url(url)
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_sk_reviews(soup, limit)
@@ -603,6 +615,91 @@ class CategoryCrawler:
         except Exception as e:
             print(f"  [Episodi] JSON API virhe: {e}")
         
+        return reviews
+    
+    def _find_demokraatti_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """
+        Löytää Demokraatti.fi:n arvostelut WordPress JSON API:sta.
+        Kategoria 64 = Elokuva.
+        """
+        reviews = []
+        api_url = "https://demokraatti.fi/wp-json/wp/v2/posts"
+        
+        try:
+            response = requests.get(
+                api_url,
+                params={'categories': 11, 'per_page': limit, 'orderby': 'date', 'order': 'desc', '_embed': '1'},
+                headers=self.headers,
+                timeout=10
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            for item in data:
+                # Title on rendered HTML, puhdistetaan
+                title_obj = item.get('title', {})
+                if isinstance(title_obj, dict):
+                    title = title_obj.get('rendered', '').strip()
+                else:
+                    title = str(title_obj).strip()
+                
+                # Poista HTML-tagit otsikosta
+                from bs4 import BeautifulSoup
+                title_soup = BeautifulSoup(title, 'html.parser')
+                title = title_soup.get_text(strip=True)
+                
+                url = item.get('link', '')
+                
+                if title and url:
+                    reviews.append({
+                        'title': title,
+                        'url': url
+                    })
+                    
+                    if len(reviews) >= limit:
+                        break
+                        
+        except Exception as e:
+            print(f"  [Demokraatti] JSON API virhe: {e}")
+            
+        return reviews
+
+    def _find_kaleva_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """Löytää Kaleva.fi arvostelut aihe-sivulta."""
+        reviews = []
+        
+        # Kalevan aihesivu (elokuvat) listaa artikkeleita
+        for link in soup.find_all('a', href=True):
+             text = link.get_text(strip=True)
+             
+             # Jos teksti on tyhjä, kokeile aria-label (Kaleva käyttää tätä)
+             if not text:
+                 text = link.get('aria-label', '').strip()
+             
+             # Puhdista teksti pehmeistä tavuviivoista jne.
+             clean_text = text.replace('\xad', '').replace('&shy;', '')
+             
+             # Etsi "Arvio:" tai "Elokuva-arvio"
+             if 'Arvio' in clean_text or 'Elokuva-arvio' in clean_text:
+                 url = link['href']
+                 
+                 # Muodosta absoluuttinen URL
+                 if url.startswith('/'):
+                     url = 'https://www.kaleva.fi' + url
+                     
+                 # Clean title
+                 title = clean_text
+                     
+                 # Avoid duplicates
+                 if not any(r['url'] == url for r in reviews):
+                     reviews.append({
+                         'title': title,
+                         'url': url
+                     })
+                     
+                     if len(reviews) >= limit:
+                         break
+                         
         return reviews
     
     def _fetch_url(self, url: str) -> str:
