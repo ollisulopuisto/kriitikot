@@ -294,7 +294,23 @@ def rss_feed():
             
             desc = f"Elokuva: {movie_title}\nKriitikko: {critic}\nJulkaisu: {pub}\nArvosana: {stars}"
             if review.review_text:
-                desc += f"\n\n{review.review_text}"
+                # Ota vain ensimmäinen kappale
+                text = review.review_text.strip()
+                if '\n\n' in text:
+                    text = text.split('\n\n')[0]
+                elif '\n' in text:
+                    # Jos ei tuplarivinvaihtoa, kokeile yksittäistä jos se vaikuttaa kappalejaolta
+                    # (mutta varo listauksia tms).
+                    # Yksinkertaisuuden vuoksi otetaan ensimmäinen "kappale" 
+                    # joka on joko double newline tai jos ei ole, niin koko teksti.
+                    # Mutta jos teksti on hyvin pitkä ja siinä on single newlineja, saatetaan haluta katkaista.
+                    pass
+                
+                # Varmistus: jos silti liian pitkä (yli 500 merkkiä), katkaise
+                if len(text) > 500:
+                    text = text[:500] + "..."
+                
+                desc += f"\n\n{text}"
             
             ET.SubElement(item, 'description').text = desc
             
