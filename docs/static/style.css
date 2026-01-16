@@ -703,6 +703,8 @@ th.rating-cell {
     transition: background-color 0.2s;
     width: 5.5em;
     min-width: 5.5em;
+    z-index: 50;
+    /* Sama kuin thead, jotta pysyy td.movie-col:n (z-index 25-30) yläpuolella */
 }
 
 th.rating-cell:hover {
@@ -1493,6 +1495,14 @@ footer {
         flex-shrink: 0;
         white-space: nowrap;
         font-size: 0.9em;
+    }
+
+    /* Fix: Allow publication buttons to wrap on mobile instead of full width */
+    .mobile-filter-group .media-filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
     }
 
     .mobile-stepper {

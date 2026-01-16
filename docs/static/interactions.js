@@ -16,6 +16,9 @@ function initSorting() {
 
     // Elokuvanimi sort
     function sortMovies() {
+        // Remove open poster rows before sorting to prevent orphans and crashes
+        tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
+
         const rows = Array.from(tbody.querySelectorAll('tr'));
         rows.sort((a, b) => {
             const titleA = a.querySelector('.movie-col').textContent.trim();
@@ -77,7 +80,7 @@ function initSorting() {
         });
 
         // Rearrange each row's critic cells
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const rows = Array.from(tbody.querySelectorAll('tr:not(.poster-row)'));
         rows.forEach(row => {
             const cells = Array.from(row.querySelectorAll('td.rating-cell'));
             critics.forEach((c, newIdx) => {
@@ -164,9 +167,8 @@ function initMovieClickHandlers() {
                 return;
             }
 
-            // Poista vanha poster-rivi
-            const oldPosterRow = tbody.querySelector('.poster-row');
-            if (oldPosterRow) oldPosterRow.remove();
+            // Poista vanhat poster-rivit
+            tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
 
             const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
             const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
@@ -319,7 +321,7 @@ function initMovieClickHandlers() {
 }
 
 /**
- * Kriitikon nimi click handler (Sorttaus)
+ * Kriitikon nimi click handler (Suodatus)
  */
 function initCriticClickHandlers() {
     const table = document.querySelector('table');
@@ -328,82 +330,101 @@ function initCriticClickHandlers() {
     const tbody = table.querySelector('tbody');
     const criticHeaders = table.querySelectorAll('thead th.rating-cell');
 
-    // Sort logic state
-    let lastSortedCriticIndex = -1;
-    let sortDescending = true;
-
     criticHeaders.forEach((criticHeader) => {
         criticHeader.style.cursor = 'pointer';
-        criticHeader.title = 'Klikkaa lajitellaksesi elokuvat tämän kriitikon arvion mukaan';
+        criticHeader.title = 'Klikkaa näyttääksesi vain tämän kriitikon arvostelut';
 
         criticHeader.addEventListener('click', function () {
-            // Emme koskaan resetoi filttereitä tässä, vaan lajittelemme rivit!
+            const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
+
+            // Jos suodatin on jo aktiivinen, nollaa kaikki
+            if (isAnyFilterActive) {
+                if (window.resetAllFilters) window.resetAllFilters();
+                return;
+            }
+
+            // Poista vanhat poster-rivit
+            tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
 
             const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
             const colIndex = Array.prototype.indexOf.call(allCriticHeaders, criticHeader);
-            const actualColIndex = colIndex + 1; // +1 for movie title column
 
-            // Toggle sort direction if clicking same header
-            if (lastSortedCriticIndex === colIndex) {
-                sortDescending = !sortDescending;
-            } else {
-                sortDescending = true;
-                lastSortedCriticIndex = colIndex;
+            // Tallenna ja nollaa skrollaus
+            const tableWrapper = document.querySelector('.table-wrapper');
+            if (tableWrapper) {
+                window.savedScrollLeft = tableWrapper.scrollLeft;
+                const originalScrollBehavior = tableWrapper.style.scrollBehavior;
+                tableWrapper.style.scrollBehavior = 'auto';
+                tableWrapper.scrollLeft = 0;
+                setTimeout(() => {
+                    tableWrapper.style.scrollBehavior = originalScrollBehavior;
+                }, 50);
             }
 
-            // Visual indication
-            allCriticHeaders.forEach(th => th.classList.remove('selected', 'sort-asc', 'sort-desc'));
-            criticHeader.classList.add('selected');
-            criticHeader.classList.add(sortDescending ? 'sort-desc' : 'sort-asc');
+            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
 
-            // Sort rows
-            const rows = Array.from(tbody.querySelectorAll('tr:not(.poster-row)'));
+            // Piilota muut kriitikkosarakkeet
+            allCriticHeaders.forEach((header, idx) => {
+                if (idx !== colIndex) {
+                    header.classList.add('filter-hidden');
+                    setTimeout(() => {
+                        if (header.classList.contains('filter-hidden')) {
+                            header.style.display = 'none';
+                        }
+                    }, 150);
 
-            rows.sort((rowA, rowB) => {
-                const cellA = rowA.querySelectorAll('td')[actualColIndex];
-                const cellB = rowB.querySelectorAll('td')[actualColIndex];
-
-                const getRating = (cell) => {
-                    if (!cell) return -1;
-                    const ratingStars = cell.querySelector('.rating-stars');
-                    if (ratingStars) {
-                        return (ratingStars.textContent.match(/★/g) || []).length;
-                    }
-                    // Treat non-rated or Empty as -1 (always bottom)
-                    return -1;
-                };
-
-                const ratingA = getRating(cellA);
-                const ratingB = getRating(cellB);
-
-                // Always put empty ratings at the bottom regardless of sort order
-                if (ratingA === -1 && ratingB === -1) return 0;
-                if (ratingA === -1) return 1;
-                if (ratingB === -1) return -1;
-
-                if (sortDescending) {
-                    return ratingB - ratingA;
-                } else {
-                    return ratingA - ratingB;
+                    allRows.forEach(row => {
+                        const cells = row.querySelectorAll('.rating-cell');
+                        if (cells[idx]) {
+                            cells[idx].classList.add('filter-hidden');
+                            setTimeout(() => {
+                                if (cells[idx].classList.contains('filter-hidden')) {
+                                    cells[idx].style.display = 'none';
+                                }
+                            }, 150);
+                        }
+                    });
                 }
             });
 
-            // Re-append rows
-            // First remove poster rows to avoid orphans
-            tbody.querySelectorAll('.poster-row').forEach(r => r.remove());
+            // Piilota rivit ilman arviota tältä kriitikolta
+            allRows.forEach(row => {
+                const cells = row.querySelectorAll('.rating-cell');
+                const cell = cells[colIndex];
 
-            rows.forEach(row => tbody.appendChild(row));
+                if (cell) {
+                    const hasLink = cell.querySelector('a.rating-link');
+                    const hasStars = cell.querySelector('.rating-stars');
+                    const noRating = cell.querySelector('.no-rating');
+                    const isEmpty = noRating && noRating.textContent.trim() === '–';
 
-            // Päivitä sarakkeiden väritys ja rivien näkyvyys
+                    if (!hasLink && !hasStars && isEmpty) {
+                        row.classList.add('dimmed');
+                        setTimeout(() => {
+                            if (row.classList.contains('dimmed')) {
+                                row.style.display = 'none';
+                            }
+                        }, 150);
+                    }
+                }
+            });
+
+            // Merkitse suodatus aktiiviseksi
+            criticHeader.classList.add('selected');
+            criticHeader.dataset.filtered = 'true';
+
             if (typeof updateCriticColumnVisibility === 'function') {
-                updateCriticColumnVisibility();
+                setTimeout(() => {
+                    updateCriticColumnVisibility();
+                }, 200);
             }
 
-            // Ensure filler columns are updated
             setTimeout(() => {
                 if (window.removeFillerColumns) window.removeFillerColumns();
                 if (window.addFillerColumns) window.addFillerColumns();
-            }, 50);
+            }, 250);
+
+            if (window.showResetButton) window.showResetButton();
         });
     });
 }
