@@ -13,6 +13,9 @@ try:
 except Exception:
     ZoneInfo = None
 import os
+import xml.etree.ElementTree as ET
+from email.utils import formatdate
+from flask import make_response
 
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -237,6 +240,75 @@ def health():
             'status': 'ok',
             'reviews_count': count
         })
+    finally:
+        session.close()
+
+
+@app.route('/rss')
+@app.route('/rss.xml')
+@app.route('/feed')
+@app.route('/feed.xml')
+def rss_feed():
+    """Generoi RSS-syöte uusimmista arvosteluista."""
+    session = get_session(engine)
+    
+    try:
+        # Hae 50 viimeisintä julkaistua arviota
+        reviews = session.query(DBReview).filter_by(is_published=1).order_by(
+            DBReview.scraped_at.desc()
+        ).options(
+            joinedload(DBReview.movie),
+            joinedload(DBReview.critic),
+            joinedload(DBReview.publication)
+        ).limit(50).all()
+        
+        # Luo RSS XML
+        rss = ET.Element('rss', version='2.0')
+        channel = ET.SubElement(rss, 'channel')
+        
+        ET.SubElement(channel, 'title').text = 'Kriitikkojen valinta - Uusimmat arviot'
+        ET.SubElement(channel, 'link').text = 'https://ollisulopuisto.github.io/kriitikot/'
+        ET.SubElement(channel, 'description').text = 'Suomalaisten kriitikoiden elokuva-arvostelut.'
+        ET.SubElement(channel, 'language').text = 'fi'
+        
+        if reviews:
+            latest_date = reviews[0].published_date or reviews[0].scraped_at
+            if latest_date:
+                ET.SubElement(channel, 'lastBuildDate').text = formatdate(latest_date.timestamp())
+        
+        for review in reviews:
+            item = ET.SubElement(channel, 'item')
+            
+            movie_title = review.movie.title
+            critic = review.critic.name
+            pub = review.publication.name
+            stars = f"{review.rating_stars}/5" if review.rating_stars else "Ei tähtiä"
+            
+            title = f"{movie_title} - {stars} - {critic} ({pub})"
+            ET.SubElement(item, 'title').text = title
+            
+            # Käytä alkuperäistä URL-osoitetta linkkinä
+            if review.source_url:
+                ET.SubElement(item, 'link').text = review.source_url
+                ET.SubElement(item, 'guid').text = review.source_url
+            
+            desc = f"Elokuva: {movie_title}\nKriitikko: {critic}\nJulkaisu: {pub}\nArvosana: {stars}"
+            if review.review_text:
+                desc += f"\n\n{review.review_text}"
+            
+            ET.SubElement(item, 'description').text = desc
+            
+            pub_date = review.published_date or review.scraped_at
+            if pub_date:
+                ET.SubElement(item, 'pubDate').text = formatdate(pub_date.timestamp())
+                
+        response = make_response(ET.tostring(rss, encoding='utf-8', method='xml'))
+        response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        return response
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+        
     finally:
         session.close()
 

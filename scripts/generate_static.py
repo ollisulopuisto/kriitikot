@@ -34,8 +34,18 @@ def generate_static_site():
                 index_html.write_bytes(response.data)
                 print(f"✅ Luotu: {index_html}")
             else:
-                print(f"❌ Virhe: HTTP {response.status_code}")
+                print(f"❌ Virhe index.html: HTTP {response.status_code}")
                 return False
+
+            # Renderöi RSS
+            response = client.get('/rss.xml')
+            if response.status_code == 200:
+                rss_xml = docs_dir / 'rss.xml'
+                rss_xml.write_bytes(response.data)
+                print(f"✅ Luotu: {rss_xml}")
+            else:
+                print(f"❌ Virhe rss.xml: HTTP {response.status_code}")
+                # Ei katkaista prosessia vaikka RSS epäonnistuisi, mutta hyvä logata
     
     # 2. Kopioi static-kansio
     src_static = Path(__file__).parent.parent / 'static'

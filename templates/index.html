@@ -26,6 +26,8 @@
         content="Mitä katsoa elokuvateatterissa? Lue suomalaisten kriitikoiden elokuva-arvostelut ja löydä parhaat uudet elokuvat.">
     <meta name="twitter:image" content="https://ollisulopuisto.github.io/kriitikot/static/valinta.png">
 
+    <link rel="alternate" type="application/rss+xml" title="Kriitikon valinta - Uusimmat arviot" href="rss.xml">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -378,7 +380,8 @@
 
             {% if last_updated %}
             <div class="last-updated">
-                <p>Viimeksi päivitetty: {{ last_updated.strftime('%d.%m.%Y %H:%M %Z') }}</p>
+                <p>Viimeksi päivitetty: {{ last_updated.strftime('%d.%m.%Y %H:%M %Z') }} | <a href="rss.xml"
+                        title="Tilaa RSS-syöte">RSS 📶</a></p>
             </div>
             {% endif %}
 
