@@ -1495,6 +1495,14 @@ footer {
         font-size: 0.9em;
     }
 
+    /* Fix: Allow publication buttons to wrap on mobile instead of full width */
+    .mobile-filter-group .media-filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+
     .mobile-stepper {
         display: flex;
         align-items: center;

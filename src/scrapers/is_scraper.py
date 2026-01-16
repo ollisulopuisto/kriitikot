@@ -170,9 +170,16 @@ class ISScraper:
         title = asset_data.get('title', '')
         meta_title = asset_data.get('metaTitle', '')
         
-        # 0) Priority: Check metaTitle for "[Movie] -arvio" pattern
-        # IS meta titles often have format: "MovieName -arvio: Subtitle"
+        # 0) Priority: Check metaTitle for movie title patterns
+        # IS meta titles can have format:
+        # - "MovieName -arvio: Subtitle"
+        # - "Arvio MovieName – Subtitle"
         if meta_title:
+            # Pattern: "Arvio [MovieTitle] – ..." (note: en-dash, not hyphen)
+            match = re.search(r'^Arvio\s+(.+?)\s+[–-]', meta_title)
+            if match:
+                return match.group(1).strip()
+            # Pattern: "[MovieTitle] -arvio..." 
             match = re.search(r'^(.+?)\s+-arvio', meta_title)
             if match:
                 return match.group(1).strip()

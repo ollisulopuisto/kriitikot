@@ -392,7 +392,10 @@ function updateRowVisibility() {
         }
 
         if (hasVisibleReview) {
-            row.style.display = '';
+            // Do not unhide if row is specifically dimmed by interaction
+            if (!row.classList.contains('dimmed')) {
+                row.style.display = '';
+            }
         } else {
             row.style.display = 'none';
         }
