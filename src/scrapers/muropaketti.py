@@ -52,18 +52,40 @@ class MuropakettiScraper(BaseScraper):
         
         for p in paragraphs:
             text = p.get_text()
-            # Etsi kappale jossa on "Ensi-ilta:"
-            if 'Ensi-ilta:' in text:
-                # Elokuvan nimi on ennen "Ensi-ilta:" tekstiä
-                parts = text.split('Ensi-ilta:', 1)
-                if parts:
-                    title = parts[0].strip()
-                    # Normalisoi isoista kirjaimista title caseen jos koko nimi on isoilla
-                    if title and len(title) < 100:
-                        # Jos koko nimi on isoilla (esim. "SISU 2"), normalisoi
-                        if title.isupper() and len(title.split()) <= 4:
-                            title = title.title()
-                        return title
+            # Etsi kappale jossa on "Ensi-ilta"
+            if 'Ensi-ilta' in text:
+                # Elokuvan nimi on ennen "Ensi-ilta:" tai "Ensi-ilta" tekstiä
+                
+                # 1. Kokeile löytää <strong> tagi kappaleen sisältä
+                strong = p.find('strong')
+                if strong:
+                    title = strong.get_text().strip()
+                else:
+                    # 2. Fallback: splitataan tekstistä
+                    # Käytään regexiä tai splitataan varovasti
+                    if 'Ensi-ilta:' in text:
+                        title = text.split('Ensi-ilta:', 1)[0].strip()
+                    else:
+                        title = text.split('Ensi-ilta', 1)[0].strip()
+
+                if title:
+                    # Poista mahdolliset kaksoispisteet lopusta
+                    title = title.rstrip(':').strip()
+                    
+                    # Normalisoi isoista kirjaimista title caseen
+                    # Jos nimi on kokonaan isoilla (sallien välimerkit ja numerot)
+                    # Tai jos se on hyvin pitkä ja isoilla
+                    if title.isupper() or (len(title) > 0 and title.replace(':', '').replace('-', '').replace(' ', '').isupper()):
+                        # Muunna Title Caseen, mutta yritä säilyttää jotain järkeä
+                        # Yksinkertainen title() toimii useimmiten tarpeeksi hyvin
+                        title = title.title()
+                        
+                        # Korjaa pienet sanat jos tarpeen, mutta title() on hyvä alku
+                        # Esim "Veitset Esiin" -> "Veitset esiin" olisi parempi suomeksi, 
+                        # mutta geneerinen ratkaisu on vaikea. 
+                        # "Wake Up Dead Man: Veitset Esiin -Mysteeri" on OK.
+                    
+                    return title
         
         # Fallback: käytä h1-otsikkoa
         h1 = soup.find('h1')

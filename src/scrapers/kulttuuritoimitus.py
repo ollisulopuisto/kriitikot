@@ -62,11 +62,21 @@ class KulttuuritoimitusScraper(BaseScraper):
         # Clean HTML tags from title
         title_soup = BeautifulSoup(title, 'html.parser')
         full_title = title_soup.get_text(strip=True)
+
+        # 1. Try to extract movie name from content (e.g. infobox)
+        # Extract content HTML
+        content_html = json_data.get('content', {})
+        if isinstance(content_html, dict):
+            content_html = content_html.get('rendered', '')
         
-        # Extract movie name from title
-        # Kulttuuritoimitus pattern: "Some description – arviossa ensi-iltaelokuva MOVIENAME"
-        # or "Some description – arviossa MOVIENAME"
-        movie_title = self._extract_movie_name_from_title(full_title)
+        soup = BeautifulSoup(content_html, 'html.parser')
+        movie_title = self._extract_title(soup)
+
+        # 2. Extract movie name from title
+        if not movie_title:
+            # Kulttuuritoimitus pattern: "Some description – arviossa ensi-iltaelokuva MOVIENAME"
+            # or "Some description – arviossa MOVIENAME"
+            movie_title = self._extract_movie_name_from_title(full_title)
         
         # If pattern matching fails, try to get from Yoast keywords (first keyword is usually the movie)
         if not movie_title:
@@ -143,6 +153,11 @@ class KulttuuritoimitusScraper(BaseScraper):
             # Skip if it looks like continuation of description
             skip_words = ['miten', 'miksi', 'kuinka', 'mitä', 'onko', 'kuka']
             if not any(movie_name.lower().startswith(word) for word in skip_words):
+                # Handle "MOVIENAME-elokuva" pattern
+                if movie_name.lower().endswith('-elokuva') and len(movie_name) > 8:
+                    # Check if previous word implies it's part of the title or descriptor
+                    # e.g. "Teräsleidit-elokuva" -> "Teräsleidit"
+                    return movie_name[:-8]
                 return movie_name
         
         # Pattern 3: Last part after dash if it looks like a movie name

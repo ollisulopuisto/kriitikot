@@ -467,7 +467,10 @@ def merge_movies():
         
         # Siirrä kaikki arvostelut lähteestä kohteeseen
         review_count = len(source.reviews)
-        for review in source.reviews:
+        # Iterate over a COPY of the list because modifying the relationship 
+        # (review.movie = target) removes the item from source.reviews, 
+        # causing the iterator to skip elements if iterating over the live list.
+        for review in list(source.reviews):
             review.movie = target
         
         # Poista lähde-elokuva
