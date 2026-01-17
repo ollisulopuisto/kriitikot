@@ -57,3 +57,32 @@ def test_kaleva_via_general_function():
     review = scrape_review(html_content, source='kaleva', source_url='https://kaleva.fi/test')
     assert review is not None
     assert review.source_publication == "Kaleva"
+
+def test_kaleva_rejects_non_movie_review():
+    """
+    Testaa että Kaleva-scraper hylkää arvostelut jotka eivät ole elokuvia.
+    Esim. Oulu 2026 -tapahtuma-arvio.
+    """
+    # Minimal HTML without "elokuvat" keyword - simulates event review
+    non_movie_html = '''
+    <!DOCTYPE html>
+    <html lang="fi">
+    <head>
+        <meta name="zephr:main-keyword" content="oulu 2026">
+        <meta name="zephr:keywords" content="oulu 2026, arviot, kulttuuri">
+        <title>Arvio: Oulu 2026 käynnistyi viileän luonnon ja viihteen kohtaamisella | Kaleva</title>
+    </head>
+    <body>
+        <h1 class="article__headline">Arvio: Oulu 2026 käynnistyi viileän luonnon ja viihteen kohtaamisella</h1>
+        <p class="article__intro">Oulun kulttuuripääkaupunkivuosi alkoi näyttävästi.</p>
+        <h2 class="article__lead">Jääsoittimet vakuuttivat yleisön.</h2>
+    </body>
+    </html>
+    '''
+    
+    scraper = KalevaScraper()
+    review = scraper.parse_html(non_movie_html, source_url='https://kaleva.fi/arvio-oulu-2026')
+    
+    # Should return None for non-movie reviews
+    assert review is None, "Scraper should reject non-movie reviews (missing 'elokuvat' keyword)"
+

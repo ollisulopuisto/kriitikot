@@ -2,7 +2,6 @@
 Kaleva (kaleva.fi) movie review scraper.
 """
 
-import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
@@ -20,6 +19,10 @@ class KalevaScraper(BaseScraper):
         Parsii Kaleva.fi:n HTML-sisällön ja palauttaa Review-objektin.
         """
         soup = self.get_soup(html_content)
+        
+        # Check if this is a movie review by looking for "elokuvat" keyword
+        if not self._is_movie_review(soup):
+            return None
         
         # 1. Title
         # Prioritize extraction from article__intro (often contains "Name. Ohjaus: ...")
@@ -170,3 +173,33 @@ class KalevaScraper(BaseScraper):
                 return re.sub(r'^Arvio:\s*', '', movie_title, flags=re.IGNORECASE)
         
         return None
+
+    def _is_movie_review(self, soup: BeautifulSoup) -> bool:
+        """
+        Tarkistaa onko sivu elokuva-arvio etsimällä 'elokuvat' avainsanaa.
+        
+        Kalevan elokuva-arvosteluissa on:
+        - <meta name="zephr:main-keyword" content="elokuvat">
+        - tai <meta name="zephr:keywords" content="elokuvat, ...">
+        """
+        # Check zephr:main-keyword meta tag
+        main_keyword = soup.find('meta', attrs={'name': 'zephr:main-keyword'})
+        if main_keyword:
+            content = main_keyword.get('content', '').lower()
+            if 'elokuvat' in content:
+                return True
+        
+        # Fallback: Check zephr:keywords meta tag
+        keywords_meta = soup.find('meta', attrs={'name': 'zephr:keywords'})
+        if keywords_meta:
+            content = keywords_meta.get('content', '').lower()
+            if 'elokuvat' in content:
+                return True
+        
+        # Fallback: Check for link to /aihe/elokuvat/
+        elokuvat_link = soup.find('a', href=re.compile(r'/aihe/elokuvat/'))
+        if elokuvat_link:
+            return True
+        
+        return False
+
