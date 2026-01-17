@@ -1,7 +1,9 @@
 
 import pytest
 import sys
-sys.path.insert(0, '/workspaces/kriitikot/src')
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 from scrapers import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review
 from scrapers.base import Review
 

@@ -105,29 +105,6 @@ jobs:
           added=$((after - ${{ steps.pre_count.outputs.before }}))
           echo "added=$added" >> $GITHUB_OUTPUT
 
-      - name: Create issue if no new reviews were imported
-        if: ${{ steps.post_count.outputs.added == '0' }}
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const title = 'Scrapers ran but imported 0 new reviews'
-            const body = `The scheduled scrapers run completed but did not import any new reviews. Check the run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-            const { data: openIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100 })
-            const existingOpen = openIssues.find(i => i.title === title)
-            if (existingOpen) {
-              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existingOpen.number, body: body + '\n\n(Automated notification - no imports this run)' })
-            } else {
-              const { data: allIssues } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'all', per_page: 200 })
-              const closed = allIssues.find(i => i.title === title)
-              if (closed) {
-                await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, state: 'open' })
-                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: closed.number, body: body + '\n\n(Reopened by automation)' })
-              } else {
-                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
-              }
-            }
-
       - name: Generate static site
         run: |
           python3 scripts/generate_static.py
