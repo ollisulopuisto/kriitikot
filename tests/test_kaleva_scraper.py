@@ -1,7 +1,13 @@
 
 import pytest
 import sys
-sys.path.insert(0, '/Users/dst/Dropbox/koodi/kriitikot/src')
+import os
+
+# Get the directory this test file is in
+TEST_DIR = os.path.dirname(__file__)
+TEST_DATA_DIR = os.path.join(TEST_DIR, 'test_data')
+
+sys.path.insert(0, os.path.abspath(os.path.join(TEST_DIR, '../src')))
 from scrapers import KalevaScraper, scrape_review
 from scrapers.base import Review
 
@@ -9,7 +15,7 @@ def test_kaleva_scraper_basic():
     """
     Testaa Kaleva-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/kaleva_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'kaleva_review_1.html')
     
     scraper = KalevaScraper()
     review = scraper.parse_file(test_file)
@@ -50,7 +56,7 @@ def test_kaleva_scraper_basic():
     assert "Väärä diagnoosi" in review.review_text
 
 def test_kaleva_via_general_function():
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/kaleva_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'kaleva_review_1.html')
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
     

@@ -2,7 +2,12 @@
 import pytest
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+# Get the directory this test file is in
+TEST_DIR = os.path.dirname(__file__)
+TEST_DATA_DIR = os.path.join(TEST_DIR, 'test_data')
+
+sys.path.insert(0, os.path.abspath(os.path.join(TEST_DIR, '../src')))
 
 from scrapers import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper, scrape_review
 from scrapers.base import Review
@@ -12,7 +17,7 @@ def test_hs_scraper_basic():
     """
     Testaa HS-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/hs_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'hs_review_1.html')
     
     scraper = HSScraper()
     review = scraper.parse_file(test_file)
@@ -43,7 +48,7 @@ def test_scrape_review_general_function():
     """
     Testaa yleistä scrape_review()-funktiota.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/hs_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'hs_review_1.html')
     
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
@@ -60,7 +65,7 @@ def test_review_to_dict():
     """
     Testaa Review-objektin muunnos sanakirjaksi.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/hs_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'hs_review_1.html')
     
     scraper = HSScraper()
     review = scraper.parse_file(test_file)
@@ -86,7 +91,7 @@ def test_ksml_scraper_basic():
     """
     Testaa KSML-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/ksml_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'ksml_review_1.html')
     
     scraper = KSMLScraper()
     review = scraper.parse_file(test_file)
@@ -114,7 +119,7 @@ def test_ksml_via_general_function():
     """
     Testaa KSML:n käyttöä yleisen scrape_review()-funktion kautta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/ksml_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'ksml_review_1.html')
     
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
@@ -132,7 +137,7 @@ def test_il_scraper_basic():
     """
     Testaa IL-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/il_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'il_review_1.html')
     
     scraper = ILScraper()
     review = scraper.parse_file(test_file)
@@ -160,7 +165,7 @@ def test_il_via_general_function():
     """
     Testaa IL:n käyttöä yleisen scrape_review()-funktion kautta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/il_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'il_review_1.html')
     
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
@@ -178,7 +183,7 @@ def test_ts_scraper_basic():
     """
     Testaa TS-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/ts_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'ts_review_1.html')
     
     scraper = TSScraper()
     review = scraper.parse_file(test_file)
@@ -206,7 +211,7 @@ def test_ts_via_general_function():
     """
     Testaa TS:n käyttöä yleisen scrape_review()-funktion kautta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/ts_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'ts_review_1.html')
     
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
@@ -224,7 +229,7 @@ def test_sk_scraper_basic():
     """
     Testaa SK-scraperin perustoiminnallisuutta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/sk_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'sk_review_1.html')
     
     scraper = SKScraper()
     review = scraper.parse_file(test_file)
@@ -251,7 +256,7 @@ def test_sk_via_general_function():
     """
     Testaa SK:n käyttöä yleisen scrape_review()-funktion kautta.
     """
-    test_file = "/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/sk_review_1.html"
+    test_file = os.path.join(TEST_DATA_DIR, 'sk_review_1.html')
     
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
@@ -268,7 +273,7 @@ def test_sk_via_general_function():
 def test_is_scraper():
     """Testaa Ilta-Sanomien scraperin toimivuuden."""
     scraper = ISScraper()
-    result = scraper.parse_file('/Users/dst/Dropbox/koodi/kriitikot/tests/test_data/is_review_1.html')
+    result = scraper.parse_file(os.path.join(TEST_DATA_DIR, 'is_review_1.html'))
     
     # Perusvalidaatio
     assert result is not None, "IS scraper ei palauttanut Review-objektia"
