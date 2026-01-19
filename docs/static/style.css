@@ -744,14 +744,30 @@ th .critic-media {
 }
 
 th .review-count {
-    display: block;
+    display: inline-block;
     font-size: 0.7em;
-    margin-top: 0.35rem;
+    margin-top: 0;
     margin-left: 0;
-    padding-top: 0.25rem;
-    border-top: 1px solid #e9ecef;
+    padding-top: 0;
+    border-top: none;
     color: #999;
     text-align: center;
+}
+
+.critic-bottom-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.35rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid #e9ecef;
+    gap: 0.25rem;
+}
+
+.critic-name {
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.2;
 }
 
 /* Movie title and count in table */
