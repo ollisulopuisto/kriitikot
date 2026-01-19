@@ -82,6 +82,11 @@ class ILScraper:
             if match:
                 return match.group(1).strip()
             
+            # Handle "Tänään", "Eilen" and common Mojibake versions
+            match = re.search(r'^(.+?)(?:Tänään|Eilen|TÃ¤nÃ¤Ã¤n)', author, re.I)
+            if match:
+                return match.group(1).strip()
+            
             # Jos ei viikonpäivää, etsi päivämäärä (dd.mm.yyyy)
             match = re.search(r'^(.+?)(?:\d{1,2}\.\d{1,2}\.\d{4})', author)
             if match:

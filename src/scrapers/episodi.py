@@ -2,7 +2,7 @@
 Episodi.fi scraper - käyttää WordPress JSON API:a
 """
 
-from scrapers.base import BaseScraper, Review
+from .base import BaseScraper, Review
 from bs4 import BeautifulSoup
 import requests
 import json

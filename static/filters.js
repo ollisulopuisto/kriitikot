@@ -623,10 +623,10 @@ function initFavoriteFilter() {
                 heart.title = 'Merkitse suosikkikriitikoksi';
                 heart.onclick = (e) => window.toggleFavorite(criticId, e);
 
-                // Insert after the name text node (which is usually the first child)
-                // Use insertBefore firstElementChild (which is the media span or review count)
-                if (th.firstElementChild) {
-                    th.insertBefore(heart, th.firstElementChild);
+                // Insert into critic-bottom-row
+                const bottomRow = th.querySelector('.critic-bottom-row');
+                if (bottomRow) {
+                    bottomRow.appendChild(heart);
                 } else {
                     th.appendChild(heart);
                 }

@@ -170,13 +170,15 @@
                         </th>
                         {% for critic in all_critics %}
                         <th class="rating-cell" data-critic-id="{{ critic.id }}">
-                            {{ critic.name }}
+                            <div class="critic-name">{{ critic.name }}</div>
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
-                            <span class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</span>
+                            <div class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</div>
                             {% endif %}
-                            {% if critic_review_counts and critic.id in critic_review_counts %}
-                            <span class="review-count">🎬 {{ critic_review_counts[critic.id] }}</span>
-                            {% endif %}
+                            <div class="critic-bottom-row">
+                                {% if critic_review_counts and critic.id in critic_review_counts %}
+                                <span class="review-count">🎬 {{ critic_review_counts[critic.id] }}</span>
+                                {% endif %}
+                            </div>
                         </th>
                         {% endfor %}
                     </tr>
@@ -328,8 +330,10 @@
                 <div class="review-item" data-critic="{{ critic.id }}"
                     data-publication="{{ review.publication.short_name }}">
                     <div class="review-critic">
-                        <span class="review-critic-name">{{ critic.name }}</span>
-                        <span class="review-media">/ {{ review.publication.short_name.upper() }}</span>
+                        <div class="review-critic-top">
+                            <span class="review-critic-name">{{ critic.name }}</span>
+                        </div>
+                        <div class="review-media">{{ review.publication.short_name.upper() }}</div>
                     </div>
                     <div class="review-rating">
                         {% if review.rating_stars %}
