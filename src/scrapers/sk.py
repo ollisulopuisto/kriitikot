@@ -80,6 +80,18 @@ class SKScraper:
                 # Tarkistetaan että ohjaajan nimi on järkevä (max 5 sanaa)
                 if len(director.split()) <= 5:
                     return title
+
+        for p in reversed(paragraphs):
+            text = p.get_text(strip=True)
+            # 1.5 FALLBACK: Etsi muotoa "Elokuva. Jakelija." ilman ohjaajaa
+            # Esim: "Hind Rajabin ääni. Elokuvateattereissa 30.1. ★★★"
+            pattern_no_director = r'^(.+?)\.\s*(?:' + distributors_pattern + r')'
+            match = re.search(pattern_no_director, text, re.IGNORECASE)
+            if match:
+                title = match.group(1).strip()
+                # Varmistetaan ettei otsikko ole liian pitkä (ettei tule koko kappale)
+                if len(title) < 100:
+                    return title
         
         # 2. FALLBACK: Käytä og:title metatagia
         # SK:ssa meta og:title sisältää muodon "Arvio: [Arvosana] – [Elokuva] ..."

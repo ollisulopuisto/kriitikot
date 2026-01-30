@@ -46,15 +46,31 @@ class ILScraper:
     def _extract_title(self, soup):
         """Etsi elokuvan nimi artikkelista.
         
-        Elokuvan nimi on h3-tagissa juuri ennen "Suomi, 20XX" tietoja.
+        Elokuvan nimi on h3-tagissa juuri ennen maa/vuosi -tietoja.
+        Esim. "Marty Supreme – Unelmoi isosti" -> "Marty Supreme"
         """
-        # Etsi kaikki h3-tagit
-        h3_list = soup.find_all('h3')
+        # Etsi ensin artikkelin runko
+        article_body = soup.find('div', class_='article-body')
+        
+        # Etsi h3-tagit artikkelin rungosta tai koko sivulta
+        target_soup = article_body or soup
+        h3_list = target_soup.find_all('h3')
+        
         for i, h3 in enumerate(h3_list):
             text = h3.get_text().strip()
-            # Jos löytyy "Suomi, 20XX", edellinen h3 sisältää elokuvan nimen
-            if text.startswith('Suomi, 20') and i > 0:
+            # Etsi "Maa, Vuosi" kuvio (esim. "USA, 2025" tai "Suomi, 2024")
+            # Käytetään väljempää regexiä joka sallii eri maat
+            if re.search(r'.+,\s*20\d{2}', text) and i > 0:
                 title = h3_list[i-1].get_text(strip=True)
+                
+                # Puhdista nimestä alaotsikko jos mahdollista (esim. "Marty Supreme – Unelmoi isosti")
+                if ' – ' in title:
+                    title = title.split(' – ', 1)[0].strip()
+                elif ' : ' in title:
+                    title = title.split(' : ', 1)[0].strip()
+                elif ': ' in title:
+                    title = title.split(': ', 1)[0].strip()
+                
                 # Varmista ettei ole "IL-arvio" tms
                 if title and 'IL-arvio' not in title:
                     return title

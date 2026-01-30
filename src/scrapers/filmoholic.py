@@ -1,5 +1,5 @@
 """Film-O-Holic scraper for movie reviews."""
-from scrapers.base import BaseScraper, Review
+from .base import BaseScraper, Review
 import re
 
 
