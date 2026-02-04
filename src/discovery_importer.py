@@ -15,9 +15,8 @@ from scrapers.demokraatti import DemokraattiScraper
 from scrapers.kaleva import KalevaScraper
 from movie_normalizer import get_canonical_title
 from metadata_fetcher import MetadataFetcher
-from typing import List, Dict
+from typing import Dict
 import re
-import requests
 
 
 class DiscoveryImporter:
@@ -215,7 +214,7 @@ class DiscoveryImporter:
             # Tarkista onko jo tietokannassa
             existing = self.session.query(Review).filter_by(source_url=url).first()
             if existing:
-                print(f"   ⏭️  Jo tietokannassa")
+                print("   ⏭️  Jo tietokannassa")
                 skipped += 1
                 continue
             
@@ -236,8 +235,14 @@ class DiscoveryImporter:
                     
                     review = scraper_obj.parse_html(html, url)
                     if not review:
-                        print(f"   ❌ Scraping epäonnistui")
+                        print("   ❌ Scraping epäonnistui")
                         failed += 1
+                        continue
+                    
+                    # Skip articles without ratings - they are not movie reviews
+                    if review.rating_stars is None:
+                        print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
+                        skipped += 1
                         continue
                 else:
                     # Lataa HTML ja parsea
@@ -251,8 +256,14 @@ class DiscoveryImporter:
                     
                     review = scraper.parse_html(html, url)
                     if not review:
-                        print(f"   ❌ Scraping epäonnistui")
+                        print("   ❌ Scraping epäonnistui")
                         failed += 1
+                        continue
+                    
+                    # Skip articles without ratings - they are not movie reviews
+                    if review.rating_stars is None:
+                        print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
+                        skipped += 1
                         continue
                 
                 # Luo relaatiot
