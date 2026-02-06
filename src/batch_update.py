@@ -31,7 +31,7 @@ def main():
     parser.add_argument(
         '--source',
         type=str,
-        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva', 'all'],
+        choices=['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'all'],  # kaleva removed
         default='all',
         help='Lähde josta importoidaan (oletus: all)'
     )
@@ -55,10 +55,10 @@ def main():
     # Tulosta aloitusviesti
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"\n{'='*70}")
-    print(f"🤖 ERÄAJO - Kriitikot-tietokannan päivitys")
+    print("🤖 ERÄAJO - Kriitikot-tietokannan päivitys")
     print(f"{'='*70}")
     print(f"⏰ Aika: {timestamp}")
-    print(f"📊 Asetukset:")
+    print("📊 Asetukset:")
     print(f"   - Lähde: {args.source}")
     print(f"   - Limit per lähde: {limit}")
     print(f"   - Verbose: {args.verbose}")
@@ -77,7 +77,7 @@ def main():
         
         # Yhteenveto
         print(f"\n{'='*70}")
-        print(f"✅ ERÄAJO VALMIS")
+        print("✅ ERÄAJO VALMIS")
         print(f"{'='*70}")
         print(f"📈 Importoitu yhteensä: {total_imported} arvostelua")
         print(f"⏰ Päättyi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

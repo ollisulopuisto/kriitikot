@@ -16,12 +16,10 @@ Tuetut lähteet:
 - EPISODI: WordPress JSON API (episodi.fi/wp-json/wp/v2/elokuvat)
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict
 from bs4 import BeautifulSoup
 import requests
-import re
 import json
-from datetime import datetime
 
 
 class CategoryCrawler:
@@ -38,10 +36,9 @@ class CategoryCrawler:
         'episodi': 'https://www.episodi.fi/wp-json/wp/v2/elokuvat',
         'muropaketti': 'https://muropaketti.com/kategoria/elokuvat/elokuva-arvostelut/',
         'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
-        'filmoholic': 'https://www.film-o-holic.com/arvostelut/',
         'kulttuuritoimitus': 'https://www.kulttuuritoimitus.fi/wp-json/wp/v2/posts?categories=11',
         'demokraatti': 'https://demokraatti.fi/elokuva/',
-        'kaleva': 'https://www.kaleva.fi/aihe/elokuvat/286',
+        # 'kaleva': 'https://www.kaleva.fi/aihe/elokuvat/286',  # DISABLED: paywall
     }
     
     def __init__(self):
@@ -77,10 +74,11 @@ class CategoryCrawler:
             soup = BeautifulSoup(html, 'html.parser')
             return self._find_demokraatti_reviews(soup, limit)
         
-        elif source == 'kaleva':
-            html = self._fetch_url(url)
-            soup = BeautifulSoup(html, 'html.parser')
-            return self._find_kaleva_reviews(soup, limit)
+        # DISABLED: Kaleva paywall prevents scraping
+        # elif source == 'kaleva':
+        #     html = self._fetch_url(url)
+        #     soup = BeautifulSoup(html, 'html.parser')
+        #     return self._find_kaleva_reviews(soup, limit)
 
         elif source == 'sk':
             html = self._fetch_url(url)

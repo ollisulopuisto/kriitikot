@@ -8,7 +8,8 @@ TEST_DIR = os.path.dirname(__file__)
 TEST_DATA_DIR = os.path.join(TEST_DIR, 'test_data')
 
 sys.path.insert(0, os.path.abspath(os.path.join(TEST_DIR, '../src')))
-from scrapers import KalevaScraper, scrape_review
+# Import directly from kaleva module since it's disabled from scrapers package
+from scrapers.kaleva import KalevaScraper
 from scrapers.base import Review
 
 def test_kaleva_scraper_basic():
@@ -25,7 +26,7 @@ def test_kaleva_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== Kaleva Parsed Review ===")
+    print("\n=== Kaleva Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
@@ -55,11 +56,13 @@ def test_kaleva_scraper_basic():
     assert review.review_text
     assert "Väärä diagnoosi" in review.review_text
 
+@pytest.mark.skip(reason="Kaleva disabled from scrape_review registry due to paywall")
 def test_kaleva_via_general_function():
     test_file = os.path.join(TEST_DATA_DIR, 'kaleva_review_1.html')
     with open(test_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
     
+    from scrapers import scrape_review
     review = scrape_review(html_content, source='kaleva', source_url='https://kaleva.fi/test')
     assert review is not None
     assert review.source_publication == "Kaleva"

@@ -28,7 +28,7 @@ from .il import ILScraper
 from .ts import TSScraper
 from .sk import SKScraper
 from .is_scraper import ISScraper
-from .kaleva import KalevaScraper
+# from .kaleva import KalevaScraper  # DISABLED: Kaleva paywall
 from .episodi import EpisodiScraper
 from .muropaketti import MuropakettiScraper
 from .filmoholic import FilmOHolicScraper
@@ -49,7 +49,7 @@ scrapers = {
     'filmoholic': FilmOHolicScraper(),
     'kulttuuritoimitus': KulttuuritoimitusScraper(),
     'demokraatti': DemokraattiScraper(),
-    'kaleva': KalevaScraper(),
+    # 'kaleva': KalevaScraper(),  # DISABLED: Kaleva paywall
 }
 
 
@@ -93,7 +93,7 @@ __all__ = [
     'TSScraper',
     'SKScraper',
     'ISScraper',
-    'KalevaScraper',
+    # 'KalevaScraper',  # DISABLED: Kaleva paywall
     'EpisodiScraper',
     'MuropakettiScraper',
     'FilmOHolicScraper',

@@ -12,7 +12,8 @@ from scrapers.muropaketti import MuropakettiScraper
 from scrapers.filmoholic import FilmOHolicScraper
 from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
 from scrapers.demokraatti import DemokraattiScraper
-from scrapers.kaleva import KalevaScraper
+# DISABLED: Kaleva paywall prevents scraping - keeping code intact for future use
+# from scrapers.kaleva import KalevaScraper
 from movie_normalizer import get_canonical_title
 from metadata_fetcher import MetadataFetcher
 from typing import Dict
@@ -47,7 +48,7 @@ class DiscoveryImporter:
             'filmoholic': FilmOHolicScraper(),
             'kulttuuritoimitus': KulttuuritoimitusScraper(),
             'demokraatti': DemokraattiScraper(),
-            'kaleva': KalevaScraper(),
+            # 'kaleva': KalevaScraper(),  # DISABLED: Kaleva paywall
         }
     
     def normalize_movie_title(self, title: str) -> str:
@@ -314,7 +315,7 @@ class DiscoveryImporter:
         Returns:
             Dictionary: {source: imported_count}
         """
-        sources = ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti', 'kaleva']
+        sources = ['hs', 'ts', 'il', 'ksml', 'sk', 'is', 'episodi', 'muropaketti', 'filmoholic', 'kulttuuritoimitus', 'demokraatti']  # kaleva removed due to paywall
         results = {}
         
         print("\n" + "="*60)
