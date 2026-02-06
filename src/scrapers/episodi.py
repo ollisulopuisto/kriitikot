@@ -174,7 +174,6 @@ class EpisodiScraper(BaseScraper):
     def _extract_rating(self, soup: BeautifulSoup) -> int:
         """Hae tähtimäärä."""
         # Etsi JSON-LD schema scriptistä
-        import json
         import re
         
         scripts = soup.find_all('script', type='application/ld+json')

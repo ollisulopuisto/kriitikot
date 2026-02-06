@@ -6,16 +6,14 @@ Hakee tietoja TMDB:stä, Letterboxd:sta ja Nytleffaan.fi:stä.
 """
 
 import requests
-import json
 import re
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 import os
 import sys
 
 # Lisää src-hakemisto polkuun
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from models import Movie
 try:
     from config import TMDB_API_KEY
 except ImportError:

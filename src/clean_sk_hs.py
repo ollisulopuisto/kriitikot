@@ -37,7 +37,7 @@ try:
     session.commit()
     
     print(f"\n✅ Yhteensä poistettu {sk_count + hs_count} arvostelua")
-    print(f"\n📊 Tietokannan tila:")
+    print("\n📊 Tietokannan tila:")
     print(f"  - Arvosteluja jäljellä: {session.query(DBReview).count()}")
     
 except Exception as e:

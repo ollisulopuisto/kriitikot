@@ -97,9 +97,9 @@ try:
     
     print("✅ Testidata lisätty!")
     print("\n📊 Yhteenveto:")
-    print(f"  - Elokuvat: 2")
-    print(f"  - Kriitikot: 3 (joista Matti Meikäläinen kirjoittaa SEKÄ HS:ään ETTÄ TS:ään)")
-    print(f"  - Arvostelut: 6")
+    print("  - Elokuvat: 2")
+    print("  - Kriitikot: 3 (joista Matti Meikäläinen kirjoittaa SEKÄ HS:ään ETTÄ TS:ään)")
+    print("  - Arvostelut: 6")
     print("\n🎬 Odotettu tulos:")
     print("  - Matti Meikäläisen sarake näyttää:")
     print("    * Testielokuva 1: ★★★★ [HS]  ★★★★★ [TS]")

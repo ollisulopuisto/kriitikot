@@ -3,8 +3,6 @@ Seura.fi scraper
 """
 
 from .base import BaseScraper, Review
-from bs4 import BeautifulSoup
-import re
 from typing import Optional
 
 class SeuraScraper(BaseScraper):

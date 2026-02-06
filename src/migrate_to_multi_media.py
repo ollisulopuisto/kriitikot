@@ -8,7 +8,6 @@ Tämä skripti:
 3. Poistaa Critic.media kentän (tieto tulee nyt Review.publication_id:stä)
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -16,8 +15,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from models import (
-    get_engine, get_session, init_db, seed_publications,
-    Movie, Critic, Publication, Review as NewReview, Base
+    get_session, init_db, seed_publications,
+    Movie, Critic, Publication, Review as NewReview
 )
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -91,10 +90,10 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
     old_db_path = src_dir.parent / old_db
     new_db_path = src_dir.parent / new_db
     
-    print(f"🔍 Tarkistetaan vanhan tietokannan olemassaolo...")
+    print("🔍 Tarkistetaan vanhan tietokannan olemassaolo...")
     if not old_db_path.exists():
         print(f"❌ Vanhaa tietokantaa ei löydy: {old_db_path}")
-        print(f"   Luodaan uusi tyhjä tietokanta...")
+        print("   Luodaan uusi tyhjä tietokanta...")
         new_engine = init_db(new_db)
         new_session = get_session(new_engine)
         seed_publications(new_session)
@@ -110,7 +109,7 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
     old_session = OldSession()
     
     # Luo uusi tietokanta
-    print(f"\n📝 Luodaan uusi tietokanta uudella skeemalla...")
+    print("\n📝 Luodaan uusi tietokanta uudella skeemalla...")
     new_engine = init_db(new_db)
     new_session = get_session(new_engine)
     
@@ -119,7 +118,7 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
     
     try:
         # Hae kaikki vanhat publikaatiot (id-mappaus)
-        print(f"\n🔄 Migroidaan julkaisut...")
+        print("\n🔄 Migroidaan julkaisut...")
         old_pubs = old_session.query(OldPublication).all()
         pub_id_map = {}
         
@@ -132,7 +131,7 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
                 print(f"   ✓ {old_pub.name} (ID: {old_pub.id} → {new_pub.id})")
         
         # Hae kaikki vanhat elokuvat
-        print(f"\n🔄 Migroidaan elokuvat...")
+        print("\n🔄 Migroidaan elokuvat...")
         old_movies = old_session.query(OldMovie).all()
         movie_id_map = {}
         
@@ -148,7 +147,7 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
             print(f"   ✓ {old_movie.title} (ID: {old_movie.id} → {new_movie.id})")
         
         # Hae kaikki vanhat kriitikot (ILMAN media-kenttää)
-        print(f"\n🔄 Migroidaan kriitikot (ILMAN media-kenttää)...")
+        print("\n🔄 Migroidaan kriitikot (ILMAN media-kenttää)...")
         old_critics = old_session.query(OldCritic).all()
         critic_id_map = {}
         
@@ -165,7 +164,7 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
             print(f"   ✓ {old_critic.name}{media_info} (ID: {old_critic.id} → {new_critic.id})")
         
         # Hae kaikki vanhat arvostelut
-        print(f"\n🔄 Migroidaan arvostelut...")
+        print("\n🔄 Migroidaan arvostelut...")
         old_reviews = old_session.query(OldReview).all()
         
         for old_review in old_reviews:
@@ -189,15 +188,15 @@ def migrate_database(old_db='reviews.db', new_db='reviews_new.db'):
         
         new_session.commit()
         
-        print(f"\n✅ Migraatio onnistui!")
+        print("\n✅ Migraatio onnistui!")
         print(f"   - Elokuvat: {len(old_movies)}")
         print(f"   - Kriitikot: {len(old_critics)}")
         print(f"   - Julkaisut: {len(old_pubs)}")
         print(f"   - Arvostelut: {len(old_reviews)}")
         print(f"\n📌 Uusi tietokanta: {new_db_path}")
-        print(f"\n⚠️  SEURAAVAT VAIHEET:")
-        print(f"   1. Testaa uusi tietokanta: python3 src/app.py")
-        print(f"   2. Jos toimii, korvaa vanha:")
+        print("\n⚠️  SEURAAVAT VAIHEET:")
+        print("   1. Testaa uusi tietokanta: python3 src/app.py")
+        print("   2. Jos toimii, korvaa vanha:")
         print(f"      mv {old_db_path} {old_db_path}.backup")
         print(f"      mv {new_db_path} {old_db_path}")
         

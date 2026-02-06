@@ -5,7 +5,6 @@ Flask-pohjainen web-sovellus elokuva-arvostelujen näyttämiseen.
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from models import get_engine, get_session, Movie, Critic, Publication, Review as DBReview
 from sqlalchemy.orm import joinedload
-from typing import List, Dict
 from datetime import datetime
 try:
     # Python 3.9+: zoneinfo is preferred
@@ -792,7 +791,7 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     
-    print(f"Starting Flask app with SQLite database")
+    print("Starting Flask app with SQLite database")
     print(f"Open http://localhost:{args.port} to view reviews")
     
     app.run(debug=True, host='0.0.0.0', port=args.port)

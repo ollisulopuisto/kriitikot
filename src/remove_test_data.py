@@ -41,7 +41,7 @@ try:
     session.commit()
     
     print("\n✅ Testidata poistettu!")
-    print(f"\n📊 Tietokannan tila:")
+    print("\n📊 Tietokannan tila:")
     print(f"  - Elokuvia: {session.query(Movie).count()}")
     print(f"  - Kriitikoita: {session.query(Critic).count()}")
     print(f"  - Arvosteluja: {session.query(DBReview).count()}")

@@ -27,7 +27,7 @@ def example_1_basic_usage():
         print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
         print(f"📰 Julkaisu: {review.source_publication}")
         print(f"🔗 URL: {review.source_url}")
-        print(f"\n💬 Arvostelu:")
+        print("\n💬 Arvostelu:")
         print(f"   {review.review_text}")
     else:
         print("❌ Arvostelun parsiminen epäonnistui")
@@ -85,12 +85,12 @@ def example_2b_ksml_source():
         if review.rating_stars:
             print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
         else:
-            print(f"⭐ Arvosana: Ei mainittu")
+            print("⭐ Arvosana: Ei mainittu")
         print(f"📰 Julkaisu: {review.source_publication}")
         
         if review.review_text:
             preview = review.review_text[:150] + '...' if len(review.review_text) > 150 else review.review_text
-            print(f"\n💬 Arvostelu (alku):")
+            print("\n💬 Arvostelu (alku):")
             print(f"   {preview}")
     else:
         print("❌ Arvostelun parsiminen epäonnistui")
@@ -128,12 +128,12 @@ def example_2c_il_source():
         if review.rating_stars:
             print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
         else:
-            print(f"⭐ Arvosana: Ei mainittu")
+            print("⭐ Arvosana: Ei mainittu")
         print(f"📰 Julkaisu: {review.source_publication}")
         
         if review.review_text:
             preview = review.review_text[:150] + '...' if len(review.review_text) > 150 else review.review_text
-            print(f"\n💬 Arvostelu (alku):")
+            print("\n💬 Arvostelu (alku):")
             print(f"   {preview}")
     else:
         print("❌ Arvostelun parsiminen epäonnistui")
@@ -171,12 +171,12 @@ def example_2d_ts_source():
         if review.rating_stars:
             print(f"⭐ Arvosana: {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
         else:
-            print(f"⭐ Arvosana: Ei mainittu")
+            print("⭐ Arvosana: Ei mainittu")
         print(f"📰 Julkaisu: {review.source_publication}")
         
         if review.review_text:
             preview = review.review_text[:150] + '...' if len(review.review_text) > 150 else review.review_text
-            print(f"\n💬 Arvostelu (alku):")
+            print("\n💬 Arvostelu (alku):")
             print(f"   {preview}")
     else:
         print("❌ Arvostelun parsiminen epäonnistui")
@@ -215,7 +215,7 @@ def example_2e_episodi_source():
             if review.rating_stars:
                 print(f"   ⭐ {'★' * review.rating_stars}{'☆' * (5 - review.rating_stars)} ({review.rating_stars}/5)")
             else:
-                print(f"   ⭐ Ei arvosanaa")
+                print("   ⭐ Ei arvosanaa")
             print(f"   🔗 {review.source_url}")
             if review.review_text:
                 preview = review.review_text[:100] + '...' if len(review.review_text) > 100 else review.review_text
@@ -273,12 +273,12 @@ def example_4_filter_reviews():
     # Suodata vain hyvät arvostelut (4-5 tähteä)
     good_reviews = [r for r in reviews if r and r.rating_stars and r.rating_stars >= 4]
     
-    print(f"\n📊 Tilastot:")
+    print("\n📊 Tilastot:")
     print(f"   Huonoja arvosteluja (≤2★): {len(bad_reviews)}")
     print(f"   Hyviä arvosteluja (≥4★): {len(good_reviews)}")
     
     if bad_reviews:
-        print(f"\n⚠️  Huonot arvostelut:")
+        print("\n⚠️  Huonot arvostelut:")
         for r in bad_reviews:
             print(f"   - {r.movie_title}: {r.rating_stars}★")
     

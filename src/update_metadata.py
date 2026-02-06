@@ -46,13 +46,13 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
         # Update Letterboxd URL if not present
         if metadata.get('letterboxd_url') and not movie.letterboxd_url:
             movie.letterboxd_url = metadata['letterboxd_url']
-            print(f"    ✅ Added Letterboxd URL")
+            print("    ✅ Added Letterboxd URL")
             updated = True
 
         # Update Nytleffaan URL if not present
         if metadata.get('nytleffaan_url') and not movie.nytleffaan_url:
             movie.nytleffaan_url = metadata['nytleffaan_url']
-            print(f"    ✅ Added Nytleffaan URL")
+            print("    ✅ Added Nytleffaan URL")
             updated = True
 
         if not updated:
