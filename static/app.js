@@ -6,6 +6,8 @@
 let savedScrollLeft = 0;
 let originalTableWidth = 0;
 let originalVisibleColumns = 0;
+let currentMovieOffset = 50; // Aloitetaan 50:stä, koska ensimmäiset 50 on jo ladattu Jinjalla
+const movieLimit = 50;
 
 // Utility Functions
 // =================
@@ -409,7 +411,88 @@ function updateRowVisibility() {
     }
 }
 
+// Lazy Loading
+// ============
+
+/**
+ * Lataa lisää elokuvia ja liittää ne taulukkoon ja kortteihin.
+ */
+async function loadMoreMovies() {
+    const loadMoreButton = document.getElementById('load-more-button');
+    if (!loadMoreButton) return;
+
+    loadMoreButton.disabled = true;
+    const originalText = loadMoreButton.textContent;
+    loadMoreButton.textContent = 'Ladataan...';
+
+    try {
+        const response = await fetch(`/api/movies?offset=${currentMovieOffset}&limit=${movieLimit}`);
+        const data = await response.json();
+
+        if (data.movies_html) {
+            const desktopTbody = document.querySelector('#review-container-desktop tbody');
+            const mobileCardsContainer = document.querySelector('.mobile-cards');
+
+            if (desktopTbody) {
+                // Lisää HTML-pätkä
+                desktopTbody.insertAdjacentHTML('beforeend', data.movies_html);
+            }
+
+            if (mobileCardsContainer) {
+                // Lisää HTML-pätkä
+                mobileCardsContainer.insertAdjacentHTML('beforeend', data.cards_html);
+            }
+
+            // Päivitä offset
+            currentMovieOffset += data.count;
+
+            // Alusta uudet elementit (click handlerit jne)
+            // Huom: meidän täytyy re-alustaa kaikki, koska jotkut funktiot
+            // skannaavat koko DOM:in uudelleen.
+            if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
+            if (typeof initMobileCriticClickHandlers === 'function') initMobileCriticClickHandlers();
+            if (typeof initRatingFilterClickHandlers === 'function') initRatingFilterClickHandlers();
+            if (typeof initReviewCountFilter === 'function') initReviewCountFilter();
+            if (typeof initStarFilter === 'function') initStarFilter();
+            if (typeof initFavoriteFilter === 'function') initFavoriteFilter();
+            
+            // Järjestä uudelleen jos tarpeen
+            if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+        }
+
+        // Piilota nappi jos kaikki on ladattu
+        if (currentMovieOffset >= data.total) {
+            loadMoreButton.parentElement.style.display = 'none';
+        }
+
+    } catch (error) {
+        console.error('Virhe elokuvien latauksessa:', error);
+        alert('Lisää elokuvia ei voitu ladata. Yritä uudelleen.');
+    } finally {
+        loadMoreButton.disabled = false;
+        loadMoreButton.textContent = originalText;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loadMoreButton = document.getElementById('load-more-button');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', loadMoreMovies);
+        
+        // Tarkista heti pitääkö nappi piilottaa (jos alle 50 elokuvaa yhteensä)
+        const totalMoviesText = document.querySelector('.header-stat:nth-child(2)')?.textContent;
+        if (totalMoviesText) {
+            const total = parseInt(totalMoviesText);
+            if (!isNaN(total) && total <= 50) {
+                loadMoreButton.parentElement.style.display = 'none';
+            }
+        }
+    }
+});
+
+
 // Export global functions
+// =======================
 window.sortCriticColumnsByReviews = sortCriticColumnsByReviews;
 window.updateCriticColumnVisibility = updateCriticColumnVisibility;
 window.updateRowVisibility = updateRowVisibility;

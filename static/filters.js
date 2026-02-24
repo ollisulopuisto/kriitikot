@@ -96,7 +96,9 @@ function initReviewCountFilter() {
             if (window.showResetButton) window.showResetButton();
         }
 
-        updateCriticColumnVisibility();
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
 
         return hiddenCount;
     }
@@ -108,21 +110,24 @@ function initReviewCountFilter() {
     }
 
     // Desktop slider
-    slider.addEventListener('input', function () {
-        const value = parseInt(this.value);
-        valueDisplay.textContent = value;
-        updateReviewWord(value);
-        if (valueDisplayMobile) {
-            valueDisplayMobile.textContent = value;
-        }
-        filterByReviewCount(value);
-    });
+    if (!slider.dataset.initialized) {
+        slider.addEventListener('input', function () {
+            const value = parseInt(this.value);
+            valueDisplay.textContent = value;
+            updateReviewWord(value);
+            if (valueDisplayMobile) {
+                valueDisplayMobile.textContent = value;
+            }
+            filterByReviewCount(value);
+        });
+        slider.dataset.initialized = 'true';
+    }
 
     // Mobile stepper buttons
     const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
     const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
 
-    if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile) {
+    if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile && !reviewsMinusBtn.dataset.initialized) {
         let currentValue = 1;
 
         const updateReviewStepper = (newValue, shouldFilter = true) => {
@@ -144,6 +149,7 @@ function initReviewCountFilter() {
         reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentValue + 1));
 
         updateReviewStepper(1, false);
+        reviewsMinusBtn.dataset.initialized = 'true';
     }
 }
 
@@ -227,7 +233,9 @@ function initStarFilter() {
 
             console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
 
-            updateCriticColumnVisibility();
+            if (typeof updateCriticColumnVisibility === 'function') {
+                updateCriticColumnVisibility();
+            }
 
             // Poista täytesarakkeet (dummy columns) kun filtteri nollataan
             if (window.removeFillerColumns) window.removeFillerColumns();
@@ -302,7 +310,9 @@ function initStarFilter() {
 
         console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
 
-        updateCriticColumnVisibility();
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
 
         if (stars > 1) {
             console.log('🔴 Showing reset button (stars > 1)');
@@ -318,18 +328,21 @@ function initStarFilter() {
     }
 
     // Desktop slider
-    starSlider.addEventListener('input', function () {
-        const value = parseInt(this.value);
-        console.log('🌟 Star slider changed to:', value);
-        updateStarLabel(value);
-        filterByStars(value);
-    });
+    if (!starSlider.dataset.initialized) {
+        starSlider.addEventListener('input', function () {
+            const value = parseInt(this.value);
+            console.log('🌟 Star slider changed to:', value);
+            updateStarLabel(value);
+            filterByStars(value);
+        });
+        starSlider.dataset.initialized = 'true';
+    }
 
     // Mobile stepper buttons
     const starsMinusBtn = document.getElementById('stars-minus-mobile');
     const starsPlusBtn = document.getElementById('stars-plus-mobile');
 
-    if (starsMinusBtn && starsPlusBtn) {
+    if (starsMinusBtn && starsPlusBtn && !starsMinusBtn.dataset.initialized) {
         let currentValue = 1;
 
         const updateStarStepper = (newValue, shouldFilter = true) => {
@@ -363,6 +376,7 @@ function initStarFilter() {
         });
 
         updateStarStepper(1, false);
+        starsMinusBtn.dataset.initialized = 'true';
     }
 }
 
@@ -372,6 +386,8 @@ function initStarFilter() {
 function initResetButton() {
     const resetButtonDesktop = document.getElementById('reset-filters-desktop');
     const resetButtonMobile = document.getElementById('reset-filters-mobile');
+
+    if (!resetButtonDesktop || resetButtonDesktop.dataset.initialized) return;
 
     function showResetButton() {
         if (resetButtonDesktop) resetButtonDesktop.style.display = 'inline-block';
@@ -544,9 +560,7 @@ function initResetButton() {
     }
 
     // Click-handlerit
-    if (resetButtonDesktop) {
-        resetButtonDesktop.addEventListener('click', resetAllFilters);
-    }
+    resetButtonDesktop.addEventListener('click', resetAllFilters);
     if (resetButtonMobile) {
         resetButtonMobile.addEventListener('click', resetAllFilters);
     }
@@ -565,6 +579,8 @@ function initResetButton() {
     window.showResetButton = showResetButton;
     window.resetAllFilters = resetAllFilters;
     window.isAnyFilterActive = isAnyFilterActive;
+    
+    resetButtonDesktop.dataset.initialized = 'true';
 }
 
 /**
@@ -716,16 +732,20 @@ function initFavoriteFilter() {
     const favToggleDesktop = document.getElementById('favorites-toggle-desktop');
     const favToggleMobile = document.getElementById('favorites-toggle-mobile');
 
-    function handleToggleChange(e) {
-        const checked = e.target.checked;
-        if (favToggleDesktop) favToggleDesktop.checked = checked;
-        if (favToggleMobile) favToggleMobile.checked = checked;
+    if (favToggleDesktop && !favToggleDesktop.dataset.initialized) {
+        function handleToggleChange(e) {
+            const checked = e.target.checked;
+            if (favToggleDesktop) favToggleDesktop.checked = checked;
+            if (favToggleMobile) favToggleMobile.checked = checked;
 
-        filterByFavorites(checked);
+            filterByFavorites(checked);
+        }
+
+        favToggleDesktop.addEventListener('change', handleToggleChange);
+        if (favToggleMobile) favToggleMobile.addEventListener('change', handleToggleChange);
+        
+        favToggleDesktop.dataset.initialized = 'true';
     }
-
-    if (favToggleDesktop) favToggleDesktop.addEventListener('change', handleToggleChange);
-    if (favToggleMobile) favToggleMobile.addEventListener('change', handleToggleChange);
 
     // Initial render
     updateHeartIcons();

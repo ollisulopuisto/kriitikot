@@ -212,10 +212,13 @@ class DiscoveryImporter:
             print(f"\n[{i}/{len(discovered)}] {title_preview}...")
             print(f"   🔗 {url}")
             
-            # Tarkista onko jo tietokannassa
-            existing = self.session.query(Review).filter_by(source_url=url).first()
-            if existing:
-                print("   ⏭️  Jo tietokannassa")
+            # Tarkista onko jo tietokannassa samalta kriitikolta sama elokuva
+            # Huom: movie-objekti ja critic-objekti luodaan tai haetaan vasta myöhemmin.
+            # Joudumme tekemään tämän tarkistuksen hieman myöhemmin importointiprosessissa.
+            # Tässä vaiheessa tarkistetaan vain URL.
+            existing_by_url = self.session.query(Review).filter_by(source_url=url).first()
+            if existing_by_url:
+                print("   ⏭️  Jo tietokannassa (URL-duplikaatti)")
                 skipped += 1
                 continue
             
@@ -270,6 +273,18 @@ class DiscoveryImporter:
                 # Luo relaatiot
                 movie = self.get_or_create_movie(review.movie_title)
                 critic = self.get_or_create_critic(review.critic_name, media=source.upper())
+
+                # Tarkista uusi duplikaatti: onko samalta kriitikolta jo arvostelu tälle elokuvalle?
+                existing_by_critic_and_movie = self.session.query(Review).filter(
+                    Review.movie_id == movie.id,
+                    Review.critic_id == critic.id
+                ).first()
+
+                if existing_by_critic_and_movie:
+                    print(f"   ⏭️  Ohitettu: Kriitikolla {critic.name} on jo arvostelu elokuvasta {movie.title}")
+                    skipped += 1
+                    self.session.rollback() # Varmuuden vuoksi, jos flush on tapahtunut
+                    continue
                 
                 # Tallenna arvostelu (AUTOMAATTISESTI JULKAISTU - pending pois päältä)
                 db_review = Review(

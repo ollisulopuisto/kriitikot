@@ -43,7 +43,7 @@ function initSorting() {
         setTimeout(() => sortMovieArea.classList.remove('active'), 300);
     }
 
-    if (sortMovieArea) {
+    if (sortMovieArea && !sortMovieArea.dataset.initialized) {
         sortMovieArea.addEventListener('click', function (e) {
             e.stopPropagation();
             sortMovies();
@@ -54,6 +54,7 @@ function initSorting() {
                 sortMovies();
             }
         });
+        sortMovieArea.dataset.initialized = 'true';
     }
 
     // Kriitikonimi sort
@@ -94,7 +95,7 @@ function initSorting() {
         setTimeout(() => sortCriticArea.classList.remove('active'), 300);
     }
 
-    if (sortCriticArea) {
+    if (sortCriticArea && !sortCriticArea.dataset.initialized) {
         sortCriticArea.addEventListener('click', function (e) {
             e.stopPropagation();
             sortCritics();
@@ -105,12 +106,13 @@ function initSorting() {
                 sortCritics();
             }
         });
+        sortCriticArea.dataset.initialized = 'true';
     }
 
     // Mobiili: Aakkosta elokuvakortit
     const mobileSortButton = document.getElementById('mobile-sort');
     const mobileCardsContainer = document.querySelector('.mobile-cards');
-    if (mobileSortButton && mobileCardsContainer) {
+    if (mobileSortButton && mobileCardsContainer && !mobileSortButton.dataset.initialized) {
         let mobileSortAscending = true;
         mobileSortButton.addEventListener('click', function () {
             const cards = Array.from(mobileCardsContainer.querySelectorAll('.movie-card'));
@@ -127,6 +129,7 @@ function initSorting() {
             mobileSortAscending = !mobileSortAscending;
             mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
         });
+        mobileSortButton.dataset.initialized = 'true';
     }
 
     // Järjestä kriitikkosarakkeet arvioiden mukaan sivun latauksen yhteydessä
@@ -153,7 +156,7 @@ function initMovieClickHandlers() {
         }
     });
 
-    tbody.querySelectorAll('.movie-col').forEach((movieCell) => {
+    tbody.querySelectorAll('.movie-col:not([data-initialized])').forEach((movieCell) => {
         movieCell.style.cursor = 'pointer';
         movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
 
@@ -317,6 +320,7 @@ function initMovieClickHandlers() {
 
             if (window.showResetButton) window.showResetButton();
         });
+        movieCell.dataset.initialized = 'true';
     });
 }
 
@@ -331,6 +335,8 @@ function initCriticClickHandlers() {
     const criticHeaders = table.querySelectorAll('thead th.rating-cell');
 
     criticHeaders.forEach((criticHeader) => {
+        if (criticHeader.dataset.initialized) return;
+        
         criticHeader.style.cursor = 'pointer';
         criticHeader.title = 'Klikkaa näyttääksesi vain tämän kriitikon arvostelut';
 
@@ -426,6 +432,7 @@ function initCriticClickHandlers() {
 
             if (window.showResetButton) window.showResetButton();
         });
+        criticHeader.dataset.initialized = 'true';
     });
 }
 
@@ -433,7 +440,7 @@ function initCriticClickHandlers() {
  * Mobile: Kriitikon nimi-alue click handler
  */
 function initMobileCriticClickHandlers() {
-    const reviewItems = document.querySelectorAll('.review-item');
+    const reviewItems = document.querySelectorAll('.review-item:not([data-initialized])');
 
     reviewItems.forEach(reviewItem => {
         const criticArea = reviewItem.querySelector('.review-critic');
@@ -494,6 +501,7 @@ function initMobileCriticClickHandlers() {
 
             if (window.showResetButton) window.showResetButton();
         });
+        reviewItem.dataset.initialized = 'true';
     });
 }
 
@@ -503,6 +511,8 @@ function initMobileCriticClickHandlers() {
 function initRatingFilterClickHandlers() {
     const ratingFilters = document.querySelectorAll('.filter-rating');
     ratingFilters.forEach(ratingFilter => {
+        if (ratingFilter.dataset.initialized) return;
+        
         ratingFilter.addEventListener('click', function (e) {
             e.preventDefault();
 
@@ -589,6 +599,7 @@ function initRatingFilterClickHandlers() {
 
             if (window.showResetButton) window.showResetButton();
         });
+        ratingFilter.dataset.initialized = 'true';
     });
 }
 
@@ -600,6 +611,8 @@ function initPublicationFilterClickHandlers() {
     let activePublications = [];
 
     publicationFilters.forEach(pubFilter => {
+        if (pubFilter.dataset.initialized) return;
+        
         pubFilter.addEventListener('click', function (e) {
             e.preventDefault();
 
@@ -622,6 +635,7 @@ function initPublicationFilterClickHandlers() {
                 if (window.showResetButton) window.showResetButton();
             }
         });
+        pubFilter.dataset.initialized = 'true';
     });
 
     function applyPublicationFilter(publications) {

@@ -1,0 +1,34 @@
+<tr>
+    <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}"
+        data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}"
+        data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
+        <div class="movie-title-main">{{ movie_title }}</div>
+        {% if movie_review_counts and movie_title in movie_review_counts %}
+        <div class="movie-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
+        {% endif %}
+    </td>
+    {% for critic in all_critics %}
+    <td class="rating-cell">
+        {% if critic.name in critics_reviews %}
+        {% set reviews_list = critics_reviews[critic.name] %}
+        {% for review in reviews_list %}
+        {% if review.rating_stars %}
+        {% if review.source_url %}
+        {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
+        <a href="{{ review.source_url }}"
+            class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
+            title="{{ review.publication.name }}: {{ tooltip_text }}...">
+            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+        </a>
+        {% else %}
+        <span class="rating-pill stars-{{ review.rating_stars }}">
+            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+        </span>
+        {% endif %}
+        {% endif %}
+        {% if not loop.last %}<br>{% endif %}
+        {% endfor %}
+        {% endif %}
+    </td>
+    {% endfor %}
+</tr>

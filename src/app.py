@@ -202,28 +202,156 @@ def index():
     )
 
 
-@app.route('/api/reviews')
+@app.route('/api/reviews', methods=['GET'])
 def api_reviews():
-    """JSON API - palauttaa kaikki JULKAISTUT arvostelut."""
     session = get_session(engine)
-    
     try:
-        reviews = session.query(DBReview).filter_by(is_published=1).all()
-        return jsonify([review.to_dict() for review in reviews])
+        offset = request.args.get('offset', type=int, default=0)
+        limit = request.args.get('limit', type=int, default=50)
+
+        # Build the base query
+        reviews_query = session.query(DBReview).options(
+            joinedload(DBReview.movie),
+            joinedload(DBReview.critic),
+            joinedload(DBReview.publication)
+        ).filter_by(is_published=1).order_by(DBReview.scraped_at.desc())
+
+        # Get total count before applying limit and offset
+        total_reviews = reviews_query.count()
+
+        # Apply limit and offset
+        reviews = reviews_query.offset(offset).limit(limit).all()
+
+        return jsonify({
+            'reviews': [review.to_dict() for review in reviews],
+            'total_reviews': total_reviews,
+            'offset': offset,
+            'limit': limit
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     finally:
         session.close()
 
 
-@app.route('/api/reviews/<int:review_id>')
-def api_review(review_id):
-    """JSON API - palauttaa yhden arvostelun."""
-    session = get_session(engine)
+@app.route('/api/movies', methods=['GET'])
+def api_movies():
+    """JSON API - palauttaa elokuvia ja niiden arvosteluja ryhmiteltynä, tukee sivutusta."""
+    offset = request.args.get('offset', type=int, default=0)
+    limit = request.args.get('limit', type=int, default=50)
     
+    session = get_session(engine)
     try:
-        review = session.query(DBReview).get(review_id)
-        if review:
-            return jsonify(review.to_dict())
-        return jsonify({'error': 'Review not found'}), 404
+        # Hae kaikki julkaistut arvostelut ryhmiteltynä (kopioidaan logiikka get_all_reviews_grouped:sta)
+        # Mutta rajoitetaan elokuvien määrää.
+        
+        # 1. Hae kaikki julkaistut arvostelut (tarvitaan elokuvien järjestämiseen)
+        all_published_reviews = session.query(DBReview).filter_by(is_published=1).options(
+            joinedload(DBReview.movie)
+        ).all()
+        
+        # 2. Laske elokuvien uusimmat arviot
+        movie_latest_review = {}
+        for review in all_published_reviews:
+            movie_title = review.movie.title
+            review_date = review.published_date or review.scraped_at
+            if movie_title not in movie_latest_review or review_date > movie_latest_review[movie_title]:
+                movie_latest_review[movie_title] = review_date
+        
+        # 3. Järjestä elokuvat
+        sorted_movie_titles = sorted(
+            movie_latest_review.keys(), 
+            key=lambda title: movie_latest_review.get(title, datetime(1900, 1, 1)), 
+            reverse=True
+        )
+        
+        total_movies = len(sorted_movie_titles)
+        
+        # 4. Valitse sivutettu joukko elokuvia
+        paged_movie_titles = sorted_movie_titles[offset:offset+limit]
+        
+        if not paged_movie_titles:
+            return jsonify({'movies_html': '', 'cards_html': '', 'count': 0, 'total': total_movies})
+            
+        # 5. Hae arvostelut vain näille elokuville
+        reviews = session.query(DBReview).filter(
+            DBReview.is_published == 1
+        ).join(Movie).filter(
+            Movie.title.in_(paged_movie_titles)
+        ).options(
+            joinedload(DBReview.movie),
+            joinedload(DBReview.critic),
+            joinedload(DBReview.publication)
+        ).all()
+        
+        # 6. Ryhmittele
+        grouped = {}
+        for review in reviews:
+            title = review.movie.title
+            critic = review.critic.name
+            if title not in grouped: grouped[title] = {}
+            if critic not in grouped[title]: grouped[title][critic] = []
+            grouped[title][critic].append(review)
+            
+        # 7. Järjestä sivutettu dict samaan järjestykseen kuin paged_movie_titles
+        from collections import OrderedDict
+        grouped_ordered = OrderedDict()
+        for title in paged_movie_titles:
+            if title in grouped:
+                grouped_ordered[title] = grouped[title]
+        
+        # 8. Hae muut tarvittavat tiedot renderöintiä varten
+        critics = sorted(session.query(Critic).all(), key=lambda c: c.name)
+        
+        # Hae metatiedot (posterit jne)
+        nytleffaan_urls = {}
+        poster_urls = {}
+        letterboxd_urls = {}
+        movie_review_counts = {}
+        
+        movies_objs = session.query(Movie).filter(Movie.title.in_(paged_movie_titles)).all()
+        for m in movies_objs:
+            if m.nytleffaan_url: nytleffaan_urls[m.title] = m.nytleffaan_url
+            if m.poster_url: poster_urls[m.title] = m.poster_url
+            if m.letterboxd_url: letterboxd_urls[m.title] = m.letterboxd_url
+            # Laske arviot tässä
+            movie_review_counts[m.title] = session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count()
+
+        # Renderöi HTML-pätkät
+        movies_html = ""
+        cards_html = ""
+        
+        for movie_title, critics_reviews in grouped_ordered.items():
+            movies_html += render_template(
+                '_movie_row.html',
+                movie_title=movie_title,
+                critics_reviews=critics_reviews,
+                all_critics=critics,
+                poster_urls=poster_urls,
+                letterboxd_urls=letterboxd_urls,
+                nytleffaan_urls=nytleffaan_urls,
+                movie_review_counts=movie_review_counts
+            )
+            cards_html += render_template(
+                '_movie_card.html',
+                movie_title=movie_title,
+                critics_reviews=critics_reviews,
+                all_critics=critics,
+                poster_urls=poster_urls,
+                letterboxd_urls=letterboxd_urls,
+                nytleffaan_urls=nytleffaan_urls,
+                movie_review_counts=movie_review_counts
+            )
+            
+        return jsonify({
+            'movies_html': movies_html,
+            'cards_html': cards_html,
+            'count': len(paged_movie_titles),
+            'total': total_movies,
+            'offset': offset,
+            'limit': limit
+        })
+        
     finally:
         session.close()
 

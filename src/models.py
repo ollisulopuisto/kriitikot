@@ -97,9 +97,9 @@ class Review(Base):
     critic = relationship("Critic", back_populates="reviews")
     publication = relationship("Publication", back_populates="reviews")
     
-    # Unique constraint: sama kriitikko voi arvostella saman elokuvan vain kerran per julkaisu
+    # Unique constraint: sama kriitikko voi arvostella saman elokuvan vain kerran (kaikkien julkaisujen yli)
     __table_args__ = (
-        UniqueConstraint('movie_id', 'critic_id', 'publication_id', name='_movie_critic_pub_uc'),
+        UniqueConstraint('movie_id', 'critic_id', name='_movie_critic_uc'),
     )
     
     def __repr__(self):
