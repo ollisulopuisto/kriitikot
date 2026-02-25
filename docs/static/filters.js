@@ -12,6 +12,7 @@ function initReviewCountFilter() {
     const mobileCards = document.querySelectorAll('.movie-card');
 
     if (!slider || !valueDisplay) return;
+    if (slider.dataset.initialized) return; // Prevent double initialization
 
     // Laske jokaisen elokuvan arvioiden määrä
     const movieReviewCounts = new Map();
@@ -110,18 +111,16 @@ function initReviewCountFilter() {
     }
 
     // Desktop slider
-    if (!slider.dataset.initialized) {
-        slider.addEventListener('input', function () {
-            const value = parseInt(this.value);
-            valueDisplay.textContent = value;
-            updateReviewWord(value);
-            if (valueDisplayMobile) {
-                valueDisplayMobile.textContent = value;
-            }
-            filterByReviewCount(value);
-        });
-        slider.dataset.initialized = 'true';
-    }
+    slider.addEventListener('input', function () {
+        const value = parseInt(this.value);
+        valueDisplay.textContent = value;
+        updateReviewWord(value);
+        if (valueDisplayMobile) {
+            valueDisplayMobile.textContent = value;
+        }
+        filterByReviewCount(value);
+    });
+    slider.dataset.initialized = 'true';
 
     // Mobile stepper buttons
     const reviewsMinusBtn = document.getElementById('reviews-minus-mobile');
@@ -162,6 +161,7 @@ function initStarFilter() {
     const starValueDisplayMobile = document.getElementById('star-filter-value-mobile');
 
     if (!starSlider || !starValueDisplay) return;
+    if (starSlider.dataset.initialized) return; // Prevent double initialization
 
     function updateStarLabel(value) {
         const labels = {
@@ -328,15 +328,13 @@ function initStarFilter() {
     }
 
     // Desktop slider
-    if (!starSlider.dataset.initialized) {
-        starSlider.addEventListener('input', function () {
-            const value = parseInt(this.value);
-            console.log('🌟 Star slider changed to:', value);
-            updateStarLabel(value);
-            filterByStars(value);
-        });
-        starSlider.dataset.initialized = 'true';
-    }
+    starSlider.addEventListener('input', function () {
+        const value = parseInt(this.value);
+        console.log('🌟 Star slider changed to:', value);
+        updateStarLabel(value);
+        filterByStars(value);
+    });
+    starSlider.dataset.initialized = 'true';
 
     // Mobile stepper buttons
     const starsMinusBtn = document.getElementById('stars-minus-mobile');
@@ -663,7 +661,7 @@ function initFavoriteFilter() {
             const criticNameSpan = item.querySelector('.review-critic-name');
 
             if (criticNameSpan) {
-                let heart = item.querySelector('.heart-icon');
+                let heart = item.createElement('span');
                 if (!heart) {
                     heart = document.createElement('span');
                     heart.className = 'heart-icon mobile-heart';

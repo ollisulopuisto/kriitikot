@@ -15,6 +15,7 @@ import os
 import xml.etree.ElementTree as ET
 from email.utils import formatdate
 from flask import make_response
+import json
 
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -185,9 +186,18 @@ def index():
     finally:
         session.close()
     
+    # Esikäsittele kaikki arvostelut JSON-muotoon JavaScriptille
+    # Muutetaan OrderedDict takaisin normaaliin dictiin jotta se on helpommin JSON-serialisoitavissa
+    all_reviews_json = {}
+    for movie_title, critics_reviews_dict in grouped_reviews.items():
+        all_reviews_json[movie_title] = {}
+        for critic_name, reviews_list in critics_reviews_dict.items():
+            all_reviews_json[movie_title][critic_name] = [review.to_dict() for review in reviews_list]
+    
     return render_template(
         'index.html',
-        grouped_reviews=grouped_reviews,
+        grouped_reviews=grouped_reviews, # For initial Jinja rendering (first page)
+        all_reviews_json=json.dumps(all_reviews_json), # All data for JS lazy loading
         all_critics=all_critics,
         total_reviews=total_reviews,
         rating_distribution=rating_distribution,

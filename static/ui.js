@@ -11,6 +11,7 @@ function initStickyTableHeader() {
     const table = document.querySelector('table');
     
     if (!desktopFilters || !thead || !tableWrapper || !table) return;
+    if (thead.dataset.stickyInitialized) return; // Prevent double initialization
     
     let theadClone = null;
     
@@ -149,6 +150,7 @@ function initStickyTableHeader() {
     tableWrapper.addEventListener('scroll', handleScroll);
     
     handleScroll();
+    thead.dataset.stickyInitialized = 'true'; // Mark as initialized
 }
 
 /**
@@ -160,6 +162,8 @@ function initMobileFilterToggle() {
     const toggleText = toggleBtn?.querySelector('.toggle-text');
     const resetButtonMobile = document.getElementById('reset-filters-mobile');
     
+    if (toggleBtn && mobileFilter && toggleBtn.dataset.initialized) return; // Prevent double initialization
+
     function updateResetButtonPosition() {
         if (mobileFilter && resetButtonMobile) {
             const filterHeight = mobileFilter.offsetHeight;
@@ -183,6 +187,7 @@ function initMobileFilterToggle() {
         });
         
         updateResetButtonPosition();
+        toggleBtn.dataset.initialized = 'true'; // Mark as initialized
     }
 }
 
@@ -199,6 +204,7 @@ function initStickyScrollbar() {
     const stickyScrollbarContent = document.querySelector('.sticky-scrollbar-content');
     
     if (!tableWrapper || !stickyScrollbar || !stickyScrollbarContent) return;
+    if (tableWrapper.dataset.stickyScrollbarInitialized) return; // Prevent double initialization
     
     let isTableScrolling = false;
     let isStickyScrolling = false;
@@ -246,6 +252,7 @@ function initStickyScrollbar() {
         attributes: true,
         attributeFilter: ['style', 'class']
     });
+    tableWrapper.dataset.stickyScrollbarInitialized = 'true'; // Mark as initialized
 }
 
 /**

@@ -8,6 +8,11 @@ let originalTableWidth = 0;
 let originalVisibleColumns = 0;
 let currentMovieOffset = 50; // Aloitetaan 50:stä, koska ensimmäiset 50 on jo ladattu Jinjalla
 const movieLimit = 50;
+let allGroupedReviews = {}; // Tähän ladataan kaikki arvostelut JSONista
+let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
+let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
+let allPublicationMap = {}; // Map julkaisuista {short_name: publication_object}
+
 
 // Utility Functions
 // =================
@@ -414,10 +419,116 @@ function updateRowVisibility() {
 // Lazy Loading
 // ============
 
+function createReviewPill(review) {
+    let tooltipText = review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu';
+    let starsHtml = '★'.repeat(review.rating_stars);
+    let publicationName = allPublicationMap[review.source_publication]?.name || review.source_publication; // Get full name
+    
+    if (review.source_url) {
+        return `
+            <a href="${review.source_url}"
+                class="rating-link rating-pill stars-${review.rating_stars}" target="_blank"
+                title="${publicationName}: ${tooltipText}...">
+                <span class="rating-stars">${starsHtml}</span>
+            </a>
+        `;
+    } else {
+        return `
+            <span class="rating-pill stars-${review.rating_stars}">
+                <span class="rating-stars">${starsHtml}</span>
+            </span>
+        `;
+    }
+}
+
+
 /**
- * Lataa lisää elokuvia ja liittää ne taulukkoon ja kortteihin.
+ * Renderöi elokuvarivin tai kortin
  */
-async function loadMoreMovies() {
+function renderMovie(movieTitle, criticsReviewsDict) {
+    // Collect movie meta info (poster, letterboxd, nytleffaan, review counts) from the global data structures
+    const posterUrl = window.poster_urls[movieTitle] || '';
+    const letterboxdUrl = window.letterboxd_urls[movieTitle] || '';
+    const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
+    const movieReviewCount = window.movie_review_counts[movieTitle];
+
+    // Desktop row
+    let desktopHtml = `
+        <tr>
+            <td class="movie-col" data-poster="${posterUrl}"
+                data-letterboxd="${letterboxdUrl}"
+                data-nytleffaan="${nytleffaanUrl}">
+                <div class="movie-title-main">${movieTitle}</div>
+                ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
+            </td>
+    `;
+    // Populate with critics from allCritics (global, ordered list)
+    allCritics.forEach(critic => {
+        desktopHtml += `<td class="rating-cell">`;
+        if (criticsReviewsDict[critic.name]) {
+            criticsReviewsDict[critic.name].forEach((review, index) => {
+                if (review.rating_stars) {
+                    desktopHtml += createReviewPill(review);
+                }
+                if (index < criticsReviewsDict[critic.name].length - 1) {
+                    desktopHtml += '<br>';
+                }
+            });
+        }
+        desktopHtml += `</td>`;
+    });
+    desktopHtml += `</tr>`;
+
+    // Mobile card
+    let mobileHtml = `
+        <div class="movie-card" data-movie="${movieTitle}">
+            <div class="movie-card-header">
+                <div class="movie-card-title-row">
+                    <div class="movie-card-title">${movieTitle}</div>
+                    ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                    ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
+                </div>
+            </div>
+            <div class="movie-card-body">
+    `;
+    // Populate with critics from allCritics (global, ordered list)
+    allCritics.forEach(critic => {
+        if (criticsReviewsDict[critic.name]) {
+            criticsReviewsDict[critic.name].forEach(review => {
+                mobileHtml += `
+                    <div class="review-item" data-critic="${critic.id}"
+                        data-publication="${review.source_publication}">
+                        <div class="review-critic">
+                            <div class="review-critic-top">
+                                <span class="review-critic-name">${critic.name}</span>
+                            </div>
+                            <div class="review-media">${review.source_publication.toUpperCase()}</div>
+                        </div>
+                        <div class="review-rating">
+                            ${review.rating_stars ? createReviewPill(review) : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    });
+    if (nytleffaanUrl || letterboxdUrl) {
+        mobileHtml += `<div class="movie-card-links">`;
+        if (nytleffaanUrl) {
+            mobileHtml += `<a href="${nytleffaanUrl}" target="_blank" class="movie-link nytleffaan-link">Osta liput</a>`;
+        }
+        if (letterboxdUrl) {
+            mobileHtml += `<a href="${letterboxdUrl}" target="_blank" class="movie-link letterboxd-link">Letterboxd</a>`;
+        }
+        mobileHtml += `</div>`;
+    }
+    mobileHtml += `</div></div>`;
+
+    return { desktop: desktopHtml, mobile: mobileHtml };
+}
+
+
+function loadMoreMovies() {
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
 
@@ -425,68 +536,129 @@ async function loadMoreMovies() {
     const originalText = loadMoreButton.textContent;
     loadMoreButton.textContent = 'Ladataan...';
 
-    try {
-        const response = await fetch(`/api/movies?offset=${currentMovieOffset}&limit=${movieLimit}`);
-        const data = await response.json();
+    const desktopTbody = document.querySelector('#review-container-desktop tbody');
+    const mobileCardsContainer = document.querySelector('.mobile-cards');
 
-        if (data.movies_html) {
-            const desktopTbody = document.querySelector('#review-container-desktop tbody');
-            const mobileCardsContainer = document.querySelector('.mobile-cards');
+    if (!desktopTbody || !mobileCardsContainer) {
+        console.error('Review containers not found');
+        loadMoreButton.parentElement.style.display = 'none';
+        return;
+    }
 
-            if (desktopTbody) {
-                // Lisää HTML-pätkä
-                desktopTbody.insertAdjacentHTML('beforeend', data.movies_html);
-            }
+    const movieTitles = Object.keys(allGroupedReviews);
+    const moviesToRender = movieTitles.slice(currentMovieOffset, currentMovieOffset + movieLimit);
 
-            if (mobileCardsContainer) {
-                // Lisää HTML-pätkä
-                mobileCardsContainer.insertAdjacentHTML('beforeend', data.cards_html);
-            }
-
-            // Päivitä offset
-            currentMovieOffset += data.count;
-
-            // Alusta uudet elementit (click handlerit jne)
-            // Huom: meidän täytyy re-alustaa kaikki, koska jotkut funktiot
-            // skannaavat koko DOM:in uudelleen.
-            if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
-            if (typeof initMobileCriticClickHandlers === 'function') initMobileCriticClickHandlers();
-            if (typeof initRatingFilterClickHandlers === 'function') initRatingFilterClickHandlers();
-            if (typeof initReviewCountFilter === 'function') initReviewCountFilter();
-            if (typeof initStarFilter === 'function') initStarFilter();
-            if (typeof initFavoriteFilter === 'function') initFavoriteFilter();
-            
-            // Järjestä uudelleen jos tarpeen
-            if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
-        }
-
-        // Piilota nappi jos kaikki on ladattu
-        if (currentMovieOffset >= data.total) {
-            loadMoreButton.parentElement.style.display = 'none';
-        }
-
-    } catch (error) {
-        console.error('Virhe elokuvien latauksessa:', error);
-        alert('Lisää elokuvia ei voitu ladata. Yritä uudelleen.');
-    } finally {
+    if (moviesToRender.length === 0) {
+        loadMoreButton.parentElement.style.display = 'none';
         loadMoreButton.disabled = false;
         loadMoreButton.textContent = originalText;
+        return;
     }
+
+    moviesToRender.forEach(movieTitle => {
+        const criticsReviewsDict = allGroupedReviews[movieTitle];
+        const { desktop, mobile } = renderMovie(movieTitle, criticsReviewsDict);
+        
+        desktopTbody.insertAdjacentHTML('beforeend', desktop);
+        mobileCardsContainer.insertAdjacentHTML('beforeend', mobile);
+    });
+    
+    currentMovieOffset += moviesToRender.length;
+
+    if (currentMovieOffset >= movieTitles.length) {
+        loadMoreButton.parentElement.style.display = 'none';
+    } else {
+        loadMoreButton.parentElement.style.display = 'block';
+    }
+
+    // Re-initialize event handlers for newly added elements
+    if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
+    if (typeof initMobileCriticClickHandlers === 'function') initMobileCriticClickHandlers();
+    if (typeof initRatingFilterClickHandlers === 'function') initRatingFilterClickHandlers();
+    if (typeof initReviewCountFilter === 'function') initReviewCountFilter();
+    if (typeof initStarFilter === 'function') initStarFilter();
+    if (typeof initResetButton === 'function') initResetButton();
+    if (typeof initFavoriteFilter === 'function') initFavoriteFilter();
+    
+    if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+    
+    loadMoreButton.disabled = false;
+    loadMoreButton.textContent = originalText;
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    const loadMoreButton = document.getElementById('load-more-button');
-    if (loadMoreButton) {
-        loadMoreButton.addEventListener('click', loadMoreMovies);
-        
-        // Tarkista heti pitääkö nappi piilottaa (jos alle 50 elokuvaa yhteensä)
-        const totalMoviesText = document.querySelector('.header-stat:nth-child(2)')?.textContent;
-        if (totalMoviesText) {
-            const total = parseInt(totalMoviesText);
-            if (!isNaN(total) && total <= 50) {
+    // Lataa kaikki arvostelut JSONista
+    const reviewsDataElement = document.getElementById('all-reviews-data');
+    if (reviewsDataElement) {
+        try {
+            allGroupedReviews = JSON.parse(reviewsDataElement.textContent);
+            
+            // Haetaan kriitikkojen tiedot taulukon headerista
+            const criticHeaders = document.querySelectorAll('thead th.rating-cell');
+            allCritics = Array.from(criticHeaders).map(th => ({
+                id: th.dataset.criticId,
+                name: th.querySelector('.critic-name').textContent
+            }));
+            allCritics.forEach(c => allCriticsMap[c.id] = c);
+
+            // Haetaan julkaisujen tiedot (oletetaan, että ne ovat jo renderöity)
+            // tai haetaan dynaamisesti tarvittaessa
+            // Placeholder, tässä vaiheessa ei ole suoraa tapaa JSONissa saada julkaisun koko nimeä
+            // joten käytetään short_name.toUpperCase() tarvittaessa.
+            // allPublicationMap will be populated with actual names if available elsewhere,
+            // otherwise use short_name.
+            document.querySelectorAll('.media-filter-btn').forEach(btn => {
+                const short_name = btn.dataset.publication.toLowerCase();
+                const name = btn.textContent.trim();
+                allPublicationMap[short_name] = { short_name: short_name, name: name };
+            });
+
+
+            // Movie meta info (poster, letterboxd, nytleffaan, review counts)
+            // Initial items are rendered by Jinja, so we can extract these from there.
+            // These objects will be populated with actual data from allGroupedReviews during rendering
+            window.nytleffaan_urls = {};
+            window.poster_urls = {};
+            window.letterboxd_urls = {};
+            window.movie_review_counts = {};
+            
+            // Extract from initial Jinja-rendered movie cells
+            document.querySelectorAll('#review-container-desktop tbody tr .movie-col').forEach(movieCol => {
+                const movieTitle = movieCol.querySelector('.movie-title-main').textContent;
+                window.nytleffaan_urls[movieTitle] = movieCol.dataset.nytleffaan;
+                window.poster_urls[movieTitle] = movieCol.dataset.poster;
+                window.letterboxd_urls[movieTitle] = movieCol.dataset.letterboxd;
+                const countElem = movieCol.querySelector('.movie-review-count');
+                if (countElem) {
+                    window.movie_review_counts[movieTitle] = parseInt(countElem.textContent.replace('🎬 ', ''));
+                }
+            });
+
+            // No need to clear Jinja-rendered content, as we want to keep it.
+            // Initial render call should start from currentMovieOffset (which is 50)
+            loadMoreMovies();
+
+        } catch (e) {
+            console.error('Error parsing all-reviews-data:', e);
+            // Piilota lataa lisää -nappi jos dataa ei voi ladata
+            const loadMoreButton = document.getElementById('load-more-button');
+            if (loadMoreButton) {
                 loadMoreButton.parentElement.style.display = 'none';
             }
         }
+    } else {
+        console.error('all-reviews-data script element not found.');
+        const loadMoreButton = document.getElementById('load-more-button');
+        if (loadMoreButton) {
+            loadMoreButton.parentElement.style.display = 'none';
+        }
+    }
+    
+    // Load more button event listener
+    const loadMoreButton = document.getElementById('load-more-button');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', loadMoreMovies);
     }
 });
 

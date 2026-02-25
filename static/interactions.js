@@ -11,6 +11,10 @@ function initSorting() {
     const tbody = table.querySelector('tbody');
     const sortMovieArea = document.getElementById('sort-movie-area');
     const sortCriticArea = document.getElementById('sort-critic-area');
+    
+    // Prevent double initialization
+    if (sortMovieArea && sortMovieArea.dataset.initialized) return;
+
     let sortAscending = true;
     let sortCriticAscending = true;
 
@@ -43,7 +47,7 @@ function initSorting() {
         setTimeout(() => sortMovieArea.classList.remove('active'), 300);
     }
 
-    if (sortMovieArea && !sortMovieArea.dataset.initialized) {
+    if (sortMovieArea) {
         sortMovieArea.addEventListener('click', function (e) {
             e.stopPropagation();
             sortMovies();
@@ -95,7 +99,7 @@ function initSorting() {
         setTimeout(() => sortCriticArea.classList.remove('active'), 300);
     }
 
-    if (sortCriticArea && !sortCriticArea.dataset.initialized) {
+    if (sortCriticArea) {
         sortCriticArea.addEventListener('click', function (e) {
             e.stopPropagation();
             sortCritics();
@@ -122,7 +126,7 @@ function initSorting() {
                 if (mobileSortAscending) {
                     return titleA.localeCompare(titleB, 'fi');
                 } else {
-                    return titleB.localeCompare(titleA, 'fi');
+                    return titleB.localeCompare(a.titleA, 'fi');
                 }
             });
             cards.forEach(card => mobileCardsContainer.appendChild(card));
@@ -269,7 +273,6 @@ function initMovieClickHandlers() {
                     letterboxdLink.target = '_blank';
                     letterboxdLink.textContent = '📽️ Letterboxd';
                     letterboxdLink.className = 'movie-link letterboxd-link';
-                    letterboxdLink.title = 'Katso Letterboxd:ssä';
                     linksDiv.appendChild(letterboxdLink);
                 }
 
@@ -343,7 +346,6 @@ function initCriticClickHandlers() {
         criticHeader.addEventListener('click', function () {
             const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
 
-            // Jos suodatin on jo aktiivinen, nollaa kaikki
             if (isAnyFilterActive) {
                 if (window.resetAllFilters) window.resetAllFilters();
                 return;
@@ -440,9 +442,12 @@ function initCriticClickHandlers() {
  * Mobile: Kriitikon nimi-alue click handler
  */
 function initMobileCriticClickHandlers() {
-    const reviewItems = document.querySelectorAll('.review-item:not([data-initialized])');
+    const reviewItems = document.querySelectorAll('.review-item');
 
     reviewItems.forEach(reviewItem => {
+        // Prevent double initialization
+        if (reviewItem.dataset.initialized) return;
+
         const criticArea = reviewItem.querySelector('.review-critic');
         if (!criticArea) return;
 
