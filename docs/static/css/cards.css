@@ -1,0 +1,84 @@
+.mobile-cards {
+    display: none;
+}
+
+.movie-card {
+    background: white;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.movie-card-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.movie-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.movie-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.movie-card-poster {
+    width: 80px;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.movie-card-body {
+    padding: 1rem;
+}
+
+.review-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px border var(--border-color);
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.movie-card-links {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-top: 1px solid var(--border-color);
+}
+
+.movie-link {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.nytleffaan-link { background: #059669; color: white; }
+.letterboxd-link { background: #7c3aed; color: white; }
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+    .table-wrapper {
+        display: none;
+    }
+    .mobile-cards {
+        display: block;
+    }
+}
