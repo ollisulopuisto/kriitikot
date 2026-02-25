@@ -6,14 +6,14 @@ import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from .base import Review
+from .base import Review, BaseScraper
 
 
-class ISScraper:
+class ISScraper(BaseScraper):
     """Ilta-Sanomien arvostelujen parsija."""
     
     def __init__(self):
-        self.publication_name = "Ilta-Sanomat"
+        super().__init__("Ilta-Sanomat")
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """
@@ -257,57 +257,4 @@ class ISScraper:
                         paragraphs.append(paragraph_text)
         
         return '\n\n'.join(paragraphs) if paragraphs else None
-    
-    def parse_file(self, file_path: str) -> Optional[Review]:
-        """Lukee ja parsii HTML-tiedoston."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            return self.parse_html(content)
-        except (IOError, OSError):
-            return None
 
-
-# Yleinen rajapinta - helppo lisätä uusia sivustoja
-def scrape_review(html_content: str, source: str = 'hs', source_url: Optional[str] = None) -> Optional[Review]:
-    """
-    Yleiskäyttöinen funktio arvostelujen parsimiseen.
-    
-    Args:
-        html_content: HTML-sisältö merkkijonona
-        source: Lähteen tunniste ('hs', 'il', 'yle', jne.)
-        source_url: Alkuperäinen URL (valinnainen)
-        
-    Returns:
-        Review-objekti tai None
-    """
-    scrapers = {
-        'hs': HSScraper(),
-        'ksml': KSMLScraper(),
-        'il': ILScraper(),
-        'ts': TSScraper(),
-        'sk': SKScraper(),
-        'is': ISScraper(),
-        # Myöhemmin lisätään:
-        # 'yle': YLEScraper(),
-    }
-    
-    scraper = scrapers.get(source.lower())
-    if not scraper:
-        raise ValueError(f"Unknown source: {source}. Supported: {', '.join(scrapers.keys())}")
-    
-    return scraper.parse_html(html_content, source_url)
-
-
-# Taaksepäin yhteensopivuus vanhan testin kanssa
-def scrape_hs_review(file_path: str) -> dict:
-    """
-    DEPRECATED: Käytä mieluummin HSScraper.parse_file() tai scrape_review().
-    Säilytetty vanhojen testien takia.
-    """
-    scraper = HSScraper()
-    review = scraper.parse_file(file_path)
-    
-    if review:
-        return review.to_dict()
-    return {}

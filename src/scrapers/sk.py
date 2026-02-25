@@ -5,14 +5,14 @@ Suomen Kuvalehti (SK.fi) movie review scraper.
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from .base import Review
+from .base import Review, BaseScraper
 
 
-class SKScraper:
+class SKScraper(BaseScraper):
     """Scraper Suomen Kuvalehden elokuva-arvosteluille."""
     
     def __init__(self):
-        self.publication_name = 'Suomen Kuvalehti'
+        super().__init__('Suomen Kuvalehti')
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """Parsii Suomen Kuvalehden arvostelun."""

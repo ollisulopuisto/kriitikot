@@ -6,10 +6,10 @@ import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from .base import Review
+from .base import Review, BaseScraper
 
 
-class KSMLScraper:
+class KSMLScraper(BaseScraper):
     """Keskisuomalaisen (KSML.fi) arvostelujen parsija.
     
     Tukee maksumuurin takana olevia artikkeleita ja etsii tietoja
@@ -17,7 +17,7 @@ class KSMLScraper:
     """
     
     def __init__(self):
-        self.publication_name = "Keskisuomalainen"
+        super().__init__("Keskisuomalainen")
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """

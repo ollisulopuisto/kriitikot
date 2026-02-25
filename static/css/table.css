@@ -1,0 +1,105 @@
+.table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Sticky Headers */
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+}
+
+th, td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.movie-col {
+    position: sticky;
+    left: 0;
+    z-index: 51;
+    background: #fff;
+    text-align: left;
+    font-weight: 600;
+    min-width: 250px;
+    border-right: 2px solid var(--border-color);
+}
+
+tr:hover .movie-col {
+    background-color: #f9fafb;
+}
+
+/* Diagonal Sort Cell */
+.diagonal-sort-cell {
+    position: sticky;
+    left: 0;
+    background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+    min-width: 60px;
+    max-width: 80px;
+    height: 56px;
+    padding: 0 !important;
+    z-index: 52;
+    overflow: hidden;
+    border: 1px solid #c4b5fd;
+}
+
+.diagonal-sort-cell::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom left, transparent calc(50% - 1px), #c9b6f5 calc(50% - 1px), #c8b2fb calc(50% + 1px), transparent calc(50% + 1px));
+    z-index: 1;
+    pointer-events: none;
+}
+
+.sort-half {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sort-half-movie {
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    padding-right: 25%;
+    padding-bottom: 25%;
+}
+
+.sort-half-critic {
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    padding-left: 25%;
+    padding-top: 25%;
+}
+
+.sort-half:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Rating Cells */
+.rating-cell {
+    min-width: 80px;
+    font-weight: 700;
+}
+
+.stars {
+    color: #fbbf24;
+    white-space: nowrap;
+}

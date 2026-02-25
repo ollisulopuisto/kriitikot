@@ -5,14 +5,14 @@ Iltalehti (IL.fi) movie review scraper.
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from .base import Review
+from .base import Review, BaseScraper
 
 
-class ILScraper:
+class ILScraper(BaseScraper):
     """Scraper Iltalehden elokuva-arvosteluille."""
     
     def __init__(self):
-        self.publication_name = 'Iltalehti'
+        super().__init__('Iltalehti')
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """Parsii Iltalehden arvostelun."""
