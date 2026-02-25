@@ -661,7 +661,7 @@ function initFavoriteFilter() {
             const criticNameSpan = item.querySelector('.review-critic-name');
 
             if (criticNameSpan) {
-                let heart = item.createElement('span');
+                let heart = item.querySelector('.heart-icon');
                 if (!heart) {
                     heart = document.createElement('span');
                     heart.className = 'heart-icon mobile-heart';
