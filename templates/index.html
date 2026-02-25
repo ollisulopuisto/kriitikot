@@ -190,40 +190,7 @@
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     {% if loop.index <= 50 %}
-                    <tr>
-                        <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}"
-                            data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}"
-                            data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
-                            <div class="movie-title-main">{{ movie_title }}</div>
-                            {% if movie_review_counts and movie_title in movie_review_counts %}
-                            <div class="movie-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
-                            {% endif %}
-                        </td>
-                        {% for critic in all_critics %}
-                        <td class="rating-cell">
-                            {% if critic.name in critics_reviews %}
-                            {% set reviews_list = critics_reviews[critic.name] %}
-                            {% for review in reviews_list %}
-                            {% if review.rating_stars %}
-                            {% if review.source_url %}
-                            {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                            <a href="{{ review.source_url }}"
-                                class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
-                                title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                            </a>
-                            {% else %}
-                            <span class="rating-pill stars-{{ review.rating_stars }}">
-                                <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                            </span>
-                            {% endif %}
-                            {% endif %}
-                            {% if not loop.last %}<br>{% endif %}
-                            {% endfor %}
-                            {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
+                        {% include "_movie_row.html" %}
                     {% endif %}
                     {% endfor %}
                 </tbody>
@@ -318,67 +285,7 @@
     <div class="mobile-cards">
         {% for movie_title, critics_reviews in grouped_reviews.items() %}
         {% if loop.index <= 50 %}
-        <div class="movie-card" data-movie="{{ movie_title }}">
-            <div class="movie-card-header">
-                <div class="movie-card-title-row">
-                    <div class="movie-card-title">
-                        {{ movie_title }}
-                    </div>
-                    {% if movie_review_counts and movie_title in movie_review_counts %}
-                    <div class="movie-card-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
-                    {% endif %}
-                    {% if poster_urls.get(movie_title) %}
-                    <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
-                    {% endif %}
-                </div>
-            </div>
-            <div class="movie-card-body">
-                {% for critic in all_critics %}
-                {% if critic.name in critics_reviews %}
-                {% set reviews_list = critics_reviews[critic.name] %}
-                {% for review in reviews_list %}
-                <div class="review-item" data-critic="{{ critic.id }}"
-                    data-publication="{{ review.publication.short_name }}">
-                    <div class="review-critic">
-                        <div class="review-critic-top">
-                            <span class="review-critic-name">{{ critic.name }}</span>
-                        </div>
-                        <div class="review-media">{{ review.publication.short_name.upper() }}</div>
-                    </div>
-                    <div class="review-rating">
-                        {% if review.rating_stars %}
-                        {% if review.source_url %}
-                        {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
-                        <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}"
-                            target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                        </a>
-                        {% else %}
-                        <span class="rating-pill stars-{{ review.rating_stars }}">
-                            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
-                        </span>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endfor %}
-
-                {% if nytleffaan_urls.get(movie_title) or letterboxd_urls.get(movie_title) %}
-                <div class="movie-card-links">
-                    {% if nytleffaan_urls.get(movie_title) %}
-                    <a href="{{ nytleffaan_urls[movie_title] }}" target="_blank" class="movie-link nytleffaan-link">Osta
-                        liput</a>
-                    {% endif %}
-                    {% if letterboxd_urls.get(movie_title) %}
-                    <a href="{{ letterboxd_urls[movie_title] }}" target="_blank"
-                        class="movie-link letterboxd-link">Letterboxd</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
+            {% include "_movie_card.html" %}
         {% endif %}
         {% endfor %}
     </div>
