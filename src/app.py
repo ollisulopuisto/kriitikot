@@ -2,19 +2,14 @@
 Flask-pohjainen web-sovellus elokuva-arvostelujen näyttämiseen.
 """
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, make_response
 from models import get_engine, get_session, Movie, Critic, Publication, Review as DBReview
+from services.data_service import DataService
 from sqlalchemy.orm import joinedload
 from datetime import datetime
-try:
-    # Python 3.9+: zoneinfo is preferred
-    from zoneinfo import ZoneInfo
-except Exception:
-    ZoneInfo = None
 import os
 import xml.etree.ElementTree as ET
 from email.utils import formatdate
-from flask import make_response
 import json
 
 
@@ -22,68 +17,18 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 # Tietokantayhteys
 engine = get_engine()
+data_service = DataService(engine)
 
 
 def get_all_reviews_grouped():
     """Hakee kaikki arvostelut ryhmiteltynä elokuvittain.
     
-    Palauttaa:
-        - grouped: OrderedDict[movie_title][critic_name] = [review1, review2, ...]
-          Järjestetty uusimman arvion mukaan (uusin ensin)
-        - critics: List[Critic] - kaikki kriitikot
-        - total_reviews: int - arvostelujen määrä
+    DEPRECATED: Käytä data_service.get_grouped_reviews()
+    Pidetty toistaiseksi yhteensopivuuden vuoksi.
     """
-    from collections import OrderedDict
     session = get_session(engine)
-    
     try:
-        # Hae kaikki JULKAISTUT arvostelut EAGER LOADingilla (lataa relaatiot heti)
-        reviews = session.query(DBReview).filter_by(is_published=1).options(
-            joinedload(DBReview.movie),
-            joinedload(DBReview.critic),
-            joinedload(DBReview.publication)
-        ).all()
-        
-        # Hae kaikki kriitikot
-        critics = session.query(Critic).all()
-        
-        # Ryhmittele elokuvittain (kriitikon NIMI → LISTA arvosteluja)
-        grouped = {}
-        movie_latest_review = {}  # Tallenna jokaisen elokuvan uusin arvio
-        
-        for review in reviews:
-            movie_title = review.movie.title
-            critic_name = review.critic.name
-            
-            if movie_title not in grouped:
-                grouped[movie_title] = {}
-            
-            if critic_name not in grouped[movie_title]:
-                grouped[movie_title][critic_name] = []
-            
-            # Lisää arvostelu listaan (sama kriitikko voi olla useassa mediassa)
-            grouped[movie_title][critic_name].append(review)
-            
-            # Päivitä elokuvan uusin arvio
-            # Käytä published_date jos saatavilla, muuten scraped_at
-            review_date = review.published_date or review.scraped_at
-            if movie_title not in movie_latest_review or review_date > movie_latest_review[movie_title]:
-                movie_latest_review[movie_title] = review_date
-        
-        # Järjestä elokuvat uusimman arvion mukaan (uusin ensin)
-        sorted_movies = sorted(
-            grouped.keys(), 
-            key=lambda title: movie_latest_review.get(title, datetime(1900, 1, 1)), 
-            reverse=True
-        )
-        
-        # Luo järjestetty dict
-        grouped_ordered = OrderedDict()
-        for movie_title in sorted_movies:
-            grouped_ordered[movie_title] = grouped[movie_title]
-        
-        return grouped_ordered, sorted(critics, key=lambda c: c.name), len(reviews)
-    
+        return data_service.get_grouped_reviews(session)
     finally:
         session.close()
 
@@ -91,125 +36,22 @@ def get_all_reviews_grouped():
 @app.route('/')
 def index():
     """Etusivu - näyttää kaikki arvostelut."""
-    grouped_reviews, all_critics, total_reviews = get_all_reviews_grouped()
-    
     # Hae kritikoiden järjestys query parametrista (CSV)
-    order = request.args.get('order')
-    if order:
+    order_str = request.args.get('order')
+    order_ids = None
+    if order_str:
         try:
-            critic_ids = [int(id) for id in order.split(',')]
-            # Järjestä kriitikot annetun järjestyksen mukaan
-            critic_dict = {c.id: c for c in all_critics}
-            ordered_critics = [critic_dict[id] for id in critic_ids if id in critic_dict]
-            # Lisää loput kriitikot jotka eivät ole järjestyksessä
-            remaining = [c for c in all_critics if c.id not in critic_ids]
-            all_critics = ordered_critics + remaining
-        except (ValueError, KeyError):
-            pass  # Jos virhe, käytä oletusta
-    
-    # Laske arvioiden määrät elokuville ja kriitikoille
-    movie_review_counts = {}
-    for movie_title, critics_reviews in grouped_reviews.items():
-        count = sum(len(reviews) for reviews in critics_reviews.values())
-        movie_review_counts[movie_title] = count
-    
-    # Laske kritikoiden mediat (kriitikko voi kirjoittaa useaan mediaan)
-    session = get_session(engine)
-    try:
-        critic_media_map = {}  # critic_id -> list of publication short_names
-        critic_review_counts = {}  # critic_id -> review count
-        for critic in all_critics:
-            # Hae kaikki kriitikon arvostelut
-            reviews = session.query(DBReview).filter(
-                DBReview.critic_id == critic.id,
-                DBReview.is_published == 1
-            ).options(joinedload(DBReview.publication)).all()
-            
-            # Kerää uniikit julkaisut
-            publications = list(set([r.publication.short_name.upper() for r in reviews if r.publication]))
-            publications.sort()  # Aakkosjärjestys
-            critic_media_map[critic.id] = publications
-            critic_review_counts[critic.id] = len(reviews)
-        
-        # Laske arvosanajakauma
-        rating_distribution = {}
-        for i in range(1, 6):
-            count = session.query(DBReview).filter(DBReview.rating_stars == i).count()
-            rating_distribution[i] = count
-        
-        # Julkaisujen tilastot
-        publications = session.query(Publication).all()
-        pub_stats = {}
-        for pub in publications:
-            review_count = session.query(DBReview).filter(DBReview.publication_id == pub.id).count()
-            if review_count > 0:
-                pub_stats[pub.short_name.upper()] = review_count
-        
-        # Aakkosta julkaisut
-        pub_stats = dict(sorted(pub_stats.items(), key=lambda x: x[0]))
-        
-        # Hae nytleffaan.fi linkit ja posterit
-        nytleffaan_urls = {}
-        poster_urls = {}
-        letterboxd_urls = {}
-        movies = session.query(Movie).all()
-        for movie in movies:
-            if movie.nytleffaan_url:
-                nytleffaan_urls[movie.title] = movie.nytleffaan_url
-            if movie.poster_url:
-                poster_urls[movie.title] = movie.poster_url
-            if movie.letterboxd_url:
-                letterboxd_urls[movie.title] = movie.letterboxd_url
-        
-        # Laske viimeisin päivitysaika (uusin scraped_at tai published_date)
-        latest_update = session.query(DBReview).filter_by(is_published=1).order_by(
-            DBReview.scraped_at.desc()
-        ).first()
-        last_updated = None
-        if latest_update:
-            # Käytä published_date jos saatavilla, muuten scraped_at
-            last_updated = latest_update.published_date or latest_update.scraped_at
-            # Normalize timezone: if datetime is naive, assume UTC, then convert
-            # to desired display timezone. The display timezone can be set
-            # via environment variable `DISPLAY_TIMEZONE` (default: Europe/Helsinki).
-            display_tz = os.environ.get('DISPLAY_TIMEZONE', 'Europe/Helsinki')
-            if ZoneInfo is not None and last_updated is not None:
-                try:
-                    if last_updated.tzinfo is None:
-                        # Assume stored timestamps are in UTC if naive
-                        last_updated = last_updated.replace(tzinfo=ZoneInfo('UTC'))
-                    # Convert to target timezone
-                    last_updated = last_updated.astimezone(ZoneInfo(display_tz))
-                except Exception:
-                    # If anything goes wrong with zoneinfo (unknown zone), leave as-is
-                    pass
-    finally:
-        session.close()
-    
-    # Esikäsittele kaikki arvostelut JSON-muotoon JavaScriptille
-    # Muutetaan OrderedDict takaisin normaaliin dictiin jotta se on helpommin JSON-serialisoitavissa
-    all_reviews_json = {}
-    for movie_title, critics_reviews_dict in grouped_reviews.items():
-        all_reviews_json[movie_title] = {}
-        for critic_name, reviews_list in critics_reviews_dict.items():
-            all_reviews_json[movie_title][critic_name] = [review.to_dict() for review in reviews_list]
+            order_ids = [int(id_str) for id_str in order_str.split(',')]
+        except (ValueError):
+            pass
+
+    data = data_service.get_index_data(critic_order_ids=order_ids)
     
     return render_template(
         'index.html',
-        grouped_reviews=grouped_reviews, # For initial Jinja rendering (first page)
-        all_reviews_json=json.dumps(all_reviews_json), # All data for JS lazy loading
-        all_critics=all_critics,
-        total_reviews=total_reviews,
-        rating_distribution=rating_distribution,
-        pub_stats=pub_stats,
-        critic_media_map=critic_media_map,
-        critic_review_counts=critic_review_counts,
-        movie_review_counts=movie_review_counts,
-        nytleffaan_urls=nytleffaan_urls,
-        poster_urls=poster_urls,
-        letterboxd_urls=letterboxd_urls,
-        last_updated=last_updated
+        **data
     )
+
 
 
 @app.route('/api/reviews', methods=['GET'])
@@ -250,120 +92,35 @@ def api_movies():
     offset = request.args.get('offset', type=int, default=0)
     limit = request.args.get('limit', type=int, default=50)
     
-    session = get_session(engine)
-    try:
-        # Hae kaikki julkaistut arvostelut ryhmiteltynä (kopioidaan logiikka get_all_reviews_grouped:sta)
-        # Mutta rajoitetaan elokuvien määrää.
-        
-        # 1. Hae kaikki julkaistut arvostelut (tarvitaan elokuvien järjestämiseen)
-        all_published_reviews = session.query(DBReview).filter_by(is_published=1).options(
-            joinedload(DBReview.movie)
-        ).all()
-        
-        # 2. Laske elokuvien uusimmat arviot
-        movie_latest_review = {}
-        for review in all_published_reviews:
-            movie_title = review.movie.title
-            review_date = review.published_date or review.scraped_at
-            if movie_title not in movie_latest_review or review_date > movie_latest_review[movie_title]:
-                movie_latest_review[movie_title] = review_date
-        
-        # 3. Järjestä elokuvat
-        sorted_movie_titles = sorted(
-            movie_latest_review.keys(), 
-            key=lambda title: movie_latest_review.get(title, datetime(1900, 1, 1)), 
-            reverse=True
-        )
-        
-        total_movies = len(sorted_movie_titles)
-        
-        # 4. Valitse sivutettu joukko elokuvia
-        paged_movie_titles = sorted_movie_titles[offset:offset+limit]
-        
-        if not paged_movie_titles:
-            return jsonify({'movies_html': '', 'cards_html': '', 'count': 0, 'total': total_movies})
+    data = data_service.get_paged_movies(offset, limit)
+    
+    if not data['paged_titles']:
+        return jsonify({'movies_html': '', 'cards_html': '', 'count': 0, 'total': data['total']})
+    
+    # Renderöi HTML-pätkät
+    movies_html = ""
+    cards_html = ""
+    
+    for movie_title, critics_reviews in data['grouped_reviews'].items():
+        # Helpers for template
+        context = {
+            'movie_title': movie_title,
+            'critics_reviews': critics_reviews,
+            'all_critics': data['all_critics'],
+            **data['meta']
+        }
+        movies_html += render_template('_movie_row.html', **context)
+        cards_html += render_template('_movie_card.html', **context)
             
-        # 5. Hae arvostelut vain näille elokuville
-        reviews = session.query(DBReview).filter(
-            DBReview.is_published == 1
-        ).join(Movie).filter(
-            Movie.title.in_(paged_movie_titles)
-        ).options(
-            joinedload(DBReview.movie),
-            joinedload(DBReview.critic),
-            joinedload(DBReview.publication)
-        ).all()
-        
-        # 6. Ryhmittele
-        grouped = {}
-        for review in reviews:
-            title = review.movie.title
-            critic = review.critic.name
-            if title not in grouped: grouped[title] = {}
-            if critic not in grouped[title]: grouped[title][critic] = []
-            grouped[title][critic].append(review)
-            
-        # 7. Järjestä sivutettu dict samaan järjestykseen kuin paged_movie_titles
-        from collections import OrderedDict
-        grouped_ordered = OrderedDict()
-        for title in paged_movie_titles:
-            if title in grouped:
-                grouped_ordered[title] = grouped[title]
-        
-        # 8. Hae muut tarvittavat tiedot renderöintiä varten
-        critics = sorted(session.query(Critic).all(), key=lambda c: c.name)
-        
-        # Hae metatiedot (posterit jne)
-        nytleffaan_urls = {}
-        poster_urls = {}
-        letterboxd_urls = {}
-        movie_review_counts = {}
-        
-        movies_objs = session.query(Movie).filter(Movie.title.in_(paged_movie_titles)).all()
-        for m in movies_objs:
-            if m.nytleffaan_url: nytleffaan_urls[m.title] = m.nytleffaan_url
-            if m.poster_url: poster_urls[m.title] = m.poster_url
-            if m.letterboxd_url: letterboxd_urls[m.title] = m.letterboxd_url
-            # Laske arviot tässä
-            movie_review_counts[m.title] = session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count()
+    return jsonify({
+        'movies_html': movies_html,
+        'cards_html': cards_html,
+        'count': len(data['paged_titles']),
+        'total': data['total'],
+        'offset': offset,
+        'limit': limit
+    })
 
-        # Renderöi HTML-pätkät
-        movies_html = ""
-        cards_html = ""
-        
-        for movie_title, critics_reviews in grouped_ordered.items():
-            movies_html += render_template(
-                '_movie_row.html',
-                movie_title=movie_title,
-                critics_reviews=critics_reviews,
-                all_critics=critics,
-                poster_urls=poster_urls,
-                letterboxd_urls=letterboxd_urls,
-                nytleffaan_urls=nytleffaan_urls,
-                movie_review_counts=movie_review_counts
-            )
-            cards_html += render_template(
-                '_movie_card.html',
-                movie_title=movie_title,
-                critics_reviews=critics_reviews,
-                all_critics=critics,
-                poster_urls=poster_urls,
-                letterboxd_urls=letterboxd_urls,
-                nytleffaan_urls=nytleffaan_urls,
-                movie_review_counts=movie_review_counts
-            )
-            
-        return jsonify({
-            'movies_html': movies_html,
-            'cards_html': cards_html,
-            'count': len(paged_movie_titles),
-            'total': total_movies,
-            'offset': offset,
-            'limit': limit
-        })
-        
-    finally:
-        session.close()
 
 
 @app.route('/health')

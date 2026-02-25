@@ -6,14 +6,14 @@ import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from .base import Review
+from .base import Review, BaseScraper
 
 
-class TSScraper:
+class TSScraper(BaseScraper):
     """Scraper Turun Sanomien elokuva-arvosteluille."""
     
     def __init__(self):
-        self.publication_name = 'Turun Sanomat'
+        super().__init__('Turun Sanomat')
     
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """Parsii Turun Sanomien arvostelun."""
