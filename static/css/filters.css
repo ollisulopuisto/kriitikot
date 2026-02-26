@@ -1,13 +1,22 @@
+.desktop-filters {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 150; /* Above table header (100) */
+}
+
 .filters-container {
     display: flex;
-    flex-direction: column;
+    flex: 1;
     gap: 1.5rem;
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    border: 1px solid #e5e7eb;
+    align-items: flex-end;
 }
 
 .facet-group {
@@ -31,6 +40,32 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+}
+
+.media-filter-btn {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.8em;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.media-filter-btn:hover {
+    border-color: #667eea;
+    background: #f0e6ff;
+    transform: translateY(-1px);
+}
+
+.media-filter-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 .facet-btn {
