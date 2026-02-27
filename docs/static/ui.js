@@ -160,35 +160,18 @@ function initMobileFilterToggle() {
     const toggleBtn = document.getElementById('mobile-filter-toggle');
     const mobileFilter = document.querySelector('.mobile-filter');
     const toggleText = toggleBtn?.querySelector('.toggle-text');
-    const resetButtonMobile = document.getElementById('reset-filters-mobile');
     
-    if (toggleBtn && mobileFilter && toggleBtn.dataset.initialized) return; // Prevent double initialization
+    if (!toggleBtn || !mobileFilter || toggleBtn.dataset.initialized) return;
 
-    function updateResetButtonPosition() {
-        if (mobileFilter && resetButtonMobile) {
-            const filterHeight = mobileFilter.offsetHeight;
-            const filterTop = parseFloat(window.getComputedStyle(mobileFilter).top);
-            
-            resetButtonMobile.style.top = (filterTop + filterHeight + 8) + 'px';
-        }
-    }
-    
-    if (toggleBtn && mobileFilter) {
-        toggleBtn.addEventListener('click', function() {
-            mobileFilter.classList.toggle('collapsed');
-            
-            if (mobileFilter.classList.contains('collapsed')) {
-                toggleText.textContent = 'Hakuehdot';
-            } else {
-                toggleText.textContent = 'Piilota';
-            }
-            
-            setTimeout(updateResetButtonPosition, 350);
-        });
+    toggleBtn.addEventListener('click', function() {
+        mobileFilter.classList.toggle('collapsed');
         
-        updateResetButtonPosition();
-        toggleBtn.dataset.initialized = 'true'; // Mark as initialized
-    }
+        if (toggleText) {
+            toggleText.textContent = mobileFilter.classList.contains('collapsed') ? 'Hakuehdot' : 'Piilota';
+        }
+    });
+    
+    toggleBtn.dataset.initialized = 'true';
 }
 
 /**
