@@ -203,9 +203,6 @@
         </div>
     </div>
     </div>
-    <div id="load-more-container" style="text-align: center; margin-top: 20px;">
-        <button id="load-more-button" class="load-more-button">Lataa lisää</button>
-    </div>
     <!-- Mobile: Suodattimet (ENSIN) -->
     <div class="mobile-filter collapsed">
         <!-- Toggle-nappi -->
@@ -282,12 +279,17 @@
 
     <!-- Mobile: Korttinäkymä -->
     <div id="review-container-mobile">
-    <div class="mobile-cards">
-        {% for movie_title, critics_reviews in grouped_reviews.items() %}
-        {% if loop.index <= 50 %}
-            {% include "_movie_card.html" %}
-        {% endif %}
-        {% endfor %}
+        <div class="mobile-cards">
+            {% for movie_title, critics_reviews in grouped_reviews.items() %}
+            {% if loop.index <= 50 %}
+                {% include "_movie_card.html" %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="load-more-container" style="text-align: center; margin-top: 20px;">
+        <button id="load-more-button" class="load-more-button">Lataa lisää</button>
     </div>
     </footer>
 </body>
