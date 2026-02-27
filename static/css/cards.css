@@ -109,10 +109,24 @@
 
 /* Responsive Media Queries */
 @media (max-width: 768px) {
-    .table-wrapper, .desktop-filters {
-        display: none !important;
-    }
     .mobile-cards {
         display: block;
+    }
+
+    .movie-card-title {
+        font-size: 1.4rem;
+    }
+
+    .movie-card-poster {
+        max-width: 80px;
+    }
+
+    .review-rating {
+        min-width: 4.5rem;
+        margin-right: 0.5rem;
+    }
+
+    .review-critic {
+        padding: 0.15rem 0.35rem;
     }
 }

@@ -72,3 +72,50 @@ a:hover {
     color: #ff4d4d;
     animation: heartBeat 0.3s ease-in-out;
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .mobile-heart {
+        margin-left: 0.5rem;
+        font-size: 1.4em;
+        padding: 5px; /* Bigger touch target */
+    }
+}
+
+/* Load More Button */
+.load-more-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 30px auto 50px;
+    display: block;
+}
+
+.load-more-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.load-more-button:active {
+    transform: translateY(0);
+}
+
+.load-more-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
