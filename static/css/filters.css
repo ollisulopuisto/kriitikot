@@ -291,6 +291,12 @@ input:checked + .toggle-slider:before {
         color: #333;
     }
 
+    .mobile-filter-group label strong {
+        display: inline-block;
+        min-width: 5.5em;
+        text-align: left;
+    }
+
     /* Wrap media buttons on mobile */
     .mobile-filter-group .media-filter-buttons {
         display: flex;
