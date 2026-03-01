@@ -180,6 +180,10 @@ input:checked + .toggle-slider:before {
 }
 
 /* Mobile Filters */
+.mobile-filter {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .desktop-filters {
         display: none !important;
