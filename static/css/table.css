@@ -22,7 +22,8 @@ table {
 
 /* Sticky Headers */
 thead {
-    /* No sticky on thead itself to avoid stacking context issues */
+    position: relative;
+    z-index: 125; /* Higher than tbody's cells */
     background: #f8f9fa;
 }
 
@@ -42,6 +43,7 @@ th {
     top: 90px; /* Account for fixed desktop-filters height (90px) */
     z-index: 100;
     border-bottom: 0.125rem solid #dee2e6;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.05);
 }
 
 td {
@@ -132,7 +134,7 @@ tbody tr:hover td.movie-col {
     max-width: 80px;
     height: 56px;
     padding: 0 !important;
-    z-index: 120 !important; /* Higher than other th (100) and movie-col (60) */
+    z-index: 130 !important; /* Absolute top priority at intersection */
     overflow: hidden;
     border: 1px solid #c4b5fd;
     vertical-align: middle;
