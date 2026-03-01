@@ -79,7 +79,7 @@ td.movie-col {
     padding: 1rem 0.625rem;
     white-space: normal;
     word-wrap: break-word;
-    z-index: 25;
+    z-index: 60;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
     font-size: 1.0em;
     text-align: left;
