@@ -74,7 +74,7 @@ th.movie-col:hover {
 
 td.movie-col {
     color: #212529;
-    background: inherit;
+    background-color: white; /* Base background to mask scrolling content */
     border-right: 0.125rem solid #e9ecef;
     padding: 1rem 0.625rem;
     white-space: normal;
@@ -93,7 +93,7 @@ td.movie-col:hover {
     font-weight: 600;
     transform: scale(1.02);
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-    z-index: 30;
+    z-index: 70; /* Higher than normal z-index 60 */
 }
 
 tbody tr {
