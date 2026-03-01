@@ -23,7 +23,7 @@ table {
 /* Sticky Headers */
 thead {
     position: relative;
-    z-index: 125; /* Higher than tbody's cells */
+    z-index: 200; /* Stacking context for entire header row, higher than any tbody cell */
     background: #f8f9fa;
 }
 
@@ -41,7 +41,7 @@ th {
     transition: background-color 0.35s ease;
     position: sticky;
     top: 90px; /* Account for fixed desktop-filters height (90px) */
-    z-index: 100;
+    z-index: 100; /* Relative to thead */
     border-bottom: 0.125rem solid #dee2e6;
     box-shadow: 0 1px 0 rgba(0,0,0,0.05);
 }
@@ -81,7 +81,7 @@ td.movie-col {
     padding: 1rem 0.625rem;
     white-space: normal;
     word-wrap: break-word;
-    z-index: 60;
+    z-index: 50; /* Lower than thead's context */
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
     font-size: 1.0em;
     text-align: left;
@@ -95,7 +95,7 @@ td.movie-col:hover {
     font-weight: 600;
     transform: scale(1.02);
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-    z-index: 70; /* Higher than normal z-index 60 */
+    z-index: 60; /* Still below thead */
 }
 
 tbody tr {
