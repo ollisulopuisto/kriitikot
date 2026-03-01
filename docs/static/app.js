@@ -265,7 +265,10 @@ function updateCriticColumnVisibility() {
     // Käy läpi jokainen kriitikko (sarake)
     criticHeaders.forEach((header) => {
         const criticId = header.dataset.criticId;
+        const criticName = header.querySelector('.critic-name') ? header.querySelector('.critic-name').textContent.trim() : criticId;
         const cellIndex = header.cellIndex;
+        if (cellIndex === -1) return;
+        
         let hasVisibleReview = false;
 
         // Check favorites filter
@@ -283,31 +286,27 @@ function updateCriticColumnVisibility() {
                 if (!matchesPub) {
                     hasVisibleReview = false;
                 } else {
-                    // Jos julkaisu täsmää, tarkista onko arvioita näkyvissä riveissä
-                    hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter);
+                    hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName);
                 }
             } else {
-                // Ei julkaisufiltteriä, tarkista vain onko arvioita näkyvissä riveissä
-                hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter);
+                hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName);
             }
         }
 
         // Piilota tai näytä sarake
+        const rowsToUpdate = Array.from(table.rows);
         if (hasVisibleReview) {
             header.classList.remove('filter-hidden');
-            tbody.querySelectorAll('tr').forEach(row => {
-                const cells = row.cells;
-                if (cells[cellIndex]) {
-                    cells[cellIndex].classList.remove('filter-hidden');
-                }
+            rowsToUpdate.forEach(row => {
+                const cell = row.cells[cellIndex];
+                if (cell) cell.classList.remove('filter-hidden');
             });
         } else {
+            // console.log(`🙈 Hiding column for ${criticName} (cellIndex: ${cellIndex})`);
             header.classList.add('filter-hidden');
-            tbody.querySelectorAll('tr').forEach(row => {
-                const cells = row.cells;
-                if (cells[cellIndex]) {
-                    cells[cellIndex].classList.add('filter-hidden');
-                }
+            rowsToUpdate.forEach(row => {
+                const cell = row.cells[cellIndex];
+                if (cell) cell.classList.add('filter-hidden');
             });
         }
     });
@@ -315,23 +314,32 @@ function updateCriticColumnVisibility() {
     /**
      * Apufunktio: Tarkista löytyykö sarakkeesta näkyviä arvioita
      */
-    function checkRowsForReview(rows, cellIndex, hasStarFilter, starLimit) {
-        for (const row of rows) {
+    function checkRowsForReview(rows, cellIndex, hasStarFilter, starLimit, criticName) {
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
             const cell = row.cells[cellIndex];
             if (!cell) continue;
 
+            const ratingStars = cell.querySelectorAll('.rating-stars');
             const hasLink = cell.querySelector('a.rating-link');
-            const ratingStars = cell.querySelector('.rating-stars');
             const noRating = cell.querySelector('.no-rating');
             const isEmpty = noRating && noRating.textContent.trim() === '–';
 
-            if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
-                if (hasStarFilter && ratingStars) {
-                    const starCount = (ratingStars.textContent.match(/★/g) || []).length;
-                    if (starCount >= starLimit) {
-                        return true;
+            // Jos sarakkeessa on jotain sisältöä
+            if (hasLink || ratingStars.length > 0 || (noRating && !isEmpty)) {
+                if (hasStarFilter) {
+                    // Jos tähtifiltteri on päällä, sarakkeen on oltava näkyvissä 
+                    // vain jos se sisältää vähintään yhden kriteerin täyttävän arvion.
+                    if (ratingStars.length > 0) {
+                        for (const starSpan of ratingStars) {
+                            const starCount = (starSpan.textContent.match(/★/g) || []).length;
+                            if (starCount >= starLimit) {
+                                return true;
+                            }
+                        }
                     }
-                } else if (!hasStarFilter) {
+                } else {
+                    // Ei tähtifiltteriä, mikä tahansa sisältö riittää
                     return true;
                 }
             }
