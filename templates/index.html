@@ -70,6 +70,18 @@
                 <span class="reset-button-icon">🔄</span>
                 <span>Kaikki</span>
             </button>
+            
+            <div class="sorting-group desktop-only">
+                <button id="sort-movies-btn" class="facet-btn" title="Aakkosta elokuvat">
+                    <span class="facet-icon">🎬</span>
+                    Aakkosta elokuvat
+                </button>
+                <button id="sort-critics-btn" class="facet-btn" title="Aakkosta kriitikot">
+                    <span class="facet-icon">✍️</span>
+                    Aakkosta kriitikot
+                </button>
+            </div>
+
             <div class="filters-container">
                 <!-- Fasetti 1: Arvioiden määrä -->
                 <div class="filter-group group-reviews">
@@ -147,30 +159,9 @@
                 <thead>
                     <!-- Rivi 2: Kriitikot -->
                     <tr class="critic-row">
-                        <th class="movie-col diagonal-sort-cell">
-                            <div class="sort-half sort-half-movie" id="sort-movie-area" title="Aakkosta elokuvat"
-                                aria-label="Aakkosta elokuvat" tabindex="0" role="button">
-                                <svg width="20" height="28" viewBox="0 0 20 28" aria-hidden="true" focusable="false">
-                                    <!-- Ylänuoli -->
-                                    <polygon points="10,2 6,8 14,8" fill="#5b21b6" />
-                                    <!-- Alanuoli -->
-                                    <polygon points="10,26 6,20 14,20" fill="#5b21b6" />
-                                    <!-- Varsi -->
-                                    <rect x="8.5" y="8" width="3" height="12" fill="#5b21b6" />
-                                </svg>
-
-                            </div>
-                            <div class="sort-half sort-half-critic" id="sort-critic-area" title="Aakkosta kriitikot"
-                                aria-label="Aakkosta kriitikot" tabindex="0" role="button">
-                                <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true" focusable="false">
-                                    <!-- Vasen nuoli -->
-                                    <polygon points="2,10 8,6 8,14" fill="#5b21b6" />
-                                    <!-- Oikea nuoli -->
-                                    <polygon points="26,10 20,6 20,14" fill="#5b21b6" />
-                                    <!-- Varsi -->
-                                    <rect x="8" y="8.5" width="12" height="3" fill="#5b21b6" />
-                                </svg>
-
+                        <th class="movie-col corner-cell">
+                            <div class="corner-content">
+                                <span class="corner-label">Kriitikko</span>
                             </div>
                         </th>
                         {% for critic in all_critics %}

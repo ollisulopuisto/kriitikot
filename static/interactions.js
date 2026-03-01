@@ -9,11 +9,11 @@ function initSorting() {
     if (!table) return;
 
     const tbody = table.querySelector('tbody');
-    const sortMovieArea = document.getElementById('sort-movie-area');
-    const sortCriticArea = document.getElementById('sort-critic-area');
+    const sortMoviesBtn = document.getElementById('sort-movies-btn');
+    const sortCriticsBtn = document.getElementById('sort-critics-btn');
     
     // Prevent double initialization
-    if (sortMovieArea && sortMovieArea.dataset.initialized) return;
+    if (sortMoviesBtn && sortMoviesBtn.dataset.initialized) return;
 
     let sortAscending = true;
     let sortCriticAscending = true;
@@ -43,22 +43,16 @@ function initSorting() {
             }
         }
 
-        sortMovieArea.classList.add('active');
-        setTimeout(() => sortMovieArea.classList.remove('active'), 300);
+        sortMoviesBtn.classList.add('active');
+        setTimeout(() => sortMoviesBtn.classList.remove('active'), 300);
     }
 
-    if (sortMovieArea) {
-        sortMovieArea.addEventListener('click', function (e) {
+    if (sortMoviesBtn) {
+        sortMoviesBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             sortMovies();
         });
-        sortMovieArea.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                sortMovies();
-            }
-        });
-        sortMovieArea.dataset.initialized = 'true';
+        sortMoviesBtn.dataset.initialized = 'true';
     }
 
     // Kriitikonimi sort
@@ -95,22 +89,16 @@ function initSorting() {
 
         sortCriticAscending = !sortCriticAscending;
 
-        sortCriticArea.classList.add('active');
-        setTimeout(() => sortCriticArea.classList.remove('active'), 300);
+        sortCriticsBtn.classList.add('active');
+        setTimeout(() => sortCriticsBtn.classList.remove('active'), 300);
     }
 
-    if (sortCriticArea) {
-        sortCriticArea.addEventListener('click', function (e) {
+    if (sortCriticsBtn) {
+        sortCriticsBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             sortCritics();
         });
-        sortCriticArea.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                sortCritics();
-            }
-        });
-        sortCriticArea.dataset.initialized = 'true';
+        sortCriticsBtn.dataset.initialized = 'true';
     }
 
     // Mobiili: Aakkosta elokuvakortit

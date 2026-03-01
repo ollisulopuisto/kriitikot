@@ -35,6 +35,41 @@
     font-size: 1.1rem;
 }
 
+.sorting-group {
+    display: flex;
+    gap: 0.5rem;
+    padding-right: 1rem;
+    border-right: 1px solid #e5e7eb;
+}
+
+.facet-btn {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.facet-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+.facet-btn.active {
+    background: #8b5cf6;
+    color: white;
+    border-color: #7c3aed;
+}
+
 .desktop-filters {
     background: white;
     border-radius: 0.5rem;
