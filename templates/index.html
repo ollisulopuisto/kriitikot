@@ -181,7 +181,7 @@
                 </thead>
                 <tbody>
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
-                    {% if loop.index <= 50 %}
+                    {% if loop.index <= 30 %}
                         {% include "_movie_row.html" %}
                     {% endif %}
                     {% endfor %}
@@ -273,7 +273,7 @@
     <div id="review-container-mobile">
         <div class="mobile-cards">
             {% for movie_title, critics_reviews in grouped_reviews.items() %}
-            {% if loop.index <= 50 %}
+            {% if loop.index <= 30 %}
                 {% include "_movie_card.html" %}
             {% endif %}
             {% endfor %}

@@ -202,6 +202,12 @@ function initStarFilter() {
                 let visibleCount = 0;
                 allRows.forEach(row => {
                     delete row.dataset.starFiltered;
+                    
+                    // Poista dimmed-luokka kaikista soluista kun filtteri nollataan
+                    row.querySelectorAll('.rating-cell').forEach(cell => {
+                        cell.classList.remove('dimmed');
+                    });
+
                     const hasOtherFilters = row.dataset.reviewCountFiltered === 'true';
 
                     if (!hasOtherFilters) {
@@ -228,6 +234,7 @@ function initStarFilter() {
                 cardReviews.forEach(item => {
                     delete item.dataset.starFiltered;
                     item.style.display = '';
+                    item.classList.remove('dimmed');
                 });
             });
 
@@ -264,7 +271,13 @@ function initStarFilter() {
                         const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
                         if (starCount >= stars) {
                             hasMatchingRating = true;
+                            cell.classList.remove('dimmed');
+                        } else {
+                            cell.classList.add('dimmed');
                         }
+                    } else {
+                        // Tyhjä solu
+                        cell.classList.add('dimmed');
                     }
                 });
 
@@ -295,9 +308,11 @@ function initStarFilter() {
                     hasMatchingReview = true;
                     item.style.display = '';
                     item.dataset.starFiltered = '';
+                    item.classList.remove('dimmed');
                 } else {
-                    item.style.display = 'none';
+                    item.style.display = ''; // Näytetään, mutta himmennettynä
                     item.dataset.starFiltered = 'true';
+                    item.classList.add('dimmed');
                 }
             });
 
@@ -523,6 +538,7 @@ function initResetButton() {
 
         allReviewItems.forEach(item => {
             item.style.display = '';
+            item.classList.remove('dimmed');
             const area = item.querySelector('.review-critic');
             const name = item.querySelector('.review-critic-name');
             if (area && name) {

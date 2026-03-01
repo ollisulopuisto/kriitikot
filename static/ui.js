@@ -141,6 +141,22 @@ function initStickyTableHeader() {
             }
         }
     }
+
+    /**
+     * Päivitä sticky header (esim. lajittelun jälkeen)
+     */
+    function refreshStickyHeader() {
+        if (theadClone) {
+            if (theadClone.wrapperElement) {
+                theadClone.wrapperElement.remove();
+            } else {
+                theadClone.remove();
+            }
+            theadClone = null;
+            thead.style.visibility = 'visible';
+            handleScroll();
+        }
+    }
     
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', () => {
@@ -148,6 +164,9 @@ function initStickyTableHeader() {
         handleScroll();
     });
     tableWrapper.addEventListener('scroll', handleScroll);
+    
+    // Kuuntele lajittelun tapahtumia
+    document.addEventListener('table-sorted', refreshStickyHeader);
     
     handleScroll();
     thead.dataset.stickyInitialized = 'true'; // Mark as initialized

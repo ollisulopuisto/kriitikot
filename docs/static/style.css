@@ -1047,8 +1047,9 @@ tr.dimmed {
 }
 
 th.dimmed,
-td.dimmed {
-    opacity: 0;
+td.dimmed,
+.review-item.dimmed {
+    opacity: 0.2;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }

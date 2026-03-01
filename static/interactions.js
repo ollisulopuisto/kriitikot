@@ -43,6 +43,9 @@ function initSorting() {
             }
         }
 
+        // Päivitä sticky header
+        document.dispatchEvent(new CustomEvent('table-sorted'));
+
         sortMoviesBtn.classList.add('active');
         setTimeout(() => sortMoviesBtn.classList.remove('active'), 300);
     }
@@ -89,6 +92,9 @@ function initSorting() {
 
         sortCriticAscending = !sortCriticAscending;
 
+        // Päivitä sticky header
+        document.dispatchEvent(new CustomEvent('table-sorted'));
+
         sortCriticsBtn.classList.add('active');
         setTimeout(() => sortCriticsBtn.classList.remove('active'), 300);
     }
@@ -114,12 +120,12 @@ function initSorting() {
                 if (mobileSortAscending) {
                     return titleA.localeCompare(titleB, 'fi');
                 } else {
-                    return titleB.localeCompare(a.titleA, 'fi');
+                    return titleB.localeCompare(titleA, 'fi');
                 }
             });
             cards.forEach(card => mobileCardsContainer.appendChild(card));
             mobileSortAscending = !mobileSortAscending;
-            mobileSortButton.innerHTML = (mobileSortAscending ? '▼' : '▲') + ' Aakkosta elokuvat';
+            mobileSortButton.innerHTML = `<span class="sort-icon">🎬 ${mobileSortAscending ? 'A-Ö' : 'Ö-A'}</span>`;
         });
         mobileSortButton.dataset.initialized = 'true';
     }
@@ -543,8 +549,10 @@ function initRatingFilterClickHandlers() {
                     if (starCount === selectedStars) {
                         hasMatchingReview = true;
                         item.style.display = '';
+                        item.classList.remove('dimmed');
                     } else {
-                        item.style.display = 'none';
+                        item.style.display = ''; // Näytetään, mutta himmennettynä
+                        item.classList.add('dimmed');
                     }
                 });
 
@@ -567,7 +575,12 @@ function initRatingFilterClickHandlers() {
                             const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
                             if (starCount === selectedStars) {
                                 hasMatchingRating = true;
+                                cell.classList.remove('dimmed');
+                            } else {
+                                cell.classList.add('dimmed');
                             }
+                        } else {
+                            cell.classList.add('dimmed');
                         }
                     });
 

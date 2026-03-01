@@ -6,8 +6,8 @@
 let savedScrollLeft = 0;
 let originalTableWidth = 0;
 let originalVisibleColumns = 0;
-let currentMovieOffset = 50; // Aloitetaan 50:stä, koska ensimmäiset 50 on jo ladattu Jinjalla
-const movieLimit = 50;
+let currentMovieOffset = 30; // Aloitetaan 30:stä, koska ensimmäiset 30 on jo ladattu Jinjalla
+const movieLimit = 30;
 let allGroupedReviews = {}; // Tähän ladataan kaikki arvostelut JSONista
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
 let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
@@ -225,10 +225,13 @@ function sortCriticColumnsByReviews() {
         cells.forEach(c => c.remove());
 
         orderedCritics.forEach(item => {
-            const cell = cells[item.originalIndex];
+            const cell = rowCells[rowIndex][item.originalIndex];
             if (cell) row.appendChild(cell);
         });
     });
+
+    // Päivitä sticky header
+    document.dispatchEvent(new CustomEvent('table-sorted'));
 }
 
 /**
