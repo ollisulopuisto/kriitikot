@@ -1,3 +1,40 @@
+.reset-button {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: #4b5563;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.reset-button:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #111827;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.reset-button:active {
+    transform: translateY(0);
+}
+
+.reset-button-icon {
+    font-size: 1.1rem;
+}
+
 .desktop-filters {
     background: white;
     border-radius: 0.5rem;
@@ -5,7 +42,7 @@
     padding: 0.75rem 1.25rem;
     margin-bottom: 1rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 1.5rem;
     position: sticky;
     top: 0;
