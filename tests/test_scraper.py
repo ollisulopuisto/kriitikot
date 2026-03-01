@@ -27,7 +27,7 @@ def test_hs_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== Parsed Review ===")
+    print("\n=== Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars")
@@ -101,7 +101,7 @@ def test_ksml_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== KSML Parsed Review ===")
+    print("\n=== KSML Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
@@ -147,7 +147,7 @@ def test_il_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== IL Parsed Review ===")
+    print("\n=== IL Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
@@ -193,7 +193,7 @@ def test_ts_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== TS Parsed Review ===")
+    print("\n=== TS Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")
@@ -239,7 +239,7 @@ def test_sk_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== SK Parsed Review ===")
+    print("\n=== SK Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars" if review.rating_stars else "Rating: Not found")

@@ -162,7 +162,7 @@ function initStarFilter() {
 
     if (!starSlider || !starValueDisplay) return;
     if (starSlider.dataset.initialized) return; // Prevent double initialization
-
+    
     function updateStarLabel(value) {
         const labels = {
             1: 'Vähintään ★',
@@ -391,7 +391,11 @@ function initStarFilter() {
         updateStarStepper(1, false);
         starsMinusBtn.dataset.initialized = 'true';
     }
+
+    // Export functions to window for testing or external access
+    window.filterByStars = filterByStars;
 }
+window.initStarFilter = initStarFilter;
 
 /**
  * Reset-nappi

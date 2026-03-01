@@ -1,10 +1,9 @@
 
 import pytest
 import sys
-import os
 from bs4 import BeautifulSoup
 sys.path.insert(0, '/Users/dst/Dropbox/koodi/kriitikot/src')
-from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper, Review
+from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
 
 @pytest.fixture
 def scraper():

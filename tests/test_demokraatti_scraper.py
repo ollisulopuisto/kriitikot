@@ -1,4 +1,3 @@
-import pytest
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
@@ -20,7 +19,7 @@ def test_demokraatti_scraper_basic():
     assert isinstance(review, Review), "Return value is not a Review instance"
     
     # Tarkista kentät
-    print(f"\n=== Parsed Review ===")
+    print("\n=== Parsed Review ===")
     print(f"Movie: {review.movie_title}")
     print(f"Critic: {review.critic_name}")
     print(f"Rating: {review.rating_stars}/5 stars")

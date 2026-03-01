@@ -6,7 +6,6 @@ Käyttö:
     python scripts/generate_static.py
 """
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -55,7 +54,7 @@ def generate_static_site():
         shutil.rmtree(dst_static)
     
     shutil.copytree(src_static, dst_static)
-    print(f"✅ Kopioitu: static/ -> docs/static/")
+    print("✅ Kopioitu: static/ -> docs/static/")
     
     # 3. Luo .nojekyll tiedosto (GitHub Pages ei käsittele Jekylliä)
     nojekyll = docs_dir / '.nojekyll'
@@ -65,17 +64,17 @@ def generate_static_site():
     # 4. Tilastot
     grouped_reviews, all_critics, total_reviews = get_all_reviews_grouped()
     
-    print(f"\n📊 Sivuston tilastot:")
+    print("\n📊 Sivuston tilastot:")
     print(f"   - Elokuvia: {len(grouped_reviews)}")
     print(f"   - Kriitikoita: {len(all_critics)}")
     print(f"   - Arvosteluja: {total_reviews}")
     
     print(f"\n✨ Staattinen sivusto valmis: {docs_dir}")
-    print(f"\n📌 Seuraavat vaiheet:")
-    print(f"   1. git add docs/")
-    print(f"   2. git commit -m 'Päivitä staattiset sivut'")
-    print(f"   3. git push")
-    print(f"   4. GitHub Settings -> Pages -> Source: main branch, /docs folder")
+    print("\n📌 Seuraavat vaiheet:")
+    print("   1. git add docs/")
+    print("   2. git commit -m 'Päivitä staattiset sivut'")
+    print("   3. git push")
+    print("   4. GitHub Settings -> Pages -> Source: main branch, /docs folder")
     
     return True
 

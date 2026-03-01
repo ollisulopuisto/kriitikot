@@ -16,7 +16,6 @@ NOTE: You should run the backups script or commit DB backups before using this.
 import sys
 sys.path.insert(0, '/workspaces/kriitikot/src')
 from models import get_session, Critic, Publication, Review
-from scrapers.hs import HSScraper
 from sqlalchemy import and_
 import re
 

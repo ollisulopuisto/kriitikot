@@ -6,11 +6,8 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, m
 from models import get_engine, get_session, Movie, Critic, Publication, Review as DBReview
 from services.data_service import DataService
 from sqlalchemy.orm import joinedload
-from datetime import datetime
-import os
 import xml.etree.ElementTree as ET
 from email.utils import formatdate
-import json
 
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
