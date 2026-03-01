@@ -74,7 +74,7 @@ th.movie-col:hover {
 
 td.movie-col {
     color: #212529;
-    background: white;
+    background: inherit;
     border-right: 0.125rem solid #e9ecef;
     padding: 1rem 0.625rem;
     white-space: normal;
@@ -101,16 +101,25 @@ tbody tr {
     transition: background-color 0.15s;
 }
 
-tbody tr:hover {
-    background: transparent;
+tbody tr:nth-child(even) td {
+    background-color: #fcfcfc;
+}
+
+tbody tr td:nth-child(even) {
+    background-color: #f8faff;
+}
+
+/* Intersection of even row and even column */
+tbody tr:nth-child(even) td:nth-child(even) {
+    background-color: #f0f4ff;
 }
 
 tbody tr:hover td {
-    background: #f8f9fa;
+    background-color: #f0ebff !important;
 }
 
-tbody tr:hover td:nth-child(even) {
-    background: #e3f2fd;
+tbody tr:hover td.movie-col {
+    background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
 }
 
 /* Diagonal Sort Cell */
