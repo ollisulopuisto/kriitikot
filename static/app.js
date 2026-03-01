@@ -248,8 +248,8 @@ function updateCriticColumnVisibility() {
     const criticRow = thead.querySelector('tr.critic-row');
     if (!criticRow) return;
 
-    const criticHeaders = criticRow.querySelectorAll('th:not(.movie-col)');
-    const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(row => {
+    const criticHeaders = Array.from(criticRow.querySelectorAll('th.rating-cell'));
+    const visibleRows = Array.from(tbody.querySelectorAll('tr:not(.poster-row)')).filter(row => {
         return row.style.display !== 'none';
     });
 
@@ -257,10 +257,15 @@ function updateCriticColumnVisibility() {
     const activeStarFilter = starSlider ? parseInt(starSlider.value) : 1;
     const hasActiveStarFilter = activeStarFilter > 1;
 
+    // Tarkista onko julkaisufiltteri aktiivinen
+    const activePubButtons = document.querySelectorAll('.filter-publication.selected, .media-filter-btn.active');
+    const activePubs = Array.from(activePubButtons).map(btn => btn.dataset.publication);
+    const hasActivePubFilter = activePubs.length > 0;
+
     // Käy läpi jokainen kriitikko (sarake)
-    criticHeaders.forEach((header, index) => {
-        const columnIndex = index + 1;
+    criticHeaders.forEach((header) => {
         const criticId = header.dataset.criticId;
+        const cellIndex = header.cellIndex;
         let hasVisibleReview = false;
 
         // Check favorites filter
@@ -268,56 +273,74 @@ function updateCriticColumnVisibility() {
         const isFav = window.isFavoriteCritic && window.isFavoriteCritic(criticId);
 
         if (favoritesActive && !isFav) {
-            // Jos suosikkifiltteri päällä ja kriitikko ei ole suosikki, piilota heti
             hasVisibleReview = false;
         } else {
-            // Muuten tarkista onko arvosteluja
-            visibleRows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const cell = cells[columnIndex];
-
-                if (cell) {
-                    const hasLink = cell.querySelector('a.rating-link');
-                    const ratingStars = cell.querySelector('.rating-stars');
-                    const noRating = cell.querySelector('.no-rating');
-                    const isEmpty = noRating && noRating.textContent.trim() === '–';
-
-                    if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
-                        if (hasActiveStarFilter && ratingStars) {
-                            const starCount = (ratingStars.textContent.match(/★/g) || []).length;
-                            if (starCount >= activeStarFilter) {
-                                hasVisibleReview = true;
-                            }
-                        } else if (!hasActiveStarFilter) {
-                            hasVisibleReview = true;
-                        }
-                    }
+            // Tarkista julkaisufiltteri tälle kriitikolle
+            if (hasActivePubFilter) {
+                const mediaSpan = header.querySelector('.critic-media');
+                const criticPubs = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
+                const matchesPub = activePubs.some(pub => criticPubs.includes(pub));
+                if (!matchesPub) {
+                    hasVisibleReview = false;
+                } else {
+                    // Jos julkaisu täsmää, tarkista onko arvioita näkyvissä riveissä
+                    hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter);
                 }
-            });
+            } else {
+                // Ei julkaisufiltteriä, tarkista vain onko arvioita näkyvissä riveissä
+                hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter);
+            }
         }
 
         // Piilota tai näytä sarake
         if (hasVisibleReview) {
             header.classList.remove('filter-hidden');
             tbody.querySelectorAll('tr').forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells[columnIndex]) {
-                    cells[columnIndex].classList.remove('filter-hidden');
+                const cells = row.cells;
+                if (cells[cellIndex]) {
+                    cells[cellIndex].classList.remove('filter-hidden');
                 }
             });
         } else {
             header.classList.add('filter-hidden');
             tbody.querySelectorAll('tr').forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells[columnIndex]) {
-                    cells[columnIndex].classList.add('filter-hidden');
+                const cells = row.cells;
+                if (cells[cellIndex]) {
+                    cells[cellIndex].classList.add('filter-hidden');
                 }
             });
         }
     });
 
+    /**
+     * Apufunktio: Tarkista löytyykö sarakkeesta näkyviä arvioita
+     */
+    function checkRowsForReview(rows, cellIndex, hasStarFilter, starLimit) {
+        for (const row of rows) {
+            const cell = row.cells[cellIndex];
+            if (!cell) continue;
+
+            const hasLink = cell.querySelector('a.rating-link');
+            const ratingStars = cell.querySelector('.rating-stars');
+            const noRating = cell.querySelector('.no-rating');
+            const isEmpty = noRating && noRating.textContent.trim() === '–';
+
+            if ((hasLink || ratingStars) || (noRating && !isEmpty)) {
+                if (hasStarFilter && ratingStars) {
+                    const starCount = (ratingStars.textContent.match(/★/g) || []).length;
+                    if (starCount >= starLimit) {
+                        return true;
+                    }
+                } else if (!hasStarFilter) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Päivitä "joka toinen" -väritys VAIN näkyville sarakkeille
-    const visibleHeaders = Array.from(criticHeaders).filter(header =>
+    const visibleHeaders = criticHeaders.filter(header =>
         !header.classList.contains('filter-hidden') && header.style.display !== 'none'
     );
 

@@ -627,10 +627,12 @@ function initPublicationFilterClickHandlers() {
 
             if (index > -1) {
                 activePublications.splice(index, 1);
+                this.classList.remove('selected');
                 this.style.backgroundColor = '';
                 this.style.fontWeight = '';
             } else {
                 activePublications.push(selectedPub);
+                this.classList.add('selected');
                 this.style.backgroundColor = '#f0e6ff';
                 this.style.fontWeight = 'bold';
             }
@@ -678,36 +680,32 @@ function initPublicationFilterClickHandlers() {
 
         // Desktop
         if (table) {
-            const thead = table.querySelector('thead');
             const tbody = table.querySelector('tbody');
-            const headerCells = thead.querySelectorAll('th.rating-cell');
-            const allRows = tbody.querySelectorAll('tr');
-
-            headerCells.forEach((th, index) => {
-                const mediaSpan = th.querySelector('.critic-media');
-                const criticPublications = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
-                const isVisible = noFilter || publications.some(pub => criticPublications.includes(pub));
-
-                const displayStyle = isVisible ? '' : 'none';
-                th.style.display = displayStyle;
-                allRows.forEach(row => {
-                    const cells = row.querySelectorAll('td.rating-cell');
-                    if (cells[index]) {
-                        cells[index].style.display = displayStyle;
-                    }
-                });
-            });
+            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
 
             allRows.forEach(row => {
                 const ratingCells = row.querySelectorAll('.rating-cell');
                 let hasVisibleRating = false;
 
                 ratingCells.forEach(cell => {
-                    if (cell.style.display !== 'none') {
-                        const ratingLink = cell.querySelector('.rating-link');
-                        const noRating = cell.querySelector('.no-rating');
-                        if (ratingLink || (cell.textContent.trim() !== '' && (!noRating || cell.textContent.trim() !== '–'))) {
-                            hasVisibleRating = true;
+                    // Tarkista kuuluuko solu kriitikolle jolla on oikea julkaisu
+                    const headerIndex = cell.cellIndex - 1; // -1 koska movie-col
+                    const header = table.querySelector(`thead th.rating-cell:nth-child(${cell.cellIndex + 1})`);
+                    
+                    if (header) {
+                        const mediaSpan = header.querySelector('.critic-media');
+                        const criticPublications = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
+                        const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub));
+                        
+                        if (criticMatches) {
+                            const ratingLink = cell.querySelector('.rating-link');
+                            const ratingStars = cell.querySelector('.rating-stars');
+                            const noRating = cell.querySelector('.no-rating');
+                            const isEmpty = noRating && noRating.textContent.trim() === '–';
+                            
+                            if ((ratingLink || ratingStars) || (noRating && !isEmpty)) {
+                                hasVisibleRating = true;
+                            }
                         }
                     }
                 });
@@ -719,16 +717,15 @@ function initPublicationFilterClickHandlers() {
                 }
             });
 
+            // Käytä keskitettyä funktiota sarakkeiden piilotukseen
             if (typeof updateCriticColumnVisibility === 'function') {
-                setTimeout(() => {
-                    updateCriticColumnVisibility();
-                }, 200);
+                updateCriticColumnVisibility();
             }
 
             setTimeout(() => {
                 if (window.removeFillerColumns) window.removeFillerColumns();
                 if (window.addFillerColumns) window.addFillerColumns();
-            }, 250);
+            }, 50);
         }
     }
 }
