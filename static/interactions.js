@@ -191,17 +191,19 @@ function initMovieClickHandlers() {
             // Skrollaa ikkunaa niin, että taulukon alku on näkyvissä headerin alla
             const tableWrapper = document.querySelector('.table-wrapper');
             const desktopFilters = document.querySelector('.desktop-filters');
-            const thead = table.querySelector('thead');
             
-            if (tableWrapper && desktopFilters && thead) {
-                const filtersHeight = desktopFilters.offsetHeight;
-                const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
-                const scrollToY = tableTop - filtersHeight - 10;
-                
-                window.scrollTo({
-                    top: scrollToY,
-                    behavior: 'smooth'
-                });
+            if (tableWrapper && desktopFilters) {
+                setTimeout(() => {
+                    const filtersHeight = desktopFilters.offsetHeight;
+                    const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
+                    // Skrollataan niin että table-wrapper on juuri fassettien alla
+                    const scrollToY = tableTop - filtersHeight;
+                    
+                    window.scrollTo({
+                        top: scrollToY,
+                        behavior: 'auto' // Use auto for reliability during layout changes
+                    });
+                }, 50);
             }
 
             // Piilota muut kriitikkosarakkeet ilman arvostelua tässä elokuvassa

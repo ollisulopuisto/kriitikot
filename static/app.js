@@ -408,7 +408,7 @@ function updateRowVisibility() {
     const selectedMovieRow = tbody.querySelector('tr[data-filtered="true"]');
 
     allRows.forEach(row => {
-        // Jos jokin elokuva on valittu, näytetään vain se ja piilotetaan muut
+        // Jos jokin elokuva on valittu, näytetään VAIN se ja piilotetaan kaikki muut
         if (selectedMovieRow) {
             if (row === selectedMovieRow) {
                 row.style.display = '';
