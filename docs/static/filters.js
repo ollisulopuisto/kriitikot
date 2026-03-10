@@ -55,7 +55,15 @@ function initReviewCountFilter() {
         card.dataset.reviewCount = reviewCount;
     });
 
-    function filterByReviewCount(minCount) {
+    const reviewValueMapping = {
+        1: 1,
+        2: 2,
+        3: 4,
+        4: 6,
+        5: 8
+    };
+
+    function filterByReviewCount(mappedMinCount) {
         let hiddenCount = 0;
 
         // Desktop: Piilota rivit
@@ -65,7 +73,7 @@ function initReviewCountFilter() {
 
             rows.forEach(row => {
                 const count = parseInt(row.dataset.reviewCount || 0);
-                if (count < minCount) {
+                if (count < mappedMinCount) {
                     row.style.display = 'none';
                     row.dataset.reviewCountFiltered = 'true';
                     hiddenCount++;
@@ -81,7 +89,7 @@ function initReviewCountFilter() {
         // Mobile: Piilota kortit
         mobileCards.forEach(card => {
             const count = parseInt(card.dataset.reviewCount || 0);
-            if (count < minCount) {
+            if (count < mappedMinCount) {
                 card.style.display = 'none';
                 card.dataset.reviewCountFiltered = 'true';
                 hiddenCount++;
@@ -93,7 +101,7 @@ function initReviewCountFilter() {
             }
         });
 
-        if (minCount > 1) {
+        if (mappedMinCount > 1) {
             if (window.showResetButton) window.showResetButton();
         }
 
@@ -104,21 +112,25 @@ function initReviewCountFilter() {
         return hiddenCount;
     }
 
-    function updateReviewWord(value) {
+    function updateReviewWord(actualCountValue) {
         const reviewWord = document.getElementById('review-word');
-        const word = value === 1 ? 'arvostelu' : 'arvostelua';
+        const word = actualCountValue === 1 ? 'arvostelu' : 'arvostelua';
         if (reviewWord) reviewWord.textContent = word;
     }
 
     // Desktop slider
     slider.addEventListener('input', function () {
-        const value = parseInt(this.value);
-        valueDisplay.textContent = value;
-        updateReviewWord(value);
+        const sliderPos = parseInt(this.value);
+        const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
+        
+        valueDisplay.textContent = mappedValue;
+        updateReviewWord(mappedValue);
+        
         if (valueDisplayMobile) {
-            valueDisplayMobile.textContent = value;
+            valueDisplayMobile.textContent = mappedValue;
         }
-        filterByReviewCount(value);
+        
+        filterByReviewCount(mappedValue);
     });
     slider.dataset.initialized = 'true';
 
@@ -127,25 +139,27 @@ function initReviewCountFilter() {
     const reviewsPlusBtn = document.getElementById('reviews-plus-mobile');
 
     if (reviewsMinusBtn && reviewsPlusBtn && valueDisplayMobile && !reviewsMinusBtn.dataset.initialized) {
-        let currentValue = 1;
+        let currentSliderPos = 1;
 
-        const updateReviewStepper = (newValue, shouldFilter = true) => {
-            currentValue = Math.max(1, Math.min(5, newValue));
-            valueDisplayMobile.textContent = currentValue;
-            valueDisplay.textContent = currentValue;
-            slider.value = currentValue;
-            updateReviewWord(currentValue);
+        const updateReviewStepper = (newSliderPos, shouldFilter = true) => {
+            currentSliderPos = Math.max(1, Math.min(5, newSliderPos));
+            const mappedValue = reviewValueMapping[currentSliderPos] || currentSliderPos;
+            
+            valueDisplayMobile.textContent = mappedValue;
+            valueDisplay.textContent = mappedValue;
+            slider.value = currentSliderPos;
+            updateReviewWord(mappedValue);
 
             if (shouldFilter) {
-                filterByReviewCount(currentValue);
+                filterByReviewCount(mappedValue);
             }
 
-            reviewsMinusBtn.disabled = currentValue <= 1;
-            reviewsPlusBtn.disabled = currentValue >= 5;
+            reviewsMinusBtn.disabled = currentSliderPos <= 1;
+            reviewsPlusBtn.disabled = currentSliderPos >= 5;
         };
 
-        reviewsMinusBtn.addEventListener('click', () => updateReviewStepper(currentValue - 1));
-        reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentValue + 1));
+        reviewsMinusBtn.addEventListener('click', () => updateReviewStepper(currentSliderPos - 1));
+        reviewsPlusBtn.addEventListener('click', () => updateReviewStepper(currentSliderPos + 1));
 
         updateReviewStepper(1, false);
         reviewsMinusBtn.dataset.initialized = 'true';
