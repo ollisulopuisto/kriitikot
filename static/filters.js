@@ -580,9 +580,6 @@ function initResetButton() {
 
     // Click-handlerit
     resetButtonDesktop.addEventListener('click', resetAllFilters);
-    if (resetButtonMobile) {
-        resetButtonMobile.addEventListener('click', resetAllFilters);
-    }
 
     // Tee otsikosta klikattava reset-nappi
     const headerTitle = document.querySelector('h1');

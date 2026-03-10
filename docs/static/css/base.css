@@ -73,6 +73,25 @@ a:hover {
     animation: heartBeat 0.3s ease-in-out;
 }
 
+/* Helper classes for visibility */
+.mobile-only {
+    display: none !important;
+}
+
+.desktop-only {
+    display: block; /* or flex/inline-block as needed */
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: flex !important; /* Most mobile buttons use flex */
+    }
+    
+    .desktop-only {
+        display: none !important;
+    }
+}
+
 @media (max-width: 768px) {
     body {
         padding: 0.5rem;
