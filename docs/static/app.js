@@ -325,23 +325,11 @@ function updateCriticColumnVisibility() {
             const noRating = cell.querySelector('.no-rating');
             const isEmpty = noRating && noRating.textContent.trim() === '–';
 
-            // Jos sarakkeessa on jotain sisältöä
+            // Jos sarakkeessa on jotain sisältöä näkyvälle elokuvalle, näytetään sarake.
+            // Star filter hoitaa itsenäisesti solujen himmennyksen ja rivien piilotuksen,
+            // mutta haluamme pitää huonommatkin arviot näkyvissä (himmennettynä).
             if (hasLink || ratingStars.length > 0 || (noRating && !isEmpty)) {
-                if (hasStarFilter) {
-                    // Jos tähtifiltteri on päällä, sarakkeen on oltava näkyvissä 
-                    // vain jos se sisältää vähintään yhden kriteerin täyttävän arvion.
-                    if (ratingStars.length > 0) {
-                        for (const starSpan of ratingStars) {
-                            const starCount = (starSpan.textContent.match(/★/g) || []).length;
-                            if (starCount >= starLimit) {
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    // Ei tähtifiltteriä, mikä tahansa sisältö riittää
-                    return true;
-                }
+                return true;
             }
         }
         return false;
