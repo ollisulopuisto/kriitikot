@@ -199,83 +199,72 @@ function initStarFilter() {
     }
 
     function filterByStars(stars) {
-        console.log('🔍 filterByStars called with stars:', stars);
+        console.log('🔍 filterByStars starting. Target stars >=', stars);
 
         const table = document.querySelector('table');
         const allCards = document.querySelectorAll('.movie-card');
 
+        // Debug check for CSS
+        const testElem = document.createElement('div');
+        testElem.className = 'dimmed';
+        document.body.appendChild(testElem);
+        const style = window.getComputedStyle(testElem);
+        console.log('🧪 CSS Debug: .dimmed opacity is', style.opacity);
+        testElem.remove();
+
         // Jos stars on 1, poista tähtifiltteri kokonaan
         if (stars === 1) {
-            console.log('✅ Stars = 1, removing star filter');
+            console.log('✅ Stars = 1, resetting all dimming');
 
             // Desktop
             if (table) {
                 const tbody = table.querySelector('tbody');
                 const allRows = tbody.querySelectorAll('tr');
 
-                let visibleCount = 0;
                 allRows.forEach(row => {
                     delete row.dataset.starFiltered;
-                    
-                    // Poista dimmed-luokka kaikista soluista kun filtteri nollataan
                     row.querySelectorAll('.rating-cell').forEach(cell => {
                         cell.classList.remove('dimmed');
+                        const pill = cell.querySelector('.rating-pill');
+                        if (pill) pill.classList.remove('dimmed');
                     });
 
                     const hasOtherFilters = row.dataset.reviewCountFiltered === 'true';
-
                     if (!hasOtherFilters) {
                         row.style.display = '';
-                        visibleCount++;
                     }
                 });
-
-                console.log('👀 Desktop: Visible rows:', visibleCount);
             }
 
             // Mobile
-            let visibleCards = 0;
             allCards.forEach(card => {
                 delete card.dataset.starFiltered;
                 const hasOtherFilters = card.dataset.reviewCountFiltered === 'true';
+                if (!hasOtherFilters) card.style.display = '';
 
-                if (!hasOtherFilters) {
-                    card.style.display = '';
-                    visibleCards++;
-                }
-
-                const cardReviews = card.querySelectorAll('.review-item');
-                cardReviews.forEach(item => {
+                card.querySelectorAll('.review-item').forEach(item => {
                     delete item.dataset.starFiltered;
-                    item.style.display = '';
                     item.classList.remove('dimmed');
+                    const pill = item.querySelector('.rating-pill');
+                    if (pill) pill.classList.remove('dimmed');
                 });
             });
 
-            console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
-
-            if (typeof updateCriticColumnVisibility === 'function') {
-                updateCriticColumnVisibility();
-            }
-
-            // Poista täytesarakkeet (dummy columns) kun filtteri nollataan
+            if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
             if (window.removeFillerColumns) window.removeFillerColumns();
-
-            console.log('✅ Star filter removed, NOT showing reset button');
             return;
         }
-
-        console.log('🔽 Filtering for stars >=', stars);
 
         // Desktop: Filtteröi rivit (stars > 1)
         if (table) {
             const tbody = table.querySelector('tbody');
-            const allRows = tbody.querySelectorAll('tr');
+            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
 
-            let visibleRows = 0;
-            let hiddenRows = 0;
+            console.log(`📊 Processing ${allRows.length} desktop rows`);
 
             allRows.forEach(row => {
+                const movieCell = row.querySelector('.movie-col');
+                const movieTitle = movieCell ? movieCell.textContent.trim().substring(0, 20) : 'Unknown';
                 const ratingCells = row.querySelectorAll('.rating-cell');
                 let hasMatchingRating = false;
 
@@ -284,7 +273,9 @@ function initStarFilter() {
                     const pill = cell.querySelector('.rating-pill');
                     
                     if (ratingSpan) {
-                        const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
+                        const starText = ratingSpan.textContent;
+                        const starCount = (starText.match(/★/g) || []).length;
+                        
                         if (starCount >= stars) {
                             hasMatchingRating = true;
                             cell.classList.remove('dimmed');
@@ -302,18 +293,10 @@ function initStarFilter() {
 
                 row.style.display = hasMatchingRating ? '' : 'none';
                 row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
-
-                if (hasMatchingRating) visibleRows++;
-                else hiddenRows++;
             });
-
-            console.log('📊 Desktop: Visible:', visibleRows, 'Hidden:', hiddenRows);
         }
 
         // Mobile: Filtteröi kortit (stars > 1)
-        let visibleCards = 0;
-        let hiddenCards = 0;
-
         allCards.forEach(card => {
             const cardReviews = card.querySelectorAll('.review-item');
             let hasMatchingReview = false;
@@ -331,7 +314,7 @@ function initStarFilter() {
                     item.classList.remove('dimmed');
                     if (pill) pill.classList.remove('dimmed');
                 } else {
-                    item.style.display = ''; // Näytetään, mutta himmennettynä
+                    item.style.display = ''; 
                     item.dataset.starFiltered = 'true';
                     item.classList.add('dimmed');
                     if (pill) pill.classList.add('dimmed');
@@ -340,28 +323,20 @@ function initStarFilter() {
 
             card.style.display = hasMatchingReview ? '' : 'none';
             card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
-
-            if (hasMatchingReview) visibleCards++;
-            else hiddenCards++;
         });
-
-        console.log('📱 Mobile: Visible cards:', visibleCards, '/', allCards.length);
 
         if (typeof updateCriticColumnVisibility === 'function') {
             updateCriticColumnVisibility();
         }
 
         if (stars > 1) {
-            console.log('🔴 Showing reset button (stars > 1)');
             if (window.showResetButton) window.showResetButton();
-
-            // Poista vanhat täytesarakkeet ensin, sitten lisää uudet
-            // Pieni viive varmistaa että updateCriticColumnVisibility() on valmis
             setTimeout(() => {
                 if (window.removeFillerColumns) window.removeFillerColumns();
                 if (window.addFillerColumns) window.addFillerColumns();
             }, 50);
         }
+        console.log('✨ filterByStars finished');
     }
 
     // Desktop slider
