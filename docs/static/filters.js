@@ -281,17 +281,22 @@ function initStarFilter() {
 
                 ratingCells.forEach(cell => {
                     const ratingSpan = cell.querySelector('.rating-stars');
+                    const pill = cell.querySelector('.rating-pill');
+                    
                     if (ratingSpan) {
                         const starCount = (ratingSpan.textContent.match(/★/g) || []).length;
                         if (starCount >= stars) {
                             hasMatchingRating = true;
                             cell.classList.remove('dimmed');
+                            if (pill) pill.classList.remove('dimmed');
                         } else {
                             cell.classList.add('dimmed');
+                            if (pill) pill.classList.add('dimmed');
                         }
                     } else {
                         // Tyhjä solu
                         cell.classList.add('dimmed');
+                        if (pill) pill.classList.add('dimmed');
                     }
                 });
 
@@ -315,6 +320,7 @@ function initStarFilter() {
 
             cardReviews.forEach(item => {
                 const ratingElement = item.querySelector('.review-rating a, .review-rating');
+                const pill = item.querySelector('.rating-pill');
                 const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
                 const starCount = (ratingText.match(/★/g) || []).length;
 
@@ -323,10 +329,12 @@ function initStarFilter() {
                     item.style.display = '';
                     item.dataset.starFiltered = '';
                     item.classList.remove('dimmed');
+                    if (pill) pill.classList.remove('dimmed');
                 } else {
                     item.style.display = ''; // Näytetään, mutta himmennettynä
                     item.dataset.starFiltered = 'true';
                     item.classList.add('dimmed');
+                    if (pill) pill.classList.add('dimmed');
                 }
             });
 
@@ -530,6 +538,8 @@ function initResetButton() {
                         cells[idx].style.display = '';
                         cells[idx].classList.remove('dimmed');
                         cells[idx].classList.remove('filter-hidden');
+                        const pill = cells[idx].querySelector('.rating-pill');
+                        if (pill) pill.classList.remove('dimmed');
                     }
                 });
             });
@@ -539,6 +549,8 @@ function initResetButton() {
                     cell.style.display = '';
                     cell.classList.remove('dimmed');
                     cell.classList.remove('filter-hidden');
+                    const pill = cell.querySelector('.rating-pill');
+                    if (pill) pill.classList.remove('dimmed');
                 });
             });
         }

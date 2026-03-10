@@ -1033,9 +1033,10 @@ tr.dimmed {
 
 th.dimmed,
 td.dimmed,
-.review-item.dimmed {
-    opacity: 0.2;
-    pointer-events: none;
+.review-item.dimmed,
+.rating-pill.dimmed {
+    opacity: 0.3;
+    pointer-events: none !important;
     transition: opacity 0.3s ease;
 }
 
