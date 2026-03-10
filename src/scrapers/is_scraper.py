@@ -163,14 +163,41 @@ class ISScraper(BaseScraper):
     
     def _extract_movie_title(self, asset_data: dict) -> Optional[str]:
         """
-        Poimii elokuvan nimen otsikosta.
+        Poimii elokuvan nimen otsikosta tai endnotesta.
         IS.fi otsikot usein muodossa: "Tällainen on [Elokuva] – ..."
-        Tai JSON-datasta voi löytyä suoraan elokuvan nimi theme_tagseista.
+        Endnote muodossa: "[Elokuva], ensi-ilta..."
         """
+        # 1) Try to find title from the "endnote" at the end of the body.
+        # This is usually the most reliable place for the official title.
+        split_body = asset_data.get('splitBody', [])
+        for section in reversed(split_body):
+            if section.get('type') == 'paragraph':
+                crumbs = section.get('crumbs', [])
+                # Combine all crumbs that have the 'endnote' mark
+                endnote_parts = []
+                for crumb in crumbs:
+                    if 'endnote' in crumb.get('marks', []):
+                        content = crumb.get('content', '')
+                        if content:
+                            endnote_parts.append(content)
+                
+                if endnote_parts:
+                    text = ''.join(endnote_parts).strip()
+                    # Pattern: "Title, ensi-ilta..."
+                    match = re.search(r'^(.+?),\s+ensi-ilta', text)
+                    if match:
+                        return match.group(1).strip()
+                    # Fallback if no "ensi-ilta" but stars: "Title ★★★"
+                    if '★' in text:
+                        # Take everything before the stars
+                        match = re.search(r'^(.+?)\s+★', text)
+                        if match:
+                            return match.group(1).strip()
+
         title = asset_data.get('title', '')
         meta_title = asset_data.get('metaTitle', '')
         
-        # 0) Priority: Check metaTitle for movie title patterns
+        # 2) Priority: Check metaTitle for movie title patterns
         # IS meta titles can have format:
         # - "MovieName -arvio: Subtitle"
         # - "Arvio MovieName – Subtitle"
@@ -222,14 +249,21 @@ class ISScraper(BaseScraper):
         for section in reversed(split_body):  # Käy läpi lopusta alkuun
             if section.get('type') == 'paragraph':
                 crumbs = section.get('crumbs', [])
+                
+                # Combine all crumbs that have the 'endnote' mark
+                endnote_parts = []
                 for crumb in crumbs:
-                    # Etsi "endnote" markilla varustettu teksti
                     if 'endnote' in crumb.get('marks', []):
-                        text = crumb.get('content', '')
-                        # Laske tähtien määrä
-                        stars = text.count('★')
-                        if stars > 0:
-                            return min(stars, 5)  # Max 5 tähteä
+                        content = crumb.get('content', '')
+                        if content:
+                            endnote_parts.append(content)
+                
+                if endnote_parts:
+                    text = ''.join(endnote_parts)
+                    # Laske tähtien määrä
+                    stars = text.count('★')
+                    if stars > 0:
+                        return min(stars, 5)  # Max 5 tähteä
         
         return None
     
