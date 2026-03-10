@@ -40,7 +40,7 @@ function initStickyTableHeader() {
     }
     
     function handleScroll() {
-        const filterBottom = desktopFilters.getBoundingClientRect().bottom;
+        const filterBottom = 0; // Align to the very top
         const tableRect = tableWrapper.getBoundingClientRect();
         
         const shouldBeSticky = tableRect.top < filterBottom && 
@@ -51,7 +51,7 @@ function initStickyTableHeader() {
                 const wrapper = document.createElement('div');
                 wrapper.id = 'sticky-thead-wrapper';
                 wrapper.style.position = 'fixed';
-                wrapper.style.top = filterBottom + 'px';
+                wrapper.style.top = '0';
                 wrapper.style.left = tableRect.left + 'px';
                 wrapper.style.width = tableRect.width + 'px';
                 wrapper.style.zIndex = '50';
@@ -111,7 +111,7 @@ function initStickyTableHeader() {
             
             if (theadClone && theadClone.wrapperElement) {
                 const wrapper = theadClone.wrapperElement;
-                wrapper.style.top = filterBottom + 'px';
+                wrapper.style.top = '0';
                 wrapper.style.left = tableRect.left + 'px';
                 wrapper.style.width = tableRect.width + 'px';
                 

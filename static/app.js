@@ -414,6 +414,13 @@ function updateRowVisibility() {
             return;
         }
 
+        // Jos rivi on valittu klikkaamalla elokuvan nimeä, pidetään se aina näkyvissä
+        if (row.dataset.filtered === 'true') {
+            row.style.display = '';
+            row.classList.remove('dimmed');
+            return;
+        }
+
         let hasVisibleReview = false;
         const cells = row.querySelectorAll('td');
 

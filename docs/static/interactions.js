@@ -159,17 +159,24 @@ function initMovieClickHandlers() {
         movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
 
         movieCell.addEventListener('click', function () {
-            const row = movieCell.parentElement;
-
+            const clickedRow = movieCell.parentElement;
+            const isAlreadySelected = clickedRow.classList.contains('selected') || movieCell.classList.contains('selected');
             const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
 
-            if (isAnyFilterActive) {
+            if (isAlreadySelected) {
                 if (window.resetAllFilters) window.resetAllFilters();
                 return;
             }
 
+            // Jos jokin muu filtteri on päällä, nollataan se ensin mutta jatketaan korostukseen
+            if (isAnyFilterActive) {
+                if (window.resetAllFilters) window.resetAllFilters();
+                // resetAllFilters nollaa DOMia, joten meidän pitää hakea row uudelleen tai 
+                // varmistaa ettei se katoa. Koska se on DOM-viite, se säilyy.
+            }
+
             // Poista vanhat poster-rivit
-            tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
+            tbody.querySelectorAll('.poster-row').forEach(pr => pr.remove());
 
             const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
             const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
@@ -191,9 +198,27 @@ function initMovieClickHandlers() {
                 }, 50);
             }
 
+            // Varmista että valittu rivi on näkyvissä
+            clickedRow.style.display = '';
+            clickedRow.classList.remove('dimmed');
+            clickedRow.dataset.filtered = 'true';
+            movieCell.classList.add('selected');
+
+            // Skrollaa ikkunaa niin, että taulukon alku (tai valittu rivi) on näkyvissä headerin alla
+            const tableWrapper = document.querySelector('.table-wrapper');
+            if (tableWrapper) {
+                const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
+                const scrollToY = tableTop - 20; // Pieni puskuri, että header ei peitä riviä heti
+                
+                window.scrollTo({
+                    top: scrollToY,
+                    behavior: 'smooth'
+                });
+            }
+
             // Himmennä muut rivit
             allRows.forEach(r => {
-                if (r !== row) {
+                if (r !== clickedRow) {
                     r.classList.add('dimmed');
                     setTimeout(() => {
                         if (r.classList.contains('dimmed')) {
@@ -203,43 +228,46 @@ function initMovieClickHandlers() {
                 }
             });
 
-            // Piilota kriitikkosarakkeet ilman arvostelua
-            const ratingCells = row.querySelectorAll('.rating-cell');
+            // Piilota kriitikkosarakkeet ilman arvostelua tässä elokuvassa
+            const ratingCells = clickedRow.querySelectorAll('.rating-cell');
 
             allCriticHeaders.forEach((header, colIndex) => {
                 const cell = ratingCells[colIndex];
+                let hasReview = false;
 
                 if (cell) {
                     const hasLink = cell.querySelector('a.rating-link');
                     const hasStars = cell.querySelector('.rating-stars');
                     const noRating = cell.querySelector('.no-rating');
-                    const isEmpty = noRating && noRating.textContent.trim() === '–';
+                    const isEmptyText = noRating && noRating.textContent.trim() === '–';
+                    const hasText = cell.textContent.trim().length > 1; // Esim. numeroarvio ilman tähtiä
 
-                    if (!hasLink && !hasStars && isEmpty) {
-                        header.classList.add('filter-hidden');
-                        setTimeout(() => {
-                            if (header.classList.contains('filter-hidden')) {
-                                header.style.display = 'none';
-                            }
-                        }, 150);
-
-                        allRows.forEach(r => {
-                            const cells = r.querySelectorAll('.rating-cell');
-                            if (cells[colIndex]) {
-                                cells[colIndex].classList.add('filter-hidden');
-                                setTimeout(() => {
-                                    if (cells[colIndex].classList.contains('filter-hidden')) {
-                                        cells[colIndex].style.display = 'none';
-                                    }
-                                }, 150);
-                            }
-                        });
+                    if (hasLink || hasStars || (noRating && !isEmptyText) || hasText) {
+                        hasReview = true;
                     }
                 }
-            });
 
-            row.dataset.filtered = 'true';
-            movieCell.classList.add('selected');
+                if (!hasReview) {
+                    header.classList.add('filter-hidden');
+                    setTimeout(() => {
+                        if (header.classList.contains('filter-hidden')) {
+                            header.style.display = 'none';
+                        }
+                    }, 150);
+
+                    allRows.forEach(r => {
+                        const cells = r.querySelectorAll('.rating-cell');
+                        if (cells[colIndex]) {
+                            cells[colIndex].classList.add('filter-hidden');
+                            setTimeout(() => {
+                                if (cells[colIndex].classList.contains('filter-hidden')) {
+                                    cells[colIndex].style.display = 'none';
+                                }
+                            }, 150);
+                        }
+                    });
+                }
+            });
 
             // Lisää linkit elokuvan nimen / laskurin alapuolelle koskematta alkuperäiseen rakenteeseen
             const nytleffaanUrl = movieCell.dataset.nytleffaan;

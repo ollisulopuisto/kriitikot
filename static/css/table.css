@@ -41,7 +41,7 @@ th {
     background: #f8f9fa;
     transition: background-color 0.35s ease;
     position: sticky;
-    top: 90px; /* Account for fixed desktop-filters height (90px) */
+    top: 0; /* Align to the very top since desktop-filters isn't sticky anymore */
     z-index: 100; /* Relative to thead */
     border-bottom: 0.125rem solid #dee2e6;
     box-shadow: 0 1px 0 rgba(0,0,0,0.05);
