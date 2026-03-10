@@ -158,9 +158,12 @@ function initMovieClickHandlers() {
         movieCell.style.cursor = 'pointer';
         movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
 
-        movieCell.addEventListener('click', function () {
+        movieCell.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
             const clickedRow = movieCell.parentElement;
-            const isAlreadySelected = clickedRow.classList.contains('selected') || movieCell.classList.contains('selected');
+            const isAlreadySelected = clickedRow.dataset.filtered === 'true';
             const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
 
             if (isAlreadySelected) {
@@ -171,52 +174,29 @@ function initMovieClickHandlers() {
             // Jos jokin muu filtteri on päällä, nollataan se ensin mutta jatketaan korostukseen
             if (isAnyFilterActive) {
                 if (window.resetAllFilters) window.resetAllFilters();
-                // resetAllFilters nollaa DOMia, joten meidän pitää hakea row uudelleen tai 
-                // varmistaa ettei se katoa. Koska se on DOM-viite, se säilyy.
             }
 
             // Poista vanhat poster-rivit
             tbody.querySelectorAll('.poster-row').forEach(pr => pr.remove());
-
-            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
-            const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
 
             // Tallenna alkuperäinen taulukon leveys
             if (!window.originalTableWidth) {
                 window.originalTableWidth = table.offsetWidth;
             }
 
-            // Tallenna ja nollaa skrollaus
-            const tableWrapper = document.querySelector('.table-wrapper');
-            if (tableWrapper) {
-                window.savedScrollLeft = tableWrapper.scrollLeft;
-                const originalScrollBehavior = tableWrapper.style.scrollBehavior;
-                tableWrapper.style.scrollBehavior = 'auto';
-                tableWrapper.scrollLeft = 0;
-                setTimeout(() => {
-                    tableWrapper.style.scrollBehavior = originalScrollBehavior;
-                }, 50);
-            }
-
-            // Varmista että valittu rivi on näkyvissä
-            clickedRow.style.display = '';
-            clickedRow.classList.remove('dimmed');
+            // Merkitse rivi ja solu valituksi ENNEN muiden päivitysten ajoa
             clickedRow.dataset.filtered = 'true';
             movieCell.classList.add('selected');
 
-            // Skrollaa ikkunaa niin, että taulukon alku (tai valittu rivi) on näkyvissä headerin alla
+            // Skrollaa ikkunaa niin, että taulukon alku on näkyvissä headerin alla
             const tableWrapper = document.querySelector('.table-wrapper');
             const desktopFilters = document.querySelector('.desktop-filters');
             const thead = table.querySelector('thead');
             
             if (tableWrapper && desktopFilters && thead) {
-                // Lasketaan fasetin ja headerin yhteiskorkeus
                 const filtersHeight = desktopFilters.offsetHeight;
-                const headerHeight = thead.offsetHeight;
-                const totalStickyHeight = filtersHeight + headerHeight;
-                
                 const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
-                const scrollToY = tableTop - filtersHeight - 10; // Puskuri
+                const scrollToY = tableTop - filtersHeight - 10;
                 
                 window.scrollTo({
                     top: scrollToY,
@@ -224,19 +204,9 @@ function initMovieClickHandlers() {
                 });
             }
 
-            // Himmennä muut rivit
-            allRows.forEach(r => {
-                if (r !== clickedRow) {
-                    r.classList.add('dimmed');
-                    setTimeout(() => {
-                        if (r.classList.contains('dimmed')) {
-                            r.style.display = 'none';
-                        }
-                    }, 150);
-                }
-            });
-
-            // Piilota kriitikkosarakkeet ilman arvostelua tässä elokuvassa
+            // Piilota muut kriitikkosarakkeet ilman arvostelua tässä elokuvassa
+            const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
+            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
             const ratingCells = clickedRow.querySelectorAll('.rating-cell');
 
             allCriticHeaders.forEach((header, colIndex) => {
@@ -248,7 +218,7 @@ function initMovieClickHandlers() {
                     const hasStars = cell.querySelector('.rating-stars');
                     const noRating = cell.querySelector('.no-rating');
                     const isEmptyText = noRating && noRating.textContent.trim() === '–';
-                    const hasText = cell.textContent.trim().length > 1; // Esim. numeroarvio ilman tähtiä
+                    const hasText = cell.textContent.trim().length > 1;
 
                     if (hasLink || hasStars || (noRating && !isEmptyText) || hasText) {
                         hasReview = true;
@@ -257,21 +227,13 @@ function initMovieClickHandlers() {
 
                 if (!hasReview) {
                     header.classList.add('filter-hidden');
-                    setTimeout(() => {
-                        if (header.classList.contains('filter-hidden')) {
-                            header.style.display = 'none';
-                        }
-                    }, 150);
+                    header.style.display = 'none';
 
                     allRows.forEach(r => {
                         const cells = r.querySelectorAll('.rating-cell');
                         if (cells[colIndex]) {
                             cells[colIndex].classList.add('filter-hidden');
-                            setTimeout(() => {
-                                if (cells[colIndex].classList.contains('filter-hidden')) {
-                                    cells[colIndex].style.display = 'none';
-                                }
-                            }, 150);
+                            cells[colIndex].style.display = 'none';
                         }
                     });
                 }
@@ -338,19 +300,15 @@ function initMovieClickHandlers() {
                     posterRow.appendChild(emptyCell);
                 }
 
-                row.parentNode.insertBefore(posterRow, row.nextSibling);
+                clickedRow.parentNode.insertBefore(posterRow, clickedRow.nextSibling);
             }
 
+            // Päivitä näkyvyys välittömästi
             if (typeof updateCriticColumnVisibility === 'function') {
-                setTimeout(() => {
-                    updateCriticColumnVisibility();
-                }, 200);
+                updateCriticColumnVisibility();
             }
 
-            setTimeout(() => {
-                if (window.addFillerColumns) window.addFillerColumns();
-            }, 200);
-
+            if (window.addFillerColumns) window.addFillerColumns();
             if (window.showResetButton) window.showResetButton();
         });
         movieCell.dataset.initialized = 'true';

@@ -404,20 +404,28 @@ function updateRowVisibility() {
         }
     });
 
+    // Tarkista onko jokin elokuva valittu (klikattu nimeä)
+    const selectedMovieRow = tbody.querySelector('tr[data-filtered="true"]');
+
     allRows.forEach(row => {
+        // Jos jokin elokuva on valittu, näytetään vain se ja piilotetaan muut
+        if (selectedMovieRow) {
+            if (row === selectedMovieRow) {
+                row.style.display = '';
+                row.classList.remove('dimmed');
+            } else {
+                row.style.display = 'none';
+                row.classList.add('dimmed');
+            }
+            return;
+        }
+
         // Jos rivi on jo piilotettu muista syistä (esim. tekstihaku, tähdet), älä koske
         // Mutta meidän pitää erottaa "ei arvosteluja" -piilotus "filtteri"-piilotuksesta logic chainissa.
         // Tässä oletamme, että tämä ajetaan viimeisenä.
 
         // Emme koske riveihin, jotka on piilotettu review-count tai star filtterillä
         if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true') {
-            return;
-        }
-
-        // Jos rivi on valittu klikkaamalla elokuvan nimeä, pidetään se aina näkyvissä
-        if (row.dataset.filtered === 'true') {
-            row.style.display = '';
-            row.classList.remove('dimmed');
             return;
         }
 
