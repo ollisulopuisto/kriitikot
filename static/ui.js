@@ -2,6 +2,19 @@
 // ==================================
 
 /**
+ * Päivitä suodatinpalkin korkeus CSS-muuttujaan
+ */
+function updateFiltersHeight() {
+    const desktopFilters = document.querySelector('.desktop-filters');
+    if (desktopFilters) {
+        const height = desktopFilters.offsetHeight;
+        document.documentElement.style.setProperty('--filters-height', height + 'px');
+        return height;
+    }
+    return 0;
+}
+
+/**
  * Fake sticky thead (koska position:sticky ei toimi overflow:n kanssa)
  */
 function initStickyTableHeader() {
@@ -40,7 +53,8 @@ function initStickyTableHeader() {
     }
     
     function handleScroll() {
-        const filterBottom = 0; // Align to the very top
+        const filtersHeight = updateFiltersHeight();
+        const filterBottom = filtersHeight; // Otsikkoheader kiinnittyy fasetin alle
         const tableRect = tableWrapper.getBoundingClientRect();
         
         const shouldBeSticky = tableRect.top < filterBottom && 
@@ -51,10 +65,10 @@ function initStickyTableHeader() {
                 const wrapper = document.createElement('div');
                 wrapper.id = 'sticky-thead-wrapper';
                 wrapper.style.position = 'fixed';
-                wrapper.style.top = '0';
+                wrapper.style.top = filterBottom + 'px';
                 wrapper.style.left = tableRect.left + 'px';
                 wrapper.style.width = tableRect.width + 'px';
-                wrapper.style.zIndex = '50';
+                wrapper.style.zIndex = '500'; // Below desktop-filters (1000)
                 wrapper.style.overflow = 'hidden';
                 wrapper.style.boxShadow = '0 0.125rem 0.5rem rgba(0,0,0,0.1)';
                 wrapper.style.borderRadius = '0.5rem 0.5rem 0 0';
@@ -111,7 +125,7 @@ function initStickyTableHeader() {
             
             if (theadClone && theadClone.wrapperElement) {
                 const wrapper = theadClone.wrapperElement;
-                wrapper.style.top = '0';
+                wrapper.style.top = filterBottom + 'px';
                 wrapper.style.left = tableRect.left + 'px';
                 wrapper.style.width = tableRect.width + 'px';
                 
@@ -160,6 +174,7 @@ function initStickyTableHeader() {
     
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', () => {
+        updateFiltersHeight();
         syncColumnWidths();
         handleScroll();
     });
@@ -168,6 +183,7 @@ function initStickyTableHeader() {
     // Kuuntele lajittelun tapahtumia
     document.addEventListener('table-sorted', refreshStickyHeader);
     
+    updateFiltersHeight();
     handleScroll();
     thead.dataset.stickyInitialized = 'true'; // Mark as initialized
 }

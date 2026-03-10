@@ -206,9 +206,17 @@ function initMovieClickHandlers() {
 
             // Skrollaa ikkunaa niin, että taulukon alku (tai valittu rivi) on näkyvissä headerin alla
             const tableWrapper = document.querySelector('.table-wrapper');
-            if (tableWrapper) {
+            const desktopFilters = document.querySelector('.desktop-filters');
+            const thead = table.querySelector('thead');
+            
+            if (tableWrapper && desktopFilters && thead) {
+                // Lasketaan fasetin ja headerin yhteiskorkeus
+                const filtersHeight = desktopFilters.offsetHeight;
+                const headerHeight = thead.offsetHeight;
+                const totalStickyHeight = filtersHeight + headerHeight;
+                
                 const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
-                const scrollToY = tableTop - 20; // Pieni puskuri, että header ei peitä riviä heti
+                const scrollToY = tableTop - filtersHeight - 10; // Puskuri
                 
                 window.scrollTo({
                     top: scrollToY,

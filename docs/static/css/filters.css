@@ -79,7 +79,9 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    z-index: 150;
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* High z-index to stay above everything */
     /* Height is now dynamic based on content */
 }
 
