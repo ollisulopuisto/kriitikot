@@ -293,4 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileFilterToggle();
     initStickyScrollbar();
     initColumnCount();
+    
+    // Varmista fassettien korkeuden päivitys kun layout on valmis
+    setTimeout(updateFiltersHeight, 100);
 });
+
+// Export functions to window
+window.updateFiltersHeight = updateFiltersHeight;
+window.initStickyTableHeader = initStickyTableHeader;
+window.refreshStickyHeader = function() {
+    document.dispatchEvent(new CustomEvent('table-sorted'));
+};

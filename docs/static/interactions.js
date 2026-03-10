@@ -733,3 +733,10 @@ document.addEventListener('DOMContentLoaded', function () {
     initRatingFilterClickHandlers();
     initPublicationFilterClickHandlers();
 });
+
+// Export functions to window
+window.initMovieClickHandlers = initMovieClickHandlers;
+window.initCriticClickHandlers = initCriticClickHandlers;
+window.initMobileCriticClickHandlers = initMobileCriticClickHandlers;
+window.initRatingFilterClickHandlers = initRatingFilterClickHandlers;
+window.initPublicationFilterClickHandlers = initPublicationFilterClickHandlers;
