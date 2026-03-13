@@ -561,6 +561,7 @@ function initResetButton() {
 
         const publicationFilters = document.querySelectorAll('.filter-publication');
         publicationFilters.forEach(filter => {
+            filter.classList.remove('active');
             filter.style.backgroundColor = '';
             filter.style.fontWeight = '';
         });

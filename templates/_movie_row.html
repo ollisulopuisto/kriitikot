@@ -12,21 +12,23 @@
         {% if critic.name in critics_reviews %}
         {% set reviews_list = critics_reviews[critic.name] %}
         {% for review in reviews_list %}
+        {% set pub_short = review.publication.short_name.upper() if review.publication else '' %}
         {% if review.rating_stars %}
         {% if review.source_url %}
         {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
         <a href="{{ review.source_url }}"
             class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
+            data-publication="{{ pub_short }}"
             title="{{ review.publication.name }}: {{ tooltip_text }}...">
             <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
         </a>
         {% else %}
-        <span class="rating-pill stars-{{ review.rating_stars }}">
+        <span class="rating-pill stars-{{ review.rating_stars }}" data-publication="{{ pub_short }}">
             <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
         </span>
         {% endif %}
         {% endif %}
-        {% if not loop.last %}<br>{% endif %}
+        {% if not loop.last %}<br data-publication="{{ pub_short }}">{% endif %}
         {% endfor %}
         {% endif %}
     </td>

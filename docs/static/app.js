@@ -258,7 +258,7 @@ function updateCriticColumnVisibility() {
     const hasActiveStarFilter = activeStarFilter > 1;
 
     // Tarkista onko julkaisufiltteri aktiivinen
-    const activePubButtons = document.querySelectorAll('.filter-publication.selected, .media-filter-btn.active');
+    const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
     const activePubs = Array.from(activePubButtons).map(btn => btn.dataset.publication);
     const hasActivePubFilter = activePubs.length > 0;
 
