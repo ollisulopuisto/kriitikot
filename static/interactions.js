@@ -617,12 +617,14 @@ function initPublicationFilterClickHandlers() {
         
         pubFilter.addEventListener('click', function (e) {
             e.preventDefault();
+            console.log('Media filter clicked:', this.dataset.publication);
 
             const selectedPub = this.dataset.publication;
             const isCurrentlyActive = this.classList.contains('active');
             
             // Hae KAIKKI saman julkaisun painikkeet (desktop + mobile)
             const samePubButtons = document.querySelectorAll(`.filter-publication[data-publication="${selectedPub}"]`);
+            console.log(`Found ${samePubButtons.length} buttons for ${selectedPub}`);
             
             if (isCurrentlyActive) {
                 samePubButtons.forEach(btn => btn.classList.remove('active'));
@@ -633,6 +635,7 @@ function initPublicationFilterClickHandlers() {
             // Kerää kaikki aktiiviset julkaisut DOM:sta (koska ne on nyt synkattu)
             const activePubButtons = document.querySelectorAll('.filter-publication.active');
             const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
+            console.log('Active publications:', activePubs);
 
             applyPublicationFilter(activePubs);
 
@@ -644,9 +647,11 @@ function initPublicationFilterClickHandlers() {
     });
 
     function applyPublicationFilter(publications) {
+        console.log('Applying publication filter for:', publications);
         const allCards = document.querySelectorAll('.movie-card');
         const table = document.querySelector('table');
         const noFilter = publications.length === 0;
+        console.log(`noFilter: ${noFilter}, allCards: ${allCards.length}, table: ${!!table}`);
 
         // Mobile cards
         allCards.forEach(card => {
@@ -656,11 +661,15 @@ function initPublicationFilterClickHandlers() {
             cardReviews.forEach(item => {
                 if (noFilter) {
                     item.style.display = '';
-                    hasMatchingReview = true; // Kaikki matchaa jos ei filtteriä
+                    hasMatchingReview = true;
                 } else {
                     const mediaElement = item.querySelector('.review-media');
-                    const mediaText = mediaElement ? mediaElement.textContent.trim() : '';
-                    if (publications.includes(mediaText)) {
+                    const mediaText = mediaElement ? mediaElement.textContent.trim().toUpperCase() : '';
+                    
+                    // Match if any of the active publications is contained in mediaText
+                    const matches = publications.some(pub => mediaText.includes(pub));
+                    
+                    if (matches) {
                         item.style.display = '';
                         hasMatchingReview = true;
                     } else {
@@ -701,13 +710,16 @@ function initPublicationFilterClickHandlers() {
                         const criticPublications = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
                         const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub));
                         
-                        // Piilota/näytä yksittäiset arvostelut solun sisällä (UUSI OMINAISUUS)
+                        // Piilota/näytä yksittäiset arvostelut solun sisällä
                         const cellReviews = cell.querySelectorAll('[data-publication]');
                         let cellHasVisibleReview = false;
                         
                         cellReviews.forEach(rev => {
-                            const revPub = rev.dataset.publication;
-                            if (noFilter || publications.includes(revPub)) {
+                            const revPub = (rev.dataset.publication || '').toUpperCase();
+                            // Match if revPub matches any of our active publications
+                            const matchesRev = noFilter || publications.some(pub => revPub.includes(pub.toUpperCase()));
+                            
+                            if (matchesRev) {
                                 rev.style.display = '';
                                 if (rev.tagName !== 'BR') cellHasVisibleReview = true;
                             } else {
@@ -748,14 +760,21 @@ function initPublicationFilterClickHandlers() {
 }
 
 // Initialize all click handlers
-document.addEventListener('DOMContentLoaded', function () {
+function initAllInteractions() {
+    console.log('Initializing all interactions...');
     initSorting();
     initMovieClickHandlers();
     initCriticClickHandlers();
     initMobileCriticClickHandlers();
     initRatingFilterClickHandlers();
     initPublicationFilterClickHandlers();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllInteractions);
+} else {
+    initAllInteractions();
+}
 
 // Export functions to window
 window.initMovieClickHandlers = initMovieClickHandlers;
