@@ -649,6 +649,12 @@ function loadMoreMovies() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Versio-logi
+    const versionMeta = document.querySelector('meta[name="version"]');
+    if (versionMeta) {
+        console.log(`🎬 Kriitikon valinta v${versionMeta.content} käynnistyy...`);
+    }
+
     // Lataa kaikki arvostelut JSONista
     const reviewsDataElement = document.getElementById('all-reviews-data');
     if (reviewsDataElement) {

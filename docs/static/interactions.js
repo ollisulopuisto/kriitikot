@@ -761,7 +761,6 @@ function initPublicationFilterClickHandlers() {
 
 // Initialize all click handlers
 function initAllInteractions() {
-    console.log('Initializing all interactions...');
     initSorting();
     initMovieClickHandlers();
     initCriticClickHandlers();
