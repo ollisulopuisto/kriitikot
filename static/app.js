@@ -292,8 +292,10 @@ function updateCriticColumnVisibility() {
                 
                 if (!matchesPub) {
                     hasVisibleReview = false;
+                    console.log(`  ❌ ${criticName}: no pub match (has: ${criticPubs}, filter: ${activePubs})`);
                 } else {
                     hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName, activePubs);
+                    console.log(`  ${hasVisibleReview ? '✅' : '❓'} ${criticName}: has visible reviews: ${hasVisibleReview}`);
                 }
             } else {
                 hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName, []);
@@ -301,25 +303,28 @@ function updateCriticColumnVisibility() {
         }
 
         // Piilota tai näytä sarake
-        const rowsToUpdate = Array.from(table.rows);
+        const tbodyRows = Array.from(tbody.rows);
         if (hasVisibleReview) {
             header.classList.remove('filter-hidden');
-            header.style.display = ''; // Varmista että display ei ole 'none'
-            rowsToUpdate.forEach(row => {
+            header.style.display = ''; 
+            tbodyRows.forEach(row => {
                 const cell = row.cells[cellIndex];
                 if (cell) {
                     cell.classList.remove('filter-hidden');
-                    cell.style.display = ''; // Varmista että display ei ole 'none'
+                    cell.style.display = ''; 
                 }
             });
         } else {
-            // console.log(`🙈 Hiding column for ${criticName} (cellIndex: ${cellIndex})`);
             header.classList.add('filter-hidden');
-            // Myös class hoitaa display: none !important, mutta varmistetaan
-            rowsToUpdate.forEach(row => {
+            tbodyRows.forEach(row => {
                 const cell = row.cells[cellIndex];
-                if (cell) cell.classList.add('filter-hidden');
+                if (cell) {
+                    cell.classList.add('filter-hidden');
+                    // Tärkeää: lisätään myös inline style koska joissain tapauksissa se ohittaa luokan
+                    cell.style.display = 'none';
+                }
             });
+            header.style.display = 'none';
         }
     });
 
