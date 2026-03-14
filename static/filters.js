@@ -198,7 +198,8 @@ function initStarFilter() {
         if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
     }
 
-    function filterByStars(stars) {
+    function filterByStars(starsParam) {
+        const stars = parseInt(starsParam);
         console.log('🔍 filterByStars starting. Target stars >=', stars);
 
         const table = document.querySelector('table');
@@ -253,13 +254,16 @@ function initStarFilter() {
             const tbody = table.querySelector('tbody');
             const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
             let hiddenRowsCount = 0;
+            console.log(`📊 Processing ${allRows.length} desktop rows...`);
 
-            allRows.forEach(row => {
+            allRows.forEach((row, rowIndex) => {
                 const movieTitle = row.querySelector('.movie-title-main')?.textContent.trim() || "Tuntematon";
                 const ratingCells = row.querySelectorAll('.rating-cell');
                 let hasAtLeastOneMatchingReview = false;
                 let reviewsCount = 0;
                 let matchingReviewsCount = 0;
+
+                if (rowIndex < 3) console.log(`  - Row ${rowIndex}: "${movieTitle}"`);
 
                 ratingCells.forEach(cell => {
                     const pills = cell.querySelectorAll('.rating-pill');

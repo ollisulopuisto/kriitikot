@@ -455,3 +455,14 @@ input:checked + .toggle-slider:before {
         transform: translateY(2px);
     }
 }
+
+/* Star filter dimming */
+.dimmed {
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease;
+}
+
+tr.dimmed {
+    display: none !important;
+}
