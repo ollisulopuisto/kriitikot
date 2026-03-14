@@ -12,7 +12,7 @@ from email.utils import formatdate
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
-APP_VERSION = "2026.03.13.3"
+APP_VERSION = "2026.03.13.4"
 
 # Tietokantayhteys
 engine = get_engine()

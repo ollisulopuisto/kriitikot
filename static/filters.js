@@ -204,14 +204,6 @@ function initStarFilter() {
         const table = document.querySelector('table');
         const allCards = document.querySelectorAll('.movie-card');
 
-        // Debug check for CSS
-        const testElem = document.createElement('div');
-        testElem.className = 'dimmed';
-        document.body.appendChild(testElem);
-        const style = window.getComputedStyle(testElem);
-        console.log('🧪 CSS Debug: .dimmed opacity is', style.opacity);
-        testElem.remove();
-
         // Jos stars on 1, poista tähtifiltteri kokonaan
         if (stars === 1) {
             console.log('✅ Stars = 1, resetting all dimming');
@@ -222,15 +214,18 @@ function initStarFilter() {
                 const allRows = tbody.querySelectorAll('tr');
 
                 allRows.forEach(row => {
-                    delete row.dataset.starFiltered;
+                    row.dataset.starFiltered = 'false';
                     row.querySelectorAll('.rating-cell').forEach(cell => {
                         cell.classList.remove('dimmed');
-                        const pill = cell.querySelector('.rating-pill');
-                        if (pill) pill.classList.remove('dimmed');
+                        const pills = cell.querySelectorAll('.rating-pill');
+                        pills.forEach(p => p.classList.remove('dimmed'));
                     });
 
-                    const hasOtherFilters = row.dataset.reviewCountFiltered === 'true';
-                    if (!hasOtherFilters) {
+                    // Tarkista muut suodattimet ennen näyttämistä
+                    const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
+                    const isPubFiltered = row.style.display === 'none' && !row.dataset.starFiltered; // Alkeellinen tsekkaus
+                    
+                    if (!isCountFiltered) {
                         row.style.display = '';
                     }
                 });
@@ -238,12 +233,11 @@ function initStarFilter() {
 
             // Mobile
             allCards.forEach(card => {
-                delete card.dataset.starFiltered;
-                const hasOtherFilters = card.dataset.reviewCountFiltered === 'true';
-                if (!hasOtherFilters) card.style.display = '';
+                card.dataset.starFiltered = 'false';
+                const isCountFiltered = card.dataset.reviewCountFiltered === 'true';
+                if (!isCountFiltered) card.style.display = '';
 
                 card.querySelectorAll('.review-item').forEach(item => {
-                    delete item.dataset.starFiltered;
                     item.classList.remove('dimmed');
                     const pill = item.querySelector('.rating-pill');
                     if (pill) pill.classList.remove('dimmed');
@@ -251,92 +245,91 @@ function initStarFilter() {
             });
 
             if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
-            if (window.removeFillerColumns) window.removeFillerColumns();
             return;
         }
 
-        // Desktop: Filtteröi rivit (stars > 1)
+        // Desktop: Filtteröi (stars > 1)
         if (table) {
             const tbody = table.querySelector('tbody');
             const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
 
-            console.log(`📊 Processing ${allRows.length} desktop rows`);
-
             allRows.forEach(row => {
-                const movieCell = row.querySelector('.movie-col');
-                const movieTitle = movieCell ? movieCell.textContent.trim().substring(0, 20) : 'Unknown';
                 const ratingCells = row.querySelectorAll('.rating-cell');
-                let hasMatchingRating = false;
+                let hasAtLeastOneMatchingReview = false;
 
                 ratingCells.forEach(cell => {
-                    const ratingSpan = cell.querySelector('.rating-stars');
-                    const pill = cell.querySelector('.rating-pill');
-                    
-                    if (ratingSpan) {
-                        const starText = ratingSpan.textContent;
+                    // Solussa voi olla useita arvosteluja (jos useita julkaisu-tagit käytössä)
+                    // tai vain yksi.
+                    const pills = cell.querySelectorAll('.rating-pill');
+                    let cellHasMatch = false;
+
+                    pills.forEach(pill => {
+                        const starText = pill.querySelector('.rating-stars')?.textContent || pill.textContent;
                         const starCount = (starText.match(/★/g) || []).length;
                         
                         if (starCount >= stars) {
-                            hasMatchingRating = true;
-                            cell.classList.remove('dimmed');
-                            if (pill) pill.classList.remove('dimmed');
+                            hasAtLeastOneMatchingReview = true;
+                            cellHasMatch = true;
+                            pill.classList.remove('dimmed');
                         } else {
-                            cell.classList.add('dimmed');
-                            if (pill) pill.classList.add('dimmed');
+                            pill.classList.add('dimmed');
                         }
-                    } else {
-                        // Tyhjä solu
+                    });
+
+                    // Jos solussa ei ole yhtään matchia, koko solu voidaan himmentää 
+                    // (mutta vain jos siellä on jotain arvioita)
+                    if (pills.length > 0 && !cellHasMatch) {
                         cell.classList.add('dimmed');
-                        if (pill) pill.classList.add('dimmed');
+                    } else {
+                        cell.classList.remove('dimmed');
                     }
                 });
 
-                row.style.display = hasMatchingRating ? '' : 'none';
-                row.dataset.starFiltered = hasMatchingRating ? '' : 'true';
+                // 1. Piilota rivi jos EI YHTÄÄN arvostelua >= kynnys
+                if (hasAtLeastOneMatchingReview) {
+                    row.style.display = '';
+                    row.dataset.starFiltered = 'false';
+                } else {
+                    row.style.display = 'none';
+                    row.dataset.starFiltered = 'true';
+                }
             });
         }
 
-        // Mobile: Filtteröi kortit (stars > 1)
+        // Mobile: Filtteröi (stars > 1)
         allCards.forEach(card => {
-            const cardReviews = card.querySelectorAll('.review-item');
-            let hasMatchingReview = false;
+            const reviews = card.querySelectorAll('.review-item');
+            let hasAtLeastOneMatchingReview = false;
 
-            cardReviews.forEach(item => {
-                const ratingElement = item.querySelector('.review-rating a, .review-rating');
-                const pill = item.querySelector('.rating-pill');
-                const ratingText = ratingElement ? ratingElement.textContent.trim() : '';
+            reviews.forEach(item => {
+                const ratingElem = item.querySelector('.review-rating');
+                const ratingText = ratingElem ? ratingElem.textContent : '';
                 const starCount = (ratingText.match(/★/g) || []).length;
 
                 if (starCount >= stars) {
-                    hasMatchingReview = true;
-                    item.style.display = '';
-                    item.dataset.starFiltered = '';
+                    hasAtLeastOneMatchingReview = true;
                     item.classList.remove('dimmed');
+                    const pill = item.querySelector('.rating-pill');
                     if (pill) pill.classList.remove('dimmed');
                 } else {
-                    item.style.display = ''; 
-                    item.dataset.starFiltered = 'true';
                     item.classList.add('dimmed');
+                    const pill = item.querySelector('.rating-pill');
                     if (pill) pill.classList.add('dimmed');
                 }
             });
 
-            card.style.display = hasMatchingReview ? '' : 'none';
-            card.dataset.starFiltered = hasMatchingReview ? '' : 'true';
+            if (hasAtLeastOneMatchingReview) {
+                card.style.display = '';
+                card.dataset.starFiltered = 'false';
+            } else {
+                card.style.display = 'none';
+                card.dataset.starFiltered = 'true';
+            }
         });
 
         if (typeof updateCriticColumnVisibility === 'function') {
             updateCriticColumnVisibility();
         }
-
-        if (stars > 1) {
-            if (window.showResetButton) window.showResetButton();
-            setTimeout(() => {
-                if (window.removeFillerColumns) window.removeFillerColumns();
-                if (window.addFillerColumns) window.addFillerColumns();
-            }, 50);
-        }
-        console.log('✨ filterByStars finished');
     }
 
     // Desktop slider
