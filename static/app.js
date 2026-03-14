@@ -259,8 +259,12 @@ function updateCriticColumnVisibility() {
 
     // Tarkista onko julkaisufiltteri aktiivinen
     const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
-    const activePubs = Array.from(activePubButtons).map(btn => btn.dataset.publication);
+    const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
     const hasActivePubFilter = activePubs.length > 0;
+    
+    if (hasActivePubFilter) {
+        console.log('updateCriticColumnVisibility: activePubs =', activePubs);
+    }
 
     // Käy läpi jokainen kriitikko (sarake)
     criticHeaders.forEach((header) => {
@@ -281,15 +285,18 @@ function updateCriticColumnVisibility() {
             // Tarkista julkaisufiltteri tälle kriitikolle
             if (hasActivePubFilter) {
                 const mediaSpan = header.querySelector('.critic-media');
-                const criticPubs = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
-                const matchesPub = activePubs.some(pub => criticPubs.includes(pub));
+                const criticPubs = mediaSpan ? mediaSpan.textContent.trim().toUpperCase().split(', ') : [];
+                
+                // Matches if any of the active filters matches one of critic's pubs
+                const matchesPub = activePubs.some(pub => criticPubs.includes(pub.toUpperCase()));
+                
                 if (!matchesPub) {
                     hasVisibleReview = false;
                 } else {
-                    hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName);
+                    hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName, activePubs);
                 }
             } else {
-                hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName);
+                hasVisibleReview = checkRowsForReview(visibleRows, cellIndex, hasActiveStarFilter, activeStarFilter, criticName, []);
             }
         }
 
@@ -314,11 +321,28 @@ function updateCriticColumnVisibility() {
     /**
      * Apufunktio: Tarkista löytyykö sarakkeesta näkyviä arvioita
      */
-    function checkRowsForReview(rows, cellIndex, hasStarFilter, starLimit, criticName) {
+    function checkRowsForReview(rows, cellIndex, hasStarFilter, starLimit, criticName, activePubs) {
+        const hasActivePubFilter = activePubs && activePubs.length > 0;
+        
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             const cell = row.cells[cellIndex];
             if (!cell) continue;
+
+            // Jos julkaisufiltteri on päällä, tarkista onko tässä solussa sellaista arviota
+            if (hasActivePubFilter) {
+                const ratingLinks = cell.querySelectorAll('.rating-link[data-publication], .rating-pill[data-publication]');
+                let hasMatchingPubReview = false;
+                
+                ratingLinks.forEach(link => {
+                    const revPub = (link.dataset.publication || '').toUpperCase();
+                    if (activePubs.includes(revPub)) {
+                        hasMatchingPubReview = true;
+                    }
+                });
+                
+                if (!hasMatchingPubReview) continue;
+            }
 
             const ratingStars = cell.querySelectorAll('.rating-stars');
             const hasLink = cell.querySelector('a.rating-link');
