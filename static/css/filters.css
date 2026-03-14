@@ -458,8 +458,7 @@ input:checked + .toggle-slider:before {
 
 /* Star filter dimming */
 .dimmed {
-    opacity: 0.25 !important;
-    pointer-events: none !important;
+    opacity: 0.5 !important;
     transition: opacity 0.2s ease;
 }
 
