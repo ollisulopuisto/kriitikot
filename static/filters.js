@@ -252,32 +252,34 @@ function initStarFilter() {
         if (table) {
             const tbody = table.querySelector('tbody');
             const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+            let hiddenRowsCount = 0;
 
             allRows.forEach(row => {
+                const movieTitle = row.querySelector('.movie-title-main')?.textContent.trim() || "Tuntematon";
                 const ratingCells = row.querySelectorAll('.rating-cell');
                 let hasAtLeastOneMatchingReview = false;
+                let reviewsCount = 0;
+                let matchingReviewsCount = 0;
 
                 ratingCells.forEach(cell => {
-                    // Solussa voi olla useita arvosteluja (jos useita julkaisu-tagit käytössä)
-                    // tai vain yksi.
                     const pills = cell.querySelectorAll('.rating-pill');
                     let cellHasMatch = false;
 
                     pills.forEach(pill => {
+                        reviewsCount++;
                         const starText = pill.querySelector('.rating-stars')?.textContent || pill.textContent;
                         const starCount = (starText.match(/★/g) || []).length;
                         
                         if (starCount >= stars) {
                             hasAtLeastOneMatchingReview = true;
                             cellHasMatch = true;
+                            matchingReviewsCount++;
                             pill.classList.remove('dimmed');
                         } else {
                             pill.classList.add('dimmed');
                         }
                     });
 
-                    // Jos solussa ei ole yhtään matchia, koko solu voidaan himmentää 
-                    // (mutta vain jos siellä on jotain arvioita)
                     if (pills.length > 0 && !cellHasMatch) {
                         cell.classList.add('dimmed');
                     } else {
@@ -285,19 +287,22 @@ function initStarFilter() {
                     }
                 });
 
-                // 1. Piilota rivi jos EI YHTÄÄN arvostelua >= kynnys
                 if (hasAtLeastOneMatchingReview) {
                     row.style.display = '';
                     row.dataset.starFiltered = 'false';
                 } else {
                     row.style.display = 'none';
                     row.dataset.starFiltered = 'true';
+                    hiddenRowsCount++;
+                    console.log(`  🚫 Piilotetaan "${movieTitle}": ei yhtään väh. ${stars} tähden arviota (${reviewsCount} arviota yhteensä)`);
                 }
             });
+            console.log(`📊 Suodatus valmis: ${allRows.length - hiddenRowsCount} elokuvaa näkyvissä, ${hiddenRowsCount} piilotettu.`);
         }
 
         // Mobile: Filtteröi (stars > 1)
         allCards.forEach(card => {
+            const movieTitle = card.querySelector('.movie-card-title')?.textContent.trim() || "Tuntematon";
             const reviews = card.querySelectorAll('.review-item');
             let hasAtLeastOneMatchingReview = false;
 
