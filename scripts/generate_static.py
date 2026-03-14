@@ -13,7 +13,7 @@ from pathlib import Path
 # Lisää src kansio Python pathiin
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from app import app, get_all_reviews_grouped
+from app import app, get_all_reviews_grouped, APP_VERSION
 
 def generate_static_site():
     """Generoi staattiset sivut docs/ kansioon."""
@@ -22,7 +22,7 @@ def generate_static_site():
     docs_dir = Path(__file__).parent.parent / 'docs'
     docs_dir.mkdir(exist_ok=True)
     
-    print("📝 Generoidaan staattinen sivusto...")
+    print(f"📝 Generoidaan staattinen sivusto (versio {APP_VERSION})...")
     
     # 1. Renderöi pääsivu
     with app.app_context():

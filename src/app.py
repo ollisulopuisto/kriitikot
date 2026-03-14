@@ -12,6 +12,8 @@ from email.utils import formatdate
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
+APP_VERSION = "2026.03.13"
+
 # Tietokantayhteys
 engine = get_engine()
 data_service = DataService(engine)
@@ -46,6 +48,7 @@ def index():
     
     return render_template(
         'index.html',
+        version=APP_VERSION,
         **data
     )
 
