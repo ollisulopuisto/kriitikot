@@ -200,90 +200,61 @@ function initStarFilter() {
 
     function filterByStars(starsParam) {
         const stars = parseInt(starsParam);
-        console.log('🔍 filterByStars starting. Target stars >=', stars);
+        console.log(`🎬 filterByStars: Target stars >= ${stars}`);
 
         const table = document.querySelector('table');
-        const allCards = document.querySelectorAll('.movie-card');
+        const allCards = document.querySelectorAll('.mobile-cards .movie-card');
 
-        // Jos stars on 1, poista tähtifiltteri kokonaan
-        if (stars === 1) {
-            console.log('✅ Stars = 1, resetting all dimming');
-
-            // Desktop
+        // Reset if stars <= 1
+        if (stars <= 1) {
+            console.log('  🔄 Resetting star filter');
             if (table) {
-                const tbody = table.querySelector('tbody');
-                const allRows = tbody.querySelectorAll('tr');
-
-                allRows.forEach(row => {
+                const rows = table.querySelectorAll('tbody tr:not(.poster-row)');
+                rows.forEach(row => {
                     row.dataset.starFiltered = 'false';
-                    row.querySelectorAll('.rating-cell').forEach(cell => {
-                        cell.classList.remove('dimmed');
-                        const pills = cell.querySelectorAll('.rating-pill');
-                        pills.forEach(p => p.classList.remove('dimmed'));
-                    });
-
-                    // Tarkista muut suodattimet ennen näyttämistä
-                    const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
-                    const isPubFiltered = row.style.display === 'none' && !row.dataset.starFiltered; // Alkeellinen tsekkaus
-                    
-                    if (!isCountFiltered) {
-                        row.style.display = '';
-                    }
+                    row.style.display = '';
+                    row.querySelectorAll('.rating-cell, .rating-pill').forEach(el => el.classList.remove('dimmed'));
                 });
             }
-
-            // Mobile
             allCards.forEach(card => {
                 card.dataset.starFiltered = 'false';
-                const isCountFiltered = card.dataset.reviewCountFiltered === 'true';
-                if (!isCountFiltered) card.style.display = '';
-
-                card.querySelectorAll('.review-item').forEach(item => {
-                    item.classList.remove('dimmed');
-                    const pill = item.querySelector('.rating-pill');
-                    if (pill) pill.classList.remove('dimmed');
-                });
+                card.style.display = '';
+                card.querySelectorAll('.review-item, .rating-pill').forEach(el => el.classList.remove('dimmed'));
             });
-
+            
             if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
             return;
         }
 
-        // Desktop: Filtteröi (stars > 1)
+        // DESKTOP
         if (table) {
             const tbody = table.querySelector('tbody');
-            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
-            let hiddenRowsCount = 0;
-            console.log(`📊 Processing ${allRows.length} desktop rows...`);
+            const rows = tbody.querySelectorAll('tr:not(.poster-row)');
+            let hiddenCount = 0;
 
-            allRows.forEach((row, rowIndex) => {
-                const movieTitle = row.querySelector('.movie-title-main')?.textContent.trim() || "Tuntematon";
-                const ratingCells = row.querySelectorAll('.rating-cell');
-                let hasAtLeastOneMatchingReview = false;
-                let reviewsCount = 0;
-                let matchingReviewsCount = 0;
-
-                if (rowIndex < 3) console.log(`  - Row ${rowIndex}: "${movieTitle}"`);
+            rows.forEach(row => {
+                const movieTitle = row.querySelector('.movie-title-main')?.textContent.trim() || "???";
+                const ratingCells = row.querySelectorAll('td.rating-cell');
+                let hasMatchingReviewInRow = false;
 
                 ratingCells.forEach(cell => {
                     const pills = cell.querySelectorAll('.rating-pill');
                     let cellHasMatch = false;
 
                     pills.forEach(pill => {
-                        reviewsCount++;
                         const starText = pill.querySelector('.rating-stars')?.textContent || pill.textContent;
                         const starCount = (starText.match(/★/g) || []).length;
                         
                         if (starCount >= stars) {
-                            hasAtLeastOneMatchingReview = true;
+                            hasMatchingReviewInRow = true;
                             cellHasMatch = true;
-                            matchingReviewsCount++;
                             pill.classList.remove('dimmed');
                         } else {
                             pill.classList.add('dimmed');
                         }
                     });
 
+                    // Jos solussa on arvioita mutta mikään ei matchaa, himmennetään solu
                     if (pills.length > 0 && !cellHasMatch) {
                         cell.classList.add('dimmed');
                     } else {
@@ -291,48 +262,43 @@ function initStarFilter() {
                     }
                 });
 
-                if (hasAtLeastOneMatchingReview) {
-                    row.style.display = '';
+                if (hasMatchingReviewInRow) {
                     row.dataset.starFiltered = 'false';
+                    row.style.display = '';
                 } else {
-                    row.style.display = 'none';
                     row.dataset.starFiltered = 'true';
-                    hiddenRowsCount++;
-                    console.log(`  🚫 Piilotetaan "${movieTitle}": ei yhtään väh. ${stars} tähden arviota (${reviewsCount} arviota yhteensä)`);
+                    row.style.display = 'none';
+                    hiddenCount++;
                 }
             });
-            console.log(`📊 Suodatus valmis: ${allRows.length - hiddenRowsCount} elokuvaa näkyvissä, ${hiddenRowsCount} piilotettu.`);
+            console.log(`  📊 Desktop: ${rows.length - hiddenCount} movies visible, ${hiddenCount} hidden`);
         }
 
-        // Mobile: Filtteröi (stars > 1)
+        // MOBILE
         allCards.forEach(card => {
-            const movieTitle = card.querySelector('.movie-card-title')?.textContent.trim() || "Tuntematon";
             const reviews = card.querySelectorAll('.review-item');
-            let hasAtLeastOneMatchingReview = false;
+            let hasMatchingReviewInCard = false;
 
             reviews.forEach(item => {
-                const ratingElem = item.querySelector('.review-rating');
-                const ratingText = ratingElem ? ratingElem.textContent : '';
+                const ratingText = item.querySelector('.review-rating')?.textContent || "";
                 const starCount = (ratingText.match(/★/g) || []).length;
 
                 if (starCount >= stars) {
-                    hasAtLeastOneMatchingReview = true;
+                    hasMatchingReviewInCard = true;
                     item.classList.remove('dimmed');
-                    const pill = item.querySelector('.rating-pill');
-                    if (pill) pill.classList.remove('dimmed');
+                    item.querySelectorAll('.rating-pill').forEach(p => p.classList.remove('dimmed'));
                 } else {
                     item.classList.add('dimmed');
-                    const pill = item.querySelector('.rating-pill');
-                    if (pill) pill.classList.add('dimmed');
+                    item.querySelectorAll('.rating-pill').forEach(p => p.classList.add('dimmed'));
                 }
             });
 
-            if (hasAtLeastOneMatchingReview) {
-                card.style.display = '';
+            if (hasMatchingReviewInCard) {
                 card.dataset.starFiltered = 'false';
+                card.style.display = '';
             } else {
-                card.style.display = 'none';
                 card.dataset.starFiltered = 'true';
+                card.style.display = 'none';
             }
         });
 
