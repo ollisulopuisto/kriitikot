@@ -304,13 +304,18 @@ function updateCriticColumnVisibility() {
         const rowsToUpdate = Array.from(table.rows);
         if (hasVisibleReview) {
             header.classList.remove('filter-hidden');
+            header.style.display = ''; // Varmista että display ei ole 'none'
             rowsToUpdate.forEach(row => {
                 const cell = row.cells[cellIndex];
-                if (cell) cell.classList.remove('filter-hidden');
+                if (cell) {
+                    cell.classList.remove('filter-hidden');
+                    cell.style.display = ''; // Varmista että display ei ole 'none'
+                }
             });
         } else {
             // console.log(`🙈 Hiding column for ${criticName} (cellIndex: ${cellIndex})`);
             header.classList.add('filter-hidden');
+            // Myös class hoitaa display: none !important, mutta varmistetaan
             rowsToUpdate.forEach(row => {
                 const cell = row.cells[cellIndex];
                 if (cell) cell.classList.add('filter-hidden');
@@ -326,6 +331,10 @@ function updateCriticColumnVisibility() {
         
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
+            
+            // VARMISTUS: Älä tarkista piilotettuja rivejä
+            if (row.style.display === 'none') continue;
+            
             const cell = row.cells[cellIndex];
             if (!cell) continue;
 
@@ -336,12 +345,15 @@ function updateCriticColumnVisibility() {
                 
                 ratingLinks.forEach(link => {
                     const revPub = (link.dataset.publication || '').toUpperCase();
-                    if (activePubs.includes(revPub)) {
+                    if (activePubs.some(pub => revPub === pub.toUpperCase())) {
                         hasMatchingPubReview = true;
                     }
                 });
                 
-                if (!hasMatchingPubReview) continue;
+                if (!hasMatchingPubReview) {
+                    // console.log(`  - Solussa ei matchia julkaisulle: ${activePubs}`);
+                    continue;
+                }
             }
 
             const ratingStars = cell.querySelectorAll('.rating-stars');
@@ -349,10 +361,8 @@ function updateCriticColumnVisibility() {
             const noRating = cell.querySelector('.no-rating');
             const isEmpty = noRating && noRating.textContent.trim() === '–';
 
-            // Jos sarakkeessa on jotain sisältöä näkyvälle elokuvalle, näytetään sarake.
-            // Star filter hoitaa itsenäisesti solujen himmennyksen ja rivien piilotuksen,
-            // mutta haluamme pitää huonommatkin arviot näkyvissä (himmennettynä).
             if (hasLink || ratingStars.length > 0 || (noRating && !isEmpty)) {
+                // console.log(`  ✅ Löytyi näkyvä arvio riviltä ${i} kriitikolle ${criticName}`);
                 return true;
             }
         }
