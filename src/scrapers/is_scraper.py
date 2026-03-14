@@ -88,17 +88,6 @@ class ISScraper(BaseScraper):
         HUOM: Hylkää arvostelut jotka koskevat vain suoratoistoa/TV:tä.
         Hyväksytään vain elokuvateattereissa esitettävät elokuvat.
         """
-        # TARKISTUS 0: Jos metaTitle tai Title sisältää "-arvio", se on aina arvio!
-        # Tämä ohittaa suoratoisto/teatteri-tarkistuksen, koska jos otsikossa on
-        # nimenomaan mainittu se arvioksi, se on relevantti.
-        meta_title = asset_data.get('metaTitle', '')
-        title = asset_data.get('title', '')
-        
-        if '-arvio' in meta_title or 'Arvio:' in meta_title:
-            return True
-        if '-arvio' in title or 'Arvio:' in title:
-            return True
-
         tags = asset_data.get('tags', [])
         tag_keys = [tag.get('key', '').lower() for tag in tags]
         
@@ -106,8 +95,7 @@ class ISScraper(BaseScraper):
         if not ('tv-lehti' in tag_keys and 'arviot' in tag_keys):
             return False
         
-        # Tarkista ettei ole pelkkä suoratoisto/TV-arvostelu
-        # Hyväksytään vain jos mainitaan "elokuvateatter" tai "valkokangas"
+        endnote = self._get_endnote_text(asset_data).lower()
         text_content = self._get_full_text(asset_data).lower()
         
         # Suoratoistopalvelut ja TV-viittaukset jotka HYLÄTÄÄN
@@ -116,7 +104,9 @@ class ISScraper(BaseScraper):
             'netflix', 'hbo', 'disney+', 'viaplay', 'ruutu',
             'suoratoistossa', 'suoratoistopalvelu',
             'tv:ssä', 'televisiossa',
-            'tv-ensi-ilta', 'televisioensi-ilta'
+            'tv-ensi-ilta', 'televisioensi-ilta',
+            'yle areena', 'sky showtime', 'skyshowtime',
+            'prime video', 'apple tv+', 'apple tv'
         ]
         
         # Elokuvateatteriviittaukset jotka HYVÄKSYTÄÄN
@@ -124,6 +114,10 @@ class ISScraper(BaseScraper):
             'elokuvateatter', 'valkokangas', 'teattereissa',
             'elokuvakino', 'finnkino'
         ]
+        
+        # TV-kanava tai kello-viittaukset endnotessa (esim. "Teema & Fem klo 21.00")
+        is_tv_schedule = bool(re.search(r'klo\s+\d{1,2}\.\d{2}', endnote))
+        has_tv_channels = any(ch in endnote for ch in ['yle', 'teema', 'fem', 'mtv', 'nelonen', 'sub'])
         
         # Ensi-ilta on erikoistapaus: se voi olla myös tv-ensi-ilta
         # Poistetaan tekstistä tv-ensi-illat ennen tarkistusta
@@ -133,18 +127,39 @@ class ISScraper(BaseScraper):
             
         has_premiere = 'ensi-ilta' in clean_text_for_premiere_check
         
-        # Jos mainitaan suoratoisto MUTTA EI teatteria → hylkää
+        # Jos endnotessa mainitaan teatteri, se on hyvä!
+        has_theater_in_endnote = any(kw in endnote for kw in theater_keywords)
+        
+        # Jos mainitaan suoratoisto tai TV-aikataulu → vaadi teatteriviittaus
         has_streaming = any(kw in text_content for kw in streaming_keywords)
-        has_theater_keyword = any(kw in text_content for kw in theater_keywords)
         
-        # Hyväksytään jos on teatterisana TAI (aito) ensi-ilta
-        has_theater = has_theater_keyword or has_premiere
+        if (has_streaming or is_tv_schedule or has_tv_channels) and not has_theater_in_endnote:
+            return False  # Todennäköisesti TV/suoratoistoarvostelu
+            
+        # Jos ei ole mitään viittausta teatteriin eikä ole ensi-ilta, hylkää
+        has_theater_anywhere = any(kw in text_content for kw in theater_keywords) or has_premiere
         
-        if has_streaming and not has_theater:
-            return False  # Pelkkä suoratoistoarvostelu
+        if not has_theater_anywhere:
+            return False
         
         return True
     
+    def _get_endnote_text(self, asset_data: dict) -> str:
+        """Kaivaa arvostelun lopussa olevan tiivistelmätekstin (endnote)."""
+        split_body = asset_data.get('splitBody', [])
+        for section in reversed(split_body):
+            if section.get('type') == 'paragraph':
+                crumbs = section.get('crumbs', [])
+                endnote_parts = []
+                for crumb in crumbs:
+                    if 'endnote' in crumb.get('marks', []):
+                        content = crumb.get('content', '')
+                        if content:
+                            endnote_parts.append(content)
+                if endnote_parts:
+                    return ''.join(endnote_parts).strip()
+        return ""
+
     def _get_full_text(self, asset_data: dict) -> str:
         """Palauttaa artikkelin koko tekstin yhtenä stringinä."""
         split_body = asset_data.get('splitBody', [])
@@ -169,70 +184,49 @@ class ISScraper(BaseScraper):
         """
         # 1) Try to find title from the "endnote" at the end of the body.
         # This is usually the most reliable place for the official title.
-        split_body = asset_data.get('splitBody', [])
-        for section in reversed(split_body):
-            if section.get('type') == 'paragraph':
-                crumbs = section.get('crumbs', [])
-                # Combine all crumbs that have the 'endnote' mark
-                endnote_parts = []
-                for crumb in crumbs:
-                    if 'endnote' in crumb.get('marks', []):
-                        content = crumb.get('content', '')
-                        if content:
-                            endnote_parts.append(content)
-                
-                if endnote_parts:
-                    text = ''.join(endnote_parts).strip()
-                    # Pattern: "Title, ensi-ilta..."
-                    match = re.search(r'^(.+?),\s+ensi-ilta', text)
-                    if match:
-                        return match.group(1).strip()
-                    # Fallback if no "ensi-ilta" but stars: "Title ★★★"
-                    if '★' in text:
-                        # Take everything before the stars
-                        match = re.search(r'^(.+?)\s+★', text)
-                        if match:
-                            return match.group(1).strip()
+        endnote = self._get_endnote_text(asset_data)
+        if endnote:
+            # Pattern: "Title, ensi-ilta..."
+            match = re.search(r'^(.+?),\s+ensi-ilta', endnote)
+            if match:
+                return match.group(1).strip()
+            
+            # Fallback if no "ensi-ilta" but stars: "Title ★★★"
+            if '★' in endnote:
+                # Take everything before the stars
+                match = re.search(r'^(.+?)\s+★', endnote)
+                if match:
+                    potential_title = match.group(1).strip()
+                    # Jos tittelissä on pilkku, ota vain alkuosa (vältä "Title, TV-kanava" tyyppiset)
+                    if ',' in potential_title:
+                        potential_title = potential_title.split(',')[0].strip()
+                    return potential_title
 
         title = asset_data.get('title', '')
         meta_title = asset_data.get('metaTitle', '')
         
         # 2) Priority: Check metaTitle for movie title patterns
-        # IS meta titles can have format:
-        # - "MovieName -arvio: Subtitle"
-        # - "Arvio MovieName – Subtitle"
         if meta_title:
-            # Pattern: "Arvio [MovieTitle] – ..." (note: en-dash, not hyphen)
             match = re.search(r'^Arvio\s+(.+?)\s+[–-]', meta_title)
             if match:
                 return match.group(1).strip()
-            # Pattern: "[MovieTitle] -arvio..." 
             match = re.search(r'^(.+?)\s+-arvio', meta_title)
             if match:
                 return match.group(1).strip()
         
-        # Yritä poimia elokuvan nimi – patterns:
-        # 1) "Sisu 2 -arvio:"
-        # 2) "Tällainen on Sisu 2 –"
-        # 3) Title suoraan jos lyhyt
-        
-        # Pattern 1: "[Elokuva] -arvio" tai "[Elokuva] – "
+        # Pattern: "Tällainen on Sisu 2 –"
         match = re.search(r'(?:Tällainen on|on)\s+(.+?)\s+[-–]', title)
         if match:
             movie_name = match.group(1).strip()
-            # Poista "elokuva" sana jos lopussa
             movie_name = re.sub(r'\s+elokuva$', '', movie_name, flags=re.IGNORECASE)
             return movie_name
         
-        # Jos ei löydy, yritä ottaa kaikki ennen ensimmäistä "–" tai "-"
         if '–' in title:
             parts = title.split('–')
             potential_title = parts[0].strip()
-            # Varmista että ei ole liian pitkä (max 50 merkkiä)
             if len(potential_title) <= 50:
                 return potential_title
         
-        # Fallback: käytä koko otsikkoa jos lyhyt
         if len(title) <= 50:
             return title
             
@@ -243,27 +237,11 @@ class ISScraper(BaseScraper):
         Poimii tähtiarvion arvostelun lopusta.
         IS.fi muoto: "Genre ★★★" tai "Toiminta ★★"
         """
-        # Etsi splitBody-osiosta endnote-tyyppinen teksti
-        split_body = asset_data.get('splitBody', [])
-        
-        for section in reversed(split_body):  # Käy läpi lopusta alkuun
-            if section.get('type') == 'paragraph':
-                crumbs = section.get('crumbs', [])
-                
-                # Combine all crumbs that have the 'endnote' mark
-                endnote_parts = []
-                for crumb in crumbs:
-                    if 'endnote' in crumb.get('marks', []):
-                        content = crumb.get('content', '')
-                        if content:
-                            endnote_parts.append(content)
-                
-                if endnote_parts:
-                    text = ''.join(endnote_parts)
-                    # Laske tähtien määrä
-                    stars = text.count('★')
-                    if stars > 0:
-                        return min(stars, 5)  # Max 5 tähteä
+        endnote = self._get_endnote_text(asset_data)
+        if endnote:
+            stars = endnote.count('★')
+            if stars > 0:
+                return min(stars, 5)
         
         return None
     
