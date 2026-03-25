@@ -313,10 +313,10 @@ function initCriticClickHandlers() {
             // Poista vanhat poster-rivit
             tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
 
-            const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
-            const colIndex = Array.prototype.indexOf.call(allCriticHeaders, criticHeader);
+            const allCriticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
+            const colIndex = allCriticHeaders.indexOf(criticHeader);
 
-            // Tallenna ja nollaa skrollaus
+            // Tallenna ja nollaa skrollaus (vapaaehtoinen, pidetään nykyinen käytäntö)
             const tableWrapper = document.querySelector('.table-wrapper');
             if (tableWrapper) {
                 window.savedScrollLeft = tableWrapper.scrollLeft;
@@ -328,70 +328,42 @@ function initCriticClickHandlers() {
                 }, 50);
             }
 
-            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+            // Merkitse suodatus aktiiviseksi
+            criticHeader.classList.add('selected');
+            criticHeader.dataset.filtered = 'true';
 
-            // Piilota muut kriitikkosarakkeet
+            // Piilota muut sarakkeet (lisätään luokka heti)
             allCriticHeaders.forEach((header, idx) => {
                 if (idx !== colIndex) {
                     header.classList.add('filter-hidden');
-                    setTimeout(() => {
-                        if (header.classList.contains('filter-hidden')) {
-                            header.style.display = 'none';
-                        }
-                    }, 150);
-
-                    allRows.forEach(row => {
-                        const cells = row.querySelectorAll('.rating-cell');
-                        if (cells[idx]) {
-                            cells[idx].classList.add('filter-hidden');
-                            setTimeout(() => {
-                                if (cells[idx].classList.contains('filter-hidden')) {
-                                    cells[idx].style.display = 'none';
-                                }
-                            }, 150);
+                    header.style.setProperty('display', 'none', 'important');
+                    
+                    // Piilotetaan myös sarakkeen solut kaikilta riveiltä
+                    tbody.querySelectorAll('tr').forEach(row => {
+                        const cell = row.querySelectorAll('.rating-cell')[idx];
+                        if (cell) {
+                            cell.classList.add('filter-hidden');
+                            cell.style.setProperty('display', 'none', 'important');
                         }
                     });
                 }
             });
 
-            // Piilota rivit ilman arviota tältä kriitikolta
-            allRows.forEach(row => {
-                const cells = row.querySelectorAll('.rating-cell');
-                const cell = cells[colIndex];
-
-                if (cell) {
-                    const hasLink = cell.querySelector('a.rating-link');
-                    const hasStars = cell.querySelector('.rating-stars');
-                    const noRating = cell.querySelector('.no-rating');
-                    const isEmpty = noRating && noRating.textContent.trim() === '–';
-
-                    if (!hasLink && !hasStars && isEmpty) {
-                        row.classList.add('dimmed');
-                        setTimeout(() => {
-                            if (row.classList.contains('dimmed')) {
-                                row.style.display = 'none';
-                            }
-                        }, 150);
-                    }
-                }
-            });
-
-            // Merkitse suodatus aktiiviseksi
-            criticHeader.classList.add('selected');
-            criticHeader.dataset.filtered = 'true';
-
+            // Päivitä sarakkeiden ja rivien näkyvyys keskitetyllä logiikalla
             if (typeof updateCriticColumnVisibility === 'function') {
-                setTimeout(() => {
-                    updateCriticColumnVisibility();
-                }, 200);
+                updateCriticColumnVisibility();
             }
 
-            setTimeout(() => {
-                if (window.removeFillerColumns) window.removeFillerColumns();
-                if (window.addFillerColumns) window.addFillerColumns();
-            }, 250);
+            // Päivitä sticky header jos se on olemassa
+            if (window.refreshStickyHeader) {
+                window.refreshStickyHeader();
+            }
 
             if (window.showResetButton) window.showResetButton();
+            
+            // Hallitse täytesarakkeita
+            if (window.removeFillerColumns) window.removeFillerColumns();
+            if (window.addFillerColumns) window.addFillerColumns();
         });
         criticHeader.dataset.initialized = 'true';
     });
