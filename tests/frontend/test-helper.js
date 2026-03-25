@@ -61,19 +61,19 @@ export const minimalHTML = `
                 <tr data-review-count="1">
                     <td class="movie-col">Huippu Elokuva</td>
                     <td class="rating-cell">
-                        <span class="rating-stars">★★★★★</span>
+                        <span class="rating-pill"><span class="rating-stars">★★★★★</span></span>
                     </td>
                     <td class="rating-cell">
-                        <span class="rating-stars">★★</span>
+                        <span class="rating-pill"><span class="rating-stars">★★</span></span>
                     </td>
                 </tr>
                 <tr data-review-count="1">
                     <td class="movie-col">Huono Elokuva</td>
                     <td class="rating-cell">
-                        <span class="rating-stars">★</span>
+                        <span class="rating-pill"><span class="rating-stars">★</span></span>
                     </td>
                     <td class="rating-cell">
-                        <span class="rating-stars">★★</span>
+                        <span class="rating-pill"><span class="rating-stars">★★</span></span>
                     </td>
                 </tr>
             </tbody>

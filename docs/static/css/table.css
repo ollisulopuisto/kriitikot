@@ -247,13 +247,54 @@ th.rating-cell:hover {
 .stars-1 { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); }
 
 .movie-review-count {
-    font-size: 0.7em;
-    color: #aaa;
-    margin-top: 0.4rem;
-    font-weight: normal;
-    opacity: 0.85;
-    text-align: right;
+    font-size: 0.75em;
+    color: #888;
+    margin-top: 0;
+    font-weight: 500;
+    opacity: 0.9;
+    white-space: nowrap;
 }
+
+/* Sparkline Styles */
+.movie-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.movie-sparkline {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 18px;
+    padding: 3px 4px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.spark-bar-container {
+    width: 5px;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.spark-bar {
+    width: 100%;
+    background: #60a5fa; /* Blue color */
+    border-radius: 1px;
+    min-height: 1px;
+    transition: height 0.3s ease;
+}
+
+.movie-sparkline:hover .spark-bar {
+    background: #3b82f6; /* Darker blue on hover */
+}
+
+
 
 @media (max-width: 768px) {
     .table-wrapper {

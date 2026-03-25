@@ -467,7 +467,7 @@ function initResetButton() {
 
             // Näytä kaikki sarakkeet
             allCriticHeaders.forEach((header, idx) => {
-                header.style.display = '';
+                header.style.removeProperty('display');
                 header.classList.remove('dimmed');
                 header.classList.remove('filter-hidden');
                 delete header.dataset.highlighted;
@@ -478,7 +478,7 @@ function initResetButton() {
                 tbody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('.rating-cell');
                     if (cells[idx]) {
-                        cells[idx].style.display = '';
+                        cells[idx].style.removeProperty('display');
                         cells[idx].classList.remove('dimmed');
                         cells[idx].classList.remove('filter-hidden');
                         const pill = cells[idx].querySelector('.rating-pill');
