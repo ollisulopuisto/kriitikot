@@ -351,35 +351,45 @@ function updateCriticColumnVisibility() {
             const cell = row.cells[cellIndex];
             if (!cell) continue;
 
-            // Arvostelut tässä solussa
-            const pills = cell.querySelectorAll('.rating-pill');
-            if (pills.length === 0) {
-                // Tarkista onko "no-rating" mutta silti jotain sisältöä
-                const noRating = cell.querySelector('.no-rating');
-                const isEmpty = noRating && noRating.textContent.trim() === '–';
-                if (!noRating || isEmpty) continue;
+            // Arvostelut tässä solussa (sekä tähdet että tekstiarviot)
+            const allReviews = cell.querySelectorAll('.rating-pill, .no-rating');
+            
+            if (allReviews.length === 0) {
+                // Erityistapaus: jos solussa on pelkkää tekstiä ilman luokkaa tai se on viiva
+                const text = cell.textContent.trim();
+                const isEmpty = text === '–' || text === '';
+                if (isEmpty) continue;
                 
-                // Jos on "no-rating" ja se on näkyvissä, se ei matchaa tähtifiltteriin > 1
+                // Jos ei ole tähtiä (pelkkää tekstiä), se matchaa vain jos tähti-raja on 1
                 if (hasStarFilter && starLimit > 1) continue;
                 
-                // Julkaisufiltteri "no-rating" tapauksessa? 
-                // Toistaiseksi "no-rating" ei sisällä julkaisutietoa datassa samalla tavalla.
+                // Jos ei ole luokkaa, ei ole julkaisutietoakaan saatavilla tässä
+                if (hasActivePubFilter) continue;
+                
+                return true;
             }
 
             // Jos julkaisufiltteri tai tähtifiltteri on päällä, tarkista onko tässä solussa sellaista arviota
             let hasMatchingReviewInCell = false;
             
-            pills.forEach(pill => {
+            allReviews.forEach(el => {
+                const isNoRating = el.classList.contains('no-rating');
+                
                 // Tarkista tähti-match
                 if (hasStarFilter) {
-                    const starText = pill.querySelector('.rating-stars')?.textContent || pill.textContent;
-                    const starCount = (starText.match(/★/g) || []).length;
-                    if (starCount < starLimit) return; // Jatka seuraavaan pilliin
+                    if (isNoRating) {
+                        // Tekstiarvio matchaa vain jos tähti-raja on 1
+                        if (starLimit > 1) return;
+                    } else {
+                        const starText = el.querySelector('.rating-stars')?.textContent || el.textContent;
+                        const starCount = (starText.match(/★/g) || []).length;
+                        if (starCount < starLimit) return; // Jatka seuraavaan
+                    }
                 }
                 
                 // Tarkista julkaisu-match
                 if (hasActivePubFilter) {
-                    const revPub = (pill.dataset.publication || '').toUpperCase();
+                    const revPub = (el.dataset.publication || '').toUpperCase();
                     if (!activePubs.some(pub => revPub === pub.toUpperCase())) return;
                 }
                 

@@ -23,6 +23,7 @@ const customHTML = `
                     </th>
                     <th class="rating-cell" data-critic-id="3">
                         <div class="critic-name">Kriitikko 3</div>
+                        <div class="critic-media">HS</div>
                     </th>
                 </tr>
             </thead>
@@ -38,6 +39,12 @@ const customHTML = `
                     <td class="rating-cell"><span class="rating-pill"><span class="rating-stars">★★★★★</span></span></td>
                     <td class="rating-cell"></td>
                     <td class="rating-cell"></td>
+                </tr>
+                <tr data-review-count="1">
+                    <td class="movie-col" id="text-review-movie-cell">Tekstiarvio Kriitikko 3</td>
+                    <td class="rating-cell"></td>
+                    <td class="rating-cell"></td>
+                    <td class="rating-cell"><span class="no-rating" data-publication="HS">Lue arvio</span></td>
                 </tr>
                 <tr data-review-count="1">
                     <td class="movie-col">Vain Kriitikko 2</td>
@@ -86,5 +93,39 @@ describe('Elokuvan klikkaus ja sarakkeiden näkyvyys', () => {
     expect(header1.style.display).not.toBe('none');
     expect(header2.style.display).toBe('none');
     expect(header3.style.display).toBe('none');
+  });
+
+  it('Pitäisi pitää näkyvissä sarake, jossa on vain tekstiarvostelu (.no-rating)', () => {
+    const { document } = dom;
+    
+    const header3 = document.querySelector('th[data-critic-id="3"]');
+    
+    // Klikataan "Tekstiarvio Kriitikko 3"
+    const movieCell = document.getElementById('text-review-movie-cell');
+    movieCell.click();
+
+    // TARKISTUS: Kriitikko 3 pitäisi olla näkyvissä
+    expect(header3.classList.contains('filter-hidden')).toBe(false);
+    expect(header3.style.display).not.toBe('none');
+  });
+
+  it('Pitäisi piilottaa tekstiarvostelu-sarake, jos julkaisufiltteri ei täsmää', () => {
+    const { document, window } = dom;
+    
+    const header3 = document.querySelector('th[data-critic-id="3"]');
+    
+    // Asetetaan julkaisufiltteri esim. "IS" (tekstiarvio on "HS")
+    // Emuloidaan julkaisufiltterin aktivointia. updateCriticColumnVisibility käyttää .media-filter-btn.active
+    const btn = document.createElement('button');
+    btn.className = 'media-filter-btn active';
+    btn.dataset.publication = 'IS';
+    document.body.appendChild(btn);
+
+    // Klikataan "Tekstiarvio Kriitikko 3"
+    const movieCell = document.getElementById('text-review-movie-cell');
+    movieCell.click();
+
+    // TARKISTUS: Kriitikko 3 pitäisi olla piilossa, koska julkaisu ei täsmää
+    expect(header3.classList.contains('filter-hidden')).toBe(true);
   });
 });

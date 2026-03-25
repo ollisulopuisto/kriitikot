@@ -43,6 +43,13 @@
             <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
         </span>
         {% endif %}
+        {% else %}
+        {# Arvostelu ilman tähtiä #}
+        {% if review.source_url %}
+        <a href="{{ review.source_url }}" class="no-rating rating-link" target="_blank" data-publication="{{ pub_short }}" title="{{ review.publication.name }}: Lue arvostelu...">Lue arvio</a>
+        {% else %}
+        <span class="no-rating" data-publication="{{ pub_short }}">Lue arvio</span>
+        {% endif %}
         {% endif %}
         {% if not loop.last %}<br data-publication="{{ pub_short }}">{% endif %}
         {% endfor %}
