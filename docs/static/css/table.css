@@ -271,7 +271,7 @@ th.rating-cell:hover {
     height: 16px;
     padding: 0;
     background: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* X-akseli */
+    border-bottom: 1px solid #60a5fa; /* Sininen X-akseli */
     flex-shrink: 0;
     margin-bottom: 2px; /* Pieni säätö tekstin linjaan */
 }
