@@ -108,6 +108,16 @@ class DataService:
             poster_urls = {m.title: m.poster_url for m in movies if m.poster_url}
             letterboxd_urls = {m.title: m.letterboxd_url for m in movies if m.letterboxd_url}
 
+            # Laske jakaumat elokuvittain
+            movie_rating_distributions = {}
+            for movie_title, critics_reviews_dict in grouped_reviews.items():
+                counts = [0, 0, 0, 0, 0]
+                for reviews_list in critics_reviews_dict.values():
+                    for r in reviews_list:
+                        if r.rating_stars and 1 <= r.rating_stars <= 5:
+                            counts[r.rating_stars - 1] += 1
+                movie_rating_distributions[movie_title] = counts
+
             # Viimeisin päivitys
             latest_update = session.query(DBReview).filter_by(is_published=1).order_by(DBReview.scraped_at.desc()).first()
             last_updated = self._format_last_updated(latest_update)
@@ -130,6 +140,7 @@ class DataService:
                 'critic_media_map': critic_media_map,
                 'critic_review_counts': critic_review_counts,
                 'movie_review_counts': movie_review_counts,
+                'movie_rating_distributions': movie_rating_distributions,
                 'nytleffaan_urls': nytleffaan_urls,
                 'poster_urls': poster_urls,
                 'letterboxd_urls': letterboxd_urls,
@@ -193,11 +204,23 @@ class DataService:
 
             # 3. Hae metatiedot
             movies_objs = session.query(Movie).filter(Movie.title.in_(paged_titles)).all()
+            
+            # Laske jakaumat
+            movie_rating_distributions = {}
+            for movie_title, critics_reviews_dict in grouped_ordered.items():
+                counts = [0, 0, 0, 0, 0]
+                for reviews_list in critics_reviews_dict.values():
+                    for r in reviews_list:
+                        if r.rating_stars and 1 <= r.rating_stars <= 5:
+                            counts[r.rating_stars - 1] += 1
+                movie_rating_distributions[movie_title] = counts
+
             meta = {
                 'nytleffaan_urls': {m.title: m.nytleffaan_url for m in movies_objs if m.nytleffaan_url},
                 'poster_urls': {m.title: m.poster_url for m in movies_objs if m.poster_url},
                 'letterboxd_urls': {m.title: m.letterboxd_url for m in movies_objs if m.letterboxd_url},
-                'movie_review_counts': {m.title: session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count() for m in movies_objs}
+                'movie_review_counts': {m.title: session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count() for m in movies_objs},
+                'movie_rating_distributions': movie_rating_distributions
             }
 
             return {
