@@ -31,7 +31,7 @@
 }
 
 .movie-card-sparkline {
-    margin-bottom: 0.35rem; /* Align better with text baseline */
+    margin-bottom: 0.5rem; /* Hieman enemmän jotta linjautuu isompaan nimeen */
 }
 
 .movie-card-review-count {
