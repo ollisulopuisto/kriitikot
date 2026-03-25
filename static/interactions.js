@@ -191,14 +191,14 @@ function initMovieClickHandlers() {
             // Skrollaa ikkunaa niin, että taulukon alku on näkyvissä headerin alla
             const tableWrapper = document.querySelector('.table-wrapper');
             const desktopFilters = document.querySelector('.desktop-filters');
-            
+
             if (tableWrapper && desktopFilters) {
                 setTimeout(() => {
                     const filtersHeight = desktopFilters.offsetHeight;
                     const tableTop = tableWrapper.getBoundingClientRect().top + window.pageYOffset;
                     // Skrollataan niin että table-wrapper on juuri fassettien alla
                     const scrollToY = tableTop - filtersHeight;
-                    
+
                     window.scrollTo({
                         top: scrollToY,
                         behavior: 'auto' // Use auto for reliability during layout changes
@@ -206,45 +206,15 @@ function initMovieClickHandlers() {
                 }, 50);
             }
 
-            // Piilota muut kriitikkosarakkeet ilman arvostelua tässä elokuvassa
-            const allCriticHeaders = table.querySelectorAll('thead th.rating-cell');
-            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
-            const ratingCells = clickedRow.querySelectorAll('.rating-cell');
-
-            allCriticHeaders.forEach((header, colIndex) => {
-                const cell = ratingCells[colIndex];
-                let hasReview = false;
-
-                if (cell) {
-                    const hasLink = cell.querySelector('a.rating-link');
-                    const hasStars = cell.querySelector('.rating-stars');
-                    const text = cell.textContent.trim();
-                    const hasActualContent = text.length > 0 && text !== '–' && text !== '';
-
-                    if (hasLink || hasStars || hasActualContent) {
-                        hasReview = true;
-                    }
-                }
-
-                if (!hasReview) {
-                    header.classList.add('filter-hidden');
-                    header.style.setProperty('display', 'none', 'important');
-
-                    allRows.forEach(r => {
-                        const cells = r.querySelectorAll('.rating-cell');
-                        if (cells[colIndex]) {
-                            cells[colIndex].classList.add('filter-hidden');
-                            cells[colIndex].style.setProperty('display', 'none', 'important');
-                        }
-                    });
-                }
-            });
+            // Päivitä näkyvyys välittömästi (tämä hoitaa sarakkeiden ja muiden rivien piilottamisen)
+            if (typeof updateCriticColumnVisibility === 'function') {
+                updateCriticColumnVisibility();
+            }
 
             // Päivitä sticky header jos se on olemassa
             if (window.refreshStickyHeader) {
                 window.refreshStickyHeader();
             }
-
             // Lisää linkit elokuvan nimen / laskurin alapuolelle koskematta alkuperäiseen rakenteeseen
             const nytleffaanUrl = movieCell.dataset.nytleffaan;
             const letterboxdUrl = movieCell.dataset.letterboxd;
@@ -307,11 +277,6 @@ function initMovieClickHandlers() {
                 }
 
                 clickedRow.parentNode.insertBefore(posterRow, clickedRow.nextSibling);
-            }
-
-            // Päivitä näkyvyys välittömästi
-            if (typeof updateCriticColumnVisibility === 'function') {
-                updateCriticColumnVisibility();
             }
 
             if (window.addFillerColumns) window.addFillerColumns();
