@@ -218,28 +218,32 @@ function initMovieClickHandlers() {
                 if (cell) {
                     const hasLink = cell.querySelector('a.rating-link');
                     const hasStars = cell.querySelector('.rating-stars');
-                    const noRating = cell.querySelector('.no-rating');
-                    const isEmptyText = noRating && noRating.textContent.trim() === '–';
-                    const hasText = cell.textContent.trim().length > 1;
+                    const text = cell.textContent.trim();
+                    const hasActualContent = text.length > 0 && text !== '–' && text !== '';
 
-                    if (hasLink || hasStars || (noRating && !isEmptyText) || hasText) {
+                    if (hasLink || hasStars || hasActualContent) {
                         hasReview = true;
                     }
                 }
 
                 if (!hasReview) {
                     header.classList.add('filter-hidden');
-                    header.style.display = 'none';
+                    header.style.setProperty('display', 'none', 'important');
 
                     allRows.forEach(r => {
                         const cells = r.querySelectorAll('.rating-cell');
                         if (cells[colIndex]) {
                             cells[colIndex].classList.add('filter-hidden');
-                            cells[colIndex].style.display = 'none';
+                            cells[colIndex].style.setProperty('display', 'none', 'important');
                         }
                     });
                 }
             });
+
+            // Päivitä sticky header jos se on olemassa
+            if (window.refreshStickyHeader) {
+                window.refreshStickyHeader();
+            }
 
             // Lisää linkit elokuvan nimen / laskurin alapuolelle koskematta alkuperäiseen rakenteeseen
             const nytleffaanUrl = movieCell.dataset.nytleffaan;

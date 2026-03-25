@@ -1,5 +1,7 @@
 Workflow: PR-Based Development & Safety
 
+- **Aina kun aloitat työskentelyn tässä repositoriossa, suorita ensin `git pull`.** GitHub-automaatiot muuttavat repon sisältöä (kuten tietokantatiedostoja) useita kertoja päivässä, joten paikallinen kopio on todennäköisesti vanhentunut.
+
 Tämä projekti noudattaa tiukkaa PR-pohjaista (Pull Request) kehitysmallia vikasietoisuuden ja koodin laadun varmistamiseksi, vaikka kehittäjiä on vain yksi.
 
 1. Haaroitus (Branching)

@@ -4,6 +4,19 @@
             <div class="movie-card-title">
                 {{ movie_title }}
             </div>
+            {% if movie_rating_distributions and movie_title in movie_rating_distributions %}
+            {% set dist = movie_rating_distributions[movie_title] %}
+            {% set total = dist | sum %}
+            {% if total > 0 %}
+            <div class="movie-sparkline movie-card-sparkline" title="Arvosanojen jakauma (1-5 tähteä): {{ dist | join(', ') }}">
+                {% for count in dist %}
+                <div class="spark-bar-container">
+                    <div class="spark-bar" style="height: {{ (count / (dist|max) * 100) if (dist|max) > 0 else 0 }}%"></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
             {% if movie_review_counts and movie_title in movie_review_counts %}
             <div class="movie-card-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
             {% endif %}

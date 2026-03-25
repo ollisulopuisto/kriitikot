@@ -2,6 +2,18 @@
 
 Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
+## [0.5.0] - 2026-03-25
+
+### ✨ Lisätty
+- **Elokuvien nimien fuzzy matching -parannukset**
+  - Uusi `test_movie_normalizer.py` varmistamaan nimien oikean mätsäyksen.
+  - Tuki suluissa olevien englanninkielisten nimien (esim. "(The Thing with Feathers)") automaattiselle tunnistamiselle ja poistamiselle.
+
+### 🔧 Parannettu
+- `movie_normalizer.py`: Kehittyneempi `similarity_ratio`-logiikka, joka kokeilee useita strategioita (täysi match, match ilman sulkuja, alkuosan match).
+- `discovery_importer.py`: Automaattinen nimen puhdistus ennen uuden elokuvan luomista tietokantaan.
+- Parempi tuki KSML:n ja muiden lähteiden käyttämille nimeämiskäytännöille.
+
 ## [0.4.0] - 2025-10-30
 
 ### ✨ Lisätty
