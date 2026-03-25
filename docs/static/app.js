@@ -249,7 +249,15 @@ function updateCriticColumnVisibility() {
     if (!criticRow) return;
 
     const criticHeaders = Array.from(criticRow.querySelectorAll('th.rating-cell'));
+    
+    // Tarkista onko jokin elokuva valittu (klikattu nimeä)
+    const selectedMovieRow = tbody.querySelector('tr[data-filtered="true"]');
+    
     const visibleRows = Array.from(tbody.querySelectorAll('tr:not(.poster-row)')).filter(row => {
+        // Jos jokin elokuva on valittu, huomioidaan vain se sarakenäkyvyydessä
+        if (selectedMovieRow) {
+            return row === selectedMovieRow;
+        }
         return row.style.display !== 'none';
     });
 

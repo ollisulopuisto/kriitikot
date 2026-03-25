@@ -30,6 +30,18 @@
     flex: 1;
 }
 
+.movie-card-sparkline {
+    margin-bottom: 0.35rem; /* Align better with text baseline */
+}
+
+.movie-card-review-count {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0.35rem; /* Same alignment as sparkline */
+    white-space: nowrap;
+}
+
+
 .movie-card-poster {
     max-width: 100px;
     height: auto;
