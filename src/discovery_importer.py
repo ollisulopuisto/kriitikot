@@ -67,6 +67,12 @@ class DiscoveryImporter:
         if ' – ' in title:
             title = title.split(' – ')[0].strip()
         
+        # Poista sulut ja niiden sisältö (esim. englantilainen nimi)
+        # Mutta vain jos ne eivät ole koko nimi
+        clean_title = re.sub(r'\(.*?\)', '', title).strip()
+        if clean_title:
+            title = clean_title
+        
         # Jos otsikko sisältää kriitikon analyysin (esim. "elokuva on...", "tarjoaa..."), poista se
         # Esim: "Sorry, baby on Eva Victorin..." -> "Sorry, baby"
         patterns = [
