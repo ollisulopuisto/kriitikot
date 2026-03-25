@@ -34,6 +34,7 @@ def test_get_grouped_reviews_logic():
     mock_review.movie = mock_movie
     mock_review.critic = mock_critic
     mock_review.publication = mock_pub
+    mock_review.rating_stars = 4
     mock_review.is_published = 1
     mock_review.published_date = datetime(2024, 1, 1)
     mock_review.scraped_at = datetime(2024, 1, 1)
@@ -65,6 +66,7 @@ def test_get_index_data_json_structure(data_service):
     
     mock_review = MagicMock()
     mock_review.to_dict.return_value = mock_review_dict
+    mock_review.rating_stars = 5
     mock_review.is_published = 1
     mock_review.published_date = datetime(2024, 1, 1)
     
