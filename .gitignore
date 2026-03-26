@@ -69,3 +69,4 @@ temp/
 tmp/
 *.backup
 demo_*.html
+node_modules/
