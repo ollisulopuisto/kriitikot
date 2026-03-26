@@ -318,10 +318,9 @@ window.filterByCritic = function(criticHeader) {
         }
     });
 
-    // Käytä keskitettyä näkyvyyden päivitystä (se osaa nyt huomioida dataset.filtered)
-    if (typeof updateCriticColumnVisibility === 'function') {
-        updateCriticColumnVisibility();
-    }
+    // Älä kutsu keskitettyä näkyvyyden päivitystä täältä, jotta
+    // publication-filterillä piilotetut rivit eivät vahingossa tule näkyviin.
+    // (updateCriticColumnVisibility -> updateRowVisibility voi muuten ylikirjoittaa row.style.display:n.)
 
     // Päivitä Mobiili-näkymä jos se on käytössä
     const criticId = criticHeader.dataset.criticId;
