@@ -287,85 +287,93 @@ function initMovieClickHandlers() {
 }
 
 /**
+ * Suodata näkymä näyttämään vain yhden kriitikon arvostelut
+ */
+window.filterByCritic = function(criticHeader) {
+    const table = document.querySelector('table');
+    if (!table || !criticHeader) return;
+
+    const tbody = table.querySelector('tbody');
+    const criticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
+
+    console.log('Filtering by critic:', criticHeader.dataset.criticId);
+
+    // Poista aiemmat poster-rivit sekaannusten välttämiseksi
+    tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
+
+    // Nollaa table-wrapper skrollaus vasempaan reunaan
+    const tableWrapper = document.querySelector('.table-wrapper');
+    if (tableWrapper) {
+        tableWrapper.scrollLeft = 0;
+    }
+
+    // Aseta filtered-tila vain valitulle otsikolle
+    criticHeaders.forEach(header => {
+        if (header === criticHeader) {
+            header.dataset.filtered = 'true';
+            header.classList.add('selected');
+        } else {
+            delete header.dataset.filtered;
+            header.classList.remove('selected');
+        }
+    });
+
+    // Älä kutsu keskitettyä näkyvyyden päivitystä täältä, jotta
+    // publication-filterillä piilotetut rivit eivät vahingossa tule näkyviin.
+    // (updateCriticColumnVisibility -> updateRowVisibility voi muuten ylikirjoittaa row.style.display:n.)
+
+    // Päivitä Mobiili-näkymä jos se on käytössä
+    const criticId = criticHeader.dataset.criticId;
+    const allCards = document.querySelectorAll('.movie-card');
+    if (allCards.length > 0) {
+        allCards.forEach(card => {
+            const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
+                .some(item => item.dataset.critic === criticId);
+
+            if (!cardHasSelectedCritic) {
+                card.style.display = 'none';
+            } else {
+                card.style.display = '';
+                card.querySelectorAll('.review-item').forEach(item => {
+                    item.style.display = (item.dataset.critic === criticId) ? '' : 'none';
+                });
+            }
+        });
+    }
+
+    // Näytä nollauspainike
+    if (window.showResetButton) window.showResetButton();
+
+    // Päivitä sticky header
+    if (window.refreshStickyHeader) {
+        window.refreshStickyHeader();
+    }
+    
+    // Hallitse täytesarakkeita
+    if (window.removeFillerColumns) window.removeFillerColumns();
+};
+
+/**
  * Kriitikon nimi click handler (Suodatus)
  */
 function initCriticClickHandlers() {
     const table = document.querySelector('table');
     if (!table) return;
 
-    const tbody = table.querySelector('tbody');
     const criticHeaders = table.querySelectorAll('thead th.rating-cell');
 
     criticHeaders.forEach((criticHeader) => {
-        if (criticHeader.dataset.initialized) return;
-        
+        // Alusta klikattavaksi
         criticHeader.style.cursor = 'pointer';
         criticHeader.title = 'Klikkaa näyttääksesi vain tämän kriitikon arvostelut';
 
-        criticHeader.addEventListener('click', function () {
-            const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
-
-            if (isAnyFilterActive) {
-                if (window.resetAllFilters) window.resetAllFilters();
-                return;
-            }
-
-            // Poista vanhat poster-rivit
-            tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
-
-            const allCriticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
-            const colIndex = allCriticHeaders.indexOf(criticHeader);
-
-            // Tallenna ja nollaa skrollaus (vapaaehtoinen, pidetään nykyinen käytäntö)
-            const tableWrapper = document.querySelector('.table-wrapper');
-            if (tableWrapper) {
-                window.savedScrollLeft = tableWrapper.scrollLeft;
-                const originalScrollBehavior = tableWrapper.style.scrollBehavior;
-                tableWrapper.style.scrollBehavior = 'auto';
-                tableWrapper.scrollLeft = 0;
-                setTimeout(() => {
-                    tableWrapper.style.scrollBehavior = originalScrollBehavior;
-                }, 50);
-            }
-
-            // Merkitse suodatus aktiiviseksi
-            criticHeader.classList.add('selected');
-            criticHeader.dataset.filtered = 'true';
-
-            // Piilota muut sarakkeet (lisätään luokka heti)
-            allCriticHeaders.forEach((header, idx) => {
-                if (idx !== colIndex) {
-                    header.classList.add('filter-hidden');
-                    header.style.setProperty('display', 'none', 'important');
-                    
-                    // Piilotetaan myös sarakkeen solut kaikilta riveiltä
-                    tbody.querySelectorAll('tr').forEach(row => {
-                        const cell = row.querySelectorAll('.rating-cell')[idx];
-                        if (cell) {
-                            cell.classList.add('filter-hidden');
-                            cell.style.setProperty('display', 'none', 'important');
-                        }
-                    });
-                }
+        // Käytä nimettyä funktiota delegoinnin helpottamiseksi
+        if (!criticHeader.dataset.clickInitialized) {
+            criticHeader.addEventListener('click', function () {
+                window.filterByCritic(this);
             });
-
-            // Päivitä sarakkeiden ja rivien näkyvyys keskitetyllä logiikalla
-            if (typeof updateCriticColumnVisibility === 'function') {
-                updateCriticColumnVisibility();
-            }
-
-            // Päivitä sticky header jos se on olemassa
-            if (window.refreshStickyHeader) {
-                window.refreshStickyHeader();
-            }
-
-            if (window.showResetButton) window.showResetButton();
-            
-            // Hallitse täytesarakkeita
-            if (window.removeFillerColumns) window.removeFillerColumns();
-            if (window.addFillerColumns) window.addFillerColumns();
-        });
-        criticHeader.dataset.initialized = 'true';
+            criticHeader.dataset.clickInitialized = 'true';
+        }
     });
 }
 
@@ -411,6 +419,7 @@ function initMobileCriticClickHandlers() {
                     card.style.display = 'none';
                 } else {
                     card.style.display = '';
+                    // Piilota muut arvostelut tästä kortista
                     card.querySelectorAll('.review-item').forEach(item => {
                         if (item.dataset.critic !== selectedCritic) {
                             item.style.display = 'none';
