@@ -289,42 +289,59 @@ function initMovieClickHandlers() {
 /**
  * Suodata näkymä näyttämään vain yhden kriitikon arvostelut
  */
-window.filterByCritic = function(criticHeader) {
-    const table = document.querySelector('table');
-    if (!table || !criticHeader) return;
-
-    const tbody = table.querySelector('tbody');
-    const criticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
-
-    console.log('Filtering by critic:', criticHeader.dataset.criticId);
-
-    // Poista aiemmat poster-rivit sekaannusten välttämiseksi
-    tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
-
-    // Nollaa table-wrapper skrollaus vasempaan reunaan
-    const tableWrapper = document.querySelector('.table-wrapper');
-    if (tableWrapper) {
-        tableWrapper.scrollLeft = 0;
+window.filterByCritic = function(criticIdOrHeader) {
+    let criticId;
+    let criticHeader;
+    
+    if (typeof criticIdOrHeader === 'string') {
+        criticId = criticIdOrHeader;
+    } else if (criticIdOrHeader && criticIdOrHeader.dataset && criticIdOrHeader.dataset.criticId) {
+        criticId = criticIdOrHeader.dataset.criticId;
+        criticHeader = criticIdOrHeader;
+    } else {
+        return;
     }
 
-    // Aseta filtered-tila vain valitulle otsikolle
-    criticHeaders.forEach(header => {
-        if (header === criticHeader) {
-            header.dataset.filtered = 'true';
-            header.classList.add('selected');
-        } else {
-            delete header.dataset.filtered;
-            header.classList.remove('selected');
-        }
-    });
+    console.log('Filtering by critic:', criticId);
 
-    // Älä kutsu keskitettyä näkyvyyden päivitystä täältä, jotta
-    // publication-filterillä piilotetut rivit eivät vahingossa tule näkyviin.
-    // (updateCriticColumnVisibility -> updateRowVisibility voi muuten ylikirjoittaa row.style.display:n.)
+    const table = document.querySelector('table');
+    const allCards = document.querySelectorAll('.movie-card');
+
+    if (table) {
+        const tbody = table.querySelector('tbody');
+        const criticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
+
+        if (!criticHeader) {
+            criticHeader = criticHeaders.find(h => h.dataset.criticId === criticId);
+        }
+
+        // Poista aiemmat poster-rivit sekaannusten välttämiseksi
+        tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
+
+        // Nollaa table-wrapper skrollaus vasempaan reunaan
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (tableWrapper) {
+            tableWrapper.scrollLeft = 0;
+        }
+
+        // Aseta filtered-tila vain valitulle otsikolle
+        criticHeaders.forEach(header => {
+            if (header === criticHeader) {
+                header.dataset.filtered = 'true';
+                header.classList.add('selected');
+            } else {
+                delete header.dataset.filtered;
+                header.classList.remove('selected');
+            }
+        });
+
+        console.log('Calling updateCriticColumnVisibility from filterByCritic');
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
+    }
 
     // Päivitä Mobiili-näkymä jos se on käytössä
-    const criticId = criticHeader.dataset.criticId;
-    const allCards = document.querySelectorAll('.movie-card');
     if (allCards.length > 0) {
         allCards.forEach(card => {
             const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
@@ -339,6 +356,36 @@ window.filterByCritic = function(criticHeader) {
                 });
             }
         });
+        
+        const allReviewItems = document.querySelectorAll('.review-item');
+        allReviewItems.forEach(item => {
+            const area = item.querySelector('.review-critic');
+            const name = item.querySelector('.review-critic-name');
+            if (area && name) {
+                if (item.dataset.critic === criticId) {
+                    name.classList.add('selected');
+                    area.dataset.filtered = 'true';
+                } else {
+                    name.classList.remove('selected');
+                    delete area.dataset.filtered;
+                }
+            }
+        });
+
+        const criticFilterValue = document.getElementById('critic-filter-value-mobile');
+        if (criticFilterValue) {
+            // Etsi kriitikon oikea nimi (display name) joko mobiili-DOM:sta tai pöytäkone-DOM:sta
+            let displayName = criticId;
+            const selectedReview = Array.from(allReviewItems).find(item => item.dataset.critic === criticId);
+            if (selectedReview) {
+                const nameEl = selectedReview.querySelector('.review-critic-name');
+                if (nameEl && nameEl.textContent) displayName = nameEl.textContent.trim();
+            } else if (criticHeader) {
+                const nameEl = criticHeader.querySelector('.critic-name');
+                if (nameEl && nameEl.textContent) displayName = nameEl.textContent.trim();
+            }
+            criticFilterValue.textContent = displayName;
+        }
     }
 
     // Näytä nollauspainike
@@ -408,43 +455,9 @@ function initMobileCriticClickHandlers() {
             }
 
             const selectedCritic = reviewItem.dataset.critic;
-            const allCards = document.querySelectorAll('.movie-card');
-            const allReviewItems = document.querySelectorAll('.review-item');
-
-            allCards.forEach(card => {
-                const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
-                    .some(item => item.dataset.critic === selectedCritic);
-
-                if (!cardHasSelectedCritic) {
-                    card.style.display = 'none';
-                } else {
-                    card.style.display = '';
-                    // Piilota muut arvostelut tästä kortista
-                    card.querySelectorAll('.review-item').forEach(item => {
-                        if (item.dataset.critic !== selectedCritic) {
-                            item.style.display = 'none';
-                        }
-                    });
-                }
-            });
-
-            allReviewItems.forEach(item => {
-                const area = item.querySelector('.review-critic');
-                const name = item.querySelector('.review-critic-name');
-                if (area && name && item.dataset.critic === selectedCritic) {
-                    name.classList.add('selected');
-                    area.dataset.filtered = 'true';
-                }
-            });
-
-            const criticFilterValue = document.getElementById('critic-filter-value-mobile');
-            if (criticFilterValue) {
-                // Show the critic's display name (not the internal id) in the mobile filter UI
-                const displayName = (criticName && criticName.textContent) ? criticName.textContent.trim() : selectedCritic;
-                criticFilterValue.textContent = displayName;
+            if (window.filterByCritic) {
+                window.filterByCritic(selectedCritic);
             }
-
-            if (window.showResetButton) window.showResetButton();
         });
         reviewItem.dataset.initialized = 'true';
     });
