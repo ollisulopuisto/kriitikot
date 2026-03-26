@@ -101,7 +101,11 @@ function initStickyTableHeader() {
                         const originalCells = Array.from(thead.querySelectorAll('th'));
                         const originalCell = originalCells[index];
                         
-                        if (originalCell) {
+                        // Jos kyseessä on kriitikon sarake, suodata sen mukaan
+                        if (originalCell && originalCell.classList.contains('rating-cell')) {
+                            window.filterByCritic(originalCell);
+                        } else if (originalCell) {
+                            // Muussa tapauksessa simuloi alkuperäistä klikkausta (esim. movie-col)
                             originalCell.click();
                         }
                     }
