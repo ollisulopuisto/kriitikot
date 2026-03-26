@@ -294,12 +294,9 @@ window.filterByCritic = function(criticHeader) {
     if (!table || !criticHeader) return;
 
     const tbody = table.querySelector('tbody');
-    const allCriticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
-    const colIndex = allCriticHeaders.indexOf(criticHeader);
+    const criticHeaders = Array.from(table.querySelectorAll('thead th.rating-cell'));
 
-    if (colIndex === -1) return;
-
-    console.log('Filtering by critic at index:', colIndex, criticHeader.dataset.criticId);
+    console.log('Filtering by critic:', criticHeader.dataset.criticId);
 
     // Poista aiemmat poster-rivit sekaannusten välttämiseksi
     tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
@@ -310,37 +307,21 @@ window.filterByCritic = function(criticHeader) {
         tableWrapper.scrollLeft = 0;
     }
 
-    // Päivitä otsikoiden tilat ja näkyvyys
-    allCriticHeaders.forEach((header, idx) => {
-        const isMatch = (idx === colIndex);
-        
-        if (isMatch) {
-            header.classList.add('selected');
-            header.classList.remove('filter-hidden');
+    // Aseta filtered-tila vain valitulle otsikolle
+    criticHeaders.forEach(header => {
+        if (header === criticHeader) {
             header.dataset.filtered = 'true';
-            header.style.display = '';
+            header.classList.add('selected');
         } else {
-            header.classList.remove('selected');
-            header.classList.add('filter-hidden');
             delete header.dataset.filtered;
-            header.style.display = 'none';
+            header.classList.remove('selected');
         }
-
-        // Päivitä vastaavat solut kaikilta riveiltä
-        tbody.querySelectorAll('tr:not(.poster-row)').forEach(row => {
-            const cells = row.querySelectorAll('.rating-cell');
-            const cell = cells[idx];
-            if (cell) {
-                if (isMatch) {
-                    cell.classList.remove('filter-hidden');
-                    cell.style.display = '';
-                } else {
-                    cell.classList.add('filter-hidden');
-                    cell.style.display = 'none';
-                }
-            }
-        });
     });
+
+    // Käytä keskitettyä näkyvyyden päivitystä (se osaa nyt huomioida dataset.filtered)
+    if (typeof updateCriticColumnVisibility === 'function') {
+        updateCriticColumnVisibility();
+    }
 
     // Päivitä Mobiili-näkymä jos se on käytössä
     const criticId = criticHeader.dataset.criticId;

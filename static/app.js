@@ -274,12 +274,43 @@ function updateCriticColumnVisibility() {
         console.log('updateCriticColumnVisibility: activePubs =', activePubs);
     }
 
+    // Tarkista onko jokin kriitikko valittu (manuaalinen suodatus)
+    const selectedCriticHeader = criticHeaders.find(h => h.dataset.filtered === 'true');
+    
     // Käy läpi jokainen kriitikko (sarake)
     criticHeaders.forEach((header) => {
         const criticId = header.dataset.criticId;
-        const criticName = header.querySelector('.critic-name') ? header.querySelector('.critic-name').textContent.trim() : criticId;
         const cellIndex = header.cellIndex;
         if (cellIndex === -1) return;
+        
+        // JOS jokin kriitikko on valittu, näytetään vain se (ja piilotetaan muut)
+        if (selectedCriticHeader) {
+            const isSelected = (header === selectedCriticHeader);
+            if (isSelected) {
+                header.classList.remove('filter-hidden');
+                header.style.display = '';
+                Array.from(tbody.rows).forEach(row => {
+                    const cell = row.cells[cellIndex];
+                    if (cell) {
+                        cell.classList.remove('filter-hidden');
+                        cell.style.display = '';
+                    }
+                });
+            } else {
+                header.classList.add('filter-hidden');
+                header.style.display = 'none';
+                Array.from(tbody.rows).forEach(row => {
+                    const cell = row.cells[cellIndex];
+                    if (cell) {
+                        cell.classList.add('filter-hidden');
+                        cell.style.display = 'none';
+                    }
+                });
+            }
+            return; // Siirry seuraavaan headeriin
+        }
+
+        const criticName = header.querySelector('.critic-name') ? header.querySelector('.critic-name').textContent.trim() : criticId;
         
         let hasVisibleReview = false;
 

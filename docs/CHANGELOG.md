@@ -6,11 +6,11 @@ Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
 ### 🔧 Parannettu
 - **Työpöydän kriitikkosuodatus**
-  - Uusi `window.filterByCritic`-toteutus `static/interactions.js`-tiedostossa.
-  - Sarakkeiden piilotus perustuu nyt `filter-hidden`-luokkaan, joka käyttää `!important`-määrettä varmistamaan näkyvyyden muuttumisen.
-  - Klikkausdelegointi lisätty kiinnitettyyn (sticky) otsikkoon `static/ui.js`-tiedostossa.
+  - Keskitetty sarakkeiden suodatuslogiikka `updateCriticColumnVisibility`-funktioon `static/app.js`-tiedostossa.
+  - Lisätty tuki `data-filtered`-atribuutille, joka mahdollistaa manuaalisen kriitikkokohtaisen suodatuksen säilymisen muiden suodattimien rinnalla.
+  - Parannettu synkronointia `resetAllFilters`-funktion ja sarakkeiden näkyvyyden välillä.
 - **Mobiilikäyttökokemus**
-  - Palautettu ja varmistettu mobiilipuolen kriitikkosuodatus, joka päivittää myös suodatinpalkin tilan.
+  - Palautettu ja varmistettu mobiilipuolen kriitikkosuodatus, joka päivittää myös suodatinpalkin tilan ja nimeää valitun kriitikon oikein.
 
 ## [0.5.0] - 2026-03-25
 

@@ -496,6 +496,11 @@ function initResetButton() {
                     if (pill) pill.classList.remove('dimmed');
                 });
             });
+
+            // Varmista synkronointi
+            if (typeof updateCriticColumnVisibility === 'function') {
+                updateCriticColumnVisibility();
+            }
         }
 
         // Mobile: Poista kaikki filtterit
