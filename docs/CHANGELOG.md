@@ -2,6 +2,16 @@
 
 Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
+## [0.5.1] - 2026-03-26
+
+### 🔧 Parannettu
+- **Työpöydän kriitikkosuodatus**
+  - Uusi `window.filterByCritic`-toteutus `static/interactions.js`-tiedostossa.
+  - Sarakkeiden piilotus perustuu nyt `filter-hidden`-luokkaan, joka käyttää `!important`-määrettä varmistamaan näkyvyyden muuttumisen.
+  - Klikkausdelegointi lisätty kiinnitettyyn (sticky) otsikkoon `static/ui.js`-tiedostossa.
+- **Mobiilikäyttökokemus**
+  - Palautettu ja varmistettu mobiilipuolen kriitikkosuodatus, joka päivittää myös suodatinpalkin tilan.
+
 ## [0.5.0] - 2026-03-25
 
 ### ✨ Lisätty
