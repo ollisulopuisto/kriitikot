@@ -286,27 +286,17 @@ function updateCriticColumnVisibility() {
         // JOS jokin kriitikko on valittu, näytetään vain se (ja piilotetaan muut)
         if (selectedCriticHeader) {
             const isSelected = (header === selectedCriticHeader);
-            if (isSelected) {
-                header.classList.remove('filter-hidden');
-                header.style.display = '';
-                Array.from(tbody.rows).forEach(row => {
-                    const cell = row.cells[cellIndex];
-                    if (cell) {
-                        cell.classList.remove('filter-hidden');
-                        cell.style.display = '';
-                    }
-                });
-            } else {
-                header.classList.add('filter-hidden');
-                header.style.display = 'none';
-                Array.from(tbody.rows).forEach(row => {
-                    const cell = row.cells[cellIndex];
-                    if (cell) {
-                        cell.classList.add('filter-hidden');
-                        cell.style.display = 'none';
-                    }
-                });
-            }
+            
+            header.classList.toggle('filter-hidden', !isSelected);
+            header.style.display = isSelected ? '' : 'none';
+
+            Array.from(tbody.rows).forEach(row => {
+                const cell = row.cells[cellIndex];
+                if (cell) {
+                    cell.classList.toggle('filter-hidden', !isSelected);
+                    cell.style.display = isSelected ? '' : 'none';
+                }
+            });
             return; // Siirry seuraavaan headeriin
         }
 
