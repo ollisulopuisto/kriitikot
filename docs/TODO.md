@@ -17,6 +17,14 @@
 
 
 # Toiminnallisuus
+- 🎬 **Kriitikon valinta (Desktop/Mobile) - FIX IN PROGRESS**
+    - **Nykytila:** Kriitikon nimen klikkaaminen headerissa (desktop) asettaa `dataset.filtered = 'true'`, mutta ei päivitä sarakkeiden näkyvyyttä taulukossa. Mobiili-näkymän kortit päivittyvät osittain, mutta logiikka on hajallaan.
+    - **Havainnot:** `static/interactions.js`:n `window.filterByCritic` ei kutsu `updateCriticColumnVisibility()` -funktiota (tahallaan tai vahingossa), jolloin taulukon sarakkeet eivät piiloudu.
+    - **Seuraavat askeleet:**
+        1. Lisää debug-logit `filterByCritic` ja `updateCriticColumnVisibility` -funktioihin.
+        2. Varmista, että `filterByCritic` kutsuu `updateCriticColumnVisibility()` ja että se käsittelee `selectedCriticHeader` -tapauksen oikein.
+        3. Yhdenmukaista mobiili- ja desktop-suodatuslogiikka niin, että molemmat käyttävät samaa `dataset.filtered` -tilaa ja triggeröivät samat päivitykset.
+        4. Testaa "Reset"-painikkeen toiminta suodatuksen jälkeen.
 - elokuvan tiedot -leiska, mihin se laitetaan desktopissa? mobiilissa helpompi, kun on jo kortit
     - lippujen ostamista varten linkit TMDB, nytleffaan.fi
     - elokuvan juliste
