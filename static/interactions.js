@@ -335,7 +335,6 @@ window.filterByCritic = function(criticIdOrHeader) {
             }
         });
 
-        console.log('Calling updateCriticColumnVisibility from filterByCritic');
         if (typeof updateCriticColumnVisibility === 'function') {
             updateCriticColumnVisibility();
         }
@@ -398,6 +397,7 @@ window.filterByCritic = function(criticIdOrHeader) {
     
     // Hallitse täytesarakkeita
     if (window.removeFillerColumns) window.removeFillerColumns();
+    if (window.addFillerColumns) window.addFillerColumns();
 };
 
 /**
