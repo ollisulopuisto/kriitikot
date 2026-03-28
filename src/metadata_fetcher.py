@@ -325,6 +325,9 @@ class MetadataFetcher:
                 slug = slug.replace(finnish_char, replacement)
             
             slug = slug.lower()
+            # Preserve natural separators from titles like "X: Y" / "X – Y" as hyphens
+            # BEFORE punctuation cleanup so words don't collapse together.
+            slug = re.sub(r'[:–—]+', '-', slug)
             
             # Poista erikoismerkit ja välilyönnit
             slug = re.sub(r'[^\w\s-]', '', slug)
