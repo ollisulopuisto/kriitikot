@@ -103,7 +103,7 @@ describe('Letterboxd- ja Nytleffaan-linkit renderöityvät oikein', () => {
     expect(mobileCard.querySelectorAll('.movie-card-sparkline .spark-bar')).toHaveLength(5);
   });
 
-  it('ei estä desktop-linkin klikkausta movie-col click handlerissa', () => {
+  it('does not prevent desktop link clicks in movie-col click handler', () => {
     const letterboxdUrl = 'https://letterboxd.com/film/linkkitesti/';
 
     const customHTML = `

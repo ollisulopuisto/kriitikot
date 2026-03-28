@@ -159,7 +159,7 @@ function initMovieClickHandlers() {
         movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
 
         movieCell.addEventListener('click', function (e) {
-            // Älä estä linkkien normaalia toimintaa elokuvasolussa
+            // Do not prevent normal link behavior inside the movie cell
             if (e.target.closest('a')) {
                 return;
             }
