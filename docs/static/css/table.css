@@ -34,7 +34,7 @@ th {
     font-weight: 600;
     color: #495057;
     font-size: 0.85em;
-    max-width: 6.25em;
+    max-width: 8.5em;
     word-wrap: break-word;
     line-height: 1.3;
     vertical-align: top;
@@ -199,8 +199,8 @@ th .review-count {
 /* Rating Cells */
 .rating-cell {
     text-align: center;
-    width: 5.5em;
-    min-width: 5.5em;
+    width: 7.5em;
+    min-width: 7.5em;
     cursor: pointer;
     transition: background-color 0.2s ease;
     padding: 0.5rem 0.2rem;
