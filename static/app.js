@@ -58,7 +58,7 @@ function showPosterInCell(movieCell, posterUrl) {
         nytleffaanLink.href = nytleffaanUrl;
         nytleffaanLink.target = '_blank';
         nytleffaanLink.rel = 'noopener noreferrer';
-        nytleffaanLink.innerHTML = '🎬 Osta liput';
+        nytleffaanLink.textContent = 'Osta liput';
         nytleffaanLink.className = 'movie-link nytleffaan-link';
         nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
         linksDiv.appendChild(nytleffaanLink);
@@ -71,7 +71,7 @@ function showPosterInCell(movieCell, posterUrl) {
         letterboxdLink.href = letterboxdUrl;
         letterboxdLink.target = '_blank';
         letterboxdLink.rel = 'noopener noreferrer';
-        letterboxdLink.textContent = '📽️ Letterboxd';
+        letterboxdLink.textContent = 'Letterboxd';
         letterboxdLink.className = 'movie-link letterboxd-link';
         letterboxdLink.title = 'Katso Letterboxd:ssä';
         linksDiv.appendChild(letterboxdLink);
