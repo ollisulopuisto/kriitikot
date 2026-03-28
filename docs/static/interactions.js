@@ -159,6 +159,13 @@ function initMovieClickHandlers() {
         movieCell.title = 'Klikkaa korostaaksesi tämän elokuvan arvostelut';
 
         movieCell.addEventListener('click', function (e) {
+            // Do not toggle movie filtering when clicking link areas inside movie cell.
+            // On touch devices, tap targets may resolve to a wrapper element instead of <a>.
+            // Guard both semantic links and wrapper containers used by SSR/dynamic rendering.
+            if (e.target.closest('a, .movie-link, .movie-meta-row, .movie-links')) {
+                return;
+            }
+
             e.preventDefault();
             e.stopPropagation();
 

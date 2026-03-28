@@ -32,28 +32,30 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
     try:
         print(f"  Processing: {movie.title}")
 
-        # Fetch all metadata
-        metadata = fetcher.fetch_all_metadata(movie.title)
-
-        # Update TMDB data if not present
-        if metadata.get('tmdb_data') and not movie.tmdb_id:
-            tmdb_data = metadata['tmdb_data']
-            movie.tmdb_id = tmdb_data.get('tmdb_id')
-            movie.poster_url = tmdb_data.get('poster_url')
-            print(f"    ✅ Added TMDB data (ID: {movie.tmdb_id})")
-            updated = True
+        # Fetch and update only missing metadata fields to reduce external requests
+        if not movie.tmdb_id:
+            tmdb_data = fetcher.fetch_tmdb_data(movie.title)
+            if tmdb_data:
+                movie.tmdb_id = tmdb_data.get('tmdb_id')
+                movie.poster_url = tmdb_data.get('poster_url')
+                print(f"    ✅ Added TMDB data (ID: {movie.tmdb_id})")
+                updated = True
 
         # Update Letterboxd URL if not present
-        if metadata.get('letterboxd_url') and not movie.letterboxd_url:
-            movie.letterboxd_url = metadata['letterboxd_url']
-            print("    ✅ Added Letterboxd URL")
-            updated = True
+        if not movie.letterboxd_url:
+            letterboxd_url = fetcher.search_movie_letterboxd(movie.title)
+            if letterboxd_url:
+                movie.letterboxd_url = letterboxd_url
+                print("    ✅ Added Letterboxd URL")
+                updated = True
 
         # Update Nytleffaan URL if not present
-        if metadata.get('nytleffaan_url') and not movie.nytleffaan_url:
-            movie.nytleffaan_url = metadata['nytleffaan_url']
-            print("    ✅ Added Nytleffaan URL")
-            updated = True
+        if not movie.nytleffaan_url:
+            nytleffaan_url = fetcher.search_movie_nytleffaan(movie.title)
+            if nytleffaan_url:
+                movie.nytleffaan_url = nytleffaan_url
+                print("    ✅ Added Nytleffaan URL")
+                updated = True
 
         if not updated:
             print("    ℹ️  No new metadata to add")
@@ -62,6 +64,11 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
         print(f"    ❌ Error updating metadata: {e}")
 
     return updated
+
+
+def needs_metadata_backfill(movie: Movie) -> bool:
+    """Return True when movie is missing at least one metadata field."""
+    return not movie.tmdb_id or not movie.letterboxd_url or not movie.nytleffaan_url
 
 
 def main():
@@ -77,11 +84,11 @@ def main():
         session = get_session()
         fetcher = MetadataFetcher()
 
-        # Get all movies
-        movies = session.query(Movie).all()
+        # Process only movies that are missing metadata
+        movies = [movie for movie in session.query(Movie).all() if needs_metadata_backfill(movie)]
         total_movies = len(movies)
 
-        print(f"📊 Processing {total_movies} movies...")
+        print(f"📊 Processing {total_movies} movies missing metadata...")
         print()
 
         # Track statistics
@@ -93,16 +100,19 @@ def main():
         # Process each movie
         for i, movie in enumerate(movies, 1):
             print(f"[{i}/{total_movies}] ", end="")
+            had_tmdb = bool(movie.tmdb_id)
+            had_letterboxd = bool(movie.letterboxd_url)
+            had_nytleffaan = bool(movie.nytleffaan_url)
 
             if update_movie_metadata(movie, fetcher):
                 updated_count += 1
 
-                # Count what was added
-                if movie.tmdb_id:
+                # Count only newly added metadata fields
+                if not had_tmdb and movie.tmdb_id:
                     tmdb_added += 1
-                if movie.letterboxd_url:
+                if not had_letterboxd and movie.letterboxd_url:
                     letterboxd_added += 1
-                if movie.nytleffaan_url:
+                if not had_nytleffaan and movie.nytleffaan_url:
                     nytleffaan_added += 1
 
         # Commit all changes

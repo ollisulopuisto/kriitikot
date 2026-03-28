@@ -14,13 +14,15 @@ def _response(status_code):
         def __init__(self, status_code):
             self.status_code = status_code
             self.text = ''
+
         def raise_for_status(self):
             if self.status_code >= 400:
-                error = requests.exceptions.HTTPError(f'HTTP {self.status_code}')
-                error.response = self
+                error = requests.exceptions.HTTPError(f'HTTP {self.status_code}', response=self)
                 raise error
+
         def json(self):
             return {}
+
     return MockResponse(status_code)
 
 
@@ -53,6 +55,39 @@ def test_nytleffaan_slug_transliteration_uses_lowercase_ascii():
         url = fetcher.search_movie_nytleffaan('Ääliö Ööli Åke', prefer_recent=False)
 
     assert url == 'https://www.nytleffaan.fi/elokuva/aalioooliake/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
+def test_nytleffaan_slug_removes_punctuation_but_keeps_hyphens():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Duudsonit-elokuva: Kotiinpaluu', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/duudsonit-elokuva-kotiinpaluu/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
+def test_nytleffaan_slug_normalizes_en_dash_separator():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Duudsonit-elokuva – Kotiinpaluu', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/duudsonit-elokuva-kotiinpaluu/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
+def test_nytleffaan_slug_normalizes_em_dash_separator():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Duudsonit-elokuva — Kotiinpaluu', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/duudsonit-elokuva-kotiinpaluu/'
     mock_head.assert_called_once()
     assert mock_head.call_args.kwargs.get('allow_redirects') is True
 

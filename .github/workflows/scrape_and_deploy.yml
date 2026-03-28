@@ -91,6 +91,12 @@ jobs:
         run: |
           python3 src/batch_update.py
 
+      - name: Backfill movie metadata links
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: |
+          python3 src/update_metadata.py
+
       - name: Get post-scrape review count and compute delta
         id: post_count
         run: |
