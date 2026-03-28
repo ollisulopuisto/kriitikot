@@ -262,8 +262,54 @@ th.rating-cell:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 6px;
+}
+
+#review-container-desktop .movie-meta-row .movie-link,
+#review-container-desktop .movie-links .movie-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.18rem 0.45rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    font-size: 0.72em;
+    font-weight: 500;
+    line-height: 1.15;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+#review-container-desktop .movie-meta-row .nytleffaan-link,
+#review-container-desktop .movie-links .nytleffaan-link {
+    background: #eefaf2;
+    color: #1f7a40;
+    border-color: #bfe8ce;
+}
+
+#review-container-desktop .movie-meta-row .letterboxd-link,
+#review-container-desktop .movie-links .letterboxd-link {
+    background: #f3efff;
+    color: #5b3aa8;
+    border-color: #d4c7f7;
+}
+
+#review-container-desktop .movie-meta-row .nytleffaan-link:hover,
+#review-container-desktop .movie-meta-row .nytleffaan-link:focus,
+#review-container-desktop .movie-links .nytleffaan-link:hover,
+#review-container-desktop .movie-links .nytleffaan-link:focus {
+    background: #e1f4e8;
+    color: #186636;
+}
+
+#review-container-desktop .movie-meta-row .letterboxd-link:hover,
+#review-container-desktop .movie-meta-row .letterboxd-link:focus,
+#review-container-desktop .movie-links .letterboxd-link:hover,
+#review-container-desktop .movie-links .letterboxd-link:focus {
+    background: #ebe4ff;
+    color: #4c2e97;
 }
 
 .movie-sparkline {

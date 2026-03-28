@@ -220,8 +220,10 @@ function initMovieClickHandlers() {
             const letterboxdUrl = movieCell.dataset.letterboxd;
             
             // Tarkista onko linkit jo olemassa (SSR tai aiempi klikkaus)
-            const existingLinks = movieCell.querySelector('.movie-links') || 
-                                 (movieCell.querySelector('.nytleffaan-link') && movieCell.querySelector('.letterboxd-link'));
+            const existingLinks = movieCell.querySelector('.movie-links') ||
+                                 movieCell.querySelector('.movie-meta-row .movie-link') ||
+                                 movieCell.querySelector('.nytleffaan-link') ||
+                                 movieCell.querySelector('.letterboxd-link');
 
             if (!existingLinks && (nytleffaanUrl || letterboxdUrl)) {
                 const linksDiv = document.createElement('div');
@@ -232,7 +234,8 @@ function initMovieClickHandlers() {
                     const nytleffaanLink = document.createElement('a');
                     nytleffaanLink.href = nytleffaanUrl;
                     nytleffaanLink.target = '_blank';
-                    nytleffaanLink.innerHTML = '🎬 Osta liput';
+                    nytleffaanLink.rel = 'noopener noreferrer';
+                    nytleffaanLink.textContent = 'Osta liput';
                     nytleffaanLink.className = 'movie-link nytleffaan-link';
                     nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
                     linksDiv.appendChild(nytleffaanLink);
@@ -242,8 +245,10 @@ function initMovieClickHandlers() {
                     const letterboxdLink = document.createElement('a');
                     letterboxdLink.href = letterboxdUrl;
                     letterboxdLink.target = '_blank';
-                    letterboxdLink.textContent = '📽️ Letterboxd';
+                    letterboxdLink.rel = 'noopener noreferrer';
+                    letterboxdLink.textContent = 'Letterboxd';
                     letterboxdLink.className = 'movie-link letterboxd-link';
+                    letterboxdLink.title = 'Katso Letterboxd:ssä';
                     linksDiv.appendChild(letterboxdLink);
                 }
 

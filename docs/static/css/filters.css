@@ -89,13 +89,13 @@
     display: flex;
     flex: 1;
     gap: 1.5rem;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.15rem;
 }
 
 .group-favorites {
@@ -179,7 +179,7 @@
 
 /* Slider for star filter */
 .slider-container {
-    padding: 0;
+    padding: 0.25rem 0;
 }
 
 .slider {
