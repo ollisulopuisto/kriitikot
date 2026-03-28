@@ -12,6 +12,11 @@ let allGroupedReviews = {}; // Tähän ladataan kaikki arvostelut JSONista
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
 let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
 let allPublicationMap = {}; // Map julkaisuista {short_name: publication_object}
+window.nytleffaan_urls = window.nytleffaan_urls || {};
+window.poster_urls = window.poster_urls || {};
+window.letterboxd_urls = window.letterboxd_urls || {};
+window.movie_review_counts = window.movie_review_counts || {};
+window.movie_rating_distributions = window.movie_rating_distributions || {};
 
 
 // Utility Functions
@@ -52,6 +57,7 @@ function showPosterInCell(movieCell, posterUrl) {
         const nytleffaanLink = document.createElement('a');
         nytleffaanLink.href = nytleffaanUrl;
         nytleffaanLink.target = '_blank';
+        nytleffaanLink.rel = 'noopener noreferrer';
         nytleffaanLink.innerHTML = '🎬 Osta liput';
         nytleffaanLink.className = 'movie-link nytleffaan-link';
         nytleffaanLink.title = 'Osta liput: nytleffaan.fi';
@@ -64,6 +70,7 @@ function showPosterInCell(movieCell, posterUrl) {
         const letterboxdLink = document.createElement('a');
         letterboxdLink.href = letterboxdUrl;
         letterboxdLink.target = '_blank';
+        letterboxdLink.rel = 'noopener noreferrer';
         letterboxdLink.textContent = '📽️ Letterboxd';
         letterboxdLink.className = 'movie-link letterboxd-link';
         letterboxdLink.title = 'Katso Letterboxd:ssä';
@@ -575,6 +582,21 @@ function renderMovie(movieTitle, criticsReviewsDict) {
     const letterboxdUrl = window.letterboxd_urls[movieTitle] || '';
     const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
     const movieReviewCount = window.movie_review_counts[movieTitle];
+    const dist = window.movie_rating_distributions[movieTitle] || [];
+    const maxDist = dist.length > 0 ? Math.max(...dist) : 0;
+    const hasDistribution = dist.length === 5 && dist.some(count => count > 0);
+    let sparklineHtml = '';
+    if (hasDistribution) {
+        sparklineHtml = `
+            <div class="movie-sparkline" title="Arvosanojen jakauma (1-5 tähteä): ${dist.join(', ')}">
+                ${dist.map(count => `
+                    <div class="spark-bar-container">
+                        <div class="spark-bar" style="height: ${maxDist > 0 ? (count / maxDist * 100) : 0}%"></div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
 
     // Desktop row
     let desktopHtml = `
@@ -583,7 +605,12 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                 data-letterboxd="${letterboxdUrl}"
                 data-nytleffaan="${nytleffaanUrl}">
                 <div class="movie-title-main">${movieTitle}</div>
-                ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                <div class="movie-meta-row">
+                    ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                    ${nytleffaanUrl ? `<a href="${nytleffaanUrl}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>` : ''}
+                    ${letterboxdUrl ? `<a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>` : ''}
+                    ${sparklineHtml}
+                </div>
             </td>
     `;
     // Populate with critics from allCritics (global, ordered list)
@@ -607,11 +634,12 @@ function renderMovie(movieTitle, criticsReviewsDict) {
     let mobileHtml = `
         <div class="movie-card" data-movie="${movieTitle}">
             <div class="movie-card-header">
-                <div class="movie-card-title-row">
-                    <div class="movie-card-title">${movieTitle}</div>
-                    ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
-                    ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
-                </div>
+                    <div class="movie-card-title-row">
+                        <div class="movie-card-title">${movieTitle}</div>
+                        ${sparklineHtml ? sparklineHtml.replace('movie-sparkline', 'movie-sparkline movie-card-sparkline') : ''}
+                        ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                        ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
+                    </div>
             </div>
             <div class="movie-card-body">
     `;
@@ -639,10 +667,10 @@ function renderMovie(movieTitle, criticsReviewsDict) {
     if (nytleffaanUrl || letterboxdUrl) {
         mobileHtml += `<div class="movie-card-links">`;
         if (nytleffaanUrl) {
-            mobileHtml += `<a href="${nytleffaanUrl}" target="_blank" class="movie-link nytleffaan-link">Osta liput</a>`;
+            mobileHtml += `<a href="${nytleffaanUrl}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link">Osta liput</a>`;
         }
         if (letterboxdUrl) {
-            mobileHtml += `<a href="${letterboxdUrl}" target="_blank" class="movie-link letterboxd-link">Letterboxd</a>`;
+            mobileHtml += `<a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link">Letterboxd</a>`;
         }
         mobileHtml += `</div>`;
     }
@@ -745,22 +773,35 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
 
-            // Movie meta info (poster, letterboxd, nytleffaan, review counts)
-            // Initial items are rendered by Jinja, so we can extract these from there.
-            // These objects will be populated with actual data from allGroupedReviews during rendering
-            window.nytleffaan_urls = {};
-            window.poster_urls = {};
-            window.letterboxd_urls = {};
-            window.movie_review_counts = {};
+            // Movie meta info (poster, letterboxd, nytleffaan, review counts, sparklines)
+            const movieMetaElement = document.getElementById('movie-meta-data');
+            if (movieMetaElement) {
+                try {
+                    const movieMetaData = JSON.parse(movieMetaElement.textContent);
+                    window.nytleffaan_urls = movieMetaData.nytleffaan_urls || {};
+                    window.poster_urls = movieMetaData.poster_urls || {};
+                    window.letterboxd_urls = movieMetaData.letterboxd_urls || {};
+                    window.movie_review_counts = movieMetaData.movie_review_counts || {};
+                    window.movie_rating_distributions = movieMetaData.movie_rating_distributions || {};
+                } catch (e) {
+                    console.error('Error parsing movie-meta-data:', e);
+                }
+            }
             
             // Extract from initial Jinja-rendered movie cells
             document.querySelectorAll('#review-container-desktop tbody tr .movie-col').forEach(movieCol => {
                 const movieTitle = movieCol.querySelector('.movie-title-main').textContent;
-                window.nytleffaan_urls[movieTitle] = movieCol.dataset.nytleffaan;
-                window.poster_urls[movieTitle] = movieCol.dataset.poster;
-                window.letterboxd_urls[movieTitle] = movieCol.dataset.letterboxd;
+                if (!window.nytleffaan_urls[movieTitle]) {
+                    window.nytleffaan_urls[movieTitle] = movieCol.dataset.nytleffaan;
+                }
+                if (!window.poster_urls[movieTitle]) {
+                    window.poster_urls[movieTitle] = movieCol.dataset.poster;
+                }
+                if (!window.letterboxd_urls[movieTitle]) {
+                    window.letterboxd_urls[movieTitle] = movieCol.dataset.letterboxd;
+                }
                 const countElem = movieCol.querySelector('.movie-review-count');
-                if (countElem) {
+                if (countElem && !window.movie_review_counts[movieTitle]) {
                     window.movie_review_counts[movieTitle] = parseInt(countElem.textContent.replace('🎬 ', ''));
                 }
             });

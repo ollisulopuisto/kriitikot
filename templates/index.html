@@ -65,6 +65,15 @@
         <script id="all-reviews-data" type="application/json">
             {{ all_reviews_json | safe }}
         </script>
+        <script id="movie-meta-data" type="application/json">
+            {{ {
+                'nytleffaan_urls': nytleffaan_urls,
+                'letterboxd_urls': letterboxd_urls,
+                'poster_urls': poster_urls,
+                'movie_review_counts': movie_review_counts,
+                'movie_rating_distributions': movie_rating_distributions
+            } | tojson }}
+        </script>
 
         <!-- Desktop suodattimet (ENNEN taulukkoa, jotta sticky toimii) -->
         <div class="desktop-filters">
