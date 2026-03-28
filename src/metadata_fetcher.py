@@ -257,8 +257,8 @@ class MetadataFetcher:
                 url_with_year = f"https://letterboxd.com/film/{slug}-{current_year}/"
                 
                 try:
-                    response = requests.head(url_with_year, timeout=5)
-                    if response.status_code == 200:
+                    response = requests.head(url_with_year, timeout=5, allow_redirects=True)
+                    if response.status_code < 400:
                         return url_with_year
                 except:
                     pass  # Jatka ilman vuotta
@@ -267,9 +267,9 @@ class MetadataFetcher:
             url = f"https://letterboxd.com/film/{slug}/"
             
             # Tarkista että sivu löytyy
-            response = requests.head(url, timeout=5)
+            response = requests.head(url, timeout=5, allow_redirects=True)
             
-            if response.status_code == 200:
+            if response.status_code < 400:
                 return url
             
             # Jos ei löydy, yritä hakua
@@ -278,7 +278,7 @@ class MetadataFetcher:
             
             if response.status_code == 200:
                 # Etsi ensimmäinen film-linkki
-                match = re.search(r'href="(/film/[^"]*)"', response.text)
+                match = re.search(r'href="(/film/[^"]+/)"', response.text)
                 if match:
                     return f"https://letterboxd.com{match.group(1)}"
             
@@ -308,21 +308,23 @@ class MetadataFetcher:
             }
             
             # Muunna nimi URL-ystävälliseksi slugiksi
-            # Nytleffaan.fi käyttää erikoista muunnosta: ä→A, ö→O (isoilla kirjaimilla!)
-            slug = movie_title.lower()
+            # Nytleffaan.fi käyttää translitteroitua slugia
+            slug = movie_title
             
-            # Translitteroi suomalaiset ääkköset Nytleffaan.fi:n tapaan
+            # Translitteroi suomalaiset ääkköset
             transliteration_map = {
-                'ä': 'A',
-                'ö': 'O',
+                'ä': 'a',
+                'ö': 'o',
                 'å': 'a',
-                'Ä': 'A',
-                'Ö': 'O',
+                'Ä': 'a',
+                'Ö': 'o',
                 'Å': 'a'
             }
             
             for finnish_char, replacement in transliteration_map.items():
                 slug = slug.replace(finnish_char, replacement)
+            
+            slug = slug.lower()
             
             # Poista erikoismerkit ja välilyönnit
             slug = re.sub(r'[^\w\s-]', '', slug)
@@ -334,7 +336,7 @@ class MetadataFetcher:
                 year_url = f"https://www.nytleffaan.fi/elokuva/{slug}{current_year}/"
                 
                 try:
-                    check_response = requests.head(year_url, headers=headers, timeout=5)
+                    check_response = requests.head(year_url, headers=headers, timeout=5, allow_redirects=True)
                     if check_response.status_code < 400:
                         return year_url
                 except:
@@ -344,7 +346,7 @@ class MetadataFetcher:
             direct_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
             
             # Tarkista että sivu löytyy (hyväksy myös 202 status bot protection vuoksi)
-            check_response = requests.head(direct_url, headers=headers, timeout=5)
+            check_response = requests.head(direct_url, headers=headers, timeout=5, allow_redirects=True)
             
             if check_response.status_code < 400:  # Accept 200, 202, etc.
                 return direct_url
@@ -355,7 +357,7 @@ class MetadataFetcher:
             alt_slug = re.sub(r'[\s]+', '-', alt_slug)  # Käytä väliviivoja
             
             alt_url = f"https://www.nytleffaan.fi/elokuva/{alt_slug}/"
-            check_response = requests.head(alt_url, headers=headers, timeout=5)
+            check_response = requests.head(alt_url, headers=headers, timeout=5, allow_redirects=True)
             
             if check_response.status_code < 400:
                 return alt_url

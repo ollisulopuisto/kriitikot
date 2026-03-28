@@ -10,12 +10,12 @@
 
             {% set nytleffaan_url = nytleffaan_urls.get(movie_title) %}
             {% if nytleffaan_url %}
-            <a href="{{ nytleffaan_url }}" target="_blank" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">🎬 Osta liput</a>
+            <a href="{{ nytleffaan_url }}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>
             {% endif %}
 
             {% set letterboxd_url = letterboxd_urls.get(movie_title) %}
             {% if letterboxd_url %}
-            <a href="{{ letterboxd_url }}" target="_blank" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">📽️ Letterboxd</a>
+            <a href="{{ letterboxd_url }}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>
             {% endif %}
             
             {% if movie_rating_distributions and movie_title in movie_rating_distributions %}
