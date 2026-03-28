@@ -309,17 +309,22 @@ class MetadataFetcher:
             
             # Muunna nimi URL-ystävälliseksi slugiksi
             # Nytleffaan.fi käyttää translitteroitua slugia
-            slug = movie_title.lower()
+            slug = movie_title
             
             # Translitteroi suomalaiset ääkköset
             transliteration_map = {
                 'ä': 'a',
                 'ö': 'o',
-                'å': 'a'
+                'å': 'a',
+                'Ä': 'a',
+                'Ö': 'o',
+                'Å': 'a'
             }
             
             for finnish_char, replacement in transliteration_map.items():
                 slug = slug.replace(finnish_char, replacement)
+            
+            slug = slug.lower()
             
             # Poista erikoismerkit ja välilyönnit
             slug = re.sub(r'[^\w\s-]', '', slug)
