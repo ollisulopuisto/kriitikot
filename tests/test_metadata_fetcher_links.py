@@ -27,6 +27,17 @@ def test_letterboxd_accepts_redirect_status_for_direct_slug():
     assert mock_head.call_args.kwargs.get('allow_redirects') is True
 
 
+def test_letterboxd_accepts_success_status_for_direct_slug():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_letterboxd('Inception', prefer_recent=False)
+
+    assert url == 'https://letterboxd.com/film/inception/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
 def test_nytleffaan_slug_transliteration_uses_lowercase_ascii():
     fetcher = MetadataFetcher()
 

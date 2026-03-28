@@ -583,20 +583,25 @@ function renderMovie(movieTitle, criticsReviewsDict) {
     const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
     const movieReviewCount = window.movie_review_counts[movieTitle];
     const dist = window.movie_rating_distributions[movieTitle] || [];
-    const maxDist = dist.length > 0 ? Math.max(...dist) : 0;
-    const hasDistribution = dist.length === 5 && dist.some(count => count > 0);
-    let sparklineHtml = '';
-    if (hasDistribution) {
-        sparklineHtml = `
-            <div class="movie-sparkline" title="Arvosanojen jakauma (1-5 tähteä): ${dist.join(', ')}">
-                ${dist.map(count => `
+    const buildSparklineHtml = (distribution, extraClasses = '') => {
+        const hasDistribution = distribution.length === 5 && distribution.some(count => count > 0);
+        if (!hasDistribution) {
+            return '';
+        }
+        const maxDist = Math.max(...distribution);
+        const classes = ['movie-sparkline', extraClasses].filter(Boolean).join(' ');
+        return `
+            <div class="${classes}" title="Arvosanojen jakauma (1-5 tähteä): ${distribution.join(', ')}">
+                ${distribution.map(count => `
                     <div class="spark-bar-container">
                         <div class="spark-bar" style="height: ${maxDist > 0 ? (count / maxDist * 100) : 0}%"></div>
                     </div>
                 `).join('')}
             </div>
         `;
-    }
+    };
+    const sparklineHtml = buildSparklineHtml(dist);
+    const mobileSparklineHtml = buildSparklineHtml(dist, 'movie-card-sparkline');
 
     // Desktop row
     let desktopHtml = `
@@ -636,7 +641,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
                         <div class="movie-card-title">${movieTitle}</div>
-                        ${sparklineHtml ? sparklineHtml.replace('movie-sparkline', 'movie-sparkline movie-card-sparkline') : ''}
+                        ${mobileSparklineHtml}
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
                         ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
                     </div>
