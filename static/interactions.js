@@ -218,7 +218,10 @@ function initMovieClickHandlers() {
             // Lisää linkit elokuvan nimen / laskurin alapuolelle koskematta alkuperäiseen rakenteeseen
             const nytleffaanUrl = movieCell.dataset.nytleffaan;
             const letterboxdUrl = movieCell.dataset.letterboxd;
-            const existingLinks = movieCell.querySelector('.movie-links');
+            
+            // Tarkista onko linkit jo olemassa (SSR tai aiempi klikkaus)
+            const existingLinks = movieCell.querySelector('.movie-links') || 
+                                 (movieCell.querySelector('.nytleffaan-link') && movieCell.querySelector('.letterboxd-link'));
 
             if (!existingLinks && (nytleffaanUrl || letterboxdUrl)) {
                 const linksDiv = document.createElement('div');
