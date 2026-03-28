@@ -102,4 +102,65 @@ describe('Letterboxd- ja Nytleffaan-linkit renderöityvät oikein', () => {
     expect(mobileLinks[1].getAttribute('rel')).toBe('noopener noreferrer');
     expect(mobileCard.querySelectorAll('.movie-card-sparkline .spark-bar')).toHaveLength(5);
   });
+
+  it('ei estä desktop-linkin klikkausta movie-col click handlerissa', () => {
+    const letterboxdUrl = 'https://letterboxd.com/film/linkkitesti/';
+
+    const customHTML = `
+      <meta name="version" content="test">
+      <script id="all-reviews-data" type="application/json">{}</script>
+      <script id="movie-meta-data" type="application/json">{"nytleffaan_urls":{},"letterboxd_urls":{},"poster_urls":{},"movie_review_counts":{},"movie_rating_distributions":{}}</script>
+      <div class="container">
+        <div class="desktop-filters">
+            <input type="range" id="min-reviews-slider" min="1" max="5" value="1">
+            <span id="min-reviews-value">1</span>
+            <input type="range" id="star-filter-slider" min="1" max="5" value="1">
+            <span id="star-filter-value">Vähintään ★</span>
+            <div id="reset-filters-desktop" style="display:none"></div>
+        </div>
+        <button class="media-filter-btn" data-publication="HS">HS</button>
+        <div id="review-container-desktop">
+            <table>
+                <thead>
+                    <tr class="critic-row">
+                        <th class="movie-col">Elokuva</th>
+                        <th class="rating-cell" data-critic-id="1">
+                            <div class="critic-name">Kriitikko 1</div>
+                            <div class="critic-media">HS</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="movie-col" data-poster="" data-letterboxd="${letterboxdUrl}" data-nytleffaan="">
+                            <div class="movie-title-main">Linkkitesti</div>
+                            <div class="movie-meta-row">
+                                <a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link">Letterboxd</a>
+                            </div>
+                        </td>
+                        <td class="rating-cell"><span class="rating-pill"><span class="rating-stars">★★★★</span></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mobile-cards"></div>
+        <div><button id="load-more-button">Lataa lisää</button></div>
+      </div>
+    `;
+
+    const { document } = setupDOM(customHTML);
+    const desktopMovieCell = document.querySelector('#review-container-desktop tbody .movie-col');
+    expect(desktopMovieCell).toBeTruthy();
+
+    const desktopLink = desktopMovieCell.querySelector('.movie-meta-row .letterboxd-link');
+    expect(desktopLink).toBeTruthy();
+    expect(desktopLink.getAttribute('href')).toBe(letterboxdUrl);
+
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+    const dispatchResult = desktopLink.dispatchEvent(clickEvent);
+
+    expect(dispatchResult).toBe(true);
+    expect(clickEvent.defaultPrevented).toBe(false);
+    expect(desktopMovieCell.parentElement.dataset.filtered).not.toBe('true');
+  });
 });
