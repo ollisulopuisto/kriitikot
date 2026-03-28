@@ -315,10 +315,7 @@ class MetadataFetcher:
             transliteration_map = {
                 'ä': 'a',
                 'ö': 'o',
-                'å': 'a',
-                'Ä': 'a',
-                'Ö': 'o',
-                'Å': 'a'
+                'å': 'a'
             }
             
             for finnish_char, replacement in transliteration_map.items():

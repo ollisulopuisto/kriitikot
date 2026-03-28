@@ -267,7 +267,8 @@ th.rating-cell:hover {
     margin-top: 6px;
 }
 
-.movie-link {
+#review-container-desktop .movie-meta-row .movie-link,
+#review-container-desktop .movie-links .movie-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -281,26 +282,32 @@ th.rating-cell:hover {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.nytleffaan-link {
+#review-container-desktop .movie-meta-row .nytleffaan-link,
+#review-container-desktop .movie-links .nytleffaan-link {
     background: #eefaf2;
     color: #1f7a40;
     border-color: #bfe8ce;
 }
 
-.letterboxd-link {
+#review-container-desktop .movie-meta-row .letterboxd-link,
+#review-container-desktop .movie-links .letterboxd-link {
     background: #f3efff;
     color: #5b3aa8;
     border-color: #d4c7f7;
 }
 
-.nytleffaan-link:hover,
-.nytleffaan-link:focus {
+#review-container-desktop .movie-meta-row .nytleffaan-link:hover,
+#review-container-desktop .movie-meta-row .nytleffaan-link:focus,
+#review-container-desktop .movie-links .nytleffaan-link:hover,
+#review-container-desktop .movie-links .nytleffaan-link:focus {
     background: #e1f4e8;
     color: #186636;
 }
 
-.letterboxd-link:hover,
-.letterboxd-link:focus {
+#review-container-desktop .movie-meta-row .letterboxd-link:hover,
+#review-container-desktop .movie-meta-row .letterboxd-link:focus,
+#review-container-desktop .movie-links .letterboxd-link:hover,
+#review-container-desktop .movie-links .letterboxd-link:focus {
     background: #ebe4ff;
     color: #4c2e97;
 }
