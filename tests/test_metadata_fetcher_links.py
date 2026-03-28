@@ -70,6 +70,28 @@ def test_nytleffaan_slug_removes_punctuation_but_keeps_hyphens():
     assert mock_head.call_args.kwargs.get('allow_redirects') is True
 
 
+def test_nytleffaan_slug_normalizes_en_dash_separator():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Duudsonit-elokuva – Kotiinpaluu', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/duudsonit-elokuva-kotiinpaluu/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
+def test_nytleffaan_slug_normalizes_em_dash_separator():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(200)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Duudsonit-elokuva — Kotiinpaluu', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/duudsonit-elokuva-kotiinpaluu/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
 def test_tmdb_prefers_result_with_poster_when_recent_preference_enabled():
     fetcher = MetadataFetcher()
 
