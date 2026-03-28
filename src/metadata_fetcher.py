@@ -51,6 +51,28 @@ class MetadataFetcher:
 
         candidates.sort(key=_release_year, reverse=True)
         return candidates[0]
+
+    def _format_tmdb_result(self, movie: Dict) -> Dict:
+        """Muotoile TMDB-elokuvadata yhtenäiseen palautusmuotoon."""
+        return {
+            'tmdb_id': movie['id'],
+            'title': movie['title'],
+            'original_title': movie.get('original_title', ''),
+            'release_date': movie.get('release_date', ''),
+            'poster_path': movie.get('poster_path'),
+            'overview': movie.get('overview', ''),
+            'vote_average': movie.get('vote_average', 0),
+            'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
+        }
+
+    def _search_tmdb_with_params(self, url: str, params: Dict, prefer_recent: bool) -> Optional[Dict]:
+        """Suorita TMDB-haku annetuilla parametreilla ja palauta paras tulos."""
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        if data.get('results') and len(data['results']) > 0:
+            return self._select_best_tmdb_result(data['results'], prefer_recent=prefer_recent)
+        return None
         
     def search_movie_tmdb(self, movie_title: str, prefer_recent: bool = True) -> Optional[Dict]:
         """Hae elokuva TMDB:stä nimellä.
@@ -64,6 +86,7 @@ class MetadataFetcher:
         """
         from datetime import datetime
 
+        # Ilman API-avainta TMDB-kutsuja ei voi tehdä.
         if not self.tmdb_api_key:
             return None
 
@@ -93,81 +116,21 @@ class MetadataFetcher:
                         movie = self._select_best_tmdb_result(data['results'], prefer_recent=prefer_recent)
                         if not movie:
                             continue
-                        return {
-                            'tmdb_id': movie['id'],
-                            'title': movie['title'],
-                            'original_title': movie.get('original_title', ''),
-                            'release_date': movie.get('release_date', ''),
-                            'poster_path': movie.get('poster_path'),
-                            'overview': movie.get('overview', ''),
-                            'vote_average': movie.get('vote_average', 0),
-                            'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
-                        }
+                        return self._format_tmdb_result(movie)
             
             # Jos ei löytynyt vuosien perusteella, hae ilman vuotta
-            response = requests.get(url, params=base_params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
+            # Varsinainen haku + fallbackit:
+            # 1) fi-FI, 2) en-US, 3) ilman language-parametria
+            search_param_sets = [
+                base_params,
+                {'api_key': self.tmdb_api_key, 'query': movie_title, 'language': 'en-US'},
+                {'api_key': self.tmdb_api_key, 'query': movie_title}
+            ]
 
-            if data.get('results') and len(data['results']) > 0:
-                movie = self._select_best_tmdb_result(data['results'], prefer_recent=prefer_recent)
+            for params in search_param_sets:
+                movie = self._search_tmdb_with_params(url, params, prefer_recent=prefer_recent)
                 if movie:
-                    return {
-                        'tmdb_id': movie['id'],
-                        'title': movie['title'],
-                        'original_title': movie.get('original_title', ''),
-                        'release_date': movie.get('release_date', ''),
-                        'poster_path': movie.get('poster_path'),
-                        'overview': movie.get('overview', ''),
-                        'vote_average': movie.get('vote_average', 0),
-                        'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
-                    }
-
-            # Fallback: kokeile englanninkielistä hakua, jos fi-haku ei tuottanut tuloksia
-            fallback_params = {
-                'api_key': self.tmdb_api_key,
-                'query': movie_title,
-                'language': 'en-US'
-            }
-            response = requests.get(url, params=fallback_params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if data.get('results') and len(data['results']) > 0:
-                movie = self._select_best_tmdb_result(data['results'], prefer_recent=prefer_recent)
-                if movie:
-                    return {
-                        'tmdb_id': movie['id'],
-                        'title': movie['title'],
-                        'original_title': movie.get('original_title', ''),
-                        'release_date': movie.get('release_date', ''),
-                        'poster_path': movie.get('poster_path'),
-                        'overview': movie.get('overview', ''),
-                        'vote_average': movie.get('vote_average', 0),
-                        'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
-                    }
-
-            # Viimeinen fallback: haku ilman language-parametria
-            fallback_params = {
-                'api_key': self.tmdb_api_key,
-                'query': movie_title
-            }
-            response = requests.get(url, params=fallback_params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if data.get('results') and len(data['results']) > 0:
-                movie = self._select_best_tmdb_result(data['results'], prefer_recent=prefer_recent)
-                if not movie:
-                    return None
-                return {
-                    'tmdb_id': movie['id'],
-                    'title': movie['title'],
-                    'original_title': movie.get('original_title', ''),
-                    'release_date': movie.get('release_date', ''),
-                    'poster_path': movie.get('poster_path'),
-                    'overview': movie.get('overview', ''),
-                    'vote_average': movie.get('vote_average', 0),
-                    'poster_url': self.tmdb_image_base_url + movie['poster_path'] if movie.get('poster_path') else None
-                }
+                    return self._format_tmdb_result(movie)
             
         except Exception as e:
             print(f"TMDB search error for '{movie_title}': {e}")
