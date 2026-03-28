@@ -17,8 +17,7 @@ def _response(status_code):
 
         def raise_for_status(self):
             if self.status_code >= 400:
-                error = requests.exceptions.HTTPError(f'HTTP {self.status_code}')
-                error.response = self
+                error = requests.exceptions.HTTPError(f'HTTP {self.status_code}', response=self)
                 raise error
 
         def json(self):

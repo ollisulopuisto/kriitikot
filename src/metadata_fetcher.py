@@ -38,6 +38,8 @@ class MetadataFetcher:
         if not results:
             return None
 
+        # If at least one result has a poster, restrict selection to those.
+        # Fall back to all results only when none contain poster_path.
         candidates = [movie for movie in results if movie.get('poster_path')] or results
 
         if not prefer_recent:
