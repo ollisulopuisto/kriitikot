@@ -325,6 +325,11 @@ class MetadataFetcher:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
+
+            def _is_acceptable_status(status_code: int) -> bool:
+                # Nytleffaan may block automation checks with status codes like 403/405/429.
+                # Treat all non-404 statuses as usable so we still persist links in cron jobs.
+                return status_code != 404
             
             # Muunna nimi URL-ystävälliseksi slugiksi
             # Nytleffaan.fi käyttää translitteroitua slugia
@@ -359,18 +364,22 @@ class MetadataFetcher:
                 
                 try:
                     check_response = requests.head(year_url, headers=headers, timeout=5, allow_redirects=True)
-                    if check_response.status_code < 400:
+                    if _is_acceptable_status(check_response.status_code):
                         return year_url
-                except:
-                    pass  # Jatka ilman vuotta
+                except Exception:
+                    # Continue with direct URL checks if network/bot protection blocks HEAD.
+                    pass
             
             # Yritä muodostaa URL suoraan ilman vuotta
             direct_url = f"https://www.nytleffaan.fi/elokuva/{slug}/"
             
-            # Tarkista että sivu löytyy (hyväksy myös 202 status bot protection vuoksi)
-            check_response = requests.head(direct_url, headers=headers, timeout=5, allow_redirects=True)
-            
-            if check_response.status_code < 400:  # Accept 200, 202, etc.
+            # Tarkista että sivu löytyy; hyväksy myös bot protection -vastaukset.
+            try:
+                check_response = requests.head(direct_url, headers=headers, timeout=5, allow_redirects=True)
+                if _is_acceptable_status(check_response.status_code):
+                    return direct_url
+            except Exception:
+                # If verification fails (common in CI due bot protection), keep deterministic URL.
                 return direct_url
             
             # Jos ei löydy, yritä vaihtoehtoisia slug-muotoja
@@ -379,10 +388,15 @@ class MetadataFetcher:
             alt_slug = re.sub(r'[\s]+', '-', alt_slug)  # Käytä väliviivoja
             
             alt_url = f"https://www.nytleffaan.fi/elokuva/{alt_slug}/"
-            check_response = requests.head(alt_url, headers=headers, timeout=5, allow_redirects=True)
-            
-            if check_response.status_code < 400:
-                return alt_url
+            try:
+                check_response = requests.head(alt_url, headers=headers, timeout=5, allow_redirects=True)
+                if _is_acceptable_status(check_response.status_code):
+                    return alt_url
+            except Exception:
+                pass
+
+            # Fall back to deterministic direct URL in environments where verification is blocked.
+            return direct_url
             
         except Exception as e:
             print(f"Nytleffaan search error for '{movie_title}': {e}")
