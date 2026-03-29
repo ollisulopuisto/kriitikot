@@ -93,6 +93,37 @@ def test_nytleffaan_slug_normalizes_em_dash_separator():
     assert mock_head.call_args.kwargs.get('allow_redirects') is True
 
 
+def test_nytleffaan_returns_direct_url_when_head_verification_fails():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', side_effect=requests.exceptions.ConnectionError('blocked')) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Sinners', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/sinners/'
+    mock_head.assert_called_once()
+
+
+def test_nytleffaan_returns_direct_url_when_head_times_out():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', side_effect=requests.exceptions.Timeout('timeout')) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Sinners', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/sinners/'
+    mock_head.assert_called_once()
+
+
+def test_nytleffaan_accepts_403_as_usable_bot_protection_response():
+    fetcher = MetadataFetcher()
+
+    with patch('metadata_fetcher.requests.head', return_value=_response(403)) as mock_head:
+        url = fetcher.search_movie_nytleffaan('Sinners', prefer_recent=False)
+
+    assert url == 'https://www.nytleffaan.fi/elokuva/sinners/'
+    mock_head.assert_called_once()
+    assert mock_head.call_args.kwargs.get('allow_redirects') is True
+
+
 def test_tmdb_prefers_result_with_poster_when_recent_preference_enabled():
     fetcher = MetadataFetcher()
 
