@@ -7,6 +7,7 @@ import requests
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from metadata_fetcher import MetadataFetcher
+from update_metadata import update_movie_metadata, needs_metadata_backfill
 
 
 def _response(status_code):
@@ -173,3 +174,52 @@ def test_tmdb_search_uses_no_language_fallback_after_fi_and_en():
     assert params_fi['language'] == 'fi-FI'
     assert params_en['language'] == 'en-US'
     assert 'language' not in params_no_lang
+
+
+def test_poster_backfill_with_existing_tmdb_id():
+    class DummyMovie:
+        def __init__(self):
+            self.title = 'Movie'
+            self.tmdb_id = 42
+            self.poster_url = None
+            self.letterboxd_url = 'https://letterboxd.com/film/movie/'
+            self.nytleffaan_url = 'https://www.nytleffaan.fi/elokuva/movie/'
+
+    class DummyFetcher:
+        def get_poster_by_tmdb_id(self, tmdb_id):
+            return f"https://image.tmdb.org/t/p/w500/{tmdb_id}.jpg"
+
+        def fetch_tmdb_data(self, title):
+            raise AssertionError("fetch_tmdb_data should not be called when tmdb_id exists")
+
+        def search_movie_letterboxd(self, title):
+            return None
+
+        def search_movie_nytleffaan(self, title):
+            return None
+
+    movie = DummyMovie()
+    updated = update_movie_metadata(movie, DummyFetcher())
+
+    assert updated is True
+    assert movie.poster_url == "https://image.tmdb.org/t/p/w500/42.jpg"
+
+
+def test_needs_metadata_backfill_true_when_poster_missing():
+    class DummyMovie:
+        tmdb_id = 123
+        poster_url = None
+        letterboxd_url = 'https://letterboxd.com/film/movie/'
+        nytleffaan_url = 'https://www.nytleffaan.fi/elokuva/movie/'
+
+    assert needs_metadata_backfill(DummyMovie()) is True
+
+
+def test_needs_metadata_backfill_false_when_all_fields_present():
+    class DummyMovie:
+        tmdb_id = 123
+        poster_url = 'https://image.tmdb.org/t/p/w500/poster.jpg'
+        letterboxd_url = 'https://letterboxd.com/film/movie/'
+        nytleffaan_url = 'https://www.nytleffaan.fi/elokuva/movie/'
+
+    assert needs_metadata_backfill(DummyMovie()) is False

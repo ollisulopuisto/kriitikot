@@ -32,13 +32,20 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
     try:
         print(f"  Processing: {movie.title}")
 
-        # Fetch and update only missing metadata fields to reduce external requests
+        # Fetch and update TMDB metadata when ID is missing
         if not movie.tmdb_id:
             tmdb_data = fetcher.fetch_tmdb_data(movie.title)
             if tmdb_data:
                 movie.tmdb_id = tmdb_data.get('tmdb_id')
                 movie.poster_url = tmdb_data.get('poster_url')
                 print(f"    ✅ Added TMDB data (ID: {movie.tmdb_id})")
+                updated = True
+        # If TMDB ID exists but poster is missing, fetch poster directly by ID
+        elif not movie.poster_url:
+            poster_url = fetcher.get_poster_by_tmdb_id(movie.tmdb_id)
+            if poster_url:
+                movie.poster_url = poster_url
+                print("    ✅ Added poster URL from existing TMDB ID")
                 updated = True
 
         # Update Letterboxd URL if not present
@@ -68,7 +75,7 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
 
 def needs_metadata_backfill(movie: Movie) -> bool:
     """Return True when movie is missing at least one metadata field."""
-    return not movie.tmdb_id or not movie.letterboxd_url or not movie.nytleffaan_url
+    return not movie.tmdb_id or not movie.poster_url or not movie.letterboxd_url or not movie.nytleffaan_url
 
 
 def main():
@@ -94,6 +101,7 @@ def main():
         # Track statistics
         updated_count = 0
         tmdb_added = 0
+        posters_added = 0
         letterboxd_added = 0
         nytleffaan_added = 0
 
@@ -101,6 +109,7 @@ def main():
         for i, movie in enumerate(movies, 1):
             print(f"[{i}/{total_movies}] ", end="")
             had_tmdb = bool(movie.tmdb_id)
+            had_poster = bool(movie.poster_url)
             had_letterboxd = bool(movie.letterboxd_url)
             had_nytleffaan = bool(movie.nytleffaan_url)
 
@@ -110,6 +119,8 @@ def main():
                 # Count only newly added metadata fields
                 if not had_tmdb and movie.tmdb_id:
                     tmdb_added += 1
+                if not had_poster and movie.poster_url:
+                    posters_added += 1
                 if not had_letterboxd and movie.letterboxd_url:
                     letterboxd_added += 1
                 if not had_nytleffaan and movie.nytleffaan_url:
@@ -125,6 +136,7 @@ def main():
         print("=" * 60)
         print(f"📈 Movies updated: {updated_count}/{total_movies}")
         print(f"🎭 TMDB IDs added: {tmdb_added}")
+        print(f"🖼️ Posters added: {posters_added}")
         print(f"📝 Letterboxd URLs added: {letterboxd_added}")
         print(f"🎫 Nytleffaan URLs added: {nytleffaan_added}")
         print(f"⏰ Finished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

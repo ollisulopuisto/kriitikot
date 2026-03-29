@@ -91,7 +91,7 @@ jobs:
         run: |
           python3 src/batch_update.py
 
-      - name: Backfill movie metadata links
+      - name: Backfill movie metadata links and posters
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
