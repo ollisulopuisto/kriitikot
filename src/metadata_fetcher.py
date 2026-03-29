@@ -29,6 +29,11 @@ class MetadataFetcher:
         self.tmdb_base_url = "https://api.themoviedb.org/3"
         self.tmdb_image_base_url = "https://image.tmdb.org/t/p/w500"  # Keskitason koko julisteille
 
+    @staticmethod
+    def _is_acceptable_nytleffaan_status(status_code: int) -> bool:
+        """Treat every status except 404 as usable for deterministic Nytleffaan URLs."""
+        return status_code != 404
+
     def _select_best_tmdb_result(self, results: list, prefer_recent: bool = True) -> Optional[Dict]:
         """Valitse paras TMDB-hakutulos.
 
@@ -325,11 +330,6 @@ class MetadataFetcher:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
-
-            def _is_acceptable_status(status_code: int) -> bool:
-                # Nytleffaan may block automation checks with status codes like 403/405/429.
-                # Treat all non-404 statuses as usable so we still persist links in cron jobs.
-                return status_code != 404
             
             # Muunna nimi URL-ystävälliseksi slugiksi
             # Nytleffaan.fi käyttää translitteroitua slugia
@@ -364,10 +364,10 @@ class MetadataFetcher:
                 
                 try:
                     check_response = requests.head(year_url, headers=headers, timeout=5, allow_redirects=True)
-                    if _is_acceptable_status(check_response.status_code):
+                    if self._is_acceptable_nytleffaan_status(check_response.status_code):
                         return year_url
-                except Exception:
-                    # Continue with direct URL checks if network/bot protection blocks HEAD.
+                except requests.exceptions.RequestException:
+                    # Continue to the direct URL attempt below if year URL check is blocked.
                     pass
             
             # Yritä muodostaa URL suoraan ilman vuotta
@@ -376,9 +376,9 @@ class MetadataFetcher:
             # Tarkista että sivu löytyy; hyväksy myös bot protection -vastaukset.
             try:
                 check_response = requests.head(direct_url, headers=headers, timeout=5, allow_redirects=True)
-                if _is_acceptable_status(check_response.status_code):
+                if self._is_acceptable_nytleffaan_status(check_response.status_code):
                     return direct_url
-            except Exception:
+            except requests.exceptions.RequestException:
                 # If verification fails (common in CI due bot protection), keep deterministic URL.
                 return direct_url
             
@@ -390,9 +390,9 @@ class MetadataFetcher:
             alt_url = f"https://www.nytleffaan.fi/elokuva/{alt_slug}/"
             try:
                 check_response = requests.head(alt_url, headers=headers, timeout=5, allow_redirects=True)
-                if _is_acceptable_status(check_response.status_code):
+                if self._is_acceptable_nytleffaan_status(check_response.status_code):
                     return alt_url
-            except Exception:
+            except requests.exceptions.RequestException:
                 pass
 
             # Fall back to deterministic direct URL in environments where verification is blocked.
