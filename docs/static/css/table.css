@@ -242,11 +242,11 @@ th.rating-cell:hover {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.stars-5 { background: #5ab34f; background: linear-gradient(90deg, rgba(90, 179, 79, 1) 0%, rgba(85, 255, 0, 1) 65%); }
-.stars-4 { background: #a0baeb; background: linear-gradient(90deg, rgba(160, 186, 235, 1) 16%, rgba(94, 255, 0, 1) 85%); }
-.stars-3 { background: #f7eec1; background: linear-gradient(90deg, rgba(247, 238, 193, 1) 13%, rgba(255, 247, 0, 1) 65%); }
-.stars-2 { background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); } /* Orange */
-.stars-1 { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); } /* Red */
+.stars-5 { background-color: #22c55e; } /* Bright green */
+.stars-4 { background-color: #0d9488; } /* Blueish green (Teal) */
+.stars-3 { background-color: #facc15; } /* Bright yellow */
+.stars-2 { background-color: #f97316; } /* Orange */
+.stars-1 { background-color: #ef4444; } /* Red */
 
 .movie-review-count {
     font-size: 0.75em;
