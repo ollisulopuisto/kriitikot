@@ -242,9 +242,9 @@ th.rating-cell:hover {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.stars-5 { background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%); } /* Bright Green */
-.stars-4 { background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%); } /* Blueish Green (Teal) */
-.stars-3 { background: linear-gradient(135deg, #facc15 0%, #eab308 100%); } /* Bright Yellow */
+.stars-5 { background: #5ab34f; background: linear-gradient(90deg, rgba(90, 179, 79, 1) 0%, rgba(85, 255, 0, 1) 65%); }
+.stars-4 { background: #a0baeb; background: linear-gradient(90deg, rgba(160, 186, 235, 1) 16%, rgba(94, 255, 0, 1) 85%); }
+.stars-3 { background: #f7eec1; background: linear-gradient(90deg, rgba(247, 238, 193, 1) 13%, rgba(255, 247, 0, 1) 65%); }
 .stars-2 { background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); } /* Orange */
 .stars-1 { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); } /* Red */
 
