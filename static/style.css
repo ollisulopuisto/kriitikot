@@ -1115,8 +1115,8 @@ td:not(.dimmed) {
 
 /* Pill background colors based on rating - bright solid colors */
 .stars-5 {
-    background-color: #059669;
-    /* Emerald 600 - High pop */
+    background-color: #22c55e;
+    /* Light bright green - High pop */
 }
 
 .stars-4 {
