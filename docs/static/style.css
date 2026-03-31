@@ -1115,28 +1115,28 @@ td:not(.dimmed) {
 
 /* Pill background colors based on rating - bright solid colors */
 .stars-5 {
-    background-color: #10b981;
-    /* Bright green (Emerald) */
+    background-color: #059669;
+    /* Emerald 600 - High pop */
 }
 
 .stars-4 {
-    background-color: #3b82f6;
-    /* Blue */
+    background-color: #7aa3d1;
+    /* Desaturated blue (45% sat) */
 }
 
 .stars-3 {
-    background-color: #facc15;
-    /* Bright yellow */
+    background-color: #d1c47a;
+    /* Desaturated yellow (45% sat) */
 }
 
 .stars-2 {
-    background-color: #f97316;
-    /* Orange */
+    background-color: #d1947a;
+    /* Desaturated orange (45% sat) */
 }
 
 .stars-1 {
-    background-color: #ff0000;
-    /* Bright red */
+    background-color: #dc2626;
+    /* Red 600 - High pop */
 }
 
 .rating-stars {
