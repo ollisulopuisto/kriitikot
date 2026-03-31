@@ -1115,13 +1115,13 @@ td:not(.dimmed) {
 
 /* Pill background colors based on rating - bright solid colors */
 .stars-5 {
-    background-color: #22c55e;
-    /* Bright green */
+    background-color: #10b981;
+    /* Bright green (Emerald) */
 }
 
 .stars-4 {
-    background-color: #0d9488;
-    /* Blueish green (Teal) */
+    background-color: #3b82f6;
+    /* Blue */
 }
 
 .stars-3 {
@@ -1135,8 +1135,8 @@ td:not(.dimmed) {
 }
 
 .stars-1 {
-    background-color: #ef4444;
-    /* Red */
+    background-color: #ff0000;
+    /* Bright red */
 }
 
 .rating-stars {
