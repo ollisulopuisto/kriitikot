@@ -1113,30 +1113,30 @@ td:not(.dimmed) {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Pill background colors based on rating - with gradients and improved brightness/saturation */
+/* Pill background colors based on rating - bright solid colors */
 .stars-5 {
-    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-    /* Vibrant green */
+    background-color: #22c55e;
+    /* Bright green */
 }
 
 .stars-4 {
-    background: linear-gradient(135deg, #a3e635 0%, #65a30d 100%);
-    /* Lime (Yellow-Green) */
+    background-color: #0d9488;
+    /* Blueish green (Teal) */
 }
 
 .stars-3 {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    /* Bright yellow/gold */
+    background-color: #facc15;
+    /* Bright yellow */
 }
 
 .stars-2 {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    /* Warm orange */
+    background-color: #f97316;
+    /* Orange */
 }
 
 .stars-1 {
-    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-    /* Soft red */
+    background-color: #ef4444;
+    /* Red */
 }
 
 .rating-stars {
