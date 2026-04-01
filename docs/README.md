@@ -98,7 +98,7 @@ kriitikot/
 │   ├── batch_update.py     # Eräajoskripti
 │   └── init_db.py          # Tietokannan alustus
 ├── tests/                   # 🧪 Testit
-│   ├── test_scraper.py     # Scraper-testit (13 testiä)
+│   ├── test_scraper.py     # Scraper-testit (osa backend-testipakettia)
 │   └── test_data/          # Testimateriaali
 ├── templates/               # 🎨 HTML-templatet
 ├── static/                  # 🎨 CSS/JS
@@ -120,8 +120,11 @@ python3 src/batch_update.py
 # Tietokannan tila
 python3 src/db_status.py
 
-# Testit
-pytest tests/test_scraper.py -v
+# Backend-testit
+python3 -m pytest -q
+
+# Frontend-testit
+npm test
 ```
 
 ## 🔍 Scrapers-paketin rakenne

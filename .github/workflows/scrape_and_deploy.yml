@@ -29,6 +29,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -41,13 +47,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          npm ci
 
       - name: Run unit tests
         id: run_tests
         run: |
-          # Run pytest; if tests fail, mark TESTS_FAILED in env
+          # Run both backend and frontend tests; if any fail, mark TESTS_FAILED in env
           export TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}"
           pytest -q || echo "TESTS_FAILED=1" >> $GITHUB_ENV
+          npm test || echo "TESTS_FAILED=1" >> $GITHUB_ENV
 
       - name: Create issue on test failures
         if: env.TESTS_FAILED == '1'

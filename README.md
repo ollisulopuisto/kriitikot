@@ -224,7 +224,7 @@ kriitikot/
 ├── templates/              # 🎨 HTML-templatet
 ├── static/                 # 🎨 CSS/JS
 ├── tests/                  # 🧪 Testit
-│   ├── test_scraper.py    # Scraper-testit (13 testiä)
+│   ├── test_scraper.py    # Scraper-testit (osa 55 backend-testistä)
 │   └── test_data/         # Testimateriaali
 ├── reviews.db             # 🗄️ SQLite-tietokanta
 ├── requirements.txt
