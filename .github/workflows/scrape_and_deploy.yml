@@ -16,6 +16,8 @@ permissions:
 jobs:
   scrape_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: '20'
 
     steps:
       - name: Checkout repository
@@ -28,6 +30,39 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+
+      - name: Detect frontend test setup
+        id: frontend
+        run: |
+          if [ ! -f package.json ]; then
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          has_test_script=$(python3 - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          try:
+              package = json.loads(Path("package.json").read_text(encoding="utf-8"))
+          except (OSError, json.JSONDecodeError) as exc:
+              print(f"package.json parse failed: {exc}", file=sys.stderr)
+              print("false")
+          else:
+              print("true" if package.get("scripts", {}).get("test") else "false")
+          PY
+          )
+          if [ "$has_test_script" = "true" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node.js
+        if: steps.frontend.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -42,12 +77,34 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Install frontend dependencies
+        if: steps.frontend.outputs.enabled == 'true'
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
       - name: Run unit tests
         id: run_tests
         run: |
-          # Run pytest; if tests fail, mark TESTS_FAILED in env
+          # Run both backend and frontend tests; if any fail, mark TESTS_FAILED in env
           export TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}"
-          pytest -q || echo "TESTS_FAILED=1" >> $GITHUB_ENV
+          tests_failed=0
+          pytest -q || {
+            echo "::error::Backend tests failed."
+            tests_failed=1
+          }
+          if [ "${{ steps.frontend.outputs.enabled }}" = "true" ]; then
+            npm test || {
+              echo "::error::Frontend tests failed."
+              tests_failed=1
+            }
+          fi
+          if [ "$tests_failed" -eq 1 ]; then
+            echo "TESTS_FAILED=1" >> $GITHUB_ENV
+          fi
 
       - name: Create issue on test failures
         if: env.TESTS_FAILED == '1'

@@ -98,7 +98,7 @@ kriitikot/
 │   ├── batch_update.py     # Eräajoskripti
 │   └── init_db.py          # Tietokannan alustus
 ├── tests/                   # 🧪 Testit
-│   ├── test_scraper.py     # Scraper-testit (13 testiä)
+│   ├── test_scraper.py     # Scraper-testit (osa backend-testipakettia)
 │   └── test_data/          # Testimateriaali
 ├── templates/               # 🎨 HTML-templatet
 ├── static/                  # 🎨 CSS/JS
@@ -120,8 +120,11 @@ python3 src/batch_update.py
 # Tietokannan tila
 python3 src/db_status.py
 
-# Testit
-pytest tests/test_scraper.py -v
+# Backend-testit
+python3 -m pytest -q
+
+# Frontend-testit
+npm test
 ```
 
 ## 🔍 Scrapers-paketin rakenne
@@ -156,11 +159,11 @@ class Review:
     raw_data: Optional[Dict[str, Any]]  # Raakadata (debug)
 ```
 
-## 📊 Tilastot (lokakuu 2025)
+## 📊 Tilastot
 
 - **Tuetut julkaisut:** 6 kpl (HS, KSML, IL, TS, SK, IS)
 - **Scraper-moduulit:** 8 tiedostoa (1240 riviä)
-- **Testit:** 13 testiä (kaikki läpi ✅)
+- **Testit:** 55 pytest-testiä + 7 Vitest-testiä (kaikki läpi ✅)
 - **Tietokannassa:** 20 arvostelua, 12 elokuvaa, 11 kriitikkoa, 5 julkaisua
 - **Refaktorointi:** 1070 riviä → 49 riviä wrapper + 8 modulia
 - **Dokumentaatio:** 8 dokumenttia docs/-hakemistossa

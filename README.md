@@ -51,7 +51,7 @@ Päivittyy automaattisesti päivittäin klo 08:00 Suomen aikaa (GitHub Actions).
   - Ulkoinen CSS-tiedosto (static/style.css)
   - Sarakkeiden järjestyksen muuttaminen
 - **JSON API**: REST-rajapinta arvostelujen hakemiseen
-- **Testit**: 13 pytest-testiä (100% passing) ✅
+- **Testit**: 55 backend-testiä (pytest) + 7 frontend-testiä (Vitest) ✅
 - **🤖 AI Agent Instructions**: [AGENTS.md](AGENTS.md) - Ohjeet uusien scrapereiden lisäämiseen
 
 ### 🚧 Työn alla / Tulossa:
@@ -224,7 +224,7 @@ kriitikot/
 ├── templates/              # 🎨 HTML-templatet
 ├── static/                 # 🎨 CSS/JS
 ├── tests/                  # 🧪 Testit
-│   ├── test_scraper.py    # Scraper-testit (13 testiä)
+│   ├── test_scraper.py    # Scraper-testit (osa 55 backend-testistä)
 │   └── test_data/         # Testimateriaali
 ├── reviews.db             # 🗄️ SQLite-tietokanta
 ├── requirements.txt
@@ -272,8 +272,11 @@ Ks. [docs/README.md](docs/README.md) yksityiskohtaiset ohjeet.
 ## 🧪 Testaus
 
 ```bash
-# Kaikki testit
-pytest
+# Backend-testit (pytest)
+python3 -m pytest -q
+
+# Frontend-testit (Vitest)
+npm test
 
 # Yksittäinen testi
 pytest tests/test_scraper.py::test_hs_scraper_basic -v
@@ -368,7 +371,7 @@ curl http://localhost:5432/api/reviews/0
 ## 🤝 Kehitysperiaatteet
 
 - **Modulaarisuus**: Jokainen lähde omana moduulinaan
-- **Testattavuus**: TDD-lähestymistapa
+- **Testattavuus**: Hyvä regressiotestikattavuus (backend + frontend), mutta ei järjestelmällistä red-green TDD -prosessia kaikissa muutoksissa
 - **Yleiskäyttöisyys**: Ei kovakoodattuja oletuksia
 - **Laajennettavuus**: Helppo lisätä uusia ominaisuuksia
 
