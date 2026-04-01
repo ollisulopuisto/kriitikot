@@ -156,7 +156,7 @@ class Review:
     raw_data: Optional[Dict[str, Any]]  # Raakadata (debug)
 ```
 
-## 📊 Tilastot (päivitetty)
+## 📊 Tilastot
 
 - **Tuetut julkaisut:** 6 kpl (HS, KSML, IL, TS, SK, IS)
 - **Scraper-moduulit:** 8 tiedostoa (1240 riviä)
