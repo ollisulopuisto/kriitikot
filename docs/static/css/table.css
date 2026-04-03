@@ -159,7 +159,6 @@ td.movie-col {
 }
 
 /* Show full poster on hover after delay */
-tbody tr:hover .movie-poster-full,
 .movie-poster-container:hover .movie-poster-full {
     opacity: 1;
     visibility: visible;
