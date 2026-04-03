@@ -25,11 +25,12 @@ describe('Letterboxd- ja Nytleffaan-linkit renderöityvät oikein', () => {
     const targetMovie = 'Elokuva 31';
     const letterboxdUrl = 'https://letterboxd.com/film/elokuva-31-2026/';
     const nytleffaanUrl = 'https://www.nytleffaan.fi/elokuva/elokuva312026/';
+    const posterUrl = 'https://image.tmdb.org/t/p/w500/test-poster-31.jpg';
 
     const movieMetaData = {
       nytleffaan_urls: { [targetMovie]: nytleffaanUrl },
       letterboxd_urls: { [targetMovie]: letterboxdUrl },
-      poster_urls: {},
+      poster_urls: { [targetMovie]: posterUrl },
       movie_review_counts: { [targetMovie]: 1 },
       movie_rating_distributions: { [targetMovie]: [0, 1, 3, 2, 0] }
     };
@@ -89,6 +90,12 @@ describe('Letterboxd- ja Nytleffaan-linkit renderöityvät oikein', () => {
     expect(desktopLinks[1].getAttribute('href')).toBe(letterboxdUrl);
     expect(desktopLinks[1].getAttribute('rel')).toBe('noopener noreferrer');
     expect(desktopMovieCell.querySelectorAll('.movie-sparkline .spark-bar')).toHaveLength(5);
+    const desktopPosterThumb = desktopMovieCell.querySelector('.movie-poster-thumb');
+    const desktopPosterFull = desktopMovieCell.querySelector('.movie-poster-full');
+    expect(desktopPosterThumb).toBeTruthy();
+    expect(desktopPosterThumb.getAttribute('src')).toBe(posterUrl);
+    expect(desktopPosterFull).toBeTruthy();
+    expect(desktopPosterFull.getAttribute('src')).toBe(posterUrl);
 
     const mobileCard = document.querySelector(`.mobile-cards .movie-card[data-movie="${targetMovie}"]`);
     expect(mobileCard).toBeTruthy();
