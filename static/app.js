@@ -609,12 +609,22 @@ function renderMovie(movieTitle, criticsReviewsDict) {
             <td class="movie-col" data-poster="${posterUrl}"
                 data-letterboxd="${letterboxdUrl}"
                 data-nytleffaan="${nytleffaanUrl}">
-                <div class="movie-title-main">${movieTitle}</div>
-                <div class="movie-meta-row">
-                    ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
-                    ${sparklineHtml}
-                    ${nytleffaanUrl ? `<a href="${nytleffaanUrl}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>` : ''}
-                    ${letterboxdUrl ? `<a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>` : ''}
+                <div class="movie-content-wrapper">
+                    ${posterUrl ? `
+                    <div class="movie-poster-container">
+                        <img src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-thumb" loading="lazy">
+                        <img src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-full" loading="lazy">
+                    </div>
+                    ` : ''}
+                    <div class="movie-info">
+                        <div class="movie-title-main">${movieTitle}</div>
+                        <div class="movie-meta-row">
+                            ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                            ${sparklineHtml}
+                            ${nytleffaanUrl ? `<a href="${nytleffaanUrl}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>` : ''}
+                            ${letterboxdUrl ? `<a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>` : ''}
+                        </div>
+                    </div>
                 </div>
             </td>
     `;
