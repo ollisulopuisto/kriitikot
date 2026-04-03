@@ -55,9 +55,9 @@ td {
 
 /* Movie column (first column) */
 .movie-col {
-    width: 16rem;
-    min-width: 16rem;
-    max-width: 16rem;
+    width: 22rem;
+    min-width: 22rem;
+    max-width: 22rem;
     position: sticky;
     left: 0;
     white-space: nowrap;
@@ -344,7 +344,7 @@ th.rating-cell:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 12px;
     margin-top: 6px;
 }
