@@ -55,9 +55,9 @@ td {
 
 /* Movie column (first column) */
 .movie-col {
-    width: 16rem;
-    min-width: 16rem;
-    max-width: 16rem;
+    width: 22rem;
+    min-width: 22rem;
+    max-width: 22rem;
     position: sticky;
     left: 0;
     white-space: nowrap;
@@ -100,7 +100,7 @@ td.movie-col {
     color: #212529;
     background-color: white; /* Base background to mask scrolling content */
     border-right: 0.125rem solid #e9ecef;
-    padding: 1rem 0.625rem;
+    padding: 0.75rem 0.625rem;
     white-space: normal;
     word-wrap: break-word;
     z-index: 50; /* Below thead (200), but above regular rating cells */
@@ -109,6 +109,76 @@ td.movie-col {
     text-align: left;
     font-weight: 600;
     transition: all 0.25s ease;
+}
+
+/* Movie content wrapper - flexbox layout for thumbnail + text */
+.movie-content-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    position: relative;
+}
+
+/* Poster container - holds both thumbnail and full-size */
+.movie-poster-container {
+    position: relative;
+    flex-shrink: 0;
+    width: 48px;
+    height: 72px; /* 2:3 aspect ratio */
+}
+
+/* Mini thumbnail - always visible */
+.movie-poster-thumb {
+    width: 48px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Full-size poster - hidden by default, appears on hover with delay */
+.movie-poster-full {
+    position: absolute;
+    top: 0;
+    left: 100%; /* Position to the right of thumbnail */
+    margin-left: 12px; /* Space from thumbnail */
+    width: 200px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 300; /* Above everything */
+    background: white;
+    padding: 4px;
+    pointer-events: none; /* Don't block mouse events */
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s; /* Instant hide when transition ends */
+}
+
+/* Show full poster on hover after delay */
+tbody tr:hover .movie-poster-full,
+.movie-poster-container:hover .movie-poster-full {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.6s, 0.6s; /* Delay before appearing */
+}
+
+/* Subtle scale on thumbnail hover */
+.movie-poster-container:hover .movie-poster-thumb {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Movie info section - title and meta */
+.movie-info {
+    flex: 1;
+    min-width: 0; /* Allow text to shrink */
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
 }
 
 /* Hover effects */
@@ -121,9 +191,17 @@ td.movie-col:hover {
     background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
     cursor: pointer;
     font-weight: 600;
-    transform: scale(1.02);
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
     z-index: 60; /* Below thead (200) */
+}
+
+/* Ensure poster full-size appears above the hovered cell */
+tbody tr:hover td.movie-col {
+    z-index: 60;
+}
+
+td.movie-col:hover .movie-poster-full {
+    z-index: 310; /* Above the hovered cell */
 }
 
 /* Zebra striping */
@@ -266,7 +344,7 @@ th.rating-cell:hover {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 12px;
     margin-top: 6px;
 }

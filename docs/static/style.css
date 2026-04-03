@@ -913,17 +913,16 @@ tbody tr:hover td.movie-col {
     z-index: 200;
 }
 
-/* Posterikuva - PIILOTETTU oletuksena */
+/* OLD POSTER STYLES - Keeping for backwards compatibility with JavaScript click handlers */
+/* These are used by interactions.js for the click-to-expand poster row functionality */
 .movie-poster {
     position: absolute;
     top: 100%;
-    /* Rivin alapuolelle */
     left: 0;
     max-width: 14rem !important;
     width: 14rem;
     height: auto;
     display: none;
-    /* Piilotettu oletuksena */
     border-radius: 6px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     z-index: 250;
@@ -932,13 +931,13 @@ tbody tr:hover td.movie-col {
     margin-top: 0.5rem;
 }
 
-/* Näytä posteri kun hoveroidaan RIVIN yli TAI kun rivi on valittu */
-tbody tr:hover .movie-poster,
+/* Disabled old hover behavior - now using .movie-poster-full in table.css */
+/* tbody tr:hover .movie-poster,
 tbody tr:not(.dimmed) .movie-poster {
     display: block;
-}
+} */
 
-/* UUSI: Erillinen poster-rivi */
+/* UUSI: Erillinen poster-rivi (for click interactions) */
 .poster-row {
     background: white;
 }
