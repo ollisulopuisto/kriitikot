@@ -612,9 +612,9 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                 <div class="movie-title-main">${movieTitle}</div>
                 <div class="movie-meta-row">
                     ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                    ${sparklineHtml}
                     ${nytleffaanUrl ? `<a href="${nytleffaanUrl}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>` : ''}
                     ${letterboxdUrl ? `<a href="${letterboxdUrl}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>` : ''}
-                    ${sparklineHtml}
                 </div>
             </td>
     `;
@@ -641,8 +641,8 @@ function renderMovie(movieTitle, criticsReviewsDict) {
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
                         <div class="movie-card-title">${movieTitle}</div>
-                        ${mobileSparklineHtml}
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
+                        ${mobileSparklineHtml}
                         ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
                     </div>
             </div>

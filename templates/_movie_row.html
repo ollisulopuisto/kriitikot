@@ -8,16 +8,6 @@
             <div class="movie-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
             {% endif %}
 
-            {% set nytleffaan_url = nytleffaan_urls.get(movie_title) %}
-            {% if nytleffaan_url %}
-            <a href="{{ nytleffaan_url }}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>
-            {% endif %}
-
-            {% set letterboxd_url = letterboxd_urls.get(movie_title) %}
-            {% if letterboxd_url %}
-            <a href="{{ letterboxd_url }}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>
-            {% endif %}
-            
             {% if movie_rating_distributions and movie_title in movie_rating_distributions %}
             {% set dist = movie_rating_distributions[movie_title] %}
             {% set total = dist | sum %}
@@ -30,6 +20,16 @@
                 {% endfor %}
             </div>
             {% endif %}
+            {% endif %}
+
+            {% set nytleffaan_url = nytleffaan_urls.get(movie_title) %}
+            {% if nytleffaan_url %}
+            <a href="{{ nytleffaan_url }}" target="_blank" rel="noopener noreferrer" class="movie-link nytleffaan-link" title="Osta liput: nytleffaan.fi">Osta liput</a>
+            {% endif %}
+
+            {% set letterboxd_url = letterboxd_urls.get(movie_title) %}
+            {% if letterboxd_url %}
+            <a href="{{ letterboxd_url }}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>
             {% endif %}
         </div>
     </td>

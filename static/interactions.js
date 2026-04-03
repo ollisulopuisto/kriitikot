@@ -258,7 +258,9 @@ function initMovieClickHandlers() {
                     linksDiv.appendChild(letterboxdLink);
                 }
 
-                const insertAfterTarget = movieCell.querySelector('.movie-review-count') || movieCell.querySelector('.movie-title-main');
+                const insertAfterTarget = movieCell.querySelector('.movie-sparkline') || 
+                                         movieCell.querySelector('.movie-review-count') || 
+                                         movieCell.querySelector('.movie-title-main');
                 if (insertAfterTarget) {
                     insertAfterTarget.insertAdjacentElement('afterend', linksDiv);
                 } else {

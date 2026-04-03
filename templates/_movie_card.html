@@ -4,6 +4,9 @@
             <div class="movie-card-title">
                 {{ movie_title }}
             </div>
+            {% if movie_review_counts and movie_title in movie_review_counts %}
+            <div class="movie-card-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
+            {% endif %}
             {% if movie_rating_distributions and movie_title in movie_rating_distributions %}
             {% set dist = movie_rating_distributions[movie_title] %}
             {% set total = dist | sum %}
@@ -16,9 +19,6 @@
                 {% endfor %}
             </div>
             {% endif %}
-            {% endif %}
-            {% if movie_review_counts and movie_title in movie_review_counts %}
-            <div class="movie-card-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
             {% endif %}
             {% if poster_urls.get(movie_title) %}
             <img class="movie-card-poster" src="{{ poster_urls[movie_title] }}" alt="Poster" />
