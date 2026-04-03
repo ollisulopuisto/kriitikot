@@ -209,6 +209,10 @@ th .review-count {
     vertical-align: middle;
 }
 
+th.rating-cell {
+    vertical-align: bottom;
+}
+
 th.rating-cell:hover {
     background: rgba(139, 92, 246, 0.2);
     cursor: pointer;
