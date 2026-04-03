@@ -637,13 +637,17 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Mobile card
     let mobileHtml = `
-        <div class="movie-card" data-movie="${movieTitle}">
+        <div class="movie-card" data-movie="${movieTitle}" data-poster="${posterUrl}">
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
                         <div class="movie-card-title">${movieTitle}</div>
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
                         ${mobileSparklineHtml}
-                        ${posterUrl ? `<img class="movie-card-poster" src="${posterUrl}" alt="Poster" />` : ''}
+                        ${posterUrl ? `
+                            <div class="movie-card-poster-container">
+                                <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${movieTitle} poster" />
+                            </div>
+                        ` : ''}
                     </div>
             </div>
             <div class="movie-card-body">
@@ -836,7 +840,72 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loadMoreButton) {
         loadMoreButton.addEventListener('click', loadMoreMovies);
     }
+
+    // Mobile poster toggle functionality
+    initMobilePosterToggle();
 });
+
+/**
+ * Initialize mobile poster tap-to-toggle functionality with lightbox
+ */
+function initMobilePosterToggle() {
+    const lightbox = document.getElementById('poster-lightbox');
+    const lightboxImg = document.getElementById('poster-lightbox-img');
+    const closeBtn = lightbox ? lightbox.querySelector('.poster-lightbox-close') : null;
+    const backdrop = lightbox ? lightbox.querySelector('.poster-lightbox-backdrop') : null;
+
+    if (!lightbox || !lightboxImg) return;
+
+    // Open lightbox when clicking poster thumbnail
+    document.addEventListener('click', function(e) {
+        const posterContainer = e.target.closest('.movie-card-poster-container');
+        if (!posterContainer) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Get poster URL from parent movie card
+        const movieCard = posterContainer.closest('.movie-card');
+        if (!movieCard) return;
+
+        const posterUrl = movieCard.dataset.poster;
+        if (!posterUrl) return;
+
+        // Show lightbox
+        lightboxImg.src = posterUrl;
+        lightbox.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    });
+
+    // Close lightbox on close button click
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeLightbox();
+        });
+    }
+
+    // Close lightbox on backdrop click
+    if (backdrop) {
+        backdrop.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeLightbox();
+        });
+    }
+
+    // Close lightbox on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+            closeLightbox();
+        }
+    });
+
+    function closeLightbox() {
+        lightbox.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+        lightboxImg.src = ''; // Clear image to save memory
+    }
+}
 
 
 // Export global functions

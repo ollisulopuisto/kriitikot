@@ -42,6 +42,117 @@
 }
 
 
+/* Mobile poster container */
+.movie-card-poster-container {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.movie-card-poster-thumb {
+    max-width: 100px;
+    height: auto;
+    border-radius: 0.25rem;
+    margin-left: 0;
+    margin-bottom: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.movie-card-poster-container:active .movie-card-poster-thumb {
+    transform: scale(0.95);
+}
+
+/* Poster Lightbox - Mobile only */
+.poster-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.poster-lightbox-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+.poster-lightbox-content {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    max-height: 90vh;
+    animation: zoomIn 0.2s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.poster-lightbox-close {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.poster-lightbox-close:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.poster-lightbox-close:active {
+    transform: scale(0.95);
+}
+
+#poster-lightbox-img {
+    max-width: 100%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+    display: block;
+}
+
+/* Old poster class - keep for backwards compatibility */
 .movie-card-poster {
     max-width: 100px;
     height: auto;

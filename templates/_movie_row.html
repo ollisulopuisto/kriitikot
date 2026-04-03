@@ -2,8 +2,17 @@
     <td class="movie-col" data-poster="{{ poster_urls.get(movie_title, '') }}"
         data-letterboxd="{{ letterboxd_urls.get(movie_title, '') }}"
         data-nytleffaan="{{ nytleffaan_urls.get(movie_title, '') }}">
-        <div class="movie-title-main">{{ movie_title }}</div>
-        <div class="movie-meta-row">
+        <div class="movie-content-wrapper">
+            {% set poster_url = poster_urls.get(movie_title, '') %}
+            {% if poster_url %}
+            <div class="movie-poster-container">
+                <img src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-thumb" loading="lazy">
+                <img src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-full" loading="lazy">
+            </div>
+            {% endif %}
+            <div class="movie-info">
+                <div class="movie-title-main">{{ movie_title }}</div>
+                <div class="movie-meta-row">
             {% if movie_review_counts and movie_title in movie_review_counts %}
             <div class="movie-review-count">🎬 {{ movie_review_counts[movie_title] }}</div>
             {% endif %}
@@ -31,6 +40,8 @@
             {% if letterboxd_url %}
             <a href="{{ letterboxd_url }}" target="_blank" rel="noopener noreferrer" class="movie-link letterboxd-link" title="Katso Letterboxd:ssä">Letterboxd</a>
             {% endif %}
+                </div>
+            </div>
         </div>
     </td>
     {% for critic in all_critics %}

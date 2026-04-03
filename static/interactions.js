@@ -268,32 +268,8 @@ function initMovieClickHandlers() {
                 }
             }
 
-            // Luo poster-rivi vain jos on poster
-            const posterUrl = movieCell.dataset.poster;
-            if (posterUrl) {
-                const posterRow = document.createElement('tr');
-                posterRow.className = 'poster-row';
-
-                const posterCell = document.createElement('td');
-                posterCell.colSpan = 1;
-
-                const posterImg = document.createElement('img');
-                posterImg.src = posterUrl;
-                posterImg.alt = 'Elokuvan juliste';
-                posterImg.className = 'movie-poster-inline';
-                posterCell.appendChild(posterImg);
-
-                posterRow.appendChild(posterCell);
-
-                const columnCount = table.querySelectorAll('thead th').length;
-                for (let i = 1; i < columnCount; i++) {
-                    const emptyCell = document.createElement('td');
-                    emptyCell.className = 'poster-row-empty';
-                    posterRow.appendChild(emptyCell);
-                }
-
-                clickedRow.parentNode.insertBefore(posterRow, clickedRow.nextSibling);
-            }
+            // Poster-rivi on poistettu käytöstä - posterit näkyvät nyt thumbnail-muodossa
+            // ja suurempana hover-efektillä table.css:ssä
 
             if (window.addFillerColumns) window.addFillerColumns();
             if (window.showResetButton) window.showResetButton();
