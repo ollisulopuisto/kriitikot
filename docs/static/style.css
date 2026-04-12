@@ -230,8 +230,9 @@ h6 {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
     /* Vaakasuuntainen skrollaus */
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: visible; /* Ensure vertical overflow is visible for posters */
     position: relative;
+    min-height: 500px; /* Space for posters in filtered view */
     /* Instant scrolling for smooth sync with sticky scrollbar */
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
@@ -1025,8 +1026,8 @@ tr.dimmed {
     pointer-events: none;
     transition: opacity 0.3s ease;
     /* ÄLÄ käytä display: none - se piilottaisi myös absoluuttiset lapset */
-    max-height: 0;
-    overflow: visible !important;
+    height: 0;
+    overflow-y: visible !important;
     /* Tärkeä - posteri voi vuotaa ulos */
 }
 

@@ -1,6 +1,7 @@
 .table-wrapper {
     position: relative;
     overflow-x: auto;
+    overflow-y: visible; /* CRITICAL: Ensure vertical overflow is visible for posters */
     background: #fff;
     border-radius: 12px;
     box-shadow: var(--shadow);
@@ -8,6 +9,7 @@
     margin-bottom: 2rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    min-height: 500px; /* Increased slightly to ensure enough space for posters in single-movie mode */
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -109,6 +111,7 @@ td.movie-col {
     text-align: left;
     font-weight: 600;
     transition: all 0.25s ease;
+    overflow: visible;
 }
 
 /* Movie content wrapper - flexbox layout for thumbnail + text */
