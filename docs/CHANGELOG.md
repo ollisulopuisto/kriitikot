@@ -2,6 +2,14 @@
 
 Kaikki merkittävät muutokset projektiin dokumentoidaan tähän.
 
+## [0.5.2] - 2026-04-12
+
+### 🔧 Parannettu
+- **Lataa lisää -painike**
+  - Painike piilotetaan nyt automaattisesti työpöydällä, kun yksittäinen elokuva on valittu (single movie view).
+  - Painikkeen näkyvyys palautetaan, kun suodattimet nollataan ja lisää elokuvia on vielä lataamatta.
+  - Parannettu globaalien muuttujien (`allGroupedReviews`, `currentMovieOffset`) hallintaa testausta varten.
+
 ## [0.5.1] - 2026-03-26
 
 ### 🔧 Parannettu
