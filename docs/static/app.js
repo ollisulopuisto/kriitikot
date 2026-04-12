@@ -6,9 +6,9 @@
 let savedScrollLeft = 0;
 let originalTableWidth = 0;
 let originalVisibleColumns = 0;
-let currentMovieOffset = 30; // Aloitetaan 30:stä, koska ensimmäiset 30 on jo ladattu Jinjalla
+let currentMovieOffset = window.currentMovieOffset || 30; // Aloitetaan 30:stä, koska ensimmäiset 30 on jo ladattu Jinjalla
 const movieLimit = 30;
-let allGroupedReviews = {}; // Tähän ladataan kaikki arvostelut JSONista
+let allGroupedReviews = window.allGroupedReviews || {}; // Tähän ladataan kaikki arvostelut JSONista
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
 let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
 let allPublicationMap = {}; // Map julkaisuista {short_name: publication_object}
@@ -545,6 +545,29 @@ function updateRowVisibility() {
         // Trigger resize event implies scrollbar update
         window.dispatchEvent(new Event('resize'));
     }
+
+    // Päivitä "Lataa lisää" -napin näkyvyys
+    const loadMoreButton = document.getElementById('load-more-button');
+    if (loadMoreButton) {
+        if (selectedMovieRow) {
+            // Piilota nappi jos olemme yksittäisen elokuvan näkymässä (desktop)
+            loadMoreButton.parentElement.style.display = 'none';
+        } else {
+            // Palauta napin näkyvyys jos dataa on vielä lataamatta
+            // Suositaan window-objektia jos se on asetettu (helpottaa testausta)
+            const reviews = (typeof window.allGroupedReviews === 'object' && Object.keys(window.allGroupedReviews).length > 0) 
+                           ? window.allGroupedReviews 
+                           : allGroupedReviews;
+            const movieTitles = (typeof reviews === 'object') ? Object.keys(reviews) : [];
+            const offset = (typeof window.currentMovieOffset === 'number') ? window.currentMovieOffset : currentMovieOffset;
+            
+            if (offset < movieTitles.length) {
+                loadMoreButton.parentElement.style.display = 'block';
+            } else {
+                loadMoreButton.parentElement.style.display = 'none';
+            }
+        }
+    }
 }
 
 // Lazy Loading
@@ -735,6 +758,7 @@ function loadMoreMovies() {
     });
     
     currentMovieOffset += moviesToRender.length;
+    window.currentMovieOffset = currentMovieOffset;
 
     if (currentMovieOffset >= movieTitles.length) {
         loadMoreButton.parentElement.style.display = 'none';
