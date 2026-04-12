@@ -64,18 +64,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Cache pip
-        uses: actions/cache@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          enable-cache: true
+          version: "latest"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          uv sync --all-extras
 
       - name: Install frontend dependencies
         if: steps.frontend.outputs.enabled == 'true'
@@ -92,7 +89,7 @@ jobs:
           # Run both backend and frontend tests; if any fail, mark TESTS_FAILED in env
           export TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}"
           tests_failed=0
-          pytest -q || {
+          uv run pytest -q || {
             echo "::error::Backend tests failed."
             tests_failed=1
           }
@@ -132,7 +129,7 @@ jobs:
       - name: Get pre-scrape review count
         id: pre_count
         run: |
-          before=$(python3 - <<'PY'
+          before=$(uv run python - <<'PY'
           import sys
           sys.path.insert(0,'src')
           from models import get_session, Review
@@ -146,18 +143,18 @@ jobs:
           DISPLAY_TIMEZONE: 'Europe/Helsinki'
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
-          python3 src/batch_update.py
+          uv run python src/batch_update.py
 
       - name: Backfill movie metadata links and posters
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
-          python3 src/update_metadata.py
+          uv run python src/update_metadata.py
 
       - name: Get post-scrape review count and compute delta
         id: post_count
         run: |
-          after=$(python3 - <<'PY'
+          after=$(uv run python - <<'PY'
           import sys
           sys.path.insert(0,'src')
           from models import get_session, Review
@@ -170,7 +167,7 @@ jobs:
 
       - name: Generate static site
         run: |
-          python3 scripts/generate_static.py
+          uv run python scripts/generate_static.py
 
       - name: Commit & push changes
         env:
