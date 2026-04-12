@@ -1,5 +1,0 @@
-pytest
-requests
-beautifulsoup4
-flask
-sqlalchemy>=2.0.0

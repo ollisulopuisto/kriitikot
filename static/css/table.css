@@ -190,13 +190,19 @@ td.movie-col:hover {
     background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
     cursor: pointer;
     font-weight: 600;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
     z-index: 60; /* Below thead (200) */
+    overflow: visible !important;
 }
 
-/* Ensure poster full-size appears above the hovered cell */
+/* Ensure poster full-size appears above the hovered cell and row doesn't clip */
+tbody tr:hover {
+    z-index: 70;
+    position: relative; /* Create stacking context for the row */
+}
+
 tbody tr:hover td.movie-col {
-    z-index: 60;
+    z-index: 80;
+    overflow: visible !important;
 }
 
 td.movie-col:hover .movie-poster-full {
