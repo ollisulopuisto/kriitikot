@@ -199,7 +199,12 @@ class KSMLScraper(BaseScraper):
         """Poimii kirjoittajan nimen."""
         author = None
         
-        # JSON-LD
+        # 1. Open Graph article:author meta tag (luotettavin lähde KSML:llä)
+        og_author = soup.find('meta', property='article:author')
+        if og_author and og_author.get('content'):
+            return og_author['content'].strip()
+        
+        # 2. JSON-LD
         if ld_json:
             auth = ld_json.get('author')
             if isinstance(auth, dict):
@@ -211,28 +216,32 @@ class KSMLScraper(BaseScraper):
                 elif isinstance(first, str):
                     author = first
         
-        # Fallback: meta author
+        # 3. meta name="author"
         if not author:
             meta_author = soup.find('meta', attrs={'name': 'author'})
             if meta_author and meta_author.get('content'):
                 author = meta_author['content']
         
-        # Fallback: common author selectors
+        # 4. Spesifi byline-selector (KSML käyttää diks-byline__author)
         if not author:
-            # Etsitään tyypillisiä author-luokkia
+            byline_author = soup.find('p', class_='diks-byline__author')
+            if byline_author:
+                author = byline_author.get_text(strip=True)
+        
+        # 5. Yleiset author-selectorit (fallback)
+        if not author:
             author_elem = soup.select_one('[class*="author"], [class*="byline"], .article-author')
             if author_elem:
                 author = author_elem.get_text(strip=True)
         
-        # Puhdista: poista aikaleima jos mukana
+        # Puhdista: poista aikaleima ja muu roska jos mukana
         if author:
-            # Poista "Tänään HH:MM" muoto
-            author = re.sub(r'Tänään\s+\d{1,2}:\d{2}$', '', author)
-            # Poista "Eilen HH:MM" muoto
-            author = re.sub(r'Eilen\s+\d{1,2}:\d{2}$', '', author)
-            # Poista "PP.KK.VVVV HH:MM" muoto
-            author = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}\s+\d{1,2}:\d{2}$', '', author)
-            # Poista pelkkä "HH:MM" jos esiintyy lopussa
+            # Poista "| Päivitetty..." tai "| Päivitettytänään..." suffix
+            author = re.sub(r'\s*\|\s*Päivitetty.*$', '', author)
+            # Poista "Tänään HH:MM" / "Eilen HH:MM" / "PP.KK.VVVV HH:MM" suffixit
+            author = re.sub(r'\s*(?:Tänään|Eilen)\s+\d{1,2}:\d{2}\b.*$', '', author)
+            author = re.sub(r'\s*\d{1,2}\.\d{1,2}\.\d{4}\s+\d{1,2}:\d{2}\b.*$', '', author)
+            # Poista pelkkä "HH:MM" lopussa
             author = re.sub(r'\s+\d{1,2}:\d{2}$', '', author)
             author = author.strip()
         

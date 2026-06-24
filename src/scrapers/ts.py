@@ -84,21 +84,15 @@ class TSScraper(BaseScraper):
     
     def _extract_author(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
         """Poimii kirjoittajan nimen."""
-        # 1. Yritä meta property="article:author"
+        # 1. Open Graph article:author meta tag (luotettavin lähde)
         author_meta = soup.find('meta', property='article:author')
         if author_meta and author_meta.get('content'):
-            return author_meta['content']
-        
-        # 2. Etsi author-luokka
-        author_elem = soup.find(class_=re.compile(r'author', re.I))
-        if author_elem:
-            author = author_elem.get_text(strip=True)
-            # Poista päivämäärä jos mukana
-            author = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}.*$', '', author).strip()
-            if author:
+            author = author_meta['content'].strip()
+            # Varmista ettei ole julkaisun nimi (esim. "Turun Sanomat")
+            if author.lower() not in ('turun sanomat', 'ts'):
                 return author
-        
-        # 3. Etsi JSON-LD
+
+        # 2. JSON-LD
         for script in soup.find_all('script', type='application/ld+json'):
             if script.string:
                 try:
@@ -106,12 +100,30 @@ class TSScraper(BaseScraper):
                     if isinstance(data, dict):
                         auth = data.get('author')
                         if isinstance(auth, dict):
-                            return auth.get('name')
+                            name = auth.get('name')
+                            if name:
+                                return name
                         elif isinstance(auth, str):
                             return auth
                 except json.JSONDecodeError:
                     pass
-        
+
+        # 3. Spesifi author-elementti (TS käyttää tsv3-c-common-article__meta__author)
+        author_p = soup.find('p', class_='tsv3-c-common-article__meta__author')
+        if author_p:
+            text = author_p.get_text(strip=True)
+            if text:
+                return text
+
+        # 4. Yleiset author-selectorit (fallback)
+        author_elem = soup.find(class_=re.compile(r'\bauthor\b', re.I))
+        if author_elem:
+            author = author_elem.get_text(strip=True)
+            # Poista päivämäärä jos mukana
+            author = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}.*$', '', author).strip()
+            if author:
+                return author
+
         return None
     
     def _extract_rating(self, html_content: str) -> Optional[int]:
