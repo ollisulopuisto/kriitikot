@@ -47,13 +47,17 @@
     /* Sparkline on yksivärinen: arvosanan kertoo palkin paikka, ja väriasteikko
        on jo arvosanapilleissä samalla rivillä. Harmaa lokero palkin takana näyttää
        myös ne arvosanat jotka jäivät tyhjiksi. */
-    --spark-bar-top: #6f6961;
-    --spark-bar-bot: #413d39;
-    /* Lokeron on erotuttava myös mobiilikortin harmaasta otsikosta (#f8f9fa),
-       ei pelkästään taulukon valkoisesta solusta. Aiempi #e7e5e4 oli kortilla
-       vain 1,19:1 eli käytännössä näkymätön juuri siinä näkymässä jossa
-       sparkline on näkyvimmillään. */
-    --spark-track: #d4cfca;
+    /* Palkki on tummennettu sen verran että se erottuu lokerosta myös rivin
+       violetilla osumavärillä, jossa lokero on tummimmillaan (3,1:1). */
+    --spark-bar-top: #5c564f;
+    --spark-bar-bot: #36322e;
+    /* Lokero on läpikuultava eikä kiinteä sävy, koska sparkline esiintyy
+       usealla eri pinnalla: taulukon valkoinen solu, seepraraidat, mobiilikortin
+       harmaa otsikko ja rivin violetti osumaväri. Kiinteä sävy katosi aina
+       jollakin niistä — #e7e5e4 oli kortin otsikkoa vasten 1,19:1 ja
+       #d4cfca hover-taustaa vasten 1,10:1. Läpikuultava tummentaa mitä tahansa
+       alla olevaa pintaa, joten se erottuu kaikilla. */
+    --spark-track: rgba(69, 26, 3, 0.18);
     --spark-axis: #cbd5e1;
 }
 

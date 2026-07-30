@@ -775,9 +775,33 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 }
 
 
+/**
+ * Lue kriitikkojen järjestys taulukon otsikoista.
+ *
+ * Sarakkeet järjestetään uudelleen sivun latauksessa (sortCriticColumnsByReviews)
+ * niin että ylimpien elokuvien arvostelijat tulevat vasemmalle. Se tapahtuu vasta
+ * app.js:n DOMContentLoaded-käsittelijän JÄLKEEN, joten tähän talletettu järjestys
+ * vanhentuu. Jos uudet rivit renderöidään vanhentuneessa järjestyksessä, solut
+ * osuvat väärien otsikoiden alle ja sarakkeiden näkyvyyslogiikka menee sekaisin.
+ */
+function syncCriticOrderFromDom() {
+    const headers = document.querySelectorAll('thead th.rating-cell');
+    if (!headers.length) return;
+
+    allCritics = Array.from(headers).map(th => ({
+        id: th.dataset.criticId,
+        name: th.querySelector('.critic-name') ? th.querySelector('.critic-name').textContent : ''
+    }));
+    allCriticsMap = {};
+    allCritics.forEach(c => { allCriticsMap[c.id] = c; });
+}
+
 function loadMoreMovies() {
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
+
+    // Varmista että solut renderöidään otsikoiden nykyisessä järjestyksessä
+    syncCriticOrderFromDom();
 
     loadMoreButton.disabled = true;
     const originalText = loadMoreButton.textContent;
@@ -1045,3 +1069,7 @@ window.removeFillerColumns = removeFillerColumns;
 window.ensureDesktopTable = ensureDesktopTable;
 window.activateDesktopTable = activateDesktopTable;
 window.isDesktopWidth = isDesktopWidth;
+window.syncCriticOrderFromDom = syncCriticOrderFromDom;
+
+// Sarakkeiden uudelleenjärjestys mitätöi talletetun kriitikkojärjestyksen
+document.addEventListener('table-sorted', syncCriticOrderFromDom);

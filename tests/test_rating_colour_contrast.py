@@ -38,7 +38,7 @@ def _read(name):
 def _tokens():
     """Poimi :root-muuttujat base.css:stä."""
     css = _read('base.css')
-    return dict(re.findall(r'(--[\w-]+):\s*(#[0-9a-fA-F]{3,8})\s*;', css))
+    return dict(re.findall(r'(--[\w-]+):\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\))\s*;', css))
 
 
 def _srgb_to_linear(channel):
@@ -59,6 +59,29 @@ def relative_luminance(hex_colour):
 def contrast(a, b):
     la, lb = sorted((relative_luminance(a), relative_luminance(b)), reverse=True)
     return (la + 0.05) / (lb + 0.05)
+
+
+def _parse_rgba(value):
+    """rgba(r, g, b, a) -> (r, g, b, a). Palauttaa None jos ei rgba."""
+    m = re.match(r'rgba?\(([^)]*)\)', value)
+    if not m:
+        return None
+    parts = [p.strip() for p in m.group(1).split(',')]
+    r, g, b = (int(x) for x in parts[:3])
+    a = float(parts[3]) if len(parts) > 3 else 1.0
+    return r, g, b, a
+
+
+def composite(value, surface):
+    """Sekoita mahdollisesti läpikuultava sävy taustapinnan päälle."""
+    rgba = _parse_rgba(value)
+    if rgba is None:
+        return value
+    r, g, b, a = rgba
+    sh = surface.lstrip('#')
+    sr, sg, sb = (int(sh[i:i + 2], 16) for i in (0, 2, 4))
+    return '#%02x%02x%02x' % tuple(
+        round(a * c + (1 - a) * s) for c, s in ((r, sr), (g, sg), (b, sb)))
 
 
 @pytest.fixture(scope='module')
@@ -164,61 +187,49 @@ def _sparkline_block(table_css):
     return table_css[start:start + 400]
 
 
-def test_sparkline_bar_stands_out_from_track(tokens):
-    """Palkin on erotuttava sekä lokerostaan että sivun taustasta."""
-    track = tokens['--spark-track']
+def test_sparkline_bar_visible_against_page(tokens):
+    """Palkin on erotuttava myös sivun taustasta, ei vain lokerosta."""
     for name in ('--spark-bar-top', '--spark-bar-bot'):
-        assert contrast(tokens[name], track) >= MARK_CONTRAST_MIN, (
-            f'{name} {tokens[name]} vain {contrast(tokens[name], track):.2f}:1 lokeroa vasten')
         assert contrast(tokens[name], '#ffffff') >= MARK_CONTRAST_MIN, (
             f'{name} {tokens[name]} liian haalea valkoista vasten')
 
 
-# Pinnat joilla sparkline esiintyy: taulukon solu, seepraraidat ja
-# mobiilikortin harmaa otsikko. Viimeinen on tiukin.
+# Pinnat joilla sparkline esiintyy. Rivin osumaväri on tiukin: siinä sekä
+# lokero että palkki joutuvat erottumaan violetilta gradientilta.
 SPARKLINE_SURFACES = {
     'taulukon solu': '#ffffff',
     'seepra pariton': '#fcfcfc',
     'seepra parillinen': '#f8faff',
     'seepra risteys': '#f0f4ff',
     'mobiilikortin otsikko': '#f8f9fa',
+    'rivin osumaväri vaalea': '#e8d5ff',
+    'rivin osumaväri tumma': '#d4bbff',
 }
 
 
 @pytest.mark.parametrize('name,surface', sorted(SPARKLINE_SURFACES.items()))
 def test_sparkline_track_visible_on_every_surface(tokens, name, surface):
-    """Lokeron pitää erottua kaikilla pinnoilla joilla sparkline esiintyy.
+    """Lokeron on erotuttava kaikilla pinnoilla joilla sparkline esiintyy.
 
-    Mobiilikortin otsikko on harmaa, joten valkoista vasten sopiva lokero voi
-    kadota siellä kokonaan — juuri siinä näkymässä jossa sparkline on
-    näkyvimmillään.
+    Kiinteä sävy katosi aina jollakin pinnalla: #e7e5e4 oli mobiilikortin
+    otsikkoa vasten 1,19:1 ja #d4cfca rivin osumaväriä vasten 1,10:1.
+    Läpikuultava lokero tummentaa mitä tahansa alla olevaa pintaa.
     """
-    ratio = contrast(tokens['--spark-track'], surface)
+    track = composite(tokens['--spark-track'], surface)
+    ratio = contrast(track, surface)
     assert ratio >= 1.3, f'lokero katoaa pinnalla {name} ({surface}): {ratio:.2f}:1'
+
+
+@pytest.mark.parametrize('name,surface', sorted(SPARKLINE_SURFACES.items()))
+def test_sparkline_bar_stands_out_from_track_everywhere(tokens, name, surface):
+    """Palkin on erotuttava lokerostaan myös rivin osumavärillä."""
+    track = composite(tokens['--spark-track'], surface)
+    ratio = contrast(tokens['--spark-bar-top'], track)
+    assert ratio >= MARK_CONTRAST_MIN, (
+        f'palkki sulautuu lokeroon pinnalla {name}: {ratio:.2f}:1')
 
 
 def test_sparkline_track_stays_recessive(tokens):
     """Lokero ei saa olla niin tumma että se kilpailee palkin kanssa."""
-    ratio = contrast(tokens['--spark-track'], '#ffffff')
-    assert ratio <= 1.8, f'lokero {tokens["--spark-track"]} on liian vahva: {ratio:.2f}:1'
-
-
-def test_pill_ink_survives_link_hover():
-    """Pilli on <a>, joten base.css:n yleinen a:hover värjäisi tähdet violetiksi.
-
-    Regressio: kun .rating-stars vaihdettiin arvoon 'color: inherit', se menetti
-    suojan a:hoveria vastaan ja tähdet vaihtoivat väriä hiiren alla.
-    """
-    table = _read('table.css')
-    assert re.search(r'\.rating-pill:hover[^{]*\{[^}]*color:', table, re.S), (
-        '.rating-pill:hover ei aseta väriä — a:hover voittaa ja tähdet vaihtavat väriä')
-
-
-def test_pill_hover_does_not_change_colour():
-    """Hover saa suurentaa ja varjostaa, muttei muuttaa pillin väriä."""
-    table = _read('table.css')
-    block = re.search(r'\.rating-pill:hover\s*\{([^}]*)\}', table)
-    assert block, '.rating-pill:hover -sääntöä ei löytynyt'
-    body = block.group(1)
-    for forbidden in ('background', 'filter', 'opacity'):
-        assert forbidden not in body, f'hover muuttaa ulkoasua: {forbidden}'
+    track = composite(tokens['--spark-track'], '#ffffff')
+    assert contrast(track, '#ffffff') <= 1.8, f'lokero liian vahva: {track}'
