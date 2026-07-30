@@ -70,6 +70,22 @@ function ensureDesktopTable() {
 }
 
 /**
+ * Järjestä sarakkeet niin että ylimpien elokuvien arvostelijat tulevat vasemmalle.
+ *
+ * Tämä on ajettava VASTA kun rivit ovat DOMissa. interactions.js:n initSorting
+ * yrittää samaa, mutta se ajetaan defer-skriptinä jolloin document.readyState on
+ * jo "interactive" — eli ennen DOMContentLoadedia ja siten ennen kuin rivit on
+ * kloonattu templatesta. Silloin se järjestää tyhjän taulukon eikä tee mitään.
+ */
+function sortColumnsOnceRowsExist() {
+    const tbody = document.querySelector('#review-container-desktop tbody');
+    if (!tbody || !tbody.rows.length) return;
+
+    if (typeof sortCriticColumnsByReviews === 'function') sortCriticColumnsByReviews();
+    if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+}
+
+/**
  * Alusta taulukkoon sidotut toiminnot rivien rakentamisen jälkeen.
  */
 function activateDesktopTable() {
@@ -77,7 +93,7 @@ function activateDesktopTable() {
 
     if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
     if (typeof initRatingFilterClickHandlers === 'function') initRatingFilterClickHandlers();
-    if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+    sortColumnsOnceRowsExist();
 
     document.dispatchEvent(new CustomEvent('table-sorted'));
     window.dispatchEvent(new Event('resize'));
@@ -872,9 +888,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎬 Kriitikon valinta v${versionMeta.content} käynnistyy...`);
     }
 
-    // Rakenna desktop-taulukko ennen muiden moduulien DOMContentLoaded-käsittelijöitä
-    // (app.js ladataan ensimmäisenä, joten tämä ehtii ensin)
+    // Rakenna desktop-taulukko ja järjestä sarakkeet vasta nyt: rivit tulevat
+    // templatesta, joten ne eivät ole olemassa kun defer-skriptit ajetaan
     ensureDesktopTable();
+    sortColumnsOnceRowsExist();
 
     // Haetaan kriitikkojen tiedot taulukon headerista
     const criticHeaders = document.querySelectorAll('thead th.rating-cell');

@@ -119,3 +119,54 @@ describe('Kriitikkosarakkeiden järjestys', () => {
     });
   });
 });
+
+/**
+ * Regressio: defer-skriptit ajetaan kun document.readyState on jo "interactive",
+ * ei "loading". interactions.js valitsee siksi else-haaran ja järjestää sarakkeet
+ * HETI — ennen DOMContentLoadedia ja siten ennen kuin rivit on kloonattu
+ * templatesta. Sarakkeet jäivät aakkosjärjestykseen ja ylimmän elokuvan arviot
+ * jäivät kauas oikealle.
+ */
+describe('Sarakkeet järjestetään vasta kun rivit ovat olemassa', () => {
+  it('järjestää sarakkeet vaikka rivit tulevat templatesta', () => {
+    const { document } = setupDOM(`
+      <meta name="version" content="test">
+      <script id="movie-meta-data" type="application/json">{}</script>
+      <div id="review-container-desktop">
+        <table>
+          <thead>
+            <tr class="critic-row">
+              <th class="movie-col">Elokuva</th>
+              <th class="rating-cell" data-critic-id="1"><div class="critic-name">Aakkosissa ensin</div></th>
+              <th class="rating-cell" data-critic-id="2"><div class="critic-name">Ylimmän arvostelija</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template id="desktop-rows">
+              <tr data-review-count="1">
+                <td class="movie-col"><div class="movie-title-main">Ylin elokuva</div></td>
+                <td class="rating-cell"></td>
+                <td class="rating-cell">
+                  <a class="rating-link rating-pill stars-4"><span class="rating-stars">★★★★</span></a>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="mobile-cards"></div>
+    `);
+
+    const rows = document.querySelectorAll('#review-container-desktop tbody tr');
+    expect(rows.length).toBe(1);
+
+    // Ylimmän elokuvan arvostelijan on siirryttävä ensimmäiseksi sarakkeeksi
+    const names = [...document.querySelectorAll('thead th.rating-cell .critic-name')]
+      .map((n) => n.textContent);
+    expect(names[0]).toBe('Ylimmän arvostelija');
+
+    // ...ja arvion on oltava ensimmäisessä arvosolussa
+    const cells = [...rows[0].querySelectorAll('td.rating-cell')];
+    expect(cells[0].querySelector('.rating-pill')).toBeTruthy();
+  });
+});
