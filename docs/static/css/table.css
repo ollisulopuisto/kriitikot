@@ -369,31 +369,41 @@ th.rating-cell:hover {
     border-radius: 1em;
     font-weight: 500;
     line-height: 1;
-    color: white;
     text-decoration: none;
-    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* Ei brightness-suodinta: se pesisi kirkkaan kullan lähes valkoiseksi */
 .rating-pill:hover {
     transform: scale(1.08);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.24);
-    filter: brightness(1.1);
 }
 
 .rating-pill .rating-stars {
-    color: white;
+    color: inherit;
     font-size: 0.9em;
     letter-spacing: 0.05rem;
     display: inline-block;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.stars-5 { background-color: var(--star-5); }
-.stars-4 { background-color: var(--star-4); }
+/* Tummat portaat: valkoinen muste */
+.stars-1 { background-color: var(--star-1); color: var(--star-ink-light); }
+.stars-2 { background-color: var(--star-2); color: var(--star-ink-light); }
+
+/* Vaaleat portaat: tumma muste ja reunus, koska tausta on lähes yhtä vaalea
+   kuin sivu (kontrasti 1,4–2,2:1) eikä pilli muuten erotu reunoiltaan */
+.stars-3,
+.stars-4,
+.stars-5 {
+    color: var(--star-ink-dark);
+    border-color: var(--star-edge);
+}
+
 .stars-3 { background-color: var(--star-3); }
-.stars-2 { background-color: var(--star-2); }
-.stars-1 { background-color: var(--star-1); }
+.stars-4 { background-color: var(--star-4); }
+.stars-5 { background-color: var(--star-5); }
 
 .movie-review-count {
     font-size: 0.75em;
@@ -489,12 +499,13 @@ th.rating-cell:hover {
     transition: height 0.3s ease, filter 0.2s ease;
 }
 
-/* Sama väriasteikko kuin arvosanapilleissä: 1★ punainen … 5★ vihreä */
-.spark-bar-1 { background: var(--star-1); }
-.spark-bar-2 { background: var(--star-2); }
-.spark-bar-3 { background: var(--star-3); }
-.spark-bar-4 { background: var(--star-4); }
-.spark-bar-5 { background: var(--star-5); }
+/* Sama sävyperhe kuin pilleissä mutta syvemmät portaat — ks. --spark-* base.css:ssä.
+   HUOM: sparklinen ilme on vielä auki, tämä pitää sen luettavana sillä välin. */
+.spark-bar-1 { background: var(--spark-1); }
+.spark-bar-2 { background: var(--spark-2); }
+.spark-bar-3 { background: var(--spark-3); }
+.spark-bar-4 { background: var(--spark-4); }
+.spark-bar-5 { background: var(--spark-5); }
 
 /* Tyhjä arvosana näkyy vain haaleana viivana, jottei 1px palkki
    näytä siltä että arvosanalla olisi osumia */

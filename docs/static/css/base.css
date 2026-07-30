@@ -11,13 +11,30 @@
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --transition: all 0.3s ease;
 
-    /* Arvosana-asteikko: käytetään sekä arvosanapilleissä että sparklinessa,
-       jotta sama arvosana näyttää samalta kaikkialla */
-    --star-1: #dc2626;  /* punainen */
-    --star-2: #e67d29;  /* oranssi */
-    --star-3: #e6c829;  /* keltainen */
-    --star-4: #4789eb;  /* sininen */
-    --star-5: #22c55e;  /* vihreä */
+    /* Arvosana-asteikko: lämmin ramppi punaisesta kultaan.
+       Kylläisyys on korkeimmillaan ääripäissä ja laskee keskellä lähes nollaan,
+       joten selvä tuomio erottuu ja "ei mitään sanottavaa" vetäytyy taka-alalle.
+       Keltainen ei yllä punaisen kylläisyyteen (0,18 vs 0,22) vaan ponnistaa
+       vaaleudella — siksi kolme ylintä porrasta tarvitsevat tumman musteen. */
+    --star-1: #b91c1c;  /* punainen   — kylläisyys 0,190 */
+    --star-2: #a8553a;  /* vaimea tiili        0,082 */
+    --star-3: #d6d3d1;  /* neutraali kivi      0,006 */
+    --star-4: #f59e0b;  /* amber               0,165 */
+    --star-5: #ffd60a;  /* kirkas kulta        0,181 */
+
+    --star-ink-dark: #451a03;   /* lämmin tumma muste vaaleille portaille */
+    --star-ink-light: #ffffff;
+    --star-edge: rgba(69, 26, 3, 0.22);  /* reunus vaaleille pilleille, jotka eivät
+                                            erotu valkoisesta taustasta */
+
+    /* Sparkline käyttää samoja sävyperheitä mutta syvempiä portaita: 5px palkki
+       kirkkaana kultana katoaa vaaleaa taustaa vasten (kontrasti 1,4:1).
+       Nämä pysyvät erillään pillien sävyistä kunnes sparklinen ilme on päätetty. */
+    --spark-1: #b91c1c;
+    --spark-2: #8a4530;
+    --spark-3: #78716c;
+    --spark-4: #b45309;
+    --spark-5: #a16207;
 }
 
 * {
