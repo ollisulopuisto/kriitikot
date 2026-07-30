@@ -98,7 +98,22 @@ Registry: `src/scrapers/__init__.py` → `scrapers` dict.
 
 6. **Test:** Save sample HTML to `tests/test_data/<name>_review_1.html`, write test in `tests/test_scraper.py`, run with pytest.
 
-## Common Scraping Patterns
+## Shared helpers on `BaseScraper`
+
+Use these instead of re-implementing extraction (`src/scrapers/base.py`, covered by
+`tests/test_base_scraper_helpers.py`):
+
+| Helper | Purpose |
+|---|---|
+| `count_stars(text, max_stars=5)` | Count `★`/`⭐`; `None` if none |
+| `parse_rating(text)` | Stars → `X/5` → `X tähteä` → Finnish numeral ("neljä tähteä") |
+| `extract_jsonld(soup, types=...)` | First matching ld+json block; handles dict, list **and** `@graph` |
+| `extract_author(soup, ld_json, exclude=())` | `article:author` → JSON-LD author → `meta[name=author]` → `rel=author`; `exclude` rejects publication names |
+| `meta_description(soup)` | `og:description` → `meta[name=description]` |
+| `extract_next_data(soup)` | Parse `<script id="__NEXT_DATA__">` |
+| `extract_paragraphs(soup, ...)` | Body text from `<p>`; params: `selectors`, `min_length`, `skip_phrases`, `skip_parent_classes`, `max_chars`, `limit` |
+
+Keep **site-specific locators** in the subclass; share only the sub-steps.
 
 See existing scrapers for reference:
 - **Simple HTML:** `scrapers/hs.py`
@@ -108,10 +123,17 @@ See existing scrapers for reference:
 
 Key patterns:
 - Title: prefer `og:title` meta or JSON-LD over `<h1>` (often contains headline, not movie name)
-- Rating: count `★`/`⭐` symbols, parse `X/5`, check image filenames, Finnish text ("neljä tähteä"), JSON-LD `Review`
-- Critic: `meta[name=author]`, `rel="author"`, JSON-LD `@graph`
+- Rating: image filenames and site-specific markup still need per-scraper handling
 - Text: skip paragraphs < 30 chars, skip boilerplate ("lue myös", "jaa artikkeli")
 - Uppercase titles: convert to title case if `title.isupper()` and ≤4 words
+
+## Frontend notes
+
+- **Review data is lazy-loaded**: the page fetches `reviews.json`; only the first 30 movies
+  are server-rendered. Do not inline the full dataset into `index.html` again.
+- **Desktop table rows live in `<template id="desktop-rows">`** inside `<tbody>`.
+  `app.js` clones them only at ≥769px, so phones never build those ~2,500 cells.
+  Anything that walks `tbody.rows` must tolerate an empty tbody.
 
 ## Gotchas
 

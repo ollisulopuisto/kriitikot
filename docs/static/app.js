@@ -20,6 +20,69 @@ window.movie_review_counts = window.movie_review_counts || {};
 window.movie_rating_distributions = window.movie_rating_distributions || {};
 
 
+// Desktop-taulukon laiska rakentaminen
+// ====================================
+// Taulukko on piilotettu alle 769px leveydellä, joten sen ~2500 solua
+// rakennetaan DOMiin vasta kun niitä oikeasti näytetään. Mobiilissa tämä
+// säästää DOM-solmujen luonnin ja tyylilaskennan, ja tekee suodattimien
+// solukohtaisista silmukoista tyhjiä.
+
+const DESKTOP_MEDIA_QUERY = '(min-width: 769px)';
+let desktopTableReady = false;
+
+function isDesktopWidth() {
+    if (typeof window.matchMedia === 'function') {
+        return window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+    }
+    return window.innerWidth >= 769;  // fallback esim. testiympäristöön
+}
+
+/**
+ * Rakenna desktop-taulukon rivit jos ollaan työpöytäleveydellä.
+ * Turvallinen kutsua monta kertaa.
+ */
+function ensureDesktopTable() {
+    if (desktopTableReady || !isDesktopWidth()) return false;
+
+    const tbody = document.querySelector('#review-container-desktop tbody');
+    if (!tbody) return false;
+
+    const template = document.getElementById('desktop-rows');
+    if (template) {
+        tbody.appendChild(template.content.cloneNode(true));
+    }
+    desktopTableReady = true;
+
+    // Täydennä rivit elokuville jotka on jo ladattu mobiilikortteihin
+    const serverRendered = template ? tbody.rows.length : 0;
+    if (currentMovieOffset > serverRendered) {
+        const pending = movieTitles.slice(serverRendered, currentMovieOffset);
+        let html = '';
+        pending.forEach(title => {
+            if (allGroupedReviews[title]) {
+                html += renderMovie(title, allGroupedReviews[title]).desktop;
+            }
+        });
+        if (html) tbody.insertAdjacentHTML('beforeend', html);
+    }
+
+    return true;
+}
+
+/**
+ * Alusta taulukkoon sidotut toiminnot rivien rakentamisen jälkeen.
+ */
+function activateDesktopTable() {
+    if (!ensureDesktopTable()) return;
+
+    if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
+    if (typeof initRatingFilterClickHandlers === 'function') initRatingFilterClickHandlers();
+    if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+
+    document.dispatchEvent(new CustomEvent('table-sorted'));
+    window.dispatchEvent(new Event('resize'));
+}
+
 // Utility Functions
 // =================
 
@@ -736,14 +799,21 @@ function loadMoreMovies() {
         return;
     }
 
+    // Desktop-rivit rakennetaan vain jos taulukko on käytössä; mobiilissa
+    // ne odottavat kunnes ikkuna levenee (ensureDesktopTable täydentää ne)
+    let desktopHtml = '';
+    let mobileHtml = '';
     moviesToRender.forEach(movieTitle => {
         const criticsReviewsDict = allGroupedReviews[movieTitle];
         const { desktop, mobile } = renderMovie(movieTitle, criticsReviewsDict);
-        
-        desktopTbody.insertAdjacentHTML('beforeend', desktop);
-        mobileCardsContainer.insertAdjacentHTML('beforeend', mobile);
+
+        if (desktopTableReady) desktopHtml += desktop;
+        mobileHtml += mobile;
     });
-    
+
+    if (desktopHtml) desktopTbody.insertAdjacentHTML('beforeend', desktopHtml);
+    mobileCardsContainer.insertAdjacentHTML('beforeend', mobileHtml);
+
     currentMovieOffset += moviesToRender.length;
     window.currentMovieOffset = currentMovieOffset;
 
@@ -775,6 +845,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (versionMeta) {
         console.log(`🎬 Kriitikon valinta v${versionMeta.content} käynnistyy...`);
     }
+
+    // Rakenna desktop-taulukko ennen muiden moduulien DOMContentLoaded-käsittelijöitä
+    // (app.js ladataan ensimmäisenä, joten tämä ehtii ensin)
+    ensureDesktopTable();
 
     // Haetaan kriitikkojen tiedot taulukon headerista
     const criticHeaders = document.querySelectorAll('thead th.rating-cell');
@@ -868,6 +942,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile poster toggle functionality
     initMobilePosterToggle();
 
+    // Kun ikkuna levenee työpöytäkokoon (esim. tabletin kääntö), rakenna taulukko
+    if (typeof window.matchMedia === 'function') {
+        const desktopMedia = window.matchMedia(DESKTOP_MEDIA_QUERY);
+        const onBreakpointChange = (e) => {
+            if (e.matches) activateDesktopTable();
+        };
+        if (desktopMedia.addEventListener) {
+            desktopMedia.addEventListener('change', onBreakpointChange);
+        } else if (desktopMedia.addListener) {
+            desktopMedia.addListener(onBreakpointChange);  // Safari < 14
+        }
+    }
+
     // Desktop: lataa iso hover-juliste vasta kun hiiri osuu julisteeseen
     document.addEventListener('mouseover', (e) => {
         const container = e.target.closest('.movie-poster-container');
@@ -953,3 +1040,6 @@ window.hidePosterInCell = hidePosterInCell;
 window.resetMovieCell = resetMovieCell;
 window.addFillerColumns = addFillerColumns;
 window.removeFillerColumns = removeFillerColumns;
+window.ensureDesktopTable = ensureDesktopTable;
+window.activateDesktopTable = activateDesktopTable;
+window.isDesktopWidth = isDesktopWidth;

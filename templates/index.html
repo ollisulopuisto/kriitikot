@@ -194,11 +194,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {# Rivit odottavat templatessa: mobiilissa taulukko on piilotettu,
+                       joten näitä ~2500 solua ei kannata rakentaa DOMiin lainkaan.
+                       app.js kloonaa sisällön kun näyttö on työpöytäleveä. #}
+                    <template id="desktop-rows">
                     {% for movie_title, critics_reviews in grouped_reviews.items() %}
                     {% if loop.index <= 30 %}
                         {% include "_movie_row.html" %}
                     {% endif %}
                     {% endfor %}
+                    </template>
                 </tbody>
             </table>
         </div>
