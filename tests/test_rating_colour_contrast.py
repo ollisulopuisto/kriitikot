@@ -75,40 +75,76 @@ def test_all_five_steps_are_defined(tokens):
     assert '--star-ink-light' in tokens
 
 
+def _gradient_stops(tokens, step):
+    """Portaan kaikki kolme pysäkkiä ylhäältä alas."""
+    return (tokens[f'--star-{step}-top'],
+            tokens[f'--star-{step}'],
+            tokens[f'--star-{step}-bot'])
+
+
 @pytest.mark.parametrize('step', LIGHT_INK_STEPS)
-def test_dark_steps_readable_with_light_ink(tokens, step):
-    ratio = contrast(tokens['--star-ink-light'], tokens[f'--star-{step}'])
-    assert ratio >= WCAG_AA_SMALL_TEXT, (
-        f'{step}★ {tokens[f"--star-{step}"]} vaalealla musteella vain {ratio:.2f}:1')
+def test_dark_steps_readable_at_every_gradient_stop(tokens, step):
+    """Pilli on gradientti, joten kontrastin on kestettävä sen jokaisessa kohdassa.
+
+    Tämä ei ole teoreettista: 2★:n ylin pysäkki putosi 4,22:1:een kun sitä
+    vaalennettiin muiden portaiden tapaan 6 %, ja nosto jouduttiin puolittamaan.
+    """
+    for stop in _gradient_stops(tokens, step):
+        ratio = contrast(tokens['--star-ink-light'], stop)
+        assert ratio >= WCAG_AA_SMALL_TEXT, (
+            f'{step}★ pysäkki {stop} vaalealla musteella vain {ratio:.2f}:1')
 
 
 @pytest.mark.parametrize('step', DARK_INK_STEPS)
-def test_light_steps_readable_with_dark_ink(tokens, step):
-    ratio = contrast(tokens['--star-ink-dark'], tokens[f'--star-{step}'])
-    assert ratio >= WCAG_AA_SMALL_TEXT, (
-        f'{step}★ {tokens[f"--star-{step}"]} tummalla musteella vain {ratio:.2f}:1')
-
-
-def test_light_steps_have_an_edge_in_css():
-    """Vaaleat portaat eivät erotu valkoisesta sivusta, joten ne tarvitsevat reunuksen."""
-    table = _read('table.css')
-    block = re.search(r'\.stars-3,\s*\.stars-4,\s*\.stars-5\s*\{([^}]*)\}', table)
-    assert block, 'vaaleiden portaiden yhteissääntöä ei löytynyt table.css:stä'
-    body = block.group(1)
-    assert 'border-color' in body, 'vaaleilta pilleiltä puuttuu reunus'
-    assert 'var(--star-ink-dark)' in body, 'vaaleilta pilleiltä puuttuu tumma muste'
+def test_light_steps_readable_at_every_gradient_stop(tokens, step):
+    for stop in _gradient_stops(tokens, step):
+        ratio = contrast(tokens['--star-ink-dark'], stop)
+        assert ratio >= WCAG_AA_SMALL_TEXT, (
+            f'{step}★ pysäkki {stop} tummalla musteella vain {ratio:.2f}:1')
 
 
 @pytest.mark.parametrize('step', range(1, 6))
-def test_sparkline_tones_visible_against_page(tokens, step):
-    """Sparklinen palkit ovat pieniä merkkejä: niiden on erotuttava sivun taustasta."""
-    tone = tokens[f'--spark-{step}']
-    ratio = contrast(tone, '#ffffff')
-    assert ratio >= MARK_CONTRAST_MIN, (
-        f'sparkline {step}★ {tone} vain {ratio:.2f}:1 valkoista vasten')
+def test_gradient_darkens_downward(tokens, step):
+    """Alareunan on oltava tummin: siitä syntyy pillin raja ilman reunusviivaa."""
+    top, mid, bot = _gradient_stops(tokens, step)
+    assert relative_luminance(top) > relative_luminance(mid) > relative_luminance(bot), (
+        f'{step}★ gradientti ei syvene alaspäin: {top} → {mid} → {bot}')
 
 
-def test_sparkline_tones_are_separate_from_pill_tones(tokens):
-    """Sparkline ei saa periä kirkasta kultaa: se katoaisi vaaleaa taustaa vasten."""
-    assert tokens['--spark-5'] != tokens['--star-5'], (
-        'sparkline käyttää pillin sävyä — kirkas kulta on 1,4:1 valkoista vasten')
+def test_pills_have_no_border_rule():
+    """Raja tulee gradientista, ei reunusviivasta."""
+    table = _read('table.css')
+    block = re.search(r'\.rating-pill\s*\{([^}]*)\}', table)
+    assert block, '.rating-pill-sääntöä ei löytynyt'
+    assert 'border:' not in block.group(1), 'pillillä on yhä reunus'
+
+
+def test_sparkline_is_monochrome(tokens):
+    """Väriasteikko on pilleissä; sparklinessa arvosanan kertoo palkin paikka."""
+    table = _read('table.css')
+    for step in range(1, 6):
+        assert f'--star-{step})' not in _sparkline_block(table), (
+            'sparkline käyttää pillien väriasteikkoa')
+    assert '--spark-bar-top' in tokens and '--spark-bar-bot' in tokens
+
+
+def _sparkline_block(table_css):
+    start = table_css.find('.spark-bar {')
+    assert start != -1, '.spark-bar-sääntöä ei löytynyt'
+    return table_css[start:start + 400]
+
+
+def test_sparkline_bar_stands_out_from_track(tokens):
+    """Palkin on erotuttava sekä lokerostaan että sivun taustasta."""
+    track = tokens['--spark-track']
+    for name in ('--spark-bar-top', '--spark-bar-bot'):
+        assert contrast(tokens[name], track) >= MARK_CONTRAST_MIN, (
+            f'{name} {tokens[name]} vain {contrast(tokens[name], track):.2f}:1 lokeroa vasten')
+        assert contrast(tokens[name], '#ffffff') >= MARK_CONTRAST_MIN, (
+            f'{name} {tokens[name]} liian haalea valkoista vasten')
+
+
+def test_sparkline_track_is_visible_but_recessive(tokens):
+    """Lokeron pitää näkyä valkoisella mutta ei kilpailla palkin kanssa."""
+    ratio = contrast(tokens['--spark-track'], '#ffffff')
+    assert 1.1 <= ratio <= 1.8, f'lokero {tokens["--spark-track"]} on {ratio:.2f}:1 valkoista vasten'

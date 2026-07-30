@@ -1,7 +1,11 @@
 """Testit arvosanajakauman (sparkline) renderöinnille.
 
-Palkin korkeus kertoo muodon (onko mielipide jakautunut), väri kertoo
-arvosanan. Väriluokan on vastattava palkin paikkaa, muuten kaavio valehtelee.
+Palkin korkeus kertoo muodon (onko mielipide jakautunut) ja palkin paikka
+kertoo arvosanan. Palkit ovat yksivärisiä: väriasteikko on arvosanapilleissä
+samalla rivillä, joten sen toistaminen 6px palkissa olisi päällekkäistä tietoa.
+
+Paikkaluokan spark-bar-N on silti vastattava palkin todellista paikkaa —
+se on kaavion ainoa arvosanatieto.
 """
 
 import os
@@ -35,13 +39,17 @@ def spark_bars(soup):
     return soup.select('.movie-sparkline .spark-bar')
 
 
-def test_each_bar_gets_matching_colour_class():
-    """Palkin n väriluokan on oltava spark-bar-n."""
+def test_each_bar_gets_matching_position_class():
+    """Palkin n paikkaluokan on oltava spark-bar-n.
+
+    Paikka on kaavion ainoa arvosanatieto, joten väärä luokka tarkoittaisi
+    että kaavio kertoo väärän arvosanan.
+    """
     bars = spark_bars(render_row([1, 2, 3, 2, 1]))
 
     assert len(bars) == 5
     for i, bar in enumerate(bars, start=1):
-        assert f'spark-bar-{i}' in bar['class'], f"palkki {i} sai väärän väriluokan: {bar['class']}"
+        assert f'spark-bar-{i}' in bar['class'], f"palkki {i} sai väärän paikkaluokan: {bar['class']}"
 
 
 def test_tallest_bar_is_full_height():
@@ -65,7 +73,7 @@ def test_shape_is_comparable_regardless_of_volume():
 
 
 def test_empty_ratings_are_marked():
-    """Nollapalkit merkitään haaleiksi, jottei 1px viiva näytä osumalta."""
+    """Nollapalkit merkitään, jotta harmaa lokero jää kokonaan näkyviin."""
     bars = spark_bars(render_row([0, 3, 0, 1, 0]))
 
     empty = [i for i, bar in enumerate(bars, start=1) if 'spark-bar--empty' in bar['class']]

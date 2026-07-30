@@ -361,6 +361,8 @@ th.rating-cell:hover {
     font-style: italic;
 }
 
+/* Pilli rajautuu gradientilla eikä reunuksella: sävy syvenee alaspäin, joten
+   alareuna piirtyy portaan omasta väristä. Kullalla tämä lukee metallina. */
 .rating-pill {
     display: inline-flex;
     align-items: center;
@@ -370,15 +372,14 @@ th.rating-cell:hover {
     font-weight: 500;
     line-height: 1;
     text-decoration: none;
-    border: 1px solid transparent;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 2px rgba(24, 16, 4, 0.14);
 }
 
 /* Ei brightness-suodinta: se pesisi kirkkaan kullan lähes valkoiseksi */
 .rating-pill:hover {
     transform: scale(1.08);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 3px 8px rgba(24, 16, 4, 0.24);
 }
 
 .rating-pill .rating-stars {
@@ -388,22 +389,19 @@ th.rating-cell:hover {
     display: inline-block;
 }
 
-/* Tummat portaat: valkoinen muste */
-.stars-1 { background-color: var(--star-1); color: var(--star-ink-light); }
-.stars-2 { background-color: var(--star-2); color: var(--star-ink-light); }
+/* Tummat portaat: valkoinen muste. Vaaleat: tumma lämmin muste. */
+.stars-1,
+.stars-2 { color: var(--star-ink-light); }
 
-/* Vaaleat portaat: tumma muste ja reunus, koska tausta on lähes yhtä vaalea
-   kuin sivu (kontrasti 1,4–2,2:1) eikä pilli muuten erotu reunoiltaan */
 .stars-3,
 .stars-4,
-.stars-5 {
-    color: var(--star-ink-dark);
-    border-color: var(--star-edge);
-}
+.stars-5 { color: var(--star-ink-dark); }
 
-.stars-3 { background-color: var(--star-3); }
-.stars-4 { background-color: var(--star-4); }
-.stars-5 { background-color: var(--star-5); }
+.stars-1 { background: linear-gradient(180deg, var(--star-1-top), var(--star-1) 55%, var(--star-1-bot)); }
+.stars-2 { background: linear-gradient(180deg, var(--star-2-top), var(--star-2) 55%, var(--star-2-bot)); }
+.stars-3 { background: linear-gradient(180deg, var(--star-3-top), var(--star-3) 55%, var(--star-3-bot)); }
+.stars-4 { background: linear-gradient(180deg, var(--star-4-top), var(--star-4) 55%, var(--star-4-bot)); }
+.stars-5 { background: linear-gradient(180deg, var(--star-5-top), var(--star-5) 55%, var(--star-5-bot)); }
 
 .movie-review-count {
     font-size: 0.75em;
@@ -469,52 +467,49 @@ th.rating-cell:hover {
     color: #4c2e97;
 }
 
-/* Arvosanajakauma: palkin KORKEUS kertoo muodon (onko mielipide jakautunut),
-   palkin VÄRI kertoo mistä arvosanasta on kyse. Korkeus on suhteutettu
-   suurimpaan palkkiin, joten muoto on vertailukelpoinen elokuvien välillä
-   riippumatta arvostelujen määrästä — määrä näkyy erillisestä laskurista. */
+/* Arvosanajakauma. Palkin KORKEUS kertoo muodon: onko mielipide jakautunut vai
+   yksimielinen. Korkeus on suhteutettu suurimpaan palkkiin, joten muoto on
+   vertailukelpoinen elokuvien välillä riippumatta arvostelujen määrästä —
+   määrä näkyy erillisestä laskurista.
+
+   Palkit ovat yksivärisiä tarkoituksella: arvosanan kertoo palkin paikka, ja
+   väriasteikko on jo samalla rivillä arvosanapilleissä. Harmaa lokero palkin
+   takana pitää kaikki viisi arvosanaa näkyvissä, joten myös tyhjät erottuvat. */
 .movie-sparkline {
     display: flex;
     align-items: flex-end;
     gap: 2px;
-    height: 16px;
+    height: 22px;
     padding: 0;
     background: transparent;
-    border-bottom: 1px solid #cbd5e1; /* Neutraali X-akseli, ei kilpaile palkkien värien kanssa */
+    border-bottom: 1px solid var(--spark-axis);
     flex-shrink: 0;
     margin-bottom: 2px; /* Pieni säätö tekstin linjaan */
 }
 
 .spark-bar-container {
-    width: 4px; /* Hieman kapeampi */
+    width: 6px;
     height: 100%;
     display: flex;
     align-items: flex-end;
+    background: var(--spark-track);
+    border-radius: 1px;
 }
 
 .spark-bar {
     width: 100%;
     border-radius: 1px 1px 0 0; /* Vain yläkulmat pyöristetty */
-    min-height: 1px;
-    transition: height 0.3s ease, filter 0.2s ease;
+    background: linear-gradient(to top, var(--spark-bar-bot), var(--spark-bar-top));
+    transition: height 0.3s ease;
 }
 
-/* Sama sävyperhe kuin pilleissä mutta syvemmät portaat — ks. --spark-* base.css:ssä.
-   HUOM: sparklinen ilme on vielä auki, tämä pitää sen luettavana sillä välin. */
-.spark-bar-1 { background: var(--spark-1); }
-.spark-bar-2 { background: var(--spark-2); }
-.spark-bar-3 { background: var(--spark-3); }
-.spark-bar-4 { background: var(--spark-4); }
-.spark-bar-5 { background: var(--spark-5); }
-
-/* Tyhjä arvosana näkyy vain haaleana viivana, jottei 1px palkki
-   näytä siltä että arvosanalla olisi osumia */
+/* Tyhjä arvosana jättää lokeron kokonaan näkyviin — harmaa kertoo puuttumisen */
 .spark-bar--empty {
-    opacity: 0.25;
+    opacity: 0;
 }
 
 .movie-sparkline:hover .spark-bar {
-    filter: brightness(1.15) saturate(1.1);
+    filter: brightness(1.15);
 }
 
 
