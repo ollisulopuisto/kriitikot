@@ -137,9 +137,9 @@ class SKScraper(BaseScraper):
     def _extract_rating(self, html_content: str, soup: BeautifulSoup) -> Optional[int]:
         """Poimii tähtiarvion (1-5)."""
         # 1. Etsi ★-symbolit HTML:stä
-        stars_match = re.search(r'(★{1,5})', html_content)
-        if stars_match:
-            return len(stars_match.group(1))
+        stars = self.count_stars(html_content)
+        if stars:
+            return stars
         
         # 2. Etsi sanallinen muoto meta og:title:stä
         # "Neljä tähteä", "Viisi tähteä" jne.
@@ -161,9 +161,9 @@ class SKScraper(BaseScraper):
     def _extract_review_text(self, soup: BeautifulSoup) -> Optional[str]:
         """Poimii arvostelutekstin."""
         # Etsi meta description
-        meta_desc = soup.find('meta', property='og:description')
-        if meta_desc and meta_desc.get('content'):
-            return meta_desc['content']
+        meta_desc = self.meta_description(soup)
+        if meta_desc:
+            return meta_desc
         
         # Fallback: ensimmäinen p-tag artikkelista
         article = soup.find('article') or soup.find('div', class_=re.compile(r'article|content', re.I))

@@ -54,24 +54,8 @@ class KSMLScraper(BaseScraper):
         )
     
     def _extract_json_ld(self, soup: BeautifulSoup) -> Optional[dict]:
-        """Etsii JSON-LD structured data."""
-        for script in soup.find_all('script', {'type': 'application/ld+json'}):
-            try:
-                data = json.loads(script.string or '{}')
-                
-                # Jos lista, etsi NewsArticle/Article
-                if isinstance(data, list):
-                    for item in data:
-                        if isinstance(item, dict) and item.get('@type') in ('NewsArticle', 'Article', 'Review'):
-                            return item
-                
-                # Jos dict ja oikea tyyppi
-                if isinstance(data, dict) and data.get('@type') in ('NewsArticle', 'Article', 'Review'):
-                    return data
-            except json.JSONDecodeError:
-                continue
-        
-        return None
+        """Etsii JSON-LD structured datan (jaettu toteutus BaseScraperissa)."""
+        return self.extract_jsonld(soup)
     
     def _extract_title(self, soup: BeautifulSoup, ld_json: Optional[dict]) -> Optional[str]:
         """

@@ -14,7 +14,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from models import get_session, Movie
-from metadata_fetcher import MetadataFetcher
+from metadata_fetcher import MetadataFetcher, backfill_movie_metadata
 
 
 def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
@@ -27,50 +27,20 @@ def update_movie_metadata(movie: Movie, fetcher: MetadataFetcher) -> bool:
     Returns:
         True if metadata was updated, False otherwise
     """
-    updated = False
-
     try:
         print(f"  Processing: {movie.title}")
+        added = backfill_movie_metadata(movie, fetcher)
 
-        # Fetch and update TMDB metadata when ID is missing
-        if not movie.tmdb_id:
-            tmdb_data = fetcher.fetch_tmdb_data(movie.title)
-            if tmdb_data:
-                movie.tmdb_id = tmdb_data.get('tmdb_id')
-                movie.poster_url = tmdb_data.get('poster_url')
-                print(f"    ✅ Added TMDB data (ID: {movie.tmdb_id})")
-                updated = True
-        # If TMDB ID exists but poster is missing, fetch poster directly by ID
-        elif not movie.poster_url:
-            poster_url = fetcher.get_poster_by_tmdb_id(movie.tmdb_id)
-            if poster_url:
-                movie.poster_url = poster_url
-                print("    ✅ Added poster URL from existing TMDB ID")
-                updated = True
-
-        # Update Letterboxd URL if not present
-        if not movie.letterboxd_url:
-            letterboxd_url = fetcher.search_movie_letterboxd(movie.title)
-            if letterboxd_url:
-                movie.letterboxd_url = letterboxd_url
-                print("    ✅ Added Letterboxd URL")
-                updated = True
-
-        # Update Nytleffaan URL if not present
-        if not movie.nytleffaan_url:
-            nytleffaan_url = fetcher.search_movie_nytleffaan(movie.title)
-            if nytleffaan_url:
-                movie.nytleffaan_url = nytleffaan_url
-                print("    ✅ Added Nytleffaan URL")
-                updated = True
-
-        if not updated:
+        if added:
+            print(f"    ✅ Added: {', '.join(added)}")
+        else:
             print("    ℹ️  No new metadata to add")
+
+        return bool(added)
 
     except Exception as e:
         print(f"    ❌ Error updating metadata: {e}")
-
-    return updated
+        return False
 
 
 def needs_metadata_backfill(movie: Movie) -> bool:

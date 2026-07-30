@@ -4,6 +4,7 @@ SQLAlchemy tietokantamallit.
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import os
 
@@ -146,6 +147,23 @@ def get_session(engine=None):
         engine = get_engine()
     Session = sessionmaker(bind=engine)
     return Session()
+
+
+@contextmanager
+def session_scope(engine=None):
+    """Session context manager: rollback poikkeuksessa, sulkeminen aina.
+
+    Kutsuja vastaa committaamisesta, jotta lukuoperaatiot eivät aiheuta
+    turhia kirjoituksia.
+    """
+    session = get_session(engine)
+    try:
+        yield session
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
 def seed_publications(session):

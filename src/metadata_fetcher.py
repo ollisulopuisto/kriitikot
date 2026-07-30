@@ -437,6 +437,54 @@ class MetadataFetcher:
         return result
 
 
+def backfill_movie_metadata(movie, fetcher: 'MetadataFetcher') -> list:
+    """Täydennä elokuvan puuttuvat metatiedot.
+
+    Täyttää vain tyhjät kentät (tmdb_id, poster_url, imdb_id, letterboxd_url,
+    nytleffaan_url). Jos TMDB ID on jo tiedossa mutta juliste puuttuu, juliste
+    haetaan suoraan ID:llä.
+
+    Ei committaa — kutsuja vastaa siitä.
+
+    Returns:
+        Lista päivitettyjen kenttien nimistä (tyhjä jos mikään ei muuttunut).
+    """
+    updated = []
+
+    # TMDB: hae koko data jos ID puuttuu, muuten paikkaa vain juliste
+    if not movie.tmdb_id:
+        tmdb_data = fetcher.fetch_tmdb_data(movie.title)
+        if tmdb_data:
+            if tmdb_data.get('tmdb_id'):
+                movie.tmdb_id = tmdb_data['tmdb_id']
+                updated.append('tmdb_id')
+            if not movie.poster_url and tmdb_data.get('poster_url'):
+                movie.poster_url = tmdb_data['poster_url']
+                updated.append('poster_url')
+            if not movie.imdb_id and tmdb_data.get('imdb_id'):
+                movie.imdb_id = tmdb_data['imdb_id']
+                updated.append('imdb_id')
+    elif not movie.poster_url:
+        poster_url = fetcher.get_poster_by_tmdb_id(movie.tmdb_id)
+        if poster_url:
+            movie.poster_url = poster_url
+            updated.append('poster_url')
+
+    if not movie.letterboxd_url:
+        letterboxd_url = fetcher.search_movie_letterboxd(movie.title)
+        if letterboxd_url:
+            movie.letterboxd_url = letterboxd_url
+            updated.append('letterboxd_url')
+
+    if not movie.nytleffaan_url:
+        nytleffaan_url = fetcher.search_movie_nytleffaan(movie.title)
+        if nytleffaan_url:
+            movie.nytleffaan_url = nytleffaan_url
+            updated.append('nytleffaan_url')
+
+    return updated
+
+
 def test_metadata_fetcher():
     """Testaa metadata fetcheria."""
     fetcher = MetadataFetcher()

@@ -129,11 +129,7 @@ class TSScraper(BaseScraper):
     def _extract_rating(self, html_content: str) -> Optional[int]:
         """Poimii tähtiarvion (1-5)."""
         # TS käyttää ★-symboleja
-        stars_match = re.search(r'(★{1,5})', html_content)
-        if stars_match:
-            return len(stars_match.group(1))
-        
-        return None
+        return self.parse_rating(html_content)
     
     def _extract_review_text(self, html_content: str, soup: BeautifulSoup) -> Optional[str]:
         """Poimii arvostelutekstin."""
@@ -153,9 +149,5 @@ class TSScraper(BaseScraper):
                     return text
         
         # Fallback: meta description
-        meta_desc = soup.find('meta', property='og:description')
-        if meta_desc and meta_desc.get('content'):
-            return meta_desc['content']
-        
-        return None
+        return self.meta_description(soup)
     

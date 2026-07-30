@@ -275,27 +275,10 @@ class KulttuuritoimitusScraper(BaseScraper):
     
     def _extract_critic(self, soup):
         """Extract critic name from HTML."""
-        # Try meta author
-        author_meta = soup.find('meta', {'name': 'author'})
-        if author_meta:
-            return author_meta.get('content')
-        
-        # Try yoast JSON-LD
-        scripts = soup.find_all('script', type='application/ld+json')
-        for script in scripts:
-            if script.string:
-                try:
-                    data = json.loads(script.string)
-                    if '@graph' in data:
-                        for item in data['@graph']:
-                            if item.get('@type') == 'Article':
-                                author = item.get('author', {})
-                                if isinstance(author, dict):
-                                    name = author.get('name')
-                                    if name:
-                                        return name
-                except:
-                    pass
+        # Meta author + JSON-LD (ml. Yoastin @graph) jaetulla apurilla
+        author = self.extract_author(soup, self.extract_jsonld(soup))
+        if author:
+            return author
         
         # Try author link
         author_link = soup.find('a', rel='author')

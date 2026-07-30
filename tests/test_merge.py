@@ -9,74 +9,121 @@ from sqlalchemy.orm import sessionmaker
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from models import Base, Movie, Review, Critic, Publication
+from services.merge_service import merge_movies
 
-def test_merge_movies_integrity():
-    """
-    Regression test for the movie merge functionality to ensure no IntegrityError occurs
-    when deleting the source movie after moving reviews.
-    """
-    # Setup In-Memory DB
+
+@pytest.fixture
+def session():
     engine = create_engine('sqlite:///:memory:')
     Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    s = sessionmaker(bind=engine)()
+    yield s
+    s.close()
 
-    # Create Data
-    m1 = Movie(title="Source Movie")
-    m2 = Movie(title="Target Movie")
-    c1 = Critic(name="Critic 1")
-    c2 = Critic(name="Critic 2")
-    c3 = Critic(name="Critic 3")
-    p1 = Publication(name="Pub 1", short_name="p1")
-    
-    session.add_all([m1, m2, c1, c2, c3, p1])
+
+def test_merge_moves_all_reviews(session):
+    """Kaikki arvostelut siirtyvät eikä duplikaatin poisto kaada IntegrityErroriin."""
+    source = Movie(title="Source Movie")
+    target = Movie(title="Target Movie")
+    critics = [Critic(name=f"Critic {i}") for i in range(1, 4)]
+    pub = Publication(name="Pub 1", short_name="p1")
+
+    session.add_all([source, target, pub, *critics])
     session.commit()
 
-    # Add MULTIPLE reviews to m1 to trigger the original iteration bug
-    r1 = Review(movie=m1, critic=c1, publication=p1, source_url="http://example.com/1", review_text="R1")
-    r2 = Review(movie=m1, critic=c2, publication=p1, source_url="http://example.com/2", review_text="R2")
-    r3 = Review(movie=m1, critic=c3, publication=p1, source_url="http://example.com/3", review_text="R3")
-    
-    session.add_all([r1, r2, r3])
+    for i, critic in enumerate(critics, 1):
+        session.add(Review(movie=source, critic=critic, publication=pub,
+                           source_url=f"http://example.com/{i}"))
     session.commit()
-    
-    # Reload
-    source = session.query(Movie).filter_by(title="Source Movie").first()
-    target = session.query(Movie).filter_by(title="Target Movie").first()
-    
-    assert len(source.reviews) == 3
-    
-    # -------------------------------------------------------------
-    # The Logic from src/app.py (replicated here for regression testing)
-    # FIX: Iterate over a copy of the list: list(source.reviews)
-    # -------------------------------------------------------------
-    reviews_moved = 0
-    for review in list(source.reviews):
-        review.movie = target
-        reviews_moved += 1
-    
-    # Verify all reviews were moved in memory/session
-    assert reviews_moved == 3
-    
-    # Flush changes to DB before delete
-    session.flush()
-    
-    # Verify no reviews attached to source
-    remaining = session.query(Review).filter_by(movie_id=m1.id).count()
-    assert remaining == 0, "Reviews should have been moved"
-    
-    # Delete source
-    session.delete(source)
-    
-    # Commit should succeed without IntegrityError
-    try:
-        session.commit()
-    except Exception as e:
-        pytest.fail(f"Commit failed with error: {e}")
-        
-    # Verify final state
+
+    result = merge_movies(session, canonical_id=target.id, duplicate_id=source.id)
+    session.commit()
+
+    assert result.moved == 3
+    assert result.dropped == 0
     assert session.query(Movie).filter_by(title="Source Movie").count() == 0
-    assert session.query(Movie).filter_by(title="Target Movie").count() == 1
-    
-    target_reviews = session.query(Review).filter_by(movie_id=m2.id).all()
-    assert len(target_reviews) == 3
+    assert session.query(Review).filter_by(movie_id=target.id).count() == 3
+
+
+def test_merge_drops_reviews_that_would_collide(session):
+    """Sama kriitikko molemmilla elokuvilla: duplikaatin arvostelu poistetaan.
+
+    Ilman tätä UniqueConstraint('movie_id', 'critic_id') kaataisi yhdistämisen.
+    """
+    source = Movie(title="Elokuva (2026)")
+    target = Movie(title="Elokuva")
+    shared = Critic(name="Sama Kriitikko")
+    other = Critic(name="Toinen Kriitikko")
+    pub = Publication(name="Pub 1", short_name="p1")
+
+    session.add_all([source, target, shared, other, pub])
+    session.commit()
+
+    # shared arvostelee molemmat elokuvat -> törmäys
+    session.add(Review(movie=target, critic=shared, publication=pub,
+                       source_url="http://example.com/canonical"))
+    session.add(Review(movie=source, critic=shared, publication=pub,
+                       source_url="http://example.com/duplicate"))
+    session.add(Review(movie=source, critic=other, publication=pub,
+                       source_url="http://example.com/other"))
+    session.commit()
+
+    result = merge_movies(session, canonical_id=target.id, duplicate_id=source.id)
+    session.commit()  # ei saa kaatua
+
+    assert result.moved == 1      # vain 'other' siirtyi
+    assert result.dropped == 1    # 'shared' pudotettiin
+    assert session.query(Movie).filter_by(title="Elokuva (2026)").count() == 0
+
+    remaining = session.query(Review).filter_by(movie_id=target.id).all()
+    assert len(remaining) == 2
+    # Kanonisen alkuperäinen arvostelu säilyy, duplikaatin versio katoaa
+    assert {r.source_url for r in remaining} == {
+        "http://example.com/canonical",
+        "http://example.com/other",
+    }
+
+
+def test_merge_carries_metadata_to_canonical(session):
+    """Duplikaatin metatiedot siirtyvät kanoniselle jos ne puuttuvat sieltä."""
+    source = Movie(title="Source", tmdb_id=123, poster_url="http://img/poster.jpg",
+                   letterboxd_url="http://letterboxd/x")
+    target = Movie(title="Target", imdb_id="tt999")
+
+    session.add_all([source, target])
+    session.commit()
+
+    result = merge_movies(session, canonical_id=target.id, duplicate_id=source.id)
+    session.commit()
+
+    assert target.tmdb_id == 123
+    assert target.poster_url == "http://img/poster.jpg"
+    assert target.letterboxd_url == "http://letterboxd/x"
+    assert target.imdb_id == "tt999"  # omaa arvoa ei ylikirjoiteta
+    assert set(result.carried_metadata) == {'tmdb_id', 'poster_url', 'letterboxd_url'}
+
+
+def test_merge_does_not_overwrite_existing_metadata(session):
+    """Kanonisen omat metatiedot voittavat duplikaatin vastaavat."""
+    source = Movie(title="Source", tmdb_id=111, poster_url="http://img/dup.jpg")
+    target = Movie(title="Target", tmdb_id=222, poster_url="http://img/canon.jpg")
+
+    session.add_all([source, target])
+    session.commit()
+
+    result = merge_movies(session, canonical_id=target.id, duplicate_id=source.id)
+    session.commit()
+
+    assert target.tmdb_id == 222
+    assert target.poster_url == "http://img/canon.jpg"
+    assert result.carried_metadata == []
+
+
+def test_merge_returns_none_for_missing_movie(session):
+    """Puuttuva elokuva palauttaa Nonen eikä kaadu."""
+    movie = Movie(title="Only Movie")
+    session.add(movie)
+    session.commit()
+
+    assert merge_movies(session, canonical_id=movie.id, duplicate_id=9999) is None
+    assert merge_movies(session, canonical_id=9999, duplicate_id=movie.id) is None

@@ -22,26 +22,7 @@ class SeuraScraper(BaseScraper):
         movie_title = title_tag.get_text(strip=True)
 
         # 2. Critic
-        critic_name = "Seura"  # Default
-        author_meta = soup.find('meta', {'name': 'author'})
-        if author_meta and author_meta.get('content'):
-            critic_name = author_meta['content']
-        else:
-             # Fallback: JSON-LD
-            import json
-            scripts = soup.find_all('script', type='application/ld+json')
-            for script in scripts:
-                try:
-                    data = json.loads(script.string)
-                    graph = data.get('@graph', [])
-                    for item in graph:
-                        if item.get('@type') == 'Article':
-                             author = item.get('author', {})
-                             if isinstance(author, dict) and 'name' in author:
-                                 critic_name = author['name']
-                                 break
-                except:
-                    continue
+        critic_name = self.extract_author(soup, self.extract_jsonld(soup)) or "Seura"
 
         # 3. Rating
         rating_stars = None

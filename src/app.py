@@ -3,9 +3,11 @@ Flask-pohjainen web-sovellus elokuva-arvostelujen näyttämiseen.
 """
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, make_response
-from models import get_engine, get_session, Movie, Critic, Publication, Review as DBReview
+from models import get_engine, get_session, session_scope, Movie, Critic, Publication, Review as DBReview
 from services.data_service import DataService
+from services.merge_service import merge_movies as merge_movie_records
 from sqlalchemy.orm import joinedload
+from functools import wraps
 import xml.etree.ElementTree as ET
 from email.utils import formatdate
 
@@ -19,17 +21,54 @@ engine = get_engine()
 data_service = DataService(engine)
 
 
+def admin_redirect(message: str, message_type: str = 'success'):
+    """Ohjaa admin-näkymään viestin kanssa."""
+    return redirect(url_for('admin', message=message, message_type=message_type))
+
+
+def admin_action(fn):
+    """Admin-reitin kääre: avaa session, rollback ja virheviesti poikkeuksessa.
+
+    Kääritty funktio saa sessionin ensimmäisenä argumenttinaan.
+    """
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        session = get_session(engine)
+        try:
+            return fn(session, *args, **kwargs)
+        except Exception as e:
+            session.rollback()
+            return admin_redirect(f'Virhe: {str(e)}', 'error')
+        finally:
+            session.close()
+    return wrapper
+
+
+def delete_with_reviews(session, entity, label: str, name: str):
+    """Poista entiteetti ja sen arvostelut. Palauttaa admin-redirectin."""
+    review_count = len(entity.reviews)
+
+    for review in list(entity.reviews):
+        session.delete(review)
+
+    session.delete(entity)
+    session.commit()
+
+    msg = f'{label} "{name}" poistettu'
+    if review_count > 0:
+        msg += f' ({review_count} arvostelua poistettu)'
+
+    return admin_redirect(msg)
+
+
 def get_all_reviews_grouped():
     """Hakee kaikki arvostelut ryhmiteltynä elokuvittain.
 
     DEPRECATED: Käytä data_service.get_grouped_reviews()
     Pidetty toistaiseksi yhteensopivuuden vuoksi.
     """
-    session = get_session(engine)
-    try:
+    with session_scope(engine) as session:
         return data_service.get_grouped_reviews(session)
-    finally:
-        session.close()
 
 
 @app.route('/reviews.json')
@@ -64,34 +103,32 @@ def index():
 
 @app.route('/api/reviews', methods=['GET'])
 def api_reviews():
-    session = get_session(engine)
     try:
-        offset = request.args.get('offset', type=int, default=0)
-        limit = request.args.get('limit', type=int, default=50)
+        with session_scope(engine) as session:
+            offset = request.args.get('offset', type=int, default=0)
+            limit = request.args.get('limit', type=int, default=50)
 
-        # Build the base query
-        reviews_query = session.query(DBReview).options(
-            joinedload(DBReview.movie),
-            joinedload(DBReview.critic),
-            joinedload(DBReview.publication)
-        ).filter_by(is_published=1).order_by(DBReview.scraped_at.desc())
+            # Build the base query
+            reviews_query = session.query(DBReview).options(
+                joinedload(DBReview.movie),
+                joinedload(DBReview.critic),
+                joinedload(DBReview.publication)
+            ).filter_by(is_published=1).order_by(DBReview.scraped_at.desc())
 
-        # Get total count before applying limit and offset
-        total_reviews = reviews_query.count()
+            # Get total count before applying limit and offset
+            total_reviews = reviews_query.count()
 
-        # Apply limit and offset
-        reviews = reviews_query.offset(offset).limit(limit).all()
+            # Apply limit and offset
+            reviews = reviews_query.offset(offset).limit(limit).all()
 
-        return jsonify({
-            'reviews': [review.to_dict() for review in reviews],
-            'total_reviews': total_reviews,
-            'offset': offset,
-            'limit': limit
-        })
+            return jsonify({
+                'reviews': [review.to_dict() for review in reviews],
+                'total_reviews': total_reviews,
+                'offset': offset,
+                'limit': limit
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    finally:
-        session.close()
 
 
 @app.route('/api/movies', methods=['GET'])
@@ -134,16 +171,12 @@ def api_movies():
 @app.route('/health')
 def health():
     """Terveystarkastus."""
-    session = get_session(engine)
-    
-    try:
+    with session_scope(engine) as session:
         count = session.query(DBReview).count()
         return jsonify({
             'status': 'ok',
             'reviews_count': count
         })
-    finally:
-        session.close()
 
 
 @app.route('/rss')
@@ -152,91 +185,85 @@ def health():
 @app.route('/feed.xml')
 def rss_feed():
     """Generoi RSS-syöte uusimmista arvosteluista."""
-    session = get_session(engine)
-    
     try:
-        # Hae 50 viimeisintä julkaistua arviota
-        reviews = session.query(DBReview).filter_by(is_published=1).order_by(
-            DBReview.scraped_at.desc()
-        ).options(
-            joinedload(DBReview.movie),
-            joinedload(DBReview.critic),
-            joinedload(DBReview.publication)
-        ).limit(50).all()
+        with session_scope(engine) as session:
+            # Hae 50 viimeisintä julkaistua arviota
+            reviews = session.query(DBReview).filter_by(is_published=1).order_by(
+                DBReview.scraped_at.desc()
+            ).options(
+                joinedload(DBReview.movie),
+                joinedload(DBReview.critic),
+                joinedload(DBReview.publication)
+            ).limit(50).all()
         
-        # Luo RSS XML
-        rss = ET.Element('rss', version='2.0')
-        channel = ET.SubElement(rss, 'channel')
+            # Luo RSS XML
+            rss = ET.Element('rss', version='2.0')
+            channel = ET.SubElement(rss, 'channel')
         
-        ET.SubElement(channel, 'title').text = 'Kriitikkojen valinta - Uusimmat arviot'
-        ET.SubElement(channel, 'link').text = 'https://ollisulopuisto.github.io/kriitikot/'
-        ET.SubElement(channel, 'description').text = 'Suomalaisten kriitikoiden elokuva-arvostelut.'
-        ET.SubElement(channel, 'language').text = 'fi'
+            ET.SubElement(channel, 'title').text = 'Kriitikkojen valinta - Uusimmat arviot'
+            ET.SubElement(channel, 'link').text = 'https://ollisulopuisto.github.io/kriitikot/'
+            ET.SubElement(channel, 'description').text = 'Suomalaisten kriitikoiden elokuva-arvostelut.'
+            ET.SubElement(channel, 'language').text = 'fi'
         
-        if reviews:
-            latest_date = reviews[0].published_date or reviews[0].scraped_at
-            if latest_date:
-                ET.SubElement(channel, 'lastBuildDate').text = formatdate(latest_date.timestamp())
+            if reviews:
+                latest_date = reviews[0].published_date or reviews[0].scraped_at
+                if latest_date:
+                    ET.SubElement(channel, 'lastBuildDate').text = formatdate(latest_date.timestamp())
         
-        for review in reviews:
-            item = ET.SubElement(channel, 'item')
+            for review in reviews:
+                item = ET.SubElement(channel, 'item')
             
-            movie_title = review.movie.title
-            critic = review.critic.name
-            pub = review.publication.name
-            stars = f"{review.rating_stars}/5" if review.rating_stars else "Ei tähtiä"
+                movie_title = review.movie.title
+                critic = review.critic.name
+                pub = review.publication.name
+                stars = f"{review.rating_stars}/5" if review.rating_stars else "Ei tähtiä"
             
-            title = f"{movie_title} - {stars} - {critic} ({pub})"
-            ET.SubElement(item, 'title').text = title
+                title = f"{movie_title} - {stars} - {critic} ({pub})"
+                ET.SubElement(item, 'title').text = title
             
-            # Käytä alkuperäistä URL-osoitetta linkkinä
-            if review.source_url:
-                ET.SubElement(item, 'link').text = review.source_url
-                ET.SubElement(item, 'guid').text = review.source_url
+                # Käytä alkuperäistä URL-osoitetta linkkinä
+                if review.source_url:
+                    ET.SubElement(item, 'link').text = review.source_url
+                    ET.SubElement(item, 'guid').text = review.source_url
             
-            desc = f"Elokuva: {movie_title}\nKriitikko: {critic}\nJulkaisu: {pub}\nArvosana: {stars}"
-            if review.review_text:
-                # Ota vain ensimmäinen kappale
-                text = review.review_text.strip()
-                if '\n\n' in text:
-                    text = text.split('\n\n')[0]
-                elif '\n' in text:
-                    # Jos ei tuplarivinvaihtoa, kokeile yksittäistä jos se vaikuttaa kappalejaolta
-                    # (mutta varo listauksia tms).
-                    # Yksinkertaisuuden vuoksi otetaan ensimmäinen "kappale" 
-                    # joka on joko double newline tai jos ei ole, niin koko teksti.
-                    # Mutta jos teksti on hyvin pitkä ja siinä on single newlineja, saatetaan haluta katkaista.
-                    pass
+                desc = f"Elokuva: {movie_title}\nKriitikko: {critic}\nJulkaisu: {pub}\nArvosana: {stars}"
+                if review.review_text:
+                    # Ota vain ensimmäinen kappale
+                    text = review.review_text.strip()
+                    if '\n\n' in text:
+                        text = text.split('\n\n')[0]
+                    elif '\n' in text:
+                        # Jos ei tuplarivinvaihtoa, kokeile yksittäistä jos se vaikuttaa kappalejaolta
+                        # (mutta varo listauksia tms).
+                        # Yksinkertaisuuden vuoksi otetaan ensimmäinen "kappale" 
+                        # joka on joko double newline tai jos ei ole, niin koko teksti.
+                        # Mutta jos teksti on hyvin pitkä ja siinä on single newlineja, saatetaan haluta katkaista.
+                        pass
                 
-                # Varmistus: jos silti liian pitkä (yli 500 merkkiä), katkaise
-                if len(text) > 500:
-                    text = text[:500] + "..."
+                    # Varmistus: jos silti liian pitkä (yli 500 merkkiä), katkaise
+                    if len(text) > 500:
+                        text = text[:500] + "..."
                 
-                desc += f"\n\n{text}"
+                    desc += f"\n\n{text}"
             
-            ET.SubElement(item, 'description').text = desc
+                ET.SubElement(item, 'description').text = desc
             
-            pub_date = review.published_date or review.scraped_at
-            if pub_date:
-                ET.SubElement(item, 'pubDate').text = formatdate(pub_date.timestamp())
+                pub_date = review.published_date or review.scraped_at
+                if pub_date:
+                    ET.SubElement(item, 'pubDate').text = formatdate(pub_date.timestamp())
                 
-        response = make_response(ET.tostring(rss, encoding='utf-8', method='xml'))
-        response.headers['Content-Type'] = 'application/xml; charset=utf-8'
-        return response
+            response = make_response(ET.tostring(rss, encoding='utf-8', method='xml'))
+            response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+            return response
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-        
-    finally:
-        session.close()
 
 
 @app.route('/admin')
 def admin():
     """Admin-sivu elokuvanimien hallintaan."""
-    session = get_session(engine)
-    
-    try:
+    with session_scope(engine) as session:
         movies = session.query(Movie).options(joinedload(Movie.reviews)).all()
         critics = session.query(Critic).options(
             joinedload(Critic.reviews).joinedload(DBReview.publication)
@@ -282,223 +309,118 @@ def admin():
             message=message,
             message_type=message_type
         )
-    finally:
-        session.close()
 
 
 @app.route('/admin/movie/<int:movie_id>/rename', methods=['POST'])
-def rename_movie(movie_id):
+@admin_action
+def rename_movie(session, movie_id):
     """Nimeä elokuva uudelleen."""
-    session = get_session(engine)
-    
-    try:
-        movie = session.query(Movie).get(movie_id)
-        if not movie:
-            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
-        
-        new_title = request.form.get('new_title', '').strip()
-        if not new_title:
-            return redirect(url_for('admin', message='Nimi ei voi olla tyhjä', message_type='error'))
-        
-        old_title = movie.title
-        movie.title = new_title
-        session.commit()
-        
-        return redirect(url_for('admin', message=f'Elokuva "{old_title}" → "{new_title}" päivitetty!', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    movie = session.get(Movie, movie_id)
+    if not movie:
+        return admin_redirect('Elokuvaa ei löytynyt', 'error')
+
+    new_title = request.form.get('new_title', '').strip()
+    if not new_title:
+        return admin_redirect('Nimi ei voi olla tyhjä', 'error')
+
+    old_title = movie.title
+    movie.title = new_title
+    session.commit()
+
+    return admin_redirect(f'Elokuva "{old_title}" → "{new_title}" päivitetty!')
 
 
 @app.route('/admin/movie/<int:movie_id>/delete', methods=['POST'])
-def delete_movie(movie_id):
+@admin_action
+def delete_movie(session, movie_id):
     """Poista elokuva JA kaikki sen arvostelut (cascade delete)."""
-    session = get_session(engine)
-    
-    try:
-        movie = session.query(Movie).get(movie_id)
-        if not movie:
-            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
-        
-        title = movie.title
-        review_count = len(movie.reviews)
-        
-        # Poista kaikki arvostelut ensin
-        for review in movie.reviews:
-            session.delete(review)
-        
-        # Poista elokuva
-        session.delete(movie)
-        session.commit()
-        
-        msg = f'Elokuva "{title}" poistettu'
-        if review_count > 0:
-            msg += f' ({review_count} arvostelua poistettu)'
-        
-        return redirect(url_for('admin', message=msg, message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    movie = session.get(Movie, movie_id)
+    if not movie:
+        return admin_redirect('Elokuvaa ei löytynyt', 'error')
+
+    return delete_with_reviews(session, movie, 'Elokuva', movie.title)
 
 
 @app.route('/admin/movie/merge', methods=['POST'])
-def merge_movies():
+@admin_action
+def merge_movies(session):
     """Yhdistä kaksi elokuvaa (siirrä arvostelut toiseen ja poista toinen)."""
-    session = get_session(engine)
-    
-    try:
-        source_id = int(request.form.get('source_id'))
-        target_id = int(request.form.get('target_id'))
-        
-        if source_id == target_id:
-            return redirect(url_for('admin', message='Lähde ja kohde eivät voi olla sama elokuva', message_type='error'))
-        
-        source = session.query(Movie).get(source_id)
-        target = session.query(Movie).get(target_id)
-        
-        if not source or not target:
-            return redirect(url_for('admin', message='Elokuvia ei löytynyt', message_type='error'))
-        
-        # Siirrä kaikki arvostelut lähteestä kohteeseen
-        review_count = len(source.reviews)
-        # Iterate over a COPY of the list because modifying the relationship 
-        # (review.movie = target) removes the item from source.reviews, 
-        # causing the iterator to skip elements if iterating over the live list.
-        for review in list(source.reviews):
-            review.movie = target
-        
-        # Poista lähde-elokuva
-        source_title = source.title
-        session.delete(source)
-        session.commit()
-        
-        return redirect(url_for('admin', 
-            message=f'✅ Yhdistetty "{source_title}" → "{target.title}" ({review_count} arvostelua siirretty)', 
-            message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    source_id = int(request.form.get('source_id'))
+    target_id = int(request.form.get('target_id'))
 
+    if source_id == target_id:
+        return admin_redirect('Lähde ja kohde eivät voi olla sama elokuva', 'error')
 
+    result = merge_movie_records(session, canonical_id=target_id, duplicate_id=source_id)
+    if result is None:
+        return admin_redirect('Elokuvia ei löytynyt', 'error')
+
+    session.commit()
+
+    msg = (f'✅ Yhdistetty "{result.duplicate_title}" → "{result.canonical_title}" '
+           f'({result.moved} arvostelua siirretty)')
+    if result.dropped:
+        msg += f', {result.dropped} päällekkäistä arvostelua poistettu'
+    if result.carried_metadata:
+        msg += f', metatiedot siirretty: {", ".join(result.carried_metadata)}'
+
+    return admin_redirect(msg)
 
 
 @app.route('/admin/critic/<int:critic_id>/delete', methods=['POST'])
-def delete_critic(critic_id):
+@admin_action
+def delete_critic(session, critic_id):
     """Poista kriitikko JA kaikki hänen arvostelunsa (cascade delete)."""
-    session = get_session(engine)
-    
-    try:
-        critic = session.query(Critic).get(critic_id)
-        if not critic:
-            return redirect(url_for('admin', message='Kriitikkoa ei löytynyt', message_type='error'))
-        
-        name = critic.name
-        review_count = len(critic.reviews)
-        
-        # Poista kaikki arvostelut ensin
-        for review in critic.reviews:
-            session.delete(review)
-        
-        # Poista kriitikko
-        session.delete(critic)
-        session.commit()
-        
-        msg = f'Kriitikko "{name}" poistettu'
-        if review_count > 0:
-            msg += f' ({review_count} arvostelua poistettu)'
-        
-        return redirect(url_for('admin', message=msg, message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    critic = session.get(Critic, critic_id)
+    if not critic:
+        return admin_redirect('Kriitikkoa ei löytynyt', 'error')
+
+    return delete_with_reviews(session, critic, 'Kriitikko', critic.name)
 
 
 @app.route('/admin/review/<int:review_id>/publish', methods=['POST'])
-def publish_review(review_id):
+@admin_action
+def publish_review(session, review_id):
     """Julkaise pending-arvio."""
-    session = get_session(engine)
-    
-    try:
-        review = session.query(DBReview).get(review_id)
-        if not review:
-            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
-        
-        review.is_published = 1
-        session.commit()
-        
-        movie_title = review.movie.title if review.movie else 'Unknown'
-        return redirect(url_for('admin', message=f'✅ Arvio julkaistu: {movie_title}', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    review = session.get(DBReview, review_id)
+    if not review:
+        return admin_redirect('Arvostelua ei löytynyt', 'error')
+
+    review.is_published = 1
+    movie_title = review.movie.title if review.movie else 'Unknown'
+    session.commit()
+
+    return admin_redirect(f'✅ Arvio julkaistu: {movie_title}')
 
 
 @app.route('/admin/review/<int:review_id>/unpublish', methods=['POST'])
-def unpublish_review(review_id):
+@admin_action
+def unpublish_review(session, review_id):
     """Poista arvio julkaisusta (piilota frontendistä)."""
-    session = get_session(engine)
-    
-    try:
-        review = session.query(DBReview).get(review_id)
-        if not review:
-            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
-        
-        review.is_published = 0
-        session.commit()
-        
-        movie_title = review.movie.title if review.movie else 'Unknown'
-        return redirect(url_for('admin', message=f'⏸️ Arvio piilotettu frontendistä: {movie_title}', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    review = session.get(DBReview, review_id)
+    if not review:
+        return admin_redirect('Arvostelua ei löytynyt', 'error')
+
+    review.is_published = 0
+    movie_title = review.movie.title if review.movie else 'Unknown'
+    session.commit()
+
+    return admin_redirect(f'⏸️ Arvio piilotettu frontendistä: {movie_title}')
 
 
 @app.route('/admin/review/<int:review_id>/delete', methods=['POST'])
-def delete_review(review_id):
+@admin_action
+def delete_review(session, review_id):
     """Poista arvio (esim. pending-tilasta)."""
-    session = get_session(engine)
-    
-    try:
-        review = session.query(DBReview).get(review_id)
-        if not review:
-            return redirect(url_for('admin', message='Arvostelua ei löytynyt', message_type='error'))
-        
-        movie_title = review.movie.title if review.movie else 'Unknown'
-        session.delete(review)
-        session.commit()
-        
-        return redirect(url_for('admin', message=f'Arvio poistettu: {movie_title}', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    review = session.get(DBReview, review_id)
+    if not review:
+        return admin_redirect('Arvostelua ei löytynyt', 'error')
+
+    movie_title = review.movie.title if review.movie else 'Unknown'
+    session.delete(review)
+    session.commit()
+
+    return admin_redirect(f'Arvio poistettu: {movie_title}')
 
 
 @app.route('/admin/movie/<int:movie_id>/fetch-metadata', methods=['POST'])
@@ -575,115 +497,74 @@ def fetch_movie_metadata(movie_id):
 
 
 @app.route('/admin/movie/<int:movie_id>/metadata', methods=['POST'])
-def update_movie_metadata(movie_id):
+@admin_action
+def update_movie_metadata(session, movie_id):
     """Päivitä elokuvan metatiedot (TMDB, IMDB, jne)."""
-    session = get_session(engine)
-    
-    try:
-        movie = session.query(Movie).get(movie_id)
-        if not movie:
-            return redirect(url_for('admin', message='Elokuvaa ei löytynyt', message_type='error'))
-        
-        # Päivitä kentät
-        if request.form.get('tmdb_id'):
-            movie.tmdb_id = int(request.form.get('tmdb_id'))
-        
-        if request.form.get('imdb_id'):
-            movie.imdb_id = request.form.get('imdb_id').strip()
-        
-        if request.form.get('poster_url'):
-            movie.poster_url = request.form.get('poster_url').strip()
-        
-        if request.form.get('letterboxd_url'):
-            movie.letterboxd_url = request.form.get('letterboxd_url').strip()
-        
-        if request.form.get('nytleffaan_url'):
-            movie.nytleffaan_url = request.form.get('nytleffaan_url').strip()
-        
-        session.commit()
-        
-        return redirect(url_for('admin', message=f'✅ Metatiedot päivitetty: {movie.title}', message_type='success'))
-    
-    except Exception as e:
-        session.rollback()
-        return redirect(url_for('admin', message=f'Virhe: {str(e)}', message_type='error'))
-    
-    finally:
-        session.close()
+    movie = session.get(Movie, movie_id)
+    if not movie:
+        return admin_redirect('Elokuvaa ei löytynyt', 'error')
+
+    if request.form.get('tmdb_id'):
+        movie.tmdb_id = int(request.form.get('tmdb_id'))
+
+    for field in ('imdb_id', 'poster_url', 'letterboxd_url', 'nytleffaan_url'):
+        value = request.form.get(field)
+        if value:
+            setattr(movie, field, value.strip())
+
+    title = movie.title
+    session.commit()
+
+    return admin_redirect(f'✅ Metatiedot päivitetty: {title}')
 
 
 @app.route('/debug/movies')
 def debug_movies():
     """Debug - listaa kaikkien elokuvien ID:t ja nimet."""
-    session = get_session(engine)
-    
-    try:
+    with session_scope(engine) as session:
         movies = session.query(Movie).all()
         return '<br>'.join([f"{m.id}: {m.title}" for m in movies])
-    finally:
-        session.close()
 
 
 @app.route('/admin/fetch-all-metadata', methods=['POST'])
 def fetch_all_metadata():
     """Hae metatiedot kaikille elokuville joilla niitä puuttuu."""
-    from metadata_fetcher import MetadataFetcher
+    from metadata_fetcher import MetadataFetcher, backfill_movie_metadata
     import time
-    
-    session = get_session(engine)
+
     fetcher = MetadataFetcher()
     updated = 0
-    
+
     try:
-        # Hae elokuvat joilla puuttuu TMDB ID tai poster
-        movies = session.query(Movie).filter(
-            (Movie.tmdb_id.is_(None)) | 
-            (Movie.poster_url.is_(None)) |
-            (Movie.imdb_id.is_(None))
-        ).all()
-        
-        for movie in movies:
-            try:
-                metadata = fetcher.fetch_all_metadata(movie.title)
-                
-                if metadata.get('tmdb_data'):
-                    tmdb = metadata['tmdb_data']
-                    if not movie.tmdb_id:
-                        movie.tmdb_id = tmdb['tmdb_id']
-                    if not movie.poster_url:
-                        movie.poster_url = tmdb['poster_url']
-                
-                if metadata.get('imdb_id') and not movie.imdb_id:
-                    movie.imdb_id = metadata['imdb_id']
-                
-                if metadata.get('letterboxd_url') and not movie.letterboxd_url:
-                    movie.letterboxd_url = metadata['letterboxd_url']
-                
-                if metadata.get('nytleffaan_url') and not movie.nytleffaan_url:
-                    movie.nytleffaan_url = metadata['nytleffaan_url']
-                
-                updated += 1
-                
-                # Rate limiting - odota 1 sekunti jokaisen hakemisen jälkeen
-                time.sleep(1)
-                
-            except Exception as e:
-                print(f"Virhe elokuvan {movie.title} metatietojen haussa: {e}")
-                continue
-        
-        session.commit()
-        
+        with session_scope(engine) as session:
+            # Hae elokuvat joilla puuttuu TMDB ID tai poster
+            movies = session.query(Movie).filter(
+                (Movie.tmdb_id.is_(None)) |
+                (Movie.poster_url.is_(None)) |
+                (Movie.imdb_id.is_(None))
+            ).all()
+
+            for movie in movies:
+                try:
+                    if backfill_movie_metadata(movie, fetcher):
+                        updated += 1
+
+                    # Rate limiting - odota 1 sekunti jokaisen hakemisen jälkeen
+                    time.sleep(1)
+
+                except Exception as e:
+                    print(f"Virhe elokuvan {movie.title} metatietojen haussa: {e}")
+                    continue
+
+            session.commit()
+
         return jsonify({
             'message': f'✅ Metatiedot haettu onnistuneesti {updated} elokuvalle',
             'updated': updated
         })
-    
+
     except Exception as e:
-        session.rollback()
         return jsonify({'error': str(e)}), 500
-    
-    finally:
-        session.close()
 
 
 if __name__ == '__main__':

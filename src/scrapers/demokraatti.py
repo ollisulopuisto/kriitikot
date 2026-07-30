@@ -19,13 +19,8 @@ class DemokraattiScraper(BaseScraper):
         soup = self.get_soup(html_content)
         
         # 1. Extract JSON data
-        next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
-        if not next_data_script:
-            return None
-            
-        try:
-            data = json.loads(next_data_script.string)
-        except json.JSONDecodeError:
+        data = self.extract_next_data(soup)
+        if not data:
             return None
             
         # 2. Navigate to post data

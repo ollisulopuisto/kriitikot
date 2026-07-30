@@ -8,7 +8,7 @@ from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
 from scrapers import scrapers as SCRAPERS
 from movie_normalizer import get_canonical_title
-from metadata_fetcher import MetadataFetcher
+from metadata_fetcher import MetadataFetcher, backfill_movie_metadata
 from typing import Dict
 import re
 import requests
@@ -114,20 +114,10 @@ class DiscoveryImporter:
             # Hae metatiedot uudelle elokuvalle
             print(f"   🎬 Luotiin uusi elokuva: {canonical_title}")
             try:
-                metadata = self.metadata_fetcher.fetch_all_metadata(canonical_title)
-                
-                if metadata.get('tmdb_data'):
-                    tmdb_data = metadata['tmdb_data']
-                    movie.tmdb_id = tmdb_data.get('tmdb_id')
-                    movie.poster_url = tmdb_data.get('poster_url')
-                    # IMDb ID voidaan hakea myöhemmin jos tarpeen
-                
-                movie.letterboxd_url = metadata.get('letterboxd_url')
-                movie.nytleffaan_url = metadata.get('nytleffaan_url')
-                
+                added = backfill_movie_metadata(movie, self.metadata_fetcher)
                 self.session.commit()
-                print(f"   📊 Metatiedot haettu: TMDB={movie.tmdb_id is not None}, Letterboxd={movie.letterboxd_url is not None}, Nytleffaan={movie.nytleffaan_url is not None}")
-                
+                print(f"   📊 Metatiedot haettu: {', '.join(added) if added else 'ei löytynyt'}")
+
             except Exception as e:
                 print(f"   ⚠️  Metatietojen haku epäonnistui: {e}")
                 # Jatka normaalisti vaikka metadata haku epäonnistuu
