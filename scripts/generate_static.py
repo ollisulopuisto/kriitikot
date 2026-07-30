@@ -45,6 +45,16 @@ def generate_static_site():
             else:
                 print(f"❌ Virhe rss.xml: HTTP {response.status_code}")
                 # Ei katkaista prosessia vaikka RSS epäonnistuisi, mutta hyvä logata
+
+            # Arvosteludata erillisenä JSON-tiedostona (sivu hakee sen laiskasti)
+            response = client.get('/reviews.json')
+            if response.status_code == 200:
+                reviews_json = docs_dir / 'reviews.json'
+                reviews_json.write_bytes(response.data)
+                print(f"✅ Luotu: {reviews_json}")
+            else:
+                print(f"❌ Virhe reviews.json: HTTP {response.status_code}")
+                return False
     
     # 2. Kopioi static-kansio
     src_static = Path(__file__).parent.parent / 'static'

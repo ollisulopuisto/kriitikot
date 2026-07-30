@@ -328,11 +328,3 @@ class KSMLScraper(BaseScraper):
         
         return text if text else None
     
-    def parse_file(self, file_path: str) -> Optional[Review]:
-        """Avaa tiedoston ja parsii sen."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            return self.parse_html(content)
-        except (IOError, OSError):
-            return None

@@ -3,12 +3,16 @@ SQLAlchemy tietokantamallit.
 """
 
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-from datetime import datetime
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from datetime import datetime, timezone
 import os
 
 Base = declarative_base()
+
+
+def utcnow():
+    """Naiivi UTC-aika (kanta tallentaa naiiveja aikaleimoja)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class Movie(Base):
@@ -17,8 +21,8 @@ class Movie(Base):
     
     id = Column(Integer, primary_key=True)
     title = Column(String(255), unique=True, nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     
     # Elokuvan metatiedot
     published_date = Column(DateTime, nullable=True)  # Elokuvan julkaisupäivä (teattereissa)
@@ -43,7 +47,7 @@ class Critic(Base):
     name = Column(String(255), unique=True, nullable=False, index=True)
     # POISTETTU: media kenttä (kriitikko voi kirjoittaa moneen mediaan)
     # Media-tieto tulee nyt Review-taulun kautta publication_id:stä
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="critic")
@@ -59,7 +63,7 @@ class Publication(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
     short_name = Column(String(20), unique=True, nullable=False)  # 'hs', 'ksml', jne.
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     
     # Relatio arvosteluihin
     reviews = relationship("Review", back_populates="publication")
@@ -89,8 +93,8 @@ class Review(Base):
     
     # Metadata
     published_date = Column(DateTime, nullable=True)  # Arvion julkaisupäivä
-    scraped_at = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    scraped_at = Column(DateTime, default=utcnow)
+    created_at = Column(DateTime, default=utcnow)
     
     # Relatiot
     movie = relationship("Movie", back_populates="reviews")

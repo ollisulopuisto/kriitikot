@@ -12,64 +12,29 @@ Or with environment variable:
 
 import sys
 import os
-import requests
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from models import get_session, Movie
-
-
-def search_tmdb(api_key, query):
-    """Search TMDB for a movie and return the best result with poster."""
-    url = "https://api.themoviedb.org/3/search/movie"
-    
-    # Try multiple language/query combinations
-    attempts = [
-        {'query': query, 'language': 'fi-FI'},
-        {'query': query, 'language': 'en-US'},
-        {'query': query},
-    ]
-    
-    for params in attempts:
-        params['api_key'] = api_key
-        
-        try:
-            response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get('results'):
-                # Find first result with a poster
-                for result in data['results']:
-                    if result.get('poster_path'):
-                        return {
-                            'tmdb_id': result['id'],
-                            'title': result['title'],
-                            'poster_url': f"https://image.tmdb.org/t/p/w500{result['poster_path']}",
-                            'release_date': result.get('release_date', ''),
-                            'original_title': result.get('original_title', '')
-                        }
-        except Exception as e:
-            print(f"    Error with query '{params.get('query')}': {e}")
-            continue
-    
-    return None
+from metadata_fetcher import MetadataFetcher
 
 
 def main():
     # Get API key from argument or environment
     if len(sys.argv) > 1:
-        api_key = sys.argv[1]
-    else:
-        api_key = os.environ.get('TMDB_API_KEY')
-    
-    if not api_key:
+        os.environ['TMDB_API_KEY'] = sys.argv[1]
+
+    fetcher = MetadataFetcher()
+    if not fetcher.tmdb_api_key:
+        fetcher.tmdb_api_key = os.environ.get('TMDB_API_KEY')
+
+    if not fetcher.tmdb_api_key:
         print("Error: TMDB API key required")
         print("Usage: python scripts/fetch_missing_posters.py <TMDB_API_KEY>")
         print("Or set TMDB_API_KEY environment variable")
         sys.exit(1)
-    
+
     session = get_session()
     
     # Find movies without posters
@@ -93,9 +58,9 @@ def main():
     
     for movie in movies_without_posters:
         print(f"🔍 Searching: {movie.title}")
-        
+
         # Try exact title first
-        result = search_tmdb(api_key, movie.title)
+        result = fetcher.search_movie_tmdb(movie.title)
         
         if result and result.get('poster_url'):
             print(f"  ✅ Found: {result['title']} ({result['release_date']})")

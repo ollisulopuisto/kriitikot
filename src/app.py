@@ -21,7 +21,7 @@ data_service = DataService(engine)
 
 def get_all_reviews_grouped():
     """Hakee kaikki arvostelut ryhmiteltynä elokuvittain.
-    
+
     DEPRECATED: Käytä data_service.get_grouped_reviews()
     Pidetty toistaiseksi yhteensopivuuden vuoksi.
     """
@@ -30,6 +30,14 @@ def get_all_reviews_grouped():
         return data_service.get_grouped_reviews(session)
     finally:
         session.close()
+
+
+@app.route('/reviews.json')
+def reviews_json():
+    """Kaikki arvostelut JSON-tiedostona (ladataan sivulle laiskasti)."""
+    response = make_response(data_service.get_reviews_json())
+    response.mimetype = 'application/json'
+    return response
 
 
 @app.route('/')

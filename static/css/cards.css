@@ -52,6 +52,8 @@
 .movie-card-poster-thumb {
     max-width: 100px;
     height: auto;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
     border-radius: 0.25rem;
     margin-left: 0;
     margin-bottom: 0;
@@ -203,6 +205,11 @@
     color: #212529;
 }
 
+.review-critic-top {
+    display: flex;
+    align-items: center;
+}
+
 .review-media {
     display: block;
     color: #6c757d;
@@ -283,5 +290,15 @@
     .movie-card-links {
         gap: 0.5rem;
         justify-content: flex-start;
+    }
+
+    /* 44px minimum touch targets for the primary tap actions */
+    .review-item .rating-pill,
+    .movie-card-links .movie-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding-left: 0.75em;
+        padding-right: 0.75em;
     }
 }

@@ -22,7 +22,7 @@
             {% endif %}
             {% if poster_urls.get(movie_title) %}
             <div class="movie-card-poster-container">
-                <img class="movie-card-poster-thumb" src="{{ poster_urls[movie_title] }}" alt="{{ movie_title }} poster" />
+                <img class="movie-card-poster-thumb" src="{{ poster_urls[movie_title] }}" alt="{{ movie_title }} poster" loading="lazy" decoding="async" width="100" height="150" />
             </div>
             {% endif %}
         </div>

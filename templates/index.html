@@ -31,17 +31,24 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800;900&family=Bitter:wght@400;500;600;700;900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="static/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;700;900&family=Bitter:wght@400;700&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Afacad:wght@400;700;900&family=Bitter:wght@400;700&display=swap"
+            rel="stylesheet">
+    </noscript>
+
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header.css">
+    <link rel="stylesheet" href="static/css/filters.css">
+    <link rel="stylesheet" href="static/css/table.css">
+    <link rel="stylesheet" href="static/css/cards.css">
 
     <!-- JavaScript modules -->
     <script src="static/app.js" defer></script>
     <script src="static/filters.js" defer></script>
     <script src="static/interactions.js" defer></script>
     <script src="static/ui.js" defer></script>
-</head>
 </head>
 
 <body>
@@ -62,9 +69,6 @@
             </div>
         </header>
 
-        <script id="all-reviews-data" type="application/json">
-            {{ all_reviews_json | safe }}
-        </script>
         <script id="movie-meta-data" type="application/json">
             {{ {
                 'nytleffaan_urls': nytleffaan_urls,
@@ -147,7 +151,6 @@
                 </div>
 
                 <!-- Fasetti 4: Suosikit -->
-                <!-- Fasetti 4: Suosikit -->
                 <div class="filter-group group-favorites">
                     <div class="toggle-container" title="Näytä vain suosikkikriitikot">
                         <label class="toggle-switch">
@@ -205,7 +208,7 @@
             <div class="sticky-scrollbar-content"></div>
         </div>
     </div>
-    </div>
+
     <!-- Mobile: Suodattimet (ENSIN) -->
     <div class="mobile-filter collapsed">
         <!-- Toggle-nappi -->
@@ -300,7 +303,7 @@
         </div>
     </div>
 
-    </footer>
+    </div>
 </body>
 
 </html>

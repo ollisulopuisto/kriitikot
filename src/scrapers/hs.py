@@ -192,11 +192,3 @@ class HSScraper(BaseScraper):
         name = name.strip()
         return name if name else original.strip()
     
-    def parse_file(self, file_path: str) -> Optional[Review]:
-        """Avaa tiedoston ja parsii sen."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            return self.parse_html(content)
-        except (IOError, OSError):
-            return None

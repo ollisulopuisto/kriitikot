@@ -2,6 +2,18 @@
 // =========================================
 
 /**
+ * Debounce: liukusäätimen raahaus laukaisee raskaan suodatuksen vasta
+ * kun raahaus pysähtyy hetkeksi (label päivittyy silti heti)
+ */
+function debounceFilter(fn, delay = 120) {
+    let timer = null;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+/**
  * Arvioiden määrä -suodatin (desktop + mobile)
  */
 function initReviewCountFilter() {
@@ -119,18 +131,19 @@ function initReviewCountFilter() {
     }
 
     // Desktop slider
+    const debouncedFilterByReviewCount = debounceFilter(filterByReviewCount);
     slider.addEventListener('input', function () {
         const sliderPos = parseInt(this.value);
         const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
-        
+
         valueDisplay.textContent = mappedValue;
         updateReviewWord(mappedValue);
-        
+
         if (valueDisplayMobile) {
             valueDisplayMobile.textContent = mappedValue;
         }
-        
-        filterByReviewCount(mappedValue);
+
+        debouncedFilterByReviewCount(mappedValue);
     });
     slider.dataset.initialized = 'true';
 
@@ -200,14 +213,12 @@ function initStarFilter() {
 
     function filterByStars(starsParam) {
         const stars = parseInt(starsParam);
-        console.log(`🎬 filterByStars: Target stars >= ${stars}`);
 
         const table = document.querySelector('table');
         const allCards = document.querySelectorAll('.mobile-cards .movie-card');
 
         // Reset if stars <= 1
         if (stars <= 1) {
-            console.log('  🔄 Resetting star filter');
             if (table) {
                 const rows = table.querySelectorAll('tbody tr:not(.poster-row)');
                 rows.forEach(row => {
@@ -271,7 +282,6 @@ function initStarFilter() {
                     hiddenCount++;
                 }
             });
-            console.log(`  📊 Desktop: ${rows.length - hiddenCount} movies visible, ${hiddenCount} hidden`);
         }
 
         // MOBILE
@@ -308,11 +318,11 @@ function initStarFilter() {
     }
 
     // Desktop slider
+    const debouncedFilterByStars = debounceFilter(filterByStars);
     starSlider.addEventListener('input', function () {
         const value = parseInt(this.value);
-        console.log('🌟 Star slider changed to:', value);
         updateStarLabel(value);
-        filterByStars(value);
+        debouncedFilterByStars(value);
     });
     starSlider.dataset.initialized = 'true';
 

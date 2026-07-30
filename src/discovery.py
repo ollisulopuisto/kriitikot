@@ -507,7 +507,6 @@ class CategoryCrawler:
                     title = str(title_obj).strip()
                 
                 # Poista HTML-tagit otsikosta
-                from bs4 import BeautifulSoup
                 title_soup = BeautifulSoup(title, 'html.parser')
                 title = title_soup.get_text(strip=True)
                 
@@ -588,7 +587,6 @@ class CategoryCrawler:
                     title = str(title_obj).strip()
                 
                 # Poista HTML-tagit otsikosta
-                from bs4 import BeautifulSoup
                 title_soup = BeautifulSoup(title, 'html.parser')
                 title = title_soup.get_text(strip=True)
                 

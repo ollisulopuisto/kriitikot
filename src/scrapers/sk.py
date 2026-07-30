@@ -153,7 +153,7 @@ class SKScraper(BaseScraper):
             }
             
             for word, num in numbers.items():
-                if word in title and 'tähteä' in title or 'tähden' in title:
+                if word in title and ('tähteä' in title or 'tähden' in title):
                     return num
         
         return None
@@ -176,11 +176,3 @@ class SKScraper(BaseScraper):
         
         return None
     
-    def parse_file(self, file_path: str) -> Optional[Review]:
-        """Parsii tiedostosta."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            return self.parse_html(content)
-        except (IOError, OSError):
-            return None

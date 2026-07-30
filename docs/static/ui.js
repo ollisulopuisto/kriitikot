@@ -2,13 +2,18 @@
 // ==================================
 
 /**
- * Päivitä suodatinpalkin korkeus CSS-muuttujaan
+ * Päivitä suodatinpalkin korkeus CSS-muuttujaan.
+ * Kirjoitetaan vain kun arvo muuttuu, jottei jokainen scroll-event aiheuta layoutia.
  */
+let cachedFiltersHeight = -1;
 function updateFiltersHeight() {
     const desktopFilters = document.querySelector('.desktop-filters');
     if (desktopFilters) {
         const height = desktopFilters.offsetHeight;
-        document.documentElement.style.setProperty('--filters-height', height + 'px');
+        if (height !== cachedFiltersHeight) {
+            cachedFiltersHeight = height;
+            document.documentElement.style.setProperty('--filters-height', height + 'px');
+        }
         return height;
     }
     return 0;
@@ -30,29 +35,37 @@ function initStickyTableHeader() {
     
     function syncColumnWidths() {
         if (!theadClone) return;
-        
+
         const originalCells = thead.querySelectorAll('th');
         const clonedCells = theadClone.querySelectorAll('th');
-        
-        originalCells.forEach((cell, index) => {
-            if (clonedCells[index]) {
-                const width = cell.getBoundingClientRect().width;
-                
-                clonedCells[index].style.width = width + 'px';
-                clonedCells[index].style.minWidth = width + 'px';
-                clonedCells[index].style.maxWidth = width + 'px';
-                
-                if (cell.classList.contains('diagonal-sort-cell')) {
-                    const height = cell.getBoundingClientRect().height;
-                    clonedCells[index].style.height = height + 'px';
-                    clonedCells[index].style.minHeight = height + 'px';
-                    clonedCells[index].style.maxHeight = height + 'px';
-                }
+
+        // Lukuvaihe ensin, kirjoitusvaihe erikseen — vuorottelu pakottaisi
+        // selaimen laskemaan layoutin uudelleen joka solulle
+        const sizes = Array.from(originalCells, cell => {
+            const rect = cell.getBoundingClientRect();
+            return {
+                width: rect.width,
+                height: cell.classList.contains('diagonal-sort-cell') ? rect.height : null
+            };
+        });
+
+        sizes.forEach((size, index) => {
+            const clone = clonedCells[index];
+            if (!clone) return;
+            clone.style.width = size.width + 'px';
+            clone.style.minWidth = size.width + 'px';
+            clone.style.maxWidth = size.width + 'px';
+            if (size.height !== null) {
+                clone.style.height = size.height + 'px';
+                clone.style.minHeight = size.height + 'px';
+                clone.style.maxHeight = size.height + 'px';
             }
         });
     }
     
     function handleScroll() {
+        if (window.innerWidth <= 768) return; // Mobiilissa taulukko on piilossa
+
         const filtersHeight = updateFiltersHeight();
         const filterBottom = filtersHeight; // Otsikkoheader kiinnittyy fasetin alle
         const tableRect = tableWrapper.getBoundingClientRect();
@@ -133,6 +146,7 @@ function initStickyTableHeader() {
                 wrapper.style.left = tableRect.left + 'px';
                 wrapper.style.width = tableRect.width + 'px';
                 
+                const scrollLeft = tableWrapper.scrollLeft;
                 const clonedCells = theadClone.querySelectorAll('th');
                 clonedCells.forEach((cell, index) => {
                     if (index === 0) {
@@ -141,11 +155,9 @@ function initStickyTableHeader() {
                         cell.style.zIndex = '52';
                         cell.style.transform = 'none';
                     } else {
-                        cell.style.transform = `translateX(-${tableWrapper.scrollLeft}px)`;
+                        cell.style.transform = `translateX(-${scrollLeft}px)`;
                     }
                 });
-                
-                syncColumnWidths();
             }
         } else {
             if (theadClone) {
@@ -176,13 +188,24 @@ function initStickyTableHeader() {
         }
     }
     
-    window.addEventListener('scroll', handleScroll);
+    // rAF-tahdistus: enintään yksi käsittely per frame
+    let scrollTicking = false;
+    function onScroll() {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            scrollTicking = false;
+            handleScroll();
+        });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => {
         updateFiltersHeight();
         syncColumnWidths();
         handleScroll();
     });
-    tableWrapper.addEventListener('scroll', handleScroll);
+    tableWrapper.addEventListener('scroll', onScroll, { passive: true });
     
     // Kuuntele lajittelun tapahtumia
     document.addEventListener('table-sorted', refreshStickyHeader);
@@ -217,27 +240,23 @@ function initMobileFilterToggle() {
  * Sticky horizontal scrollbar synchronization (desktop only)
  */
 function initStickyScrollbar() {
-    const isDesktop = () => window.innerWidth >= 769;
-    
-    if (!isDesktop()) return;
-    
     const tableWrapper = document.querySelector('.table-wrapper');
     const stickyScrollbar = document.querySelector('.sticky-scrollbar-container');
     const stickyScrollbarContent = document.querySelector('.sticky-scrollbar-content');
-    
+
     if (!tableWrapper || !stickyScrollbar || !stickyScrollbarContent) return;
     if (tableWrapper.dataset.stickyScrollbarInitialized) return; // Prevent double initialization
-    
-    let isTableScrolling = false;
-    let isStickyScrolling = false;
-    
+
+    let syncingFromTable = false;
+    let syncingFromSticky = false;
+
     function updateScrollbarWidth() {
         const table = tableWrapper.querySelector('table');
         if (table) {
             const tableWidth = table.scrollWidth;
             const wrapperWidth = tableWrapper.clientWidth;
             stickyScrollbarContent.style.width = tableWidth + 'px';
-            
+
             if (tableWidth <= wrapperWidth) {
                 stickyScrollbar.style.display = 'none';
             } else {
@@ -245,32 +264,42 @@ function initStickyScrollbar() {
             }
         }
     }
-    
+
+    // Kaksisuuntainen synkronointi ilman setTimeout-viivettä: lippu kulutetaan
+    // vastapuolen scroll-eventissä, ja asetetaan vain jos arvo oikeasti muuttuu
     tableWrapper.addEventListener('scroll', function() {
-        if (isStickyScrolling) return;
-        isTableScrolling = true;
-        stickyScrollbar.scrollLeft = tableWrapper.scrollLeft;
-        setTimeout(() => { isTableScrolling = false; }, 50);
-    });
-    
-    stickyScrollbar.addEventListener('scroll', function() {
-        if (isTableScrolling) return;
-        isStickyScrolling = true;
-        tableWrapper.scrollLeft = stickyScrollbar.scrollLeft;
-        setTimeout(() => { isStickyScrolling = false; }, 50);
-    });
-    
-    updateScrollbarWidth();
-    window.addEventListener('resize', function() {
-        if (isDesktop()) {
-            updateScrollbarWidth();
+        if (syncingFromSticky) { syncingFromSticky = false; return; }
+        if (stickyScrollbar.scrollLeft !== tableWrapper.scrollLeft) {
+            syncingFromTable = true;
+            stickyScrollbar.scrollLeft = tableWrapper.scrollLeft;
         }
+    }, { passive: true });
+
+    stickyScrollbar.addEventListener('scroll', function() {
+        if (syncingFromTable) { syncingFromTable = false; return; }
+        if (tableWrapper.scrollLeft !== stickyScrollbar.scrollLeft) {
+            syncingFromSticky = true;
+            tableWrapper.scrollLeft = stickyScrollbar.scrollLeft;
+        }
+    }, { passive: true });
+
+    updateScrollbarWidth();
+    window.addEventListener('resize', updateScrollbarWidth);
+
+    // Kootaan DOM-muutosten aiheuttamat päivitykset yhteen framea kohti —
+    // suodatus kirjoittaa satoja style-attribuutteja kerralla
+    let scrollbarUpdateQueued = false;
+    const observer = new MutationObserver(() => {
+        if (scrollbarUpdateQueued) return;
+        scrollbarUpdateQueued = true;
+        requestAnimationFrame(() => {
+            scrollbarUpdateQueued = false;
+            updateScrollbarWidth();
+        });
     });
-    
-    const observer = new MutationObserver(updateScrollbarWidth);
-    observer.observe(tableWrapper, { 
-        childList: true, 
-        subtree: true, 
+    observer.observe(tableWrapper, {
+        childList: true,
+        subtree: true,
         attributes: true,
         attributeFilter: ['style', 'class']
     });

@@ -43,10 +43,14 @@ htmlcov/
 instance/
 .webassets-cache
 
-# Database (ei ignoroida reviews.db - tarvitaan GitHub Actionsissa)
-# *.db
-# *.sqlite
-# *.sqlite3
+# Database (reviews.db projektin juuressa pidetään gitissä - tarvitaan GitHub Actionsissa)
+*.db
+*.sqlite
+*.sqlite3
+!/reviews.db
+
+# Local backups
+backups/
 
 # OS
 .DS_Store

@@ -1,8 +1,9 @@
 
 import pytest
+import os
 import sys
 from bs4 import BeautifulSoup
-sys.path.insert(0, '/Users/dst/Dropbox/koodi/kriitikot/src')
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src'))
 from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
 
 @pytest.fixture

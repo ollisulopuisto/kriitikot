@@ -95,7 +95,8 @@ describe('Letterboxd- ja Nytleffaan-linkit renderöityvät oikein', () => {
     expect(desktopPosterThumb).toBeTruthy();
     expect(desktopPosterThumb.getAttribute('src')).toBe(posterUrl);
     expect(desktopPosterFull).toBeTruthy();
-    expect(desktopPosterFull.getAttribute('src')).toBe(posterUrl);
+    // Iso hover-juliste ladataan vasta hoverissa: URL on data-src-attribuutissa
+    expect(desktopPosterFull.getAttribute('data-src')).toBe(posterUrl);
 
     const mobileCard = document.querySelector(`.mobile-cards .movie-card[data-movie="${targetMovie}"]`);
     expect(mobileCard).toBeTruthy();

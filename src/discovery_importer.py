@@ -6,18 +6,12 @@ Hakee uusia arvosteluja discovery-moduulilla ja tallentaa ne tietokantaan.
 
 from discovery import MetaScraper
 from models import get_session, get_engine, Movie, Critic, Publication, Review
-from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper, ISScraper
-from scrapers.episodi import EpisodiScraper
-from scrapers.muropaketti import MuropakettiScraper
-from scrapers.filmoholic import FilmOHolicScraper
-from scrapers.kulttuuritoimitus import KulttuuritoimitusScraper
-from scrapers.demokraatti import DemokraattiScraper
-# DISABLED: Kaleva paywall prevents scraping - keeping code intact for future use
-# from scrapers.kaleva import KalevaScraper
+from scrapers import scrapers as SCRAPERS
 from movie_normalizer import get_canonical_title
 from metadata_fetcher import MetadataFetcher
 from typing import Dict
 import re
+import requests
 
 
 class DiscoveryImporter:
@@ -35,21 +29,8 @@ class DiscoveryImporter:
         self.session = get_session(self.engine)
         self.metadata_fetcher = MetadataFetcher()
         
-        # Scrapers per source
-        self.scrapers = {
-            'hs': HSScraper(),
-            'ksml': KSMLScraper(),
-            'il': ILScraper(),
-            'ts': TSScraper(),
-            'sk': SKScraper(),
-            'is': ISScraper(),
-            'episodi': EpisodiScraper(),
-            'muropaketti': MuropakettiScraper(),
-            'filmoholic': FilmOHolicScraper(),
-            'kulttuuritoimitus': KulttuuritoimitusScraper(),
-            'demokraatti': DemokraattiScraper(),
-            # 'kaleva': KalevaScraper(),  # DISABLED: Kaleva paywall
-        }
+        # Scrapers per source — sama rekisteri kuin scrapers/__init__.py:ssä
+        self.scrapers = SCRAPERS
     
     def normalize_movie_title(self, title: str) -> str:
         """
@@ -230,52 +211,26 @@ class DiscoveryImporter:
             
             # Scrape arvostelu
             try:
-                # Episodi ja Kulttuuritoimitus käyttävät JSON API:a
-                if source in ['episodi', 'kulttuuritoimitus']:
-                    scraper_obj = self.scrapers[source]
-                    
-                    # Hae JSON-data tälle yksittäiselle arvostelulle
-                    import requests
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                    }
-                    response = requests.get(url, headers=headers, timeout=10)
-                    response.raise_for_status()
-                    html = response.text
-                    
-                    review = scraper_obj.parse_html(html, url)
-                    if not review:
-                        print("   ❌ Scraping epäonnistui")
-                        failed += 1
-                        continue
-                    
-                    # Skip articles without ratings - they are not movie reviews
-                    if review.rating_stars is None:
-                        print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
-                        skipped += 1
-                        continue
-                else:
-                    # Lataa HTML ja parsea
-                    import requests
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                    }
-                    response = requests.get(url, headers=headers, timeout=10)
-                    response.raise_for_status()
-                    html = response.text
-                    
-                    review = scraper.parse_html(html, url)
-                    if not review:
-                        print("   ❌ Scraping epäonnistui")
-                        failed += 1
-                        continue
-                    
-                    # Skip articles without ratings - they are not movie reviews
-                    if review.rating_stars is None:
-                        print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
-                        skipped += 1
-                        continue
-                
+                # Lataa HTML ja parsea
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+                html = response.text
+
+                review = scraper.parse_html(html, url)
+                if not review:
+                    print("   ❌ Scraping epäonnistui")
+                    failed += 1
+                    continue
+
+                # Skip articles without ratings - they are not movie reviews
+                if review.rating_stars is None:
+                    print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
+                    skipped += 1
+                    continue
+
                 # Luo relaatiot
                 movie = self.get_or_create_movie(review.movie_title)
                 critic = self.get_or_create_critic(review.critic_name, media=source.upper())

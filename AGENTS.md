@@ -60,9 +60,11 @@ src/
 
 **DB schema:** `Movie` ←1:N→ `Review` ←N:1→ `Critic`, `Review` ←N:1→ `Publication`. Reviews deduplicated by `source_url` (UNIQUE). Movies fuzzy-matched with `SequenceMatcher` at 0.9 threshold.
 
-## Active Sources (10)
+## Active Sources (11)
 
 `hs`, `ksml`, `il`, `ts`, `sk`, `is`, `episodi`, `muropaketti`, `filmoholic`, `kulttuuritoimitus`, `demokraatti`
+
+Disabled: `kaleva` (paywall), `seura` (parsing too hard — module exists but is not registered)
 
 Registry: `src/scrapers/__init__.py` → `scrapers` dict.
 

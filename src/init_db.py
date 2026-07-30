@@ -2,8 +2,9 @@
 Alustaa tietokannan ja importoi testidatan.
 """
 
+import os
 import sys
-sys.path.insert(0, '/workspaces/kriitikot/src')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from models import init_db, get_session, seed_publications, Movie, Critic, Publication, Review as DBReview
 from scraper import HSScraper, KSMLScraper, ILScraper, TSScraper, SKScraper

@@ -294,7 +294,6 @@ window.filterByCritic = function(criticIdOrHeader) {
         return;
     }
 
-    console.log('Filtering by critic:', criticId);
 
     const table = document.querySelector('table');
     const allCards = document.querySelectorAll('.movie-card');
@@ -572,14 +571,12 @@ function initPublicationFilterClickHandlers() {
         
         pubFilter.addEventListener('click', function (e) {
             e.preventDefault();
-            console.log('Media filter clicked:', this.dataset.publication);
 
             const selectedPub = this.dataset.publication;
             const isCurrentlyActive = this.classList.contains('active');
             
             // Hae KAIKKI saman julkaisun painikkeet (desktop + mobile)
             const samePubButtons = document.querySelectorAll(`.filter-publication[data-publication="${selectedPub}"]`);
-            console.log(`Found ${samePubButtons.length} buttons for ${selectedPub}`);
             
             if (isCurrentlyActive) {
                 samePubButtons.forEach(btn => btn.classList.remove('active'));
@@ -590,7 +587,6 @@ function initPublicationFilterClickHandlers() {
             // Kerää kaikki aktiiviset julkaisut DOM:sta (koska ne on nyt synkattu)
             const activePubButtons = document.querySelectorAll('.filter-publication.active');
             const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
-            console.log('Active publications:', activePubs);
 
             applyPublicationFilter(activePubs);
 
@@ -602,11 +598,9 @@ function initPublicationFilterClickHandlers() {
     });
 
     function applyPublicationFilter(publications) {
-        console.log('Applying publication filter for:', publications);
         const allCards = document.querySelectorAll('.movie-card');
         const table = document.querySelector('table');
         const noFilter = publications.length === 0;
-        console.log(`noFilter: ${noFilter}, allCards: ${allCards.length}, table: ${!!table}`);
 
         // Mobile cards
         allCards.forEach(card => {

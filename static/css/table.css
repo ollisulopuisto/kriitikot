@@ -16,6 +16,41 @@
     display: none;
 }
 
+/* Sticky horizontal scrollbar (replaces the hidden native one) */
+.sticky-scrollbar-container {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 200;
+    background: #f5f5f5;
+    border-top: 1px solid var(--border-color);
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #e9ecef;
+    scroll-behavior: auto;
+}
+
+.sticky-scrollbar-container::-webkit-scrollbar {
+    height: 12px;
+}
+
+.sticky-scrollbar-container::-webkit-scrollbar-track {
+    background: #e9ecef;
+}
+
+.sticky-scrollbar-container::-webkit-scrollbar-thumb {
+    background: var(--bg-gradient);
+    border-radius: 6px;
+    border: 2px solid #e9ecef;
+}
+
+.sticky-scrollbar-content {
+    height: 1px;
+}
+
 table {
     width: 100%;
     border-collapse: separate;
@@ -239,6 +274,12 @@ tbody tr:hover td.movie-col {
     background: linear-gradient(135deg, #e8d5ff 0%, #d4bbff 100%) !important;
 }
 
+/* Movie title in table */
+.movie-title-main {
+    font-weight: 600;
+    line-height: 1.3;
+}
+
 /* Critic header details */
 .critic-name {
     white-space: normal;
@@ -302,6 +343,22 @@ th.rating-cell {
 th.rating-cell:hover {
     background: rgba(139, 92, 246, 0.2);
     cursor: pointer;
+}
+
+.rating-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: inherit;
+    min-height: 2.5rem;
+    height: 100%;
+}
+
+.no-rating {
+    color: #adb5bd;
+    font-size: 0.85em;
+    font-style: italic;
 }
 
 .rating-pill {
@@ -435,8 +492,30 @@ th.rating-cell:hover {
 
 
 
+/* Tablet / small laptop: narrower columns so the table needs less sideways travel */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .movie-col {
+        width: 14rem;
+        min-width: 14rem;
+        max-width: 14rem;
+    }
+
+    .rating-cell {
+        width: 4.5em;
+        min-width: 4.5em;
+    }
+
+    .critic-media {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
     .table-wrapper {
+        display: none !important;
+    }
+
+    .sticky-scrollbar-container {
         display: none !important;
     }
 }

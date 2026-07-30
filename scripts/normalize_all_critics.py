@@ -13,8 +13,9 @@ This script will:
 
 NOTE: You should run the backups script or commit DB backups before using this.
 """
+import os
 import sys
-sys.path.insert(0, '/workspaces/kriitikot/src')
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src'))
 from models import get_session, Critic, Publication, Review
 from sqlalchemy import and_
 import re

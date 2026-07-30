@@ -6,8 +6,8 @@
             {% set poster_url = poster_urls.get(movie_title, '') %}
             {% if poster_url %}
             <div class="movie-poster-container">
-                <img src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-thumb" loading="lazy">
-                <img src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-full" loading="lazy">
+                <img src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-thumb" loading="lazy" decoding="async" width="48" height="72">
+                <img data-src="{{ poster_url }}" alt="{{ movie_title }} juliste" class="movie-poster-full" loading="lazy" decoding="async">
             </div>
             {% endif %}
             <div class="movie-info">

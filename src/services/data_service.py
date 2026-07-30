@@ -20,6 +20,59 @@ class DataService:
     def __init__(self, engine):
         self.engine = engine
 
+    # --- Jaetut apurit ---
+
+    @staticmethod
+    def _group_by_movie_and_critic(reviews) -> Tuple[Dict, Dict]:
+        """Ryhmittele arviot: (grouped[title][critic] = [reviews], viimeisin päiväys per elokuva)."""
+        grouped = {}
+        latest = {}
+        for review in reviews:
+            title = review.movie.title
+            critic = review.critic.name
+            grouped.setdefault(title, {}).setdefault(critic, []).append(review)
+            review_date = review.published_date or review.scraped_at
+            if title not in latest or review_date > latest[title]:
+                latest[title] = review_date
+        return grouped, latest
+
+    @staticmethod
+    def _sort_titles_by_latest(titles, latest: Dict) -> List[str]:
+        return sorted(titles, key=lambda t: latest.get(t, datetime(1900, 1, 1)), reverse=True)
+
+    @staticmethod
+    def _rating_distributions(grouped: Dict) -> Dict[str, List[int]]:
+        """Arvosanajakauma [1-5 tähteä] elokuvittain."""
+        distributions = {}
+        for title, critics_reviews in grouped.items():
+            counts = [0, 0, 0, 0, 0]
+            for reviews_list in critics_reviews.values():
+                for r in reviews_list:
+                    if r.rating_stars and 1 <= r.rating_stars <= 5:
+                        counts[r.rating_stars - 1] += 1
+            distributions[title] = counts
+        return distributions
+
+    @staticmethod
+    def _movie_link_maps(movies) -> Dict[str, Dict[str, str]]:
+        return {
+            'nytleffaan_urls': {m.title: m.nytleffaan_url for m in movies if m.nytleffaan_url},
+            'poster_urls': {m.title: m.poster_url for m in movies if m.poster_url},
+            'letterboxd_urls': {m.title: m.letterboxd_url for m in movies if m.letterboxd_url},
+        }
+
+    @staticmethod
+    def _reviews_json_dict(grouped: Dict) -> Dict:
+        return {
+            title: {
+                critic: [r.to_dict() for r in reviews_list]
+                for critic, reviews_list in critics_reviews.items()
+            }
+            for title, critics_reviews in grouped.items()
+        }
+
+    # --- Julkiset metodit ---
+
     def get_grouped_reviews(self, session) -> Tuple[OrderedDict, List[Critic], int]:
         """Hakee kaikki arvostelut ryhmiteltynä elokuvittain."""
         # Hae kaikki JULKAISTUT arvostelut EAGER LOADingilla
@@ -28,49 +81,33 @@ class DataService:
             joinedload(DBReview.critic),
             joinedload(DBReview.publication)
         ).all()
-        
-        # Hae kaikki kriitikot
+
         critics = session.query(Critic).all()
-        
-        # Ryhmittele elokuvittain
-        grouped = {}
-        movie_latest_review = {}
-        
-        for review in reviews:
-            movie_title = review.movie.title
-            critic_name = review.critic.name
-            
-            if movie_title not in grouped:
-                grouped[movie_title] = {}
-            
-            if critic_name not in grouped[movie_title]:
-                grouped[movie_title][critic_name] = []
-            
-            grouped[movie_title][critic_name].append(review)
-            
-            review_date = review.published_date or review.scraped_at
-            if movie_title not in movie_latest_review or review_date > movie_latest_review[movie_title]:
-                movie_latest_review[movie_title] = review_date
-        
+
+        grouped, latest = self._group_by_movie_and_critic(reviews)
+
         # Järjestä elokuvat uusimman arvion mukaan
-        sorted_movies = sorted(
-            grouped.keys(), 
-            key=lambda title: movie_latest_review.get(title, datetime(1900, 1, 1)), 
-            reverse=True
-        )
-        
         grouped_ordered = OrderedDict()
-        for movie_title in sorted_movies:
+        for movie_title in self._sort_titles_by_latest(grouped.keys(), latest):
             grouped_ordered[movie_title] = grouped[movie_title]
-        
+
         return grouped_ordered, sorted(critics, key=lambda c: c.name), len(reviews)
+
+    def get_reviews_json(self) -> str:
+        """Kaikki arvostelut JSON-merkkijonona (reviews.json / lazy load)."""
+        session = get_session(self.engine)
+        try:
+            grouped_reviews, _, _ = self.get_grouped_reviews(session)
+            return json.dumps(self._reviews_json_dict(grouped_reviews))
+        finally:
+            session.close()
 
     def get_index_data(self, critic_order_ids: Optional[List[int]] = None) -> Dict[str, Any]:
         """Kokoaa kaiken datan etusivua varten."""
         session = get_session(self.engine)
         try:
             grouped_reviews, all_critics, total_reviews = self.get_grouped_reviews(session)
-            
+
             # Kriitikoiden järjestys
             if critic_order_ids:
                 critic_dict = {c.id: c for c in all_critics}
@@ -80,7 +117,7 @@ class DataService:
 
             # Tilastot ja metatiedot
             movie_review_counts = {title: sum(len(r) for r in cr.values()) for title, cr in grouped_reviews.items()}
-            
+
             critic_media_map = {}
             critic_review_counts = {}
             for critic in all_critics:
@@ -88,13 +125,13 @@ class DataService:
                     DBReview.critic_id == critic.id,
                     DBReview.is_published == 1
                 ).options(joinedload(DBReview.publication)).all()
-                
+
                 publications = sorted(list(set([r.publication.short_name.upper() for r in c_reviews if r.publication])))
                 critic_media_map[critic.id] = publications
                 critic_review_counts[critic.id] = len(c_reviews)
 
             rating_distribution = {i: session.query(DBReview).filter(DBReview.rating_stars == i).count() for i in range(1, 6)}
-            
+
             pub_stats = {}
             for pub in session.query(Publication).all():
                 count = session.query(DBReview).filter(DBReview.publication_id == pub.id).count()
@@ -103,36 +140,15 @@ class DataService:
             pub_stats = dict(sorted(pub_stats.items()))
 
             # Elokuvakohtaiset linkit
-            movies = session.query(Movie).all()
-            nytleffaan_urls = {m.title: m.nytleffaan_url for m in movies if m.nytleffaan_url}
-            poster_urls = {m.title: m.poster_url for m in movies if m.poster_url}
-            letterboxd_urls = {m.title: m.letterboxd_url for m in movies if m.letterboxd_url}
-
-            # Laske jakaumat elokuvittain
-            movie_rating_distributions = {}
-            for movie_title, critics_reviews_dict in grouped_reviews.items():
-                counts = [0, 0, 0, 0, 0]
-                for reviews_list in critics_reviews_dict.values():
-                    for r in reviews_list:
-                        if r.rating_stars and 1 <= r.rating_stars <= 5:
-                            counts[r.rating_stars - 1] += 1
-                movie_rating_distributions[movie_title] = counts
+            link_maps = self._movie_link_maps(session.query(Movie).all())
 
             # Viimeisin päivitys
             latest_update = session.query(DBReview).filter_by(is_published=1).order_by(DBReview.scraped_at.desc()).first()
             last_updated = self._format_last_updated(latest_update)
 
-            # JSON-muoto JS:lle
-            all_reviews_json = {}
-            for movie_title, critics_reviews_dict in grouped_reviews.items():
-                all_reviews_json[movie_title] = {
-                    critic_name: [review.to_dict() for review in reviews_list]
-                    for critic_name, reviews_list in critics_reviews_dict.items()
-                }
-
             return {
                 'grouped_reviews': grouped_reviews,
-                'all_reviews_json': json.dumps(all_reviews_json),
+                'all_reviews_json': json.dumps(self._reviews_json_dict(grouped_reviews)),
                 'all_critics': all_critics,
                 'total_reviews': total_reviews,
                 'rating_distribution': rating_distribution,
@@ -140,11 +156,9 @@ class DataService:
                 'critic_media_map': critic_media_map,
                 'critic_review_counts': critic_review_counts,
                 'movie_review_counts': movie_review_counts,
-                'movie_rating_distributions': movie_rating_distributions,
-                'nytleffaan_urls': nytleffaan_urls,
-                'poster_urls': poster_urls,
-                'letterboxd_urls': letterboxd_urls,
-                'last_updated': last_updated
+                'movie_rating_distributions': self._rating_distributions(grouped_reviews),
+                'last_updated': last_updated,
+                **link_maps,
             }
         finally:
             session.close()
@@ -152,10 +166,10 @@ class DataService:
     def _format_last_updated(self, latest_review: Optional[DBReview]) -> Optional[datetime]:
         if not latest_review:
             return None
-        
+
         last_updated = latest_review.published_date or latest_review.scraped_at
         display_tz = os.environ.get('DISPLAY_TIMEZONE', 'Europe/Helsinki')
-        
+
         if ZoneInfo is not None and last_updated is not None:
             try:
                 if last_updated.tzinfo is None:
@@ -171,18 +185,18 @@ class DataService:
         try:
             # 1. Kaikki julkaistut arviot elokuvien järjestämiseen
             all_published = session.query(DBReview).filter_by(is_published=1).options(joinedload(DBReview.movie)).all()
-            
+
             movie_latest = {}
             for r in all_published:
                 m_title = r.movie.title
                 r_date = r.published_date or r.scraped_at
                 if m_title not in movie_latest or r_date > movie_latest[m_title]:
                     movie_latest[m_title] = r_date
-            
-            sorted_titles = sorted(movie_latest.keys(), key=lambda t: movie_latest.get(t, datetime(1900,1,1)), reverse=True)
+
+            sorted_titles = self._sort_titles_by_latest(movie_latest.keys(), movie_latest)
             total_movies = len(sorted_titles)
             paged_titles = sorted_titles[offset:offset+limit]
-            
+
             if not paged_titles:
                 return {'grouped_reviews': OrderedDict(), 'paged_titles': [], 'total': total_movies}
 
@@ -190,37 +204,20 @@ class DataService:
             reviews = session.query(DBReview).filter(DBReview.is_published == 1).join(Movie).filter(
                 Movie.title.in_(paged_titles)
             ).options(joinedload(DBReview.movie), joinedload(DBReview.critic), joinedload(DBReview.publication)).all()
-            
-            grouped = {}
-            for r in reviews:
-                t, c = r.movie.title, r.critic.name
-                if t not in grouped: grouped[t] = {}
-                if c not in grouped[t]: grouped[t][c] = []
-                grouped[t][c].append(r)
-                
+
+            grouped, _ = self._group_by_movie_and_critic(reviews)
+
             grouped_ordered = OrderedDict()
             for t in paged_titles:
                 if t in grouped: grouped_ordered[t] = grouped[t]
 
             # 3. Hae metatiedot
             movies_objs = session.query(Movie).filter(Movie.title.in_(paged_titles)).all()
-            
-            # Laske jakaumat
-            movie_rating_distributions = {}
-            for movie_title, critics_reviews_dict in grouped_ordered.items():
-                counts = [0, 0, 0, 0, 0]
-                for reviews_list in critics_reviews_dict.values():
-                    for r in reviews_list:
-                        if r.rating_stars and 1 <= r.rating_stars <= 5:
-                            counts[r.rating_stars - 1] += 1
-                movie_rating_distributions[movie_title] = counts
 
             meta = {
-                'nytleffaan_urls': {m.title: m.nytleffaan_url for m in movies_objs if m.nytleffaan_url},
-                'poster_urls': {m.title: m.poster_url for m in movies_objs if m.poster_url},
-                'letterboxd_urls': {m.title: m.letterboxd_url for m in movies_objs if m.letterboxd_url},
+                **self._movie_link_maps(movies_objs),
                 'movie_review_counts': {m.title: session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count() for m in movies_objs},
-                'movie_rating_distributions': movie_rating_distributions
+                'movie_rating_distributions': self._rating_distributions(grouped_ordered)
             }
 
             return {
