@@ -664,11 +664,13 @@ function renderMovie(movieTitle, criticsReviewsDict) {
         }
         const maxDist = Math.max(...distribution);
         const classes = ['movie-sparkline', extraClasses].filter(Boolean).join(' ');
+        const label = 'Arvosanojen jakauma: ' +
+            distribution.map((count, i) => `${i + 1}★ ${count}`).join(', ');
         return `
-            <div class="${classes}" title="Arvosanojen jakauma (1-5 tähteä): ${distribution.join(', ')}">
-                ${distribution.map(count => `
+            <div class="${classes}" role="img" aria-label="${label}" title="${label}">
+                ${distribution.map((count, i) => `
                     <div class="spark-bar-container">
-                        <div class="spark-bar" style="height: ${maxDist > 0 ? (count / maxDist * 100) : 0}%"></div>
+                        <div class="spark-bar spark-bar-${i + 1}${count === 0 ? ' spark-bar--empty' : ''}" style="height: ${maxDist > 0 ? (count / maxDist * 100) : 0}%"></div>
                     </div>
                 `).join('')}
             </div>

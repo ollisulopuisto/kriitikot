@@ -11,10 +11,12 @@
             {% set dist = movie_rating_distributions[movie_title] %}
             {% set total = dist | sum %}
             {% if total > 0 %}
-            <div class="movie-sparkline movie-card-sparkline" title="Arvosanojen jakauma (1-5 tähteä): {{ dist | join(', ') }}">
+            {% set dist_label %}Arvosanojen jakauma: {% for c in dist %}{{ loop.index }}★ {{ c }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+            <div class="movie-sparkline movie-card-sparkline" role="img" aria-label="{{ dist_label }}" title="{{ dist_label }}">
                 {% for count in dist %}
                 <div class="spark-bar-container">
-                    <div class="spark-bar" style="height: {{ (count / (dist|max) * 100) if (dist|max) > 0 else 0 }}%"></div>
+                    <div class="spark-bar spark-bar-{{ loop.index }}{% if count == 0 %} spark-bar--empty{% endif %}"
+                        style="height: {{ (count / (dist|max) * 100) if (dist|max) > 0 else 0 }}%"></div>
                 </div>
                 {% endfor %}
             </div>

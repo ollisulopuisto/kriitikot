@@ -389,11 +389,11 @@ th.rating-cell:hover {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.stars-5 { background-color: #22c55e; } /* Light bright green - High pop */
-.stars-4 { background-color: #4789eb; } /* Subtle 80% saturation blue */
-.stars-3 { background-color: #e6c829; } /* Subtle 80% saturation yellow */
-.stars-2 { background-color: #e67d29; } /* Subtle 80% saturation orange */
-.stars-1 { background-color: #dc2626; } /* Red 600 - High pop */
+.stars-5 { background-color: var(--star-5); }
+.stars-4 { background-color: var(--star-4); }
+.stars-3 { background-color: var(--star-3); }
+.stars-2 { background-color: var(--star-2); }
+.stars-1 { background-color: var(--star-1); }
 
 .movie-review-count {
     font-size: 0.75em;
@@ -459,6 +459,10 @@ th.rating-cell:hover {
     color: #4c2e97;
 }
 
+/* Arvosanajakauma: palkin KORKEUS kertoo muodon (onko mielipide jakautunut),
+   palkin VÄRI kertoo mistä arvosanasta on kyse. Korkeus on suhteutettu
+   suurimpaan palkkiin, joten muoto on vertailukelpoinen elokuvien välillä
+   riippumatta arvostelujen määrästä — määrä näkyy erillisestä laskurista. */
 .movie-sparkline {
     display: flex;
     align-items: flex-end;
@@ -466,7 +470,7 @@ th.rating-cell:hover {
     height: 16px;
     padding: 0;
     background: transparent;
-    border-bottom: 1px solid #60a5fa; /* Sininen X-akseli */
+    border-bottom: 1px solid #cbd5e1; /* Neutraali X-akseli, ei kilpaile palkkien värien kanssa */
     flex-shrink: 0;
     margin-bottom: 2px; /* Pieni säätö tekstin linjaan */
 }
@@ -480,14 +484,26 @@ th.rating-cell:hover {
 
 .spark-bar {
     width: 100%;
-    background: #60a5fa; /* Blue color */
     border-radius: 1px 1px 0 0; /* Vain yläkulmat pyöristetty */
     min-height: 1px;
-    transition: height 0.3s ease;
+    transition: height 0.3s ease, filter 0.2s ease;
+}
+
+/* Sama väriasteikko kuin arvosanapilleissä: 1★ punainen … 5★ vihreä */
+.spark-bar-1 { background: var(--star-1); }
+.spark-bar-2 { background: var(--star-2); }
+.spark-bar-3 { background: var(--star-3); }
+.spark-bar-4 { background: var(--star-4); }
+.spark-bar-5 { background: var(--star-5); }
+
+/* Tyhjä arvosana näkyy vain haaleana viivana, jottei 1px palkki
+   näytä siltä että arvosanalla olisi osumia */
+.spark-bar--empty {
+    opacity: 0.25;
 }
 
 .movie-sparkline:hover .spark-bar {
-    background: #3b82f6; /* Darker blue on hover */
+    filter: brightness(1.15) saturate(1.1);
 }
 
 

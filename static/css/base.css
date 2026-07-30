@@ -10,6 +10,14 @@
     --border-color: #dee2e6;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --transition: all 0.3s ease;
+
+    /* Arvosana-asteikko: käytetään sekä arvosanapilleissä että sparklinessa,
+       jotta sama arvosana näyttää samalta kaikkialla */
+    --star-1: #dc2626;  /* punainen */
+    --star-2: #e67d29;  /* oranssi */
+    --star-3: #e6c829;  /* keltainen */
+    --star-4: #4789eb;  /* sininen */
+    --star-5: #22c55e;  /* vihreä */
 }
 
 * {
