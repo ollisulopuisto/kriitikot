@@ -389,13 +389,21 @@ th.rating-cell:hover {
     display: inline-block;
 }
 
-/* Tummat portaat: valkoinen muste. Vaaleat: tumma lämmin muste. */
+/* Tummat portaat: valkoinen muste. Vaaleat: tumma lämmin muste.
+   Muste asetetaan muuttujan kautta ja toistetaan :hover/:focus-tiloissa,
+   koska pilli on <a> ja base.css:n yleinen a:hover (0,1,1) voittaisi
+   muuten .stars-N:n (0,1,0) ja värjäisi tähdet violetiksi. */
 .stars-1,
-.stars-2 { color: var(--star-ink-light); }
+.stars-2 { --pill-ink: var(--star-ink-light); }
 
 .stars-3,
 .stars-4,
-.stars-5 { color: var(--star-ink-dark); }
+.stars-5 { --pill-ink: var(--star-ink-dark); }
+
+.rating-pill,
+.rating-pill:hover,
+.rating-pill:focus,
+.rating-pill:visited { color: var(--pill-ink, var(--star-ink-light)); }
 
 .stars-1 { background: linear-gradient(180deg, var(--star-1-top), var(--star-1) 55%, var(--star-1-bot)); }
 .stars-2 { background: linear-gradient(180deg, var(--star-2-top), var(--star-2) 55%, var(--star-2-bot)); }

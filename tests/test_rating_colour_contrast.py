@@ -148,3 +148,24 @@ def test_sparkline_track_is_visible_but_recessive(tokens):
     """Lokeron pitää näkyä valkoisella mutta ei kilpailla palkin kanssa."""
     ratio = contrast(tokens['--spark-track'], '#ffffff')
     assert 1.1 <= ratio <= 1.8, f'lokero {tokens["--spark-track"]} on {ratio:.2f}:1 valkoista vasten'
+
+
+def test_pill_ink_survives_link_hover():
+    """Pilli on <a>, joten base.css:n yleinen a:hover värjäisi tähdet violetiksi.
+
+    Regressio: kun .rating-stars vaihdettiin arvoon 'color: inherit', se menetti
+    suojan a:hoveria vastaan ja tähdet vaihtoivat väriä hiiren alla.
+    """
+    table = _read('table.css')
+    assert re.search(r'\.rating-pill:hover[^{]*\{[^}]*color:', table, re.S), (
+        '.rating-pill:hover ei aseta väriä — a:hover voittaa ja tähdet vaihtavat väriä')
+
+
+def test_pill_hover_does_not_change_colour():
+    """Hover saa suurentaa ja varjostaa, muttei muuttaa pillin väriä."""
+    table = _read('table.css')
+    block = re.search(r'\.rating-pill:hover\s*\{([^}]*)\}', table)
+    assert block, '.rating-pill:hover -sääntöä ei löytynyt'
+    body = block.group(1)
+    for forbidden in ('background', 'filter', 'opacity'):
+        assert forbidden not in body, f'hover muuttaa ulkoasua: {forbidden}'
