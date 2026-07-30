@@ -389,21 +389,25 @@ th.rating-cell:hover {
     display: inline-block;
 }
 
-/* Tummat portaat: valkoinen muste. Vaaleat: tumma lämmin muste.
-   Muste asetetaan muuttujan kautta ja toistetaan :hover/:focus-tiloissa,
-   koska pilli on <a> ja base.css:n yleinen a:hover (0,1,1) voittaisi
-   muuten .stars-N:n (0,1,0) ja värjäisi tähdet violetiksi. */
-.stars-1,
-.stars-2 { --pill-ink: var(--star-ink-light); }
-
-.stars-3,
-.stars-4,
-.stars-5 { --pill-ink: var(--star-ink-dark); }
-
+/* Tähdet ovat aina valkoisia. Väri toistetaan :hover/:focus-tiloissa, koska
+   pilli on <a> ja base.css:n yleinen a:hover (0,1,1) voittaisi muuten
+   .rating-pillin (0,1,0) ja värjäisi tähdet violetiksi. */
 .rating-pill,
 .rating-pill:hover,
 .rating-pill:focus,
-.rating-pill:visited { color: var(--pill-ink, var(--star-ink-light)); }
+.rating-pill:visited { color: var(--star-ink); }
+
+/* Kolme vaaleinta porrasta: ääriviiva antaa valkoiselle tähdelle reunan.
+   Kahdella tummalla portaalla sitä ei tarvita — tumma ääriviiva tummalla
+   pohjalla ei näkyisi, ja se vain paksuntaisi merkkiä. */
+.stars-3 .rating-stars,
+.stars-4 .rating-stars,
+.stars-5 .rating-stars {
+    text-shadow:
+        0 0 1px var(--star-outline),
+        0 0 2px var(--star-outline),
+        0 1px 1px rgba(69, 26, 3, 0.55);
+}
 
 .stars-1 { background: linear-gradient(180deg, var(--star-1-top), var(--star-1) 55%, var(--star-1-bot)); }
 .stars-2 { background: linear-gradient(180deg, var(--star-2-top), var(--star-2) 55%, var(--star-2-bot)); }

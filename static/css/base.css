@@ -32,15 +32,28 @@
     --star-4-top: #f6aa28;  --star-4-bot: #d48809;
     --star-5-top: #ffdb29;  --star-5-bot: #e5bf00;
 
-    --star-ink-dark: #451a03;   /* lämmin tumma muste vaaleille portaille */
-    --star-ink-light: #ffffff;
+    /* Tähdet ovat aina valkoisia. Kolme ylintä porrasta ovat kuitenkin liian
+       vaaleita kantamaan valkoista tekstiä (5★ olisi 1,41:1), joten niillä on
+       tumma ääriviiva joka antaa tähdelle reunan.
+
+       HUOM: tämä ei täytä WCAG:n kirjainta — mittaus vertaa tekstin täyttöä
+       taustaan eikä huomioi ääriviivaa. Luettavuus lepää ääriviivan varassa,
+       joten --star-outline on pidettävä selvästi tummempana kuin portaan sävy
+       (testi vaatii 4,5:1). Vaihtoehto oli tummentaa koko ylempi ramppi, mikä
+       olisi vienyt kirkkaan kullan. */
+    --star-ink: #ffffff;
+    --star-outline: #451a03;
 
     /* Sparkline on yksivärinen: arvosanan kertoo palkin paikka, ja väriasteikko
        on jo arvosanapilleissä samalla rivillä. Harmaa lokero palkin takana näyttää
        myös ne arvosanat jotka jäivät tyhjiksi. */
     --spark-bar-top: #6f6961;
     --spark-bar-bot: #413d39;
-    --spark-track: #e7e5e4;
+    /* Lokeron on erotuttava myös mobiilikortin harmaasta otsikosta (#f8f9fa),
+       ei pelkästään taulukon valkoisesta solusta. Aiempi #e7e5e4 oli kortilla
+       vain 1,19:1 eli käytännössä näkymätön juuri siinä näkymässä jossa
+       sparkline on näkyvimmillään. */
+    --spark-track: #d4cfca;
     --spark-axis: #cbd5e1;
 }
 

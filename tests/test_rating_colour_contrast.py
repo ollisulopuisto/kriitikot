@@ -1,11 +1,14 @@
 """Arvosanavärien kontrastitestit.
 
-Arvosanapilleissä on teksti värillisen taustan päällä, joten jokaisen portaan on
-täytettävä WCAG AA (4.5:1 pienelle tekstille). Tämä testi lukee sävyt suoraan
-CSS-muuttujista, joten uusi värivalinta ei voi vahingossa jäädä lukukelvottomaksi.
+Tähdet ovat aina valkoisia. Kaksi tummaa porrasta kantavat sen omin voimin ja
+niiltä vaaditaan WCAG AA (4,5:1). Kolme vaaleinta ei voi täyttää sitä ilman
+että kirkas kulta uhrataan, joten niillä luettavuus lepää tumman ääriviivan
+varassa — ja testit vaativat että ääriviiva erottuu yhtä selvästi kuin musteen
+muuten pitäisi.
 
-Aiempi asteikko epäonnistui tässä pahasti: 3★ keltainen oli 1,66:1 valkoisella
-tekstillä eli tähdet olivat käytännössä näkymättömät.
+Sävyt luetaan suoraan CSS-muuttujista, joten uusi värivalinta ei voi jäädä
+lukukelvottomaksi huomaamatta. Aiempi asteikko epäonnistui pahasti: 3★
+keltainen oli 1,66:1 eikä ääriviivaa ollut.
 """
 
 import os
@@ -18,9 +21,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 
 CSS_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'css')
 
-# Musteparit vastaavat table.css:n .stars-N -sääntöjä
-LIGHT_INK_STEPS = (1, 2)   # valkoinen muste tummalla taustalla
-DARK_INK_STEPS = (3, 4, 5)  # tumma muste vaalealla taustalla
+# Kaikki tähdet ovat valkoisia; portaat eroavat siinä, tarvitsevatko ne
+# ääriviivan erottuakseen taustastaan.
+SELF_SUFFICIENT_STEPS = (1, 2)   # tumma pohja kantaa valkoisen tähden sellaisenaan
+OUTLINED_STEPS = (3, 4, 5)       # vaalea pohja: reunan tekee ääriviiva
 
 WCAG_AA_SMALL_TEXT = 4.5
 MARK_CONTRAST_MIN = 3.0     # merkin erottuminen taustasta
@@ -71,8 +75,8 @@ def test_contrast_helper_matches_known_values():
 def test_all_five_steps_are_defined(tokens):
     for step in range(1, 6):
         assert f'--star-{step}' in tokens, f'--star-{step} puuttuu base.css:stä'
-    assert '--star-ink-dark' in tokens
-    assert '--star-ink-light' in tokens
+    assert '--star-ink' in tokens
+    assert '--star-outline' in tokens
 
 
 def _gradient_stops(tokens, step):
@@ -82,25 +86,51 @@ def _gradient_stops(tokens, step):
             tokens[f'--star-{step}-bot'])
 
 
-@pytest.mark.parametrize('step', LIGHT_INK_STEPS)
+@pytest.mark.parametrize('step', SELF_SUFFICIENT_STEPS)
 def test_dark_steps_readable_at_every_gradient_stop(tokens, step):
-    """Pilli on gradientti, joten kontrastin on kestettävä sen jokaisessa kohdassa.
+    """Kahdella tummalla portaalla valkoinen tähti kantaa ilman ääriviivaa.
 
+    Pilli on gradientti, joten kontrastin on kestettävä sen jokaisessa kohdassa.
     Tämä ei ole teoreettista: 2★:n ylin pysäkki putosi 4,22:1:een kun sitä
     vaalennettiin muiden portaiden tapaan 6 %, ja nosto jouduttiin puolittamaan.
     """
     for stop in _gradient_stops(tokens, step):
-        ratio = contrast(tokens['--star-ink-light'], stop)
+        ratio = contrast(tokens['--star-ink'], stop)
         assert ratio >= WCAG_AA_SMALL_TEXT, (
-            f'{step}★ pysäkki {stop} vaalealla musteella vain {ratio:.2f}:1')
+            f'{step}★ pysäkki {stop} valkoisella tähdellä vain {ratio:.2f}:1')
 
 
-@pytest.mark.parametrize('step', DARK_INK_STEPS)
-def test_light_steps_readable_at_every_gradient_stop(tokens, step):
+@pytest.mark.parametrize('step', OUTLINED_STEPS)
+def test_light_steps_outline_separates_from_every_gradient_stop(tokens, step):
+    """Vaaleilla portailla luettavuus lepää ääriviivan varassa.
+
+    Valkoinen tähti kirkkaalla kullalla on 1,41:1 eli WCAG:n mittarilla
+    lukukelvoton; reunan tekee ääriviiva. Siksi ääriviivan on erotuttava
+    portaan sävystä yhtä selvästi kuin musteen muuten pitäisi.
+    """
     for stop in _gradient_stops(tokens, step):
-        ratio = contrast(tokens['--star-ink-dark'], stop)
+        ratio = contrast(tokens['--star-outline'], stop)
         assert ratio >= WCAG_AA_SMALL_TEXT, (
-            f'{step}★ pysäkki {stop} tummalla musteella vain {ratio:.2f}:1')
+            f'{step}★ pysäkki {stop} vs ääriviiva vain {ratio:.2f}:1')
+
+
+@pytest.mark.parametrize('step', OUTLINED_STEPS)
+def test_light_steps_declare_an_outline(step):
+    """Ilman ääriviivaa vaaleiden portaiden tähdet katoaisivat kokonaan."""
+    table = _read('table.css')
+    block = re.search(
+        r'\.stars-3 \.rating-stars,\s*\.stars-4 \.rating-stars,\s*'
+        r'\.stars-5 \.rating-stars\s*\{([^}]*)\}', table, re.S)
+    assert block, 'vaaleiden portaiden ääriviivasääntöä ei löytynyt'
+    assert 'text-shadow' in block.group(1)
+    assert 'var(--star-outline)' in block.group(1)
+
+
+def test_all_stars_use_the_same_ink(tokens):
+    """Muste ei saa vaihtua kesken asteikon — se oli C-variantin koko pointti."""
+    table = _read('table.css')
+    assert '--pill-ink' not in table, 'porraskohtainen muste on yhä käytössä'
+    assert tokens['--star-ink'] == '#ffffff'
 
 
 @pytest.mark.parametrize('step', range(1, 6))
@@ -144,10 +174,33 @@ def test_sparkline_bar_stands_out_from_track(tokens):
             f'{name} {tokens[name]} liian haalea valkoista vasten')
 
 
-def test_sparkline_track_is_visible_but_recessive(tokens):
-    """Lokeron pitää näkyä valkoisella mutta ei kilpailla palkin kanssa."""
+# Pinnat joilla sparkline esiintyy: taulukon solu, seepraraidat ja
+# mobiilikortin harmaa otsikko. Viimeinen on tiukin.
+SPARKLINE_SURFACES = {
+    'taulukon solu': '#ffffff',
+    'seepra pariton': '#fcfcfc',
+    'seepra parillinen': '#f8faff',
+    'seepra risteys': '#f0f4ff',
+    'mobiilikortin otsikko': '#f8f9fa',
+}
+
+
+@pytest.mark.parametrize('name,surface', sorted(SPARKLINE_SURFACES.items()))
+def test_sparkline_track_visible_on_every_surface(tokens, name, surface):
+    """Lokeron pitää erottua kaikilla pinnoilla joilla sparkline esiintyy.
+
+    Mobiilikortin otsikko on harmaa, joten valkoista vasten sopiva lokero voi
+    kadota siellä kokonaan — juuri siinä näkymässä jossa sparkline on
+    näkyvimmillään.
+    """
+    ratio = contrast(tokens['--spark-track'], surface)
+    assert ratio >= 1.3, f'lokero katoaa pinnalla {name} ({surface}): {ratio:.2f}:1'
+
+
+def test_sparkline_track_stays_recessive(tokens):
+    """Lokero ei saa olla niin tumma että se kilpailee palkin kanssa."""
     ratio = contrast(tokens['--spark-track'], '#ffffff')
-    assert 1.1 <= ratio <= 1.8, f'lokero {tokens["--spark-track"]} on {ratio:.2f}:1 valkoista vasten'
+    assert ratio <= 1.8, f'lokero {tokens["--spark-track"]} on liian vahva: {ratio:.2f}:1'
 
 
 def test_pill_ink_survives_link_hover():
