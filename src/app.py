@@ -8,8 +8,22 @@ from services.data_service import DataService
 from services.merge_service import merge_movies as merge_movie_records
 from sqlalchemy.orm import joinedload
 from functools import wraps
+from datetime import timezone
 import xml.etree.ElementTree as ET
 from email.utils import formatdate
+
+
+def rfc2822(dt):
+    """Muotoile kannan aikaleima RSS:n pubDate-muotoon.
+
+    Kanta tallentaa naiiveja UTC-aikoja (models.utcnow), mutta
+    datetime.timestamp() tulkitsee naiivin ajan paikalliseksi. Ilman
+    tätä RSS:n päiväykset siirtyisivät koneen aikavyöhykkeen verran:
+    Helsingissä generoitu syöte oli 3 tuntia CI:n tuottamaa jäljessä.
+    """
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return formatdate(dt.timestamp())
 
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -208,7 +222,7 @@ def rss_feed():
             if reviews:
                 latest_date = reviews[0].published_date or reviews[0].scraped_at
                 if latest_date:
-                    ET.SubElement(channel, 'lastBuildDate').text = formatdate(latest_date.timestamp())
+                    ET.SubElement(channel, 'lastBuildDate').text = rfc2822(latest_date)
         
             for review in reviews:
                 item = ET.SubElement(channel, 'item')
@@ -250,7 +264,7 @@ def rss_feed():
             
                 pub_date = review.published_date or review.scraped_at
                 if pub_date:
-                    ET.SubElement(item, 'pubDate').text = formatdate(pub_date.timestamp())
+                    ET.SubElement(item, 'pubDate').text = rfc2822(pub_date)
                 
             response = make_response(ET.tostring(rss, encoding='utf-8', method='xml'))
             response.headers['Content-Type'] = 'application/xml; charset=utf-8'
