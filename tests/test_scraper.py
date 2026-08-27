@@ -252,6 +252,46 @@ def test_sk_scraper_basic():
     assert review.movie_title == "Bugonia", f"Expected 'Bugonia', got '{review.movie_title}'"
 
 
+def test_sk_scraper_soft_hyphen_credit_line():
+    """Taiton pehmeä tavuviiva ei saa estää elokuvan nimen poimintaa.
+
+    SK:n lopetusrivillä lukee "Elokuva\u00adteattereissa", eli sanan sisällä on
+    pehmeä tavuviiva. Ilman siivousta parseri putosi og:title-fallbackiin ja
+    poimi nimeksi koko otsikon.
+    """
+    test_file = os.path.join(TEST_DATA_DIR, 'sk_review_autofiktio.html')
+
+    review = SKScraper().parse_file(test_file)
+
+    assert review is not None
+    assert review.movie_title == "Autofiktio", \
+        f"Expected 'Autofiktio', got '{review.movie_title}'"
+    assert review.critic_name == "Kalle Kinnunen"
+    assert review.rating_stars == 4
+
+
+def test_sk_scraper_accented_director_name():
+    """Tarkkeet (ó, ż, ł) ja usea ohjaaja eivät saa katkaista poimintaa."""
+    scraper = SKScraper()
+
+    for credit, expected in [
+        ("Pedro Almodóvar: Autofiktio. Elokuvateattereissa 28.8. ★★★★", "Autofiktio"),
+        ("Andrzej Żuławski: Possession. Elokuvateattereissa 3.10. ★★★★", "Possession"),
+        ("Stanley Nelson: Chaos: The Manson Murders. Netflix 31.10. ★★★",
+         "Chaos: The Manson Murders"),
+        ("Jenni Kivistö, Jussi Rastas: Katseiden alla. Elokuvateattereissa 12.9. ★★★★",
+         "Katseiden alla"),
+    ]:
+        html = (
+            '<html><head><meta property="og:title" '
+            'content="Arvio: Neljä tähteä – Otsikko joka ei ole elokuvan nimi">'
+            f'</head><body><article><p><em>{credit}</em></p></article></body></html>'
+        )
+        review = scraper.parse_html(html, source_url='https://suomenkuvalehti.fi/kulttuuri/arvio')
+        assert review.movie_title == expected, \
+            f"Expected '{expected}', got '{review.movie_title}'"
+
+
 def test_sk_via_general_function():
     """
     Testaa SK:n käyttöä yleisen scrape_review()-funktion kautta.
