@@ -56,12 +56,19 @@ class SKScraper(BaseScraper):
         distributors_pattern = '|'.join(distributors)
         
         for p in reversed(paragraphs):  # Käy läpi lopusta alkuun
-            text = p.get_text(strip=True)
+            # SK:n taitto sisältää pehmeitä tavuviivoja sanojen sisällä
+            # (esim. "Elokuva\u00adteattereissa"), joten siivotaan ne pois
+            # ennen hakua – muuten jakelijaa ei tunnisteta.
+            text = self.clean_text(p.get_text(strip=True))
             
             # Etsitään muotoa "Ohjaaja: Elokuva. Jakelija."
             # Käytetään regexiä joka etsii lopusta tunnettua jakelijaa/alustaa
             # Regex selitys:
-            # ^([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s\-\.]+)  -> Ohjaajan nimi (alkaa isolla, voi sisältää väliviivoja/pisteitä)
+            # ^((?:[^\W\d_]|[\s\-\.,'’])+?)     -> Ohjaajan nimi: kirjaimia (myös
+            #                                      tarkkeellisia, esim. Almodóvar,
+            #                                      Żuławski), välilyöntejä, väliviivoja,
+            #                                      pisteitä, pilkkuja (useampi ohjaaja)
+            #                                      ja heittomerkkejä
             # :\s*                              -> Erotin ja välilyönnit
             # (.+?)                             -> Elokuvan nimi (non-greedy)
             # \.\s*                             -> Piste ja välilyönnit
@@ -69,19 +76,20 @@ class SKScraper(BaseScraper):
             #   Elokuvateattereissa|Netflix...  -> Vaihtoehdot
             # )
             
-            pattern = r'^([A-ZÅÄÖ][A-Za-zÅÄÖåäö\s\-\.]+?):\s*(.+?)\.\s*(?:' + distributors_pattern + r')'
+            pattern = r"^((?:[^\W\d_]|[\s\-\.,'’])+?):\s*(.+?)\.\s*(?:" + distributors_pattern + r')'
             
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
                 director = match.group(1).strip()
                 title = match.group(2).strip()
                 
-                # Tarkistetaan että ohjaajan nimi on järkevä (max 5 sanaa)
-                if len(director.split()) <= 5:
+                # Tarkistetaan että ohjaajan nimi on järkevä: alkaa isolla
+                # kirjaimella ja on korkeintaan 5 sanaa
+                if director[:1].isupper() and len(director.split()) <= 5:
                     return title
 
         for p in reversed(paragraphs):
-            text = p.get_text(strip=True)
+            text = self.clean_text(p.get_text(strip=True))
             # 1.5 FALLBACK: Etsi muotoa "Elokuva. Jakelija." ilman ohjaajaa
             # Esim: "Hind Rajabin ääni. Elokuvateattereissa 30.1. ★★★"
             pattern_no_director = r'^(.+?)\.\s*(?:' + distributors_pattern + r')'
@@ -98,7 +106,7 @@ class SKScraper(BaseScraper):
         # Esim: "Arvio: The Materialists nojaa perinteiseen hollywood-romantiikkaan"
         meta_title = soup.find('meta', property='og:title')
         if meta_title and meta_title.get('content'):
-            title = meta_title['content']
+            title = self.clean_text(meta_title['content'])
             
             # Poista "Arvio:" prefix
             title = re.sub(r'^Arvio:\s*', '', title, flags=re.I)

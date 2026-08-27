@@ -58,6 +58,13 @@ class BaseScraper:
         'viisi': 5, 'viiden': 5,
     }
 
+    # Näkymättömät merkit jotka taitto ujuttaa sanojen sisään
+    # (pehmeä tavuviiva, nollanlevyiset merkit, BOM)
+    INVISIBLE_CHARS = '\u00ad\u200b\u200c\u200d\u2060\ufeff'
+
+    # Erikoisvälilyönnit jotka normalisoidaan tavalliseksi välilyönniksi
+    SPACE_CHARS = '\u00a0\u2007\u2009\u202f'
+
     # Yleisimmät artikkelisisällön kontit, järjestyksessä
     CONTENT_SELECTORS = (
         'article',
@@ -72,6 +79,24 @@ class BaseScraper:
         self.publication_name = publication_name
 
     # --- Jaetut poimintaapurit ---------------------------------------------
+
+    def clean_text(self, text: Optional[str]) -> Optional[str]:
+        """Siivoa taiton näkymättömät merkit tekstistä ennen regex-poimintaa.
+
+        Julkaisujen taitto ujuttaa sanojen sisään pehmeitä tavuviivoja ja
+        muita nollanlevyisiä merkkejä (esim. "Elokuva\u00adteattereissa"),
+        jolloin sanahaku ei osu. Myös sitomattomat välilyönnit
+        normalisoidaan tavallisiksi välilyönneiksi.
+        """
+        if not text:
+            return text
+
+        for char in self.INVISIBLE_CHARS:
+            text = text.replace(char, '')
+        for char in self.SPACE_CHARS:
+            text = text.replace(char, ' ')
+
+        return re.sub(r'\s+', ' ', text).strip()
 
     def count_stars(self, text: str, max_stars: int = 5) -> Optional[int]:
         """Laske tähtisymbolit tekstistä.
