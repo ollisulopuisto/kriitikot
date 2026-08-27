@@ -215,7 +215,7 @@ def rss_feed():
             channel = ET.SubElement(rss, 'channel')
         
             ET.SubElement(channel, 'title').text = 'Kriitikkojen valinta - Uusimmat arviot'
-            ET.SubElement(channel, 'link').text = 'https://ollisulopuisto.github.io/kriitikot/'
+            ET.SubElement(channel, 'link').text = 'https://kriitikot.sulopuis.to/'
             ET.SubElement(channel, 'description').text = 'Suomalaisten kriitikoiden elokuva-arvostelut.'
             ET.SubElement(channel, 'language').text = 'fi'
         
