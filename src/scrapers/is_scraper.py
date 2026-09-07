@@ -122,7 +122,12 @@ class ISScraper(BaseScraper):
         has_premiere = 'ensi-ilta' in clean_text_for_premiere_check
         
         # Jos endnotessa mainitaan teatteri, se on hyvä!
-        has_theater_in_endnote = any(kw in endnote for kw in theater_keywords)
+        # Luetaan koko endnote-kappale, koska esitystiedot ovat toisinaan eri
+        # palasessa kuin endnote-merkintä.
+        endnote_paragraph = self._get_endnote_paragraph_text(asset_data).lower()
+        has_theater_in_endnote = any(
+            kw in endnote or kw in endnote_paragraph for kw in theater_keywords
+        )
         
         # Jos mainitaan suoratoisto tai TV-aikataulu → vaadi teatteriviittaus
         has_streaming = any(kw in text_content for kw in streaming_keywords)
@@ -140,103 +145,237 @@ class ISScraper(BaseScraper):
     
     def _get_endnote_text(self, asset_data: dict) -> str:
         """Kaivaa arvostelun lopussa olevan tiivistelmätekstin (endnote)."""
-        split_body = asset_data.get('splitBody', [])
-        for section in reversed(split_body):
-            if section.get('type') == 'paragraph':
-                crumbs = section.get('crumbs', [])
-                endnote_parts = []
-                for crumb in crumbs:
-                    if 'endnote' in crumb.get('marks', []):
-                        content = crumb.get('content', '')
-                        if content:
-                            endnote_parts.append(content)
-                if endnote_parts:
-                    return ''.join(endnote_parts).strip()
+        for section in reversed(self._paragraph_sections(asset_data)):
+            endnote_parts = []
+            for crumb in section.get('crumbs', []):
+                if 'endnote' in crumb.get('marks', []):
+                    content = crumb.get('content', '')
+                    if content:
+                        endnote_parts.append(content)
+            if endnote_parts:
+                return self.clean_text(''.join(endnote_parts)) or ''
         return ""
+
+    def _get_endnote_paragraph_text(self, asset_data: dict) -> str:
+        """Palauttaa koko sen kappaleen tekstin, jossa endnote on.
+
+        Elokuvan nimi on toisinaan kursivoituna omassa palasessaan, jolloin
+        siitä puuttuu endnote-merkintä: "Presidentin kyyditys" + ", ensi-ilta
+        pe elokuvateattereissa. Komedia ★★★". Pelkkiä endnote-palasia
+        lukemalla nimi jää saamatta.
+        """
+        for section in reversed(self._paragraph_sections(asset_data)):
+            crumbs = section.get('crumbs', [])
+            if not any('endnote' in crumb.get('marks', []) for crumb in crumbs):
+                continue
+            parts = [crumb.get('content', '') for crumb in crumbs]
+            text = self.clean_text(''.join(parts))
+            if text:
+                return text
+        return ""
+
+    def _paragraph_sections(self, asset_data: dict) -> list:
+        """Kappaleet järjestyksessä, mainospaikat ja tiivistelmät pois."""
+        return [
+            section for section in asset_data.get('splitBody', [])
+            if section.get('type') == 'paragraph'
+        ]
 
     def _get_full_text(self, asset_data: dict) -> str:
         """Palauttaa artikkelin koko tekstin yhtenä stringinä."""
-        split_body = asset_data.get('splitBody', [])
         ingress = asset_data.get('ingress', '')
         title = asset_data.get('title', '')
-        
+
         text_parts = [title, ingress]
-        
-        for section in split_body:
-            if section.get('type') == 'paragraph':
-                crumbs = section.get('crumbs', [])
-                for crumb in crumbs:
-                    text_parts.append(crumb.get('content', ''))
-        
+
+        for section in self._paragraph_sections(asset_data):
+            for crumb in section.get('crumbs', []):
+                text_parts.append(crumb.get('content', ''))
+
         return ' '.join(text_parts)
-    
-    def _extract_movie_title(self, asset_data: dict) -> Optional[str]:
-        """
-        Poimii elokuvan nimen otsikosta tai endnotesta.
-        IS.fi otsikot usein muodossa: "Tällainen on [Elokuva] – ..."
-        Endnote muodossa: "[Elokuva], ensi-ilta..."
-        """
-        # 1) Try to find title from the "endnote" at the end of the body.
-        # This is usually the most reliable place for the official title.
-        endnote = self._get_endnote_text(asset_data)
-        if endnote:
-            # Pattern: "Title, ensi-ilta..."
+
+    # --- Elokuvan nimen poiminta -------------------------------------------
+
+    # Lajityyppisanat joilla IS päättää arvionsa: "Komedia ★★★".
+    # Näistä koostuva pätkä ei ole elokuvan nimi.
+    GENRE_WORDS = {
+        'ja', 'sekä',
+        'animaatio', 'biografia', 'dokumentti', 'draama', 'elokuva',
+        'elämäkerta', 'fantasia', 'farssi', 'historiallinen', 'jännitys',
+        'jännäri', 'kauhu', 'komedia', 'lastenelokuva', 'musikaali',
+        'musta', 'mysteeri', 'perhe-elokuva', 'psykologinen', 'rikos',
+        'romanssi', 'romanttinen', 'satiiri', 'scifi', 'seikkailu',
+        'sci-fi', 'sota', 'toiminta', 'trilleri', 'tieteiselokuva', 'western',
+    }
+
+    # Yhdyssanaloppuja: "draamakomedia", "toimintaelokuva", "kauhutrilleri"
+    GENRE_SUFFIXES = (
+        'animaatio', 'dokumentti', 'draama', 'elokuva', 'fantasia',
+        'jännäri', 'kauhu', 'komedia', 'musikaali', 'romanssi',
+        'satiiri', 'trilleri',
+    )
+
+    # Kappaleet joissa nimi tavataan mainita kursiivilla
+    ITALIC_LOOKUP_PARAGRAPHS = 6
+
+    def _looks_like_genre(self, text: str) -> bool:
+        """Onko pätkä lajityyppi ("Komedia", "Musta komedia") eikä nimi?"""
+        cleaned = re.sub(r'[^\w\s-]', ' ', (text or '').lower())
+        words = [word for word in cleaned.split() if word]
+        if not words:
+            return True
+
+        for word in words:
+            if word in self.GENRE_WORDS:
+                continue
+            if len(words) <= 2 and word.endswith(self.GENRE_SUFFIXES):
+                continue
+            return False
+        return True
+
+    def _clean_title_candidate(self, text: Optional[str]) -> Optional[str]:
+        """Siivoaa ehdokkaan ja hylkää selvät osumat ohi maalin."""
+        candidate = self.clean_text(text)
+        if not candidate:
+            return None
+
+        candidate = candidate.strip(' "\u201d\u201c\u00ab\u00bb\'')
+        candidate = candidate.rstrip('.,:;–-').strip()
+        candidate = re.sub(r'[★⭐]+', '', candidate).strip()
+
+        if not candidate or len(candidate) > 60:
+            return None
+        if not re.search(r'[A-Za-zÀ-ÿ0-9]', candidate):
+            return None
+        if self._looks_like_genre(candidate):
+            return None
+        return candidate
+
+    def _title_from_endnote(self, asset_data: dict) -> Optional[str]:
+        """Nimi arvion loppuriviltä: "Nimi, ensi-ilta pe. Komedia ★★★"."""
+        for endnote in (self._get_endnote_text(asset_data),
+                        self._get_endnote_paragraph_text(asset_data)):
+            if not endnote:
+                continue
+
             match = re.search(r'^(.+?),\s+ensi-ilta', endnote)
             if match:
-                return match.group(1).strip()
-            
-            # Fallback if no "ensi-ilta" but stars: "Title ★★★"
+                candidate = self._clean_title_candidate(match.group(1))
+                if candidate:
+                    return candidate
+
             if '★' in endnote:
-                # Take everything before the stars
                 match = re.search(r'^(.+?)\s+★', endnote)
                 if match:
                     potential_title = match.group(1).strip()
-                    # Jos tittelissä on pilkku, ota vain alkuosa (vältä "Title, TV-kanava" tyyppiset)
+                    # Pilkun jälkeinen osa on esitystietoa, ei nimeä
                     if ',' in potential_title:
-                        potential_title = potential_title.split(',')[0].strip()
-                    return potential_title
+                        potential_title = potential_title.split(',')[0]
+                    candidate = self._clean_title_candidate(potential_title)
+                    if candidate:
+                        return candidate
 
-        title = asset_data.get('title', '')
-        meta_title = asset_data.get('metaTitle', '')
-        
-        # 2) Priority: Check metaTitle for movie title patterns
-        if meta_title:
-            match = re.search(r'^Arvio\s+(.+?)\s+[–-]', meta_title)
-            if match:
-                return match.group(1).strip()
-            match = re.search(r'^(.+?)\s+-arvio', meta_title)
-            if match:
-                return match.group(1).strip()
-        
-        # Pattern: "Tällainen on Sisu 2 –"
+        return None
+
+    def _title_from_italics(self, asset_data: dict) -> Optional[str]:
+        """Nimi alkukappaleiden kursiivista.
+
+        IS kursivoi elokuvan nimen jutun alussa: "...Samuli Valkaman ohjaama
+        draamakomedia Presidentin kyyditys todistaa toisin."
+        """
+        sections = self._paragraph_sections(asset_data)[:self.ITALIC_LOOKUP_PARAGRAPHS]
+
+        for section in sections:
+            crumbs = section.get('crumbs', [])
+            paragraph_text = ''.join(crumb.get('content', '') for crumb in crumbs)
+            # Ohita "Lue lisää:" -nostot, joissa kursiivi on toisen jutun nimi
+            if paragraph_text.strip().lower().startswith('lue lisää'):
+                continue
+
+            for crumb in crumbs:
+                marks = crumb.get('marks', [])
+                if 'em' not in marks and 'italic' not in marks:
+                    continue
+                candidate = self._clean_title_candidate(crumb.get('content'))
+                if candidate:
+                    return candidate
+
+        return None
+
+    def _title_from_headlines(self, asset_data: dict) -> Optional[str]:
+        """Nimi otsikosta tai metaotsikosta."""
+        title = self.clean_text(asset_data.get('title', '')) or ''
+        meta_title = self.clean_text(asset_data.get('metaTitle', '')) or ''
+
+        patterns = (
+            r'^Arvio[:\s]\s*(.+?)\s+[–-]',
+            r'^Arvostelu[:\s]\s*(.+?)\s+[–-]',
+            r'^(.+?)\s+-arvio',
+            r'^(.+?)\s+-arvostelu',
+        )
+
+        for text in (meta_title, title):
+            if not text:
+                continue
+            for pattern in patterns:
+                match = re.search(pattern, text)
+                if match:
+                    candidate = self._clean_title_candidate(match.group(1))
+                    if candidate:
+                        return candidate
+
+        # "Tällainen on Sisu 2 – moni olisi kateellinen"
         match = re.search(r'(?:Tällainen on|on)\s+(.+?)\s+[-–]', title)
         if match:
-            movie_name = match.group(1).strip()
-            movie_name = re.sub(r'\s+elokuva$', '', movie_name, flags=re.IGNORECASE)
-            return movie_name
-        
+            movie_name = re.sub(r'\s+elokuva$', '', match.group(1).strip(),
+                                flags=re.IGNORECASE)
+            candidate = self._clean_title_candidate(movie_name)
+            if candidate:
+                return candidate
+
         if '–' in title:
-            parts = title.split('–')
-            potential_title = parts[0].strip()
-            if len(potential_title) <= 50:
-                return potential_title
-        
-        if len(title) <= 50:
-            return title
-            
+            candidate = self._clean_title_candidate(title.split('–')[0])
+            if candidate and len(candidate) <= 50:
+                return candidate
+
+        if title and len(title) <= 50:
+            return self._clean_title_candidate(title)
+
         return None
-    
+
+    def _extract_movie_title(self, asset_data: dict) -> Optional[str]:
+        """Poimii elokuvan nimen luotettavimmasta paikasta.
+
+        Järjestys:
+        1. Arvion loppurivi ("Nimi, ensi-ilta pe. Komedia ★★★")
+        2. Alkukappaleiden kursiivi (loppurivillä on vain lajityyppi)
+        3. Otsikko ja metaotsikko
+        """
+        return (
+            self._title_from_endnote(asset_data)
+            or self._title_from_italics(asset_data)
+            or self._title_from_headlines(asset_data)
+        )
+
     def _extract_rating(self, asset_data: dict) -> Optional[int]:
         """
         Poimii tähtiarvion arvostelun lopusta.
         IS.fi muoto: "Genre ★★★" tai "Toiminta ★★"
         """
-        endnote = self._get_endnote_text(asset_data)
-        if endnote:
-            stars = endnote.count('★')
-            if stars > 0:
-                return min(stars, 5)
-        
+        for text in (self._get_endnote_text(asset_data),
+                     self._get_endnote_paragraph_text(asset_data)):
+            stars = self.count_stars(text or '')
+            if stars:
+                return stars
+
+        # Tähdet voivat olla myös ilman endnote-merkintää viimeisissä
+        # kappaleissa
+        for section in reversed(self._paragraph_sections(asset_data)[-3:]):
+            text = ''.join(crumb.get('content', '') for crumb in section.get('crumbs', []))
+            stars = self.count_stars(text)
+            if stars:
+                return stars
+
         return None
     
     def _extract_review_text(self, asset_data: dict) -> Optional[str]:
