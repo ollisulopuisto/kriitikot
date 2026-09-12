@@ -61,8 +61,8 @@ class KSMLScraper(BaseScraper):
         """
         Poimii otsikon.
         Käyttää järjestyksessä:
-        1. <meta name="description"> - KSML käyttää tätä pelkälle elokuvan nimelle (mikäli lyhyt)
-        2. <p class="diks-storyline__lead-paragraph"> - Usein elokuvan nimi
+        1. <p class="diks-storyline__lead-paragraph"> - elokuvan nimi omalla rivillään
+        2. <meta name="description"> - joskus pelkkä elokuvan nimi (mikäli lyhyt)
         3. Ensimmäiset kappaleet (p-tagit) - Fallback
         4. Regex-mätsäys descriptionista (jos pitkä kuvaus)
         5. JSON-LD headline
@@ -72,21 +72,25 @@ class KSMLScraper(BaseScraper):
         """
         title = None
         
-        # 1. <meta name="description"> - KSML:llä usein pelkkä elokuvan nimi
+        # 1. Etsi spesifillä luokalla: diks-storyline__lead-paragraph.
+        # Jutun rakenne on: ingressi, kirjoittaja, elokuvan nimi, tekijätiedot,
+        # tähdet. Nimi on siis ensimmäinen storyline-kappale, ja se on
+        # luotettavampi kuin meta-description, joka toistaa usein ingressin.
+        for lead_p in soup.find_all('p', class_='diks-storyline__lead-paragraph'):
+            text = lead_p.get_text(strip=True)
+            if self._looks_like_movie_title(text):
+                return self._pick_release_title(text, soup)
+
+        # 2. <meta name="description"> - joskus pelkkä elokuvan nimi
         meta_desc = soup.find('meta', attrs={'name': 'description'})
         desc_content = meta_desc.get('content', '').strip() if meta_desc else ''
         
         if desc_content:
             # Jos description on lyhyt (< 50 merkkiä), se on todennäköisesti elokuvan nimi
-            if len(desc_content) < 50 and not desc_content.startswith('Elokuva'):
+            if (len(desc_content) < 50
+                    and not desc_content.startswith('Elokuva')
+                    and self._looks_like_movie_title(desc_content)):
                 return desc_content
-
-        # 2. Etsi spesifillä luokalla: diks-storyline__lead-paragraph
-        lead_p = soup.find('p', class_='diks-storyline__lead-paragraph')
-        if lead_p:
-            text = lead_p.get_text(strip=True)
-            if text and len(text) < 100: # Sallitaan hieman pidempi, mutta ei koko kappaletta
-                return text
 
         # 3. Etsi ensimmäisistä kappaleista lyhyttä tekstiä (KSML-spesifi rakenne) fallbackina
         article = soup.find('article')
@@ -105,11 +109,8 @@ class KSMLScraper(BaseScraper):
                 # - Lyhyt (< 80 merkkiä)
                 # - Ei ole tyhjä
                 # - Ei sisällä "Teksti:", "Kuva:" tms. metatietoa
-                if text and len(text) < 80 and len(text) > 1:
+                if text and len(text) < 80 and self._looks_like_movie_title(text):
                     if any(x in text for x in ['Teksti:', 'Kuva:', 'Arvio:', 'Tähdet:', 'Ohjaus:']):
-                        continue
-                     # Hylkää jos näyttää päivämäärältä tai kellonajalta
-                    if re.search(r'\d{1,2}\.\d{1,2}\.', text) or re.search(r'\d{1,2}:\d{2}', text):
                         continue
                     
                     return text
@@ -179,6 +180,54 @@ class KSMLScraper(BaseScraper):
         
         return title
     
+    @staticmethod
+    def _looks_like_movie_title(text: Optional[str]) -> bool:
+        """Erottaa elokuvan nimen ingressilauseesta ja tekijätiedoista."""
+        if not text:
+            return False
+        
+        text = text.strip()
+        if len(text) < 2 or len(text) > 100:
+            return False
+        
+        # Tekijätiedot: "Ohjaus Lauri Nurkse. Rooleissa: ..."
+        if re.match(r'^(Ohjaus|Ohjaaja|Rooleissa|Käsikirjoitus|Teksti|Kuva|Arvio|Tähdet)\b', text):
+            return False
+        
+        # Päivämäärä tai kellonaika
+        if re.search(r'\d{1,2}\.\d{1,2}\.', text) or re.search(r'\d{1,2}:\d{2}', text):
+            return False
+        
+        # Kokonainen lause, esim. "The Visitor tarkkailee enemmän kuin koskettaa."
+        if text.endswith('.') and len(text.split()) > 2:
+            return False
+        
+        return True
+
+    @staticmethod
+    def _pick_release_title(title: str, soup: BeautifulSoup) -> str:
+        """Valitsee kaksiosaisesta nimestä sen, jota jutussa käytetään.
+        
+        KSML kirjoittaa vieraskielisistä elokuvista muodon
+        "Svečias – The Visitor". Kumpi puoli on Suomessa käytetty nimi,
+        selviää ingressistä: se mainitsee elokuvan sillä nimellä.
+        Jos ingressi ei kerro, nimi jätetään sellaisenaan.
+        """
+        parts = [part.strip() for part in re.split(r'\s+[–—]\s+', title)]
+        if len(parts) != 2 or not all(parts):
+            return title
+        
+        lead = soup.find('p', class_='diks-article__lead')
+        lead_text = lead.get_text(strip=True).lower() if lead else ''
+        if not lead_text:
+            return title
+        
+        matches = [part for part in parts if part.lower() in lead_text]
+        if len(matches) == 1:
+            return matches[0]
+        
+        return title
+
     def _extract_author(self, soup: BeautifulSoup, ld_json: Optional[dict]) -> Optional[str]:
         """Poimii kirjoittajan nimen."""
         author = None

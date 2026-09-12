@@ -25,6 +25,11 @@ class MuropakettiScraper(BaseScraper):
         Returns:
             Review-olio
         """
+        if source_url and not self._is_movie_review_url(source_url):
+            # Muropaketti arvostelee myös pelejä, laitteita ja muuta,
+            # esim. /pelit/peliarvostelut/..., eivätkä ne ole elokuvia.
+            return None
+        
         soup = self.get_soup(html_content)
         
         movie_title = self._extract_title(soup)
@@ -41,6 +46,11 @@ class MuropakettiScraper(BaseScraper):
             source_publication=self.publication_name
         )
     
+    @staticmethod
+    def _is_movie_review_url(source_url: str) -> bool:
+        """Kertoo osoittaako URL Muropaketin elokuvaosioon."""
+        return '/elokuvat/' in source_url
+
     def _extract_title(self, soup):
         """Etsi elokuvan nimi leipätekstistä.
         

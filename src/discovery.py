@@ -424,6 +424,12 @@ class CategoryCrawler:
                     if url.startswith('/'):
                         url = 'https://muropaketti.com' + url
                     
+                    # Ohita muut kuin elokuva-arvostelut. Kategoriasivulla on
+                    # nostoja myös muista osioista, esim. peliarvosteluista
+                    # (/pelit/peliarvostelut/...), jotka eivät kuulu tänne.
+                    if '/elokuvat/' not in url:
+                        continue
+                    
                     # Otsikko on koko linkin tekstistä ilman category-spanin tekstiä
                     full_text = link.get_text(strip=True)
                     # Poista "Arvostelu " tai "Arvio " alusta
