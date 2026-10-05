@@ -8,12 +8,35 @@ Käyttö:
 
 import shutil
 import sys
+from datetime import date
 from pathlib import Path
 
 # Lisää src kansio Python pathiin
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from app import app, get_all_reviews_grouped, APP_VERSION
+
+SITE_URL = 'https://kriitikot.sulopuis.to/'
+
+
+def write_discovery_files(docs_dir):
+    """Kirjoittaa robots.txt:n ja sitemap.xml:n hakukoneita varten."""
+    (docs_dir / 'robots.txt').write_text(
+        "User-agent: *\n"
+        "Allow: /\n"
+        "\n"
+        f"Sitemap: {SITE_URL}sitemap.xml\n",
+        encoding='utf-8',
+    )
+    (docs_dir / 'sitemap.xml').write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f'  <url><loc>{SITE_URL}</loc><lastmod>{date.today().isoformat()}</lastmod></url>\n'
+        '</urlset>\n',
+        encoding='utf-8',
+    )
+    print("✅ Luotu: robots.txt, sitemap.xml")
+
 
 def generate_static_site():
     """Generoi staattiset sivut docs/ kansioon."""
@@ -71,6 +94,9 @@ def generate_static_site():
     nojekyll.touch()
     print(f"✅ Luotu: {nojekyll}")
     
+    # Hakukoneille: robots.txt ja sitemap.xml
+    write_discovery_files(docs_dir)
+
     # 4. Tilastot
     grouped_reviews, all_critics, total_reviews = get_all_reviews_grouped()
     

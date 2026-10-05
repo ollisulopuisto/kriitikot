@@ -8,6 +8,19 @@
     <meta name="description"
         content="Mitä katsoa elokuvateatterissa? Lue suomalaisten kriitikoiden elokuva-arvostelut elokuvateattereissa nyt pyörivistä elokuvista ja löydä parhaat uudet elokuvat. Vertaile arvioita: HS, IS, SK, ja muut.">
     <meta name="version" content="{{ version }}">
+    <link rel="canonical" href="https://kriitikot.sulopuis.to/">
+    <meta name="robots" content="index, follow">
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            'name': 'Kriitikon valinta',
+            'url': 'https://kriitikot.sulopuis.to/',
+            'description': 'Suomalaisten kriitikoiden elokuva-arvostelut ja arvosanat ensi-iltaelokuvista.',
+            'applicationCategory': 'EntertainmentApplication',
+            'inLanguage': 'fi'
+        } | tojson }}
+    </script>
 
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="website">
