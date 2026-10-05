@@ -25,3 +25,11 @@ def test_index_has_canonical_and_structured_data():
     assert '<link rel="canonical" href="https://kriitikot.sulopuis.to/">' in html
     assert 'application/ld+json' in html
     assert 'ollisulopuisto.github.io' not in html
+
+
+def test_llms_txt_describes_site_and_data(tmp_path):
+    write_discovery_files(tmp_path)
+    llms = (tmp_path / 'llms.txt').read_text(encoding='utf-8')
+    assert llms.startswith('# Kriitikon valinta\n\n> ')
+    assert 'https://kriitikot.sulopuis.to/reviews.json' in llms
+    assert 'https://kriitikot.sulopuis.to/rss.xml' in llms

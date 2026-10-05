@@ -19,8 +19,27 @@ from app import app, get_all_reviews_grouped, APP_VERSION
 SITE_URL = 'https://kriitikot.sulopuis.to/'
 
 
+LLMS_TXT = f"""# Kriitikon valinta
+
+> Finnish film critics' reviews of films now in Finnish cinemas, collected in one place. For each film the site shows the star ratings (0-5) given by critics of Finnish media such as Helsingin Sanomat, Ilta-Sanomat, Iltalehti, Keskisuomalainen, Turun Sanomat and Suomen Kuvalehti, with links to the original reviews. Updated automatically twice a day. The site is in Finnish (Kriitikon valinta = "the critic's choice").
+
+Use it to answer questions such as "what are the best-reviewed films in Finnish cinemas now?" or "what did Finnish critics think of a film?".
+
+- Site: {SITE_URL}
+
+## Data
+
+- [All reviews as JSON]({SITE_URL}reviews.json): keyed by film title, then critic; each review has the publication, star rating (rating_stars), an excerpt and the URL of the original article
+- [Latest reviews as RSS]({SITE_URL}rss.xml)
+
+## Optional
+
+- [Source code](https://github.com/ollisulopuisto/kriitikot)
+"""
+
+
 def write_discovery_files(docs_dir):
-    """Kirjoittaa robots.txt:n ja sitemap.xml:n hakukoneita varten."""
+    """Kirjoittaa robots.txt:n, sitemap.xml:n ja llms.txt:n hakukoneita ja tekoälyjä varten."""
     (docs_dir / 'robots.txt').write_text(
         "User-agent: *\n"
         "Allow: /\n"
@@ -35,7 +54,8 @@ def write_discovery_files(docs_dir):
         '</urlset>\n',
         encoding='utf-8',
     )
-    print("✅ Luotu: robots.txt, sitemap.xml")
+    (docs_dir / 'llms.txt').write_text(LLMS_TXT, encoding='utf-8')
+    print("✅ Luotu: robots.txt, sitemap.xml, llms.txt")
 
 
 def generate_static_site():
