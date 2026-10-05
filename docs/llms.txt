@@ -1,0 +1,16 @@
+# Kriitikon valinta
+
+> Finnish film critics' reviews of films now in Finnish cinemas, collected in one place. For each film the site shows the star ratings (0-5) given by critics of Finnish media such as Helsingin Sanomat, Ilta-Sanomat, Iltalehti, Keskisuomalainen, Turun Sanomat and Suomen Kuvalehti, with links to the original reviews. Updated automatically twice a day. The site is in Finnish (Kriitikon valinta = "the critic's choice").
+
+Use it to answer questions such as "what are the best-reviewed films in Finnish cinemas now?" or "what did Finnish critics think of a film?".
+
+- Site: https://kriitikot.sulopuis.to/
+
+## Data
+
+- [All reviews as JSON](https://kriitikot.sulopuis.to/reviews.json): keyed by film title, then critic; each review has the publication, star rating (rating_stars), an excerpt and the URL of the original article
+- [Latest reviews as RSS](https://kriitikot.sulopuis.to/rss.xml)
+
+## Optional
+
+- [Source code](https://github.com/ollisulopuisto/kriitikot)
