@@ -4,7 +4,7 @@ Finnish movie review aggregator: scrapes reviews from media sites, stores in SQL
 
 ## Stack
 
-- **Language:** Python 3.9+
+- **Language:** Python 3.10+
 - **Web:** Flask (`src/app.py`)
 - **DB:** SQLite + SQLAlchemy ORM (`src/models.py`)
 - **Scraping:** BeautifulSoup4, requests
