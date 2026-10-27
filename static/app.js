@@ -761,14 +761,14 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                 mobileHtml += `
                     <div class="review-item" data-critic="${critic.id}"
                         data-publication="${review.source_publication}">
+                        <div class="review-rating">
+                            ${review.rating_stars ? createReviewPill(review) : ''}
+                        </div>
                         <div class="review-critic">
                             <div class="review-critic-top">
                                 <span class="review-critic-name">${critic.name}</span>
                             </div>
                             <div class="review-media">${review.source_publication.toUpperCase()}</div>
-                        </div>
-                        <div class="review-rating">
-                            ${review.rating_stars ? createReviewPill(review) : ''}
                         </div>
                     </div>
                 `;
