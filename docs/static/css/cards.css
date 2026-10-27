@@ -206,6 +206,31 @@
 .review-critic-name {
     font-weight: 500;
     color: #212529;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.review-critic-name.selected {
+    color: #6d28d9;
+    font-weight: 700;
+    background: #f3e8ff;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 1px #c4b5fd;
+    animation: criticMobilePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes criticMobilePop {
+    0% {
+        transform: scale(0.92);
+        opacity: 0.8;
+    }
+    60% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .review-critic-top {
