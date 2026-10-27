@@ -563,7 +563,7 @@ function initRatingFilterClickHandlers() {
  * Footer: Julkaisut click handlers
  */
 function initPublicationFilterClickHandlers() {
-    const publicationFilters = document.querySelectorAll('.filter-publication');
+    const publicationFilters = document.querySelectorAll('.filter-publication, .media-filter-btn');
     
     // Alusta tilat
     publicationFilters.forEach(pubFilter => {
@@ -576,7 +576,7 @@ function initPublicationFilterClickHandlers() {
             const isCurrentlyActive = this.classList.contains('active');
             
             // Hae KAIKKI saman julkaisun painikkeet (desktop + mobile)
-            const samePubButtons = document.querySelectorAll(`.filter-publication[data-publication="${selectedPub}"]`);
+            const samePubButtons = document.querySelectorAll(`.filter-publication[data-publication="${selectedPub}"], .media-filter-btn[data-publication="${selectedPub}"]`);
             
             if (isCurrentlyActive) {
                 samePubButtons.forEach(btn => btn.classList.remove('active'));
@@ -585,10 +585,12 @@ function initPublicationFilterClickHandlers() {
             }
 
             // Kerää kaikki aktiiviset julkaisut DOM:sta (koska ne on nyt synkattu)
-            const activePubButtons = document.querySelectorAll('.filter-publication.active');
+            const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
             const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
 
-            applyPublicationFilter(activePubs);
+            if (typeof window.applyPublicationFilter === 'function') {
+                window.applyPublicationFilter(activePubs);
+            }
 
             if (activePubs.length > 0) {
                 if (window.showResetButton) window.showResetButton();
@@ -596,116 +598,6 @@ function initPublicationFilterClickHandlers() {
         });
         pubFilter.dataset.initialized = 'true';
     });
-
-    function applyPublicationFilter(publications) {
-        const allCards = document.querySelectorAll('.movie-card');
-        const table = document.querySelector('table');
-        const noFilter = publications.length === 0;
-
-        // Mobile cards
-        allCards.forEach(card => {
-            const cardReviews = card.querySelectorAll('.review-item');
-            let hasMatchingReview = false;
-
-            cardReviews.forEach(item => {
-                if (noFilter) {
-                    item.style.display = '';
-                    hasMatchingReview = true;
-                } else {
-                    const mediaElement = item.querySelector('.review-media');
-                    const mediaText = mediaElement ? mediaElement.textContent.trim().toUpperCase() : '';
-                    
-                    // Match if any of the active publications is contained in mediaText
-                    const matches = publications.some(pub => mediaText.includes(pub));
-                    
-                    if (matches) {
-                        item.style.display = '';
-                        hasMatchingReview = true;
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
-            });
-
-            // Älä näytä korttia jos se on jo piilotettu muun suodattimen takia
-            // (paitsi jos olemme juuri poistamassa tätä filtteriä)
-            if (noFilter) {
-                // Tässä pitäisi periaatteessa ajaa kaikki muut suodattimet uusiksi
-                // mutta toistaiseksi vain näytetään
-                card.style.display = '';
-            } else {
-                card.style.display = hasMatchingReview ? '' : 'none';
-            }
-        });
-
-        // Desktop table
-        if (table) {
-            const tbody = table.querySelector('tbody');
-            const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
-            const thead = table.querySelector('thead');
-            const criticHeaders = Array.from(thead.querySelectorAll('th.rating-cell'));
-
-            allRows.forEach(row => {
-                const ratingCells = row.querySelectorAll('.rating-cell');
-                let hasVisibleRating = false;
-
-                ratingCells.forEach(cell => {
-                    const cellIndex = cell.cellIndex;
-                    // Etsi vastaava header sarakkeen cellIndexillä
-                    const header = criticHeaders.find(h => h.cellIndex === cellIndex);
-                    
-                    if (header) {
-                        const mediaSpan = header.querySelector('.critic-media');
-                        const criticPublications = mediaSpan ? mediaSpan.textContent.trim().split(', ') : [];
-                        const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub));
-                        
-                        // Piilota/näytä yksittäiset arvostelut solun sisällä
-                        const cellReviews = cell.querySelectorAll('[data-publication]');
-                        let cellHasVisibleReview = false;
-                        
-                        cellReviews.forEach(rev => {
-                            const revPub = (rev.dataset.publication || '').toUpperCase();
-                            // Match if revPub matches any of our active publications
-                            const matchesRev = noFilter || publications.some(pub => revPub.includes(pub.toUpperCase()));
-                            
-                            if (matchesRev) {
-                                rev.style.display = '';
-                                if (rev.tagName !== 'BR') cellHasVisibleReview = true;
-                            } else {
-                                rev.style.display = 'none';
-                            }
-                        });
-
-                        if (criticMatches && (noFilter || cellHasVisibleReview)) {
-                            hasVisibleRating = true;
-                        }
-                    }
-                });
-
-                if (noFilter) {
-                    // Jos filtteri poistetaan, palauta näkyvyys jos se ei ole jo piilotettu muualta
-                    // (Tämä on vaikeaa koska ei ole keskitettyä statea, mutta yritetään)
-                    const isStarFiltered = row.dataset.starFiltered === 'true';
-                    const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
-                    if (!isStarFiltered && !isCountFiltered) {
-                        row.style.display = '';
-                    }
-                } else {
-                    row.style.display = hasVisibleRating ? '' : 'none';
-                }
-            });
-
-            // Käytä keskitettyä funktiota sarakkeiden piilotukseen
-            if (typeof updateCriticColumnVisibility === 'function') {
-                updateCriticColumnVisibility();
-            }
-
-            setTimeout(() => {
-                if (window.removeFillerColumns) window.removeFillerColumns();
-                if (window.addFillerColumns) window.addFillerColumns();
-            }, 50);
-        }
-    }
 }
 
 // Initialize all click handlers
