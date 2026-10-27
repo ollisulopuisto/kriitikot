@@ -79,19 +79,37 @@ function initReviewCountFilter() {
         let hiddenCount = 0;
 
         // Desktop: Piilota rivit
-        if (table) {
-            const tbody = table.querySelector('tbody');
-            const rows = tbody.querySelectorAll('tr');
+        const tableEl = document.querySelector('table');
+        if (tableEl) {
+            const tbody = tableEl.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr:not(.poster-row)');
 
             rows.forEach(row => {
-                const count = parseInt(row.dataset.reviewCount || 0);
+                let count = row.dataset.reviewCount;
+                if (count === undefined || count === null || count === '') {
+                    let c = 0;
+                    row.querySelectorAll('.rating-cell').forEach(cell => {
+                        const hasLink = cell.querySelector('a.rating-link');
+                        const hasStars = cell.querySelector('.rating-stars');
+                        const noRating = cell.querySelector('.no-rating');
+
+                        if (hasLink || hasStars || (noRating && !noRating.textContent.includes('–'))) {
+                            c++;
+                        }
+                    });
+                    count = c;
+                    row.dataset.reviewCount = count;
+                } else {
+                    count = parseInt(count, 10);
+                }
+
                 if (count < mappedMinCount) {
                     row.style.display = 'none';
                     row.dataset.reviewCountFiltered = 'true';
                     hiddenCount++;
                 } else {
                     delete row.dataset.reviewCountFiltered;
-                    if (!row.dataset.starFiltered) {
+                    if (row.dataset.starFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
                         row.style.display = '';
                     }
                 }
@@ -99,15 +117,23 @@ function initReviewCountFilter() {
         }
 
         // Mobile: Piilota kortit
-        mobileCards.forEach(card => {
-            const count = parseInt(card.dataset.reviewCount || 0);
+        const allMobileCards = document.querySelectorAll('.movie-card');
+        allMobileCards.forEach(card => {
+            let count = card.dataset.reviewCount;
+            if (count === undefined || count === null || count === '') {
+                count = card.querySelectorAll('.review-item').length;
+                card.dataset.reviewCount = count;
+            } else {
+                count = parseInt(count, 10);
+            }
+
             if (count < mappedMinCount) {
                 card.style.display = 'none';
                 card.dataset.reviewCountFiltered = 'true';
                 hiddenCount++;
             } else {
                 delete card.dataset.reviewCountFiltered;
-                if (!card.dataset.starFiltered) {
+                if (card.dataset.starFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
                     card.style.display = '';
                 }
             }
@@ -123,6 +149,7 @@ function initReviewCountFilter() {
 
         return hiddenCount;
     }
+    window.filterByReviewCount = filterByReviewCount;
 
     function updateReviewWord(actualCountValue) {
         const reviewWord = document.getElementById('review-word');
@@ -223,13 +250,17 @@ function initStarFilter() {
                 const rows = table.querySelectorAll('tbody tr:not(.poster-row)');
                 rows.forEach(row => {
                     row.dataset.starFiltered = 'false';
-                    row.style.display = '';
+                    if (row.dataset.reviewCountFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
+                        row.style.display = '';
+                    }
                     row.querySelectorAll('.rating-cell, .rating-pill').forEach(el => el.classList.remove('dimmed'));
                 });
             }
             allCards.forEach(card => {
                 card.dataset.starFiltered = 'false';
-                card.style.display = '';
+                if (card.dataset.reviewCountFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
+                    card.style.display = '';
+                }
                 card.querySelectorAll('.review-item, .rating-pill').forEach(el => el.classList.remove('dimmed'));
             });
             
@@ -275,7 +306,9 @@ function initStarFilter() {
 
                 if (hasMatchingReviewInRow) {
                     row.dataset.starFiltered = 'false';
-                    row.style.display = '';
+                    if (row.dataset.reviewCountFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
+                        row.style.display = '';
+                    }
                 } else {
                     row.dataset.starFiltered = 'true';
                     row.style.display = 'none';
@@ -305,7 +338,9 @@ function initStarFilter() {
 
             if (hasMatchingReviewInCard) {
                 card.dataset.starFiltered = 'false';
-                card.style.display = '';
+                if (card.dataset.reviewCountFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
+                    card.style.display = '';
+                }
             } else {
                 card.dataset.starFiltered = 'true';
                 card.style.display = 'none';
@@ -756,6 +791,159 @@ function initFavoriteFilter() {
             (favToggleMobile && favToggleMobile.checked);
     };
 }
+
+function applyPublicationFilter(publications) {
+    const allCards = document.querySelectorAll('.movie-card');
+    const table = document.querySelector('table');
+    const noFilter = !publications || publications.length === 0;
+
+    // Mobile cards
+    allCards.forEach(card => {
+        const cardReviews = card.querySelectorAll('.review-item');
+        let hasMatchingReview = false;
+
+        cardReviews.forEach(item => {
+            if (noFilter) {
+                item.style.display = '';
+                hasMatchingReview = true;
+            } else {
+                const mediaElement = item.querySelector('.review-media');
+                const mediaText = mediaElement ? mediaElement.textContent.trim().toUpperCase() : '';
+
+                const matches = publications.some(pub => mediaText.includes(pub.toUpperCase()));
+
+                if (matches) {
+                    item.style.display = '';
+                    hasMatchingReview = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        });
+
+        if (noFilter) {
+            delete card.dataset.publicationFiltered;
+            if (card.dataset.starFiltered !== 'true' && card.dataset.reviewCountFiltered !== 'true') {
+                card.style.display = '';
+            }
+        } else {
+            if (hasMatchingReview) {
+                delete card.dataset.publicationFiltered;
+                if (card.dataset.starFiltered !== 'true' && card.dataset.reviewCountFiltered !== 'true') {
+                    card.style.display = '';
+                }
+            } else {
+                card.dataset.publicationFiltered = 'true';
+                card.style.display = 'none';
+            }
+        }
+    });
+
+    // Desktop table
+    if (table) {
+        const tbody = table.querySelector('tbody');
+        const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+        const thead = table.querySelector('thead');
+        const criticHeaders = Array.from(thead.querySelectorAll('th.rating-cell'));
+
+        allRows.forEach(row => {
+            const ratingCells = row.querySelectorAll('.rating-cell');
+            let hasVisibleRating = false;
+
+            ratingCells.forEach(cell => {
+                const cellIndex = cell.cellIndex;
+                const header = criticHeaders.find(h => h.cellIndex === cellIndex);
+
+                if (header) {
+                    const mediaSpan = header.querySelector('.critic-media');
+                    const criticPublications = mediaSpan ? mediaSpan.textContent.trim().toUpperCase().split(', ') : [];
+                    const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub.toUpperCase()));
+
+                    const cellReviews = cell.querySelectorAll('[data-publication]');
+                    let cellHasVisibleReview = false;
+
+                    cellReviews.forEach(rev => {
+                        const revPub = (rev.dataset.publication || '').toUpperCase();
+                        const matchesRev = noFilter || publications.some(pub => revPub.includes(pub.toUpperCase()));
+
+                        if (matchesRev) {
+                            rev.style.display = '';
+                            if (rev.tagName !== 'BR') cellHasVisibleReview = true;
+                        } else {
+                            rev.style.display = 'none';
+                        }
+                    });
+
+                    if (criticMatches && (noFilter || cellHasVisibleReview)) {
+                        hasVisibleRating = true;
+                    }
+                }
+            });
+
+            if (noFilter) {
+                delete row.dataset.publicationFiltered;
+                const isStarFiltered = row.dataset.starFiltered === 'true';
+                const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
+                if (!isStarFiltered && !isCountFiltered) {
+                    row.style.display = '';
+                }
+            } else {
+                if (hasVisibleRating) {
+                    delete row.dataset.publicationFiltered;
+                    const isStarFiltered = row.dataset.starFiltered === 'true';
+                    const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
+                    if (!isStarFiltered && !isCountFiltered) {
+                        row.style.display = '';
+                    }
+                } else {
+                    row.dataset.publicationFiltered = 'true';
+                    row.style.display = 'none';
+                }
+            }
+        });
+
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
+
+        setTimeout(() => {
+            if (window.removeFillerColumns) window.removeFillerColumns();
+            if (window.addFillerColumns) window.addFillerColumns();
+        }, 50);
+    }
+}
+
+function reapplyAllFacets() {
+    // 1. Minimum number of reviews
+    const reviewSlider = document.getElementById('min-reviews-slider');
+    if (reviewSlider) {
+        const sliderPos = parseInt(reviewSlider.value, 10);
+        const reviewValueMapping = { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+        const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
+        if (typeof window.filterByReviewCount === 'function') {
+            window.filterByReviewCount(mappedValue);
+        }
+    }
+
+    // 2. Minimum stars
+    const starSlider = document.getElementById('star-filter-slider');
+    if (starSlider) {
+        const starValue = parseInt(starSlider.value, 10);
+        if (typeof window.filterByStars === 'function') {
+            window.filterByStars(starValue);
+        }
+    }
+
+    // 3. Outlet / publication
+    const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
+    const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
+    if (typeof window.applyPublicationFilter === 'function') {
+        window.applyPublicationFilter(activePubs);
+    }
+}
+
+window.applyPublicationFilter = applyPublicationFilter;
+window.reapplyAllFacets = reapplyAllFacets;
 
 // Initialize all filters
 document.addEventListener('DOMContentLoaded', function () {

@@ -580,8 +580,8 @@ function updateRowVisibility() {
         // Mutta meidän pitää erottaa "ei arvosteluja" -piilotus "filtteri"-piilotuksesta logic chainissa.
         // Tässä oletamme, että tämä ajetaan viimeisenä.
 
-        // Emme koske riveihin, jotka on piilotettu review-count tai star filtterillä
-        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true') {
+        // Emme koske riveihin, jotka on piilotettu review-count, star tai publication filtterillä
+        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true') {
             return;
         }
 
@@ -644,18 +644,19 @@ function createReviewPill(review) {
     let tooltipText = review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu';
     let starsHtml = '★'.repeat(review.rating_stars);
     let publicationName = allPublicationMap[review.source_publication]?.name || review.source_publication; // Get full name
+    let pubAttr = review.source_publication ? `data-publication="${review.source_publication}"` : '';
     
     if (review.source_url) {
         return `
             <a href="${review.source_url}"
-                class="rating-link rating-pill stars-${review.rating_stars}" target="_blank"
+                class="rating-link rating-pill stars-${review.rating_stars}" ${pubAttr} target="_blank"
                 title="${publicationName}: ${tooltipText}...">
                 <span class="rating-stars">${starsHtml}</span>
             </a>
         `;
     } else {
         return `
-            <span class="rating-pill stars-${review.rating_stars}">
+            <span class="rating-pill stars-${review.rating_stars}" ${pubAttr}>
                 <span class="rating-stars">${starsHtml}</span>
             </span>
         `;
@@ -672,6 +673,16 @@ function renderMovie(movieTitle, criticsReviewsDict) {
     const letterboxdUrl = window.letterboxd_urls[movieTitle] || '';
     const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
     const movieReviewCount = window.movie_review_counts[movieTitle];
+
+    let calculatedReviewCount = 0;
+    if (criticsReviewsDict) {
+        Object.values(criticsReviewsDict).forEach(reviews => {
+            if (reviews && reviews.length > 0) {
+                calculatedReviewCount += reviews.length;
+            }
+        });
+    }
+
     const dist = window.movie_rating_distributions[movieTitle] || [];
     const buildSparklineHtml = (distribution, extraClasses = '') => {
         const hasDistribution = distribution.length === 5 && distribution.some(count => count > 0);
@@ -697,7 +708,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Desktop row
     let desktopHtml = `
-        <tr>
+        <tr data-review-count="${calculatedReviewCount}">
             <td class="movie-col" data-poster="${posterUrl}"
                 data-letterboxd="${letterboxdUrl}"
                 data-nytleffaan="${nytleffaanUrl}">
@@ -739,7 +750,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Mobile card
     let mobileHtml = `
-        <div class="movie-card" data-movie="${movieTitle}" data-poster="${posterUrl}">
+        <div class="movie-card" data-movie="${movieTitle}" data-poster="${posterUrl}" data-review-count="${calculatedReviewCount}">
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
                         <div class="movie-card-title">${movieTitle}</div>
@@ -816,6 +827,10 @@ function loadMoreMovies() {
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
 
+    if (typeof window.currentMovieOffset === 'number') {
+        currentMovieOffset = window.currentMovieOffset;
+    }
+
     // Varmista että solut renderöidään otsikoiden nykyisessä järjestyksessä
     syncCriticOrderFromDom();
 
@@ -874,6 +889,7 @@ function loadMoreMovies() {
     if (typeof initResetButton === 'function') initResetButton();
     if (typeof initFavoriteFilter === 'function') initFavoriteFilter();
     
+    if (typeof window.reapplyAllFacets === 'function') window.reapplyAllFacets();
     if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
     
     loadMoreButton.disabled = false;
@@ -1087,6 +1103,7 @@ window.ensureDesktopTable = ensureDesktopTable;
 window.activateDesktopTable = activateDesktopTable;
 window.isDesktopWidth = isDesktopWidth;
 window.syncCriticOrderFromDom = syncCriticOrderFromDom;
+window.loadMoreMovies = loadMoreMovies;
 
 // Sarakkeiden uudelleenjärjestys mitätöi talletetun kriitikkojärjestyksen
 document.addEventListener('table-sorted', syncCriticOrderFromDom);
