@@ -422,17 +422,18 @@ th .review-count {
 
 /* Rating Cells */
 .rating-cell {
-    text-align: center;
+    text-align: left;
     width: 7.5em;
     min-width: 7.5em;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    padding: 0.5rem 0.2rem;
+    padding: 0.5rem 0.5rem;
     vertical-align: middle;
 }
 
 th.rating-cell {
     vertical-align: bottom;
+    text-align: center;
 }
 
 th.rating-cell:hover {
@@ -443,7 +444,7 @@ th.rating-cell:hover {
 .rating-link {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-decoration: none;
     color: inherit;
     min-height: 2.5rem;
@@ -508,7 +509,13 @@ th.rating-cell:hover {
 .stars-2 { background: linear-gradient(180deg, var(--star-2-top), var(--star-2) 55%, var(--star-2-bot)); }
 .stars-3 { background: linear-gradient(180deg, var(--star-3-top), var(--star-3) 55%, var(--star-3-bot)); }
 .stars-4 { background: linear-gradient(180deg, var(--star-4-top), var(--star-4) 55%, var(--star-4-bot)); }
-.stars-5 { background: linear-gradient(180deg, var(--star-5-top), var(--star-5) 55%, var(--star-5-bot)); }
+.stars-5 {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 35%), linear-gradient(180deg, var(--star-5-top), var(--star-5) 55%, var(--star-5-bot));
+    box-shadow: 0 1px 3px rgba(24, 16, 4, 0.2), 0 0 10px rgba(255, 214, 10, 0.55);
+}
+.stars-5:hover {
+    box-shadow: 0 4px 12px rgba(24, 16, 4, 0.28), 0 0 16px rgba(255, 214, 10, 0.75);
+}
 
 .movie-review-count {
     font-size: 0.75em;
