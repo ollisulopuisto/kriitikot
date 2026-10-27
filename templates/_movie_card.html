@@ -36,6 +36,12 @@
         {% for review in reviews_list %}
         <div class="review-item" data-critic="{{ critic.id }}"
             data-publication="{{ review.publication.short_name }}">
+            <div class="review-critic">
+                <div class="review-critic-top">
+                    <span class="review-critic-name">{{ critic.name }}</span>
+                </div>
+                <div class="review-media">{{ review.publication.short_name.upper() }}</div>
+            </div>
             <div class="review-rating">
                 {% if review.rating_stars %}
                 {% if review.source_url %}
@@ -50,12 +56,6 @@
                 </span>
                 {% endif %}
                 {% endif %}
-            </div>
-            <div class="review-critic">
-                <div class="review-critic-top">
-                    <span class="review-critic-name">{{ critic.name }}</span>
-                </div>
-                <div class="review-media">{{ review.publication.short_name.upper() }}</div>
             </div>
         </div>
         {% endfor %}
