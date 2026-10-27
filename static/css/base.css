@@ -11,19 +11,20 @@
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --transition: all 0.3s ease;
 
-    /* Arvosana-asteikko: selkeä väriasteikko heti hahmotettavaan luettavuuteen.
-       1★ Syvä punainen, 2★ Tiilenpunainen, 3★ Kivenharmaa, 4★ Lämmin meripihka, 5★ Kirkas kulta. */
+  /* Arvosana-asteikko: selkeä, intuitiivinen väriasteikko heti hahmotettavaan luettavuuteen:
+       1★ Crimson Red (huono), 2★ Burnt Orange (vaatimaton), 3★ Warm Honey Amber (tyydyttävä),
+       4★ Fresh Emerald Green (hyvä), 5★ Radiant Gold (erinomainen). */
     --star-1: #b91c1c;
-    --star-2: #9a3412;
-    --star-3: #d6d3d1;
-    --star-4: #f59e0b;
+    --star-2: #a83a12;
+    --star-3: #f59e0b;
+    --star-4: #22c55e;
     --star-5: #ffd60a;
 
     --star-1-top: #d42020;  --star-1-bot: #9a1717;
-    --star-2-top: #c2410c;  --star-2-bot: #7c2d12;
-    --star-3-top: #e4e2e1;  --star-3-bot: #c5c1be;
-    --star-4-top: #f6aa28;  --star-4-bot: #d48809;
-    --star-5-top: #ffdb29;  --star-5-bot: #e5bf00;
+    --star-2-top: #c2410c;  --star-2-bot: #8d2b09;
+    --star-3-top: #fcd34d;  --star-3-bot: #d97706;
+    --star-4-top: #4ade80;  --star-4-bot: #16a34a;
+    --star-5-top: #ffea00;  --star-5-bot: #e5b800;
 
     /* Tähdet ovat aina valkoisia. Kolme ylintä porrasta ovat kuitenkin liian
        vaaleita kantamaan valkoista tekstiä (5★ olisi 1,41:1), joten niillä on
