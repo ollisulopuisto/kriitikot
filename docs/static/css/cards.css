@@ -185,11 +185,14 @@
 }
 
 .review-rating {
-    flex-shrink: 0;
-    margin-right: 1rem;
+    flex: 0 0 6.5rem;
+    width: 6.5rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 0.5rem;
     font-size: 1.1em;
     letter-spacing: 0.0625rem;
-    min-width: 5.5rem;
 }
 
 .review-critic {
@@ -279,8 +282,13 @@
     }
 
     .review-rating {
-        min-width: 4.5rem;
-        margin-right: 0.5rem;
+        flex: 0 0 6.5rem;
+        width: 6.5rem;
+        margin-left: 0.5rem;
+        margin-right: 0;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
     }
 
     .review-critic {
