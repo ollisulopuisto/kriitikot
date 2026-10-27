@@ -422,18 +422,17 @@ th .review-count {
 
 /* Rating Cells */
 .rating-cell {
-    text-align: left;
+    text-align: center;
     width: 7.5em;
     min-width: 7.5em;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    padding: 0.5rem 0.5rem;
+    padding: 0.5rem 0.2rem;
     vertical-align: middle;
 }
 
 th.rating-cell {
     vertical-align: bottom;
-    text-align: center;
 }
 
 th.rating-cell:hover {
@@ -444,7 +443,7 @@ th.rating-cell:hover {
 .rating-link {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     text-decoration: none;
     color: inherit;
     min-height: 2.5rem;
