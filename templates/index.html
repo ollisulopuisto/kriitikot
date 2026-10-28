@@ -115,11 +115,11 @@
                 <!-- Fasetti 1: Arvioiden määrä -->
                 <div class="filter-group group-reviews">
                     <label for="min-reviews-slider">
-                        <span class="filter-icon">🔍</span>
-                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                        <span class="filter-icon" aria-hidden="true">🎬</span>
+                        <span class="slider-label-text">Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="min-reviews-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="min-reviews-slider" title="Vähintään 1 arvostelu" aria-valuetext="Vähintään 1 arvostelu" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -133,11 +133,11 @@
                 <!-- Fasetti 2: Tähdet -->
                 <div class="filter-group group-stars">
                     <label for="star-filter-slider">
-                        <span class="filter-icon">⭐</span>
-                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
+                        <span class="filter-icon" aria-hidden="true">★</span>
+                        <span class="slider-label-text">Arvosanat: <strong id="star-filter-value">Vähintään ★</strong></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="star-filter-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="star-filter-slider" title="Arvosanat: Vähintään ★" aria-valuetext="Arvosanat: Vähintään ★" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -194,9 +194,9 @@
                         </th>
                         {% for critic in all_critics %}
                         <th class="rating-cell" data-critic-id="{{ critic.id }}">
-                            <div class="critic-name">{{ critic.name }}</div>
+                            <div class="critic-name">{% set parts = critic.name.rsplit(' ', 1) %}<span class="critic-given-name">{{ parts[0] }}</span>{% if parts|length > 1 %} <span class="critic-family-name">{{ parts[1] }}</span>{% endif %}</div>
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
-                            <div class="critic-media">{{ critic_media_map[critic.id]|join(', ') }}</div>
+                            <div class="critic-media" title="{{ critic_media_map[critic.id]|join(', ') }}" aria-label="{{ critic_media_map[critic.id]|join(', ') }}">{{ critic_media_map[critic.id]|join(', ')|replace('MUROPAKETTI', 'MURO')|replace('KULTTUURITOIMITUS', 'KUTO') }}</div>
                             {% endif %}
                             <div class="critic-bottom-row">
                                 {% if critic_review_counts and critic.id in critic_review_counts %}

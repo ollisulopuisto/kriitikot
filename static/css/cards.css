@@ -371,8 +371,12 @@
     header h1 { font-size: clamp(1.7rem, 7vw, 2.2rem); }
     .subtitle { font-size: 0.95rem; }
     .header-stats { margin-top: 0.75rem; }
-    .review-critic-top { display: grid; grid-template-columns: minmax(0,1fr) 32px; align-items: center; }
-    .mobile-heart { margin: 0; min-width: 32px; min-height: 36px; display: inline-flex; justify-content: center; align-items: center; }
+    /* The heart belongs to the critic, never to the movie's rating. */
+    .review-critic { padding-left: 0; padding-right: 0; }
+    .review-critic-top { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: .25rem; align-items: center; }
+    .review-critic-name { grid-column: 2; grid-row: 1; }
+    .mobile-heart { grid-column: 1; grid-row: 1; margin: 0; width: 44px; min-height: 44px; display: inline-flex; justify-content: center; align-items: center; }
+    .review-media { margin-left: calc(44px + .25rem); }
 }
 .movie-card-title-row { grid-template-rows: auto auto; align-content: start; }
 .movie-card-review-count, .movie-card-sparkline { align-self: start; }
@@ -387,4 +391,14 @@
     .review-item .rating-pill { padding-left: .3rem; padding-right: .3rem; }
     .review-rating { width: auto; }
     .movie-card-summary .movie-card-review-count { color: #495057; font-size: .9rem; }
+}
+@media (max-width: 768px) {
+    .review-media { overflow-wrap: anywhere; }
+}
+/* Favorite belongs beside the critic text, without a reserved leading lane. */
+@media (max-width: 768px) {
+    .review-critic-top { display: block; }
+    .review-critic-name { display: inline; }
+    .review-critic-top .mobile-heart { display: inline-flex; width: 36px; min-height: 44px; margin: -.5rem 0 -.5rem .125rem; vertical-align: middle; }
+    .review-media { margin-left: 0; }
 }

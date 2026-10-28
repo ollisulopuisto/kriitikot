@@ -101,11 +101,11 @@
                 <!-- Fasetti 1: Arvioiden määrä -->
                 <div class="filter-group group-reviews">
                     <label for="min-reviews-slider">
-                        <span class="filter-icon">🔍</span>
-                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                        <span class="filter-icon" aria-hidden="true">🎬</span>
+                        <span class="slider-label-text">Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="min-reviews-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="min-reviews-slider" title="Vähintään 1 arvostelu" aria-valuetext="Vähintään 1 arvostelu" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -119,11 +119,11 @@
                 <!-- Fasetti 2: Tähdet -->
                 <div class="filter-group group-stars">
                     <label for="star-filter-slider">
-                        <span class="filter-icon">⭐</span>
-                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
+                        <span class="filter-icon" aria-hidden="true">★</span>
+                        <span class="slider-label-text">Arvosanat: <strong id="star-filter-value">Vähintään ★</strong></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="star-filter-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="star-filter-slider" title="Arvosanat: Vähintään ★" aria-valuetext="Arvosanat: Vähintään ★" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -230,9 +230,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="66">
-                            <div class="critic-name">Aisha Benahmed</div>
+                            <div class="critic-name"><span class="critic-given-name">Aisha</span> <span class="critic-family-name">Benahmed</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -242,9 +242,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="26">
-                            <div class="critic-name">Aki Lehti</div>
+                            <div class="critic-name"><span class="critic-given-name">Aki</span> <span class="critic-family-name">Lehti</span></div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -254,9 +254,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="80">
-                            <div class="critic-name">Anni Kanniainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Anni</span> <span class="critic-family-name">Kanniainen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -266,9 +266,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="76">
-                            <div class="critic-name">Anniina Kankaanpää</div>
+                            <div class="critic-name"><span class="critic-given-name">Anniina</span> <span class="critic-family-name">Kankaanpää</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -278,7 +278,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="56">
-                            <div class="critic-name">Anssi Juntto</div>
+                            <div class="critic-name"><span class="critic-given-name">Anssi</span> <span class="critic-family-name">Juntto</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -288,9 +288,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="50">
-                            <div class="critic-name">Antti Selkokari</div>
+                            <div class="critic-name"><span class="critic-given-name">Antti</span> <span class="critic-family-name">Selkokari</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -300,9 +300,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="77">
-                            <div class="critic-name">Arto Köykkä</div>
+                            <div class="critic-name"><span class="critic-given-name">Arto</span> <span class="critic-family-name">Köykkä</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -312,9 +312,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="36">
-                            <div class="critic-name">Eija Niskanen</div>
+                            <div class="critic-name"><span class="critic-given-name">Eija</span> <span class="critic-family-name">Niskanen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -324,9 +324,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="1">
-                            <div class="critic-name">Eleonoora Riihinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Eleonoora</span> <span class="critic-family-name">Riihinen</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -336,9 +336,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="29">
-                            <div class="critic-name">Emmi Koivumäki</div>
+                            <div class="critic-name"><span class="critic-given-name">Emmi</span> <span class="critic-family-name">Koivumäki</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -348,9 +348,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="89">
-                            <div class="critic-name">Episodi</div>
+                            <div class="critic-name"><span class="critic-given-name">Episodi</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -360,9 +360,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="30">
-                            <div class="critic-name">Esa Karell</div>
+                            <div class="critic-name"><span class="critic-given-name">Esa</span> <span class="critic-family-name">Karell</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -372,9 +372,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="49">
-                            <div class="critic-name">Hannele Virsu</div>
+                            <div class="critic-name"><span class="critic-given-name">Hannele</span> <span class="critic-family-name">Virsu</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -384,9 +384,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="22">
-                            <div class="critic-name">Hannu Liekso</div>
+                            <div class="critic-name"><span class="critic-given-name">Hannu</span> <span class="critic-family-name">Liekso</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -396,9 +396,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="47">
-                            <div class="critic-name">Harri Uusitorppa</div>
+                            <div class="critic-name"><span class="critic-given-name">Harri</span> <span class="critic-family-name">Uusitorppa</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -408,9 +408,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="27">
-                            <div class="critic-name">Helinä Laajalahti</div>
+                            <div class="critic-name"><span class="critic-given-name">Helinä</span> <span class="critic-family-name">Laajalahti</span></div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -420,9 +420,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="6">
-                            <div class="critic-name">Henri Waltter Rehnström</div>
+                            <div class="critic-name"><span class="critic-given-name">Henri Waltter</span> <span class="critic-family-name">Rehnström</span></div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -432,9 +432,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="63">
-                            <div class="critic-name">Iikka Taavitsainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Iikka</span> <span class="critic-family-name">Taavitsainen</span></div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -444,9 +444,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="78">
-                            <div class="critic-name">Ilkka Mattila</div>
+                            <div class="critic-name"><span class="critic-given-name">Ilkka</span> <span class="critic-family-name">Mattila</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -456,9 +456,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="46">
-                            <div class="critic-name">Ira Hurskainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Ira</span> <span class="critic-family-name">Hurskainen</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -468,9 +468,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="67">
-                            <div class="critic-name">Jani Tuovinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Jani</span> <span class="critic-family-name">Tuovinen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -480,9 +480,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="64">
-                            <div class="critic-name">Janne Kahila</div>
+                            <div class="critic-name"><span class="critic-given-name">Janne</span> <span class="critic-family-name">Kahila</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -492,9 +492,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="42">
-                            <div class="critic-name">Jesse Raatikainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Jesse</span> <span class="critic-family-name">Raatikainen</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -504,9 +504,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="51">
-                            <div class="critic-name">Joonas Pikkarainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Joonas</span> <span class="critic-family-name">Pikkarainen</span></div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -516,9 +516,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="37">
-                            <div class="critic-name">Jouni Vikman</div>
+                            <div class="critic-name"><span class="critic-given-name">Jouni</span> <span class="critic-family-name">Vikman</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -528,9 +528,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="32">
-                            <div class="critic-name">Juha Rosenqvist</div>
+                            <div class="critic-name"><span class="critic-given-name">Juha</span> <span class="critic-family-name">Rosenqvist</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -540,9 +540,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="25">
-                            <div class="critic-name">Juho Rissanen</div>
+                            <div class="critic-name"><span class="critic-given-name">Juho</span> <span class="critic-family-name">Rissanen</span></div>
                             
-                            <div class="critic-media">IL</div>
+                            <div class="critic-media" title="IL" aria-label="IL">IL</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -552,9 +552,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="43">
-                            <div class="critic-name">Juho Typpö</div>
+                            <div class="critic-name"><span class="critic-given-name">Juho</span> <span class="critic-family-name">Typpö</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -564,9 +564,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="14">
-                            <div class="critic-name">Jussi Ahlroth</div>
+                            <div class="critic-name"><span class="critic-given-name">Jussi</span> <span class="critic-family-name">Ahlroth</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -576,9 +576,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="24">
-                            <div class="critic-name">Jussi Huhtala</div>
+                            <div class="critic-name"><span class="critic-given-name">Jussi</span> <span class="critic-family-name">Huhtala</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -588,9 +588,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="53">
-                            <div class="critic-name">Jussi Lahtonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Jussi</span> <span class="critic-family-name">Lahtonen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -600,9 +600,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="9">
-                            <div class="critic-name">Jussi Virratvuori</div>
+                            <div class="critic-name"><span class="critic-given-name">Jussi</span> <span class="critic-family-name">Virratvuori</span></div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -612,9 +612,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="20">
-                            <div class="critic-name">Justus Elo</div>
+                            <div class="critic-name"><span class="critic-given-name">Justus</span> <span class="critic-family-name">Elo</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -624,9 +624,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="10">
-                            <div class="critic-name">Kalle Kinnunen</div>
+                            <div class="critic-name"><span class="critic-given-name">Kalle</span> <span class="critic-family-name">Kinnunen</span></div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -636,9 +636,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="81">
-                            <div class="critic-name">Kasperi Kainulainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Kasperi</span> <span class="critic-family-name">Kainulainen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -648,9 +648,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="82">
-                            <div class="critic-name">Kirsi Haapamatti</div>
+                            <div class="critic-name"><span class="critic-given-name">Kirsi</span> <span class="critic-family-name">Haapamatti</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -660,7 +660,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="65">
-                            <div class="critic-name">Kulttuuritoimitus</div>
+                            <div class="critic-name"><span class="critic-given-name">Kulttuuritoimitus</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -670,7 +670,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="59">
-                            <div class="critic-name">Lauri Vehkala</div>
+                            <div class="critic-name"><span class="critic-given-name">Lauri</span> <span class="critic-family-name">Vehkala</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -680,9 +680,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="15">
-                            <div class="critic-name">Leena Virtanen</div>
+                            <div class="critic-name"><span class="critic-given-name">Leena</span> <span class="critic-family-name">Virtanen</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -692,9 +692,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="79">
-                            <div class="critic-name">Liina Leikkonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Liina</span> <span class="critic-family-name">Leikkonen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -704,9 +704,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="41">
-                            <div class="critic-name">Luka Lipponen</div>
+                            <div class="critic-name"><span class="critic-given-name">Luka</span> <span class="critic-family-name">Lipponen</span></div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -716,7 +716,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="84">
-                            <div class="critic-name">Luka LipponenTänään 13:24| Päivitettytänään</div>
+                            <div class="critic-name"><span class="critic-given-name">Luka LipponenTänään 13:24|</span> <span class="critic-family-name">Päivitettytänään</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -726,9 +726,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="16">
-                            <div class="critic-name">Maija Alander</div>
+                            <div class="critic-name"><span class="critic-given-name">Maija</span> <span class="critic-family-name">Alander</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -738,9 +738,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="34">
-                            <div class="critic-name">Maija Kääntä</div>
+                            <div class="critic-name"><span class="critic-given-name">Maija</span> <span class="critic-family-name">Kääntä</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -750,9 +750,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="23">
-                            <div class="critic-name">Maria Lättilä</div>
+                            <div class="critic-name"><span class="critic-given-name">Maria</span> <span class="critic-family-name">Lättilä</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -762,9 +762,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="60">
-                            <div class="critic-name">Marita Nyrhinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Marita</span> <span class="critic-family-name">Nyrhinen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -774,9 +774,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="69">
-                            <div class="critic-name">Marja Heinonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Marja</span> <span class="critic-family-name">Heinonen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -786,9 +786,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="70">
-                            <div class="critic-name">Matti Kuusela</div>
+                            <div class="critic-name"><span class="critic-given-name">Matti</span> <span class="critic-family-name">Kuusela</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -798,9 +798,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="18">
-                            <div class="critic-name">Matti Rämö</div>
+                            <div class="critic-name"><span class="critic-given-name">Matti</span> <span class="critic-family-name">Rämö</span></div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -810,9 +810,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="2">
-                            <div class="critic-name">Mikko-Pekka Heikkinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Mikko-Pekka</span> <span class="critic-family-name">Heikkinen</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -822,9 +822,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="71">
-                            <div class="critic-name">Mimosa Linnea Ahderinne</div>
+                            <div class="critic-name"><span class="critic-given-name">Mimosa Linnea</span> <span class="critic-family-name">Ahderinne</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -834,9 +834,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="35">
-                            <div class="critic-name">Muru Vähänikkilä</div>
+                            <div class="critic-name"><span class="critic-given-name">Muru</span> <span class="critic-family-name">Vähänikkilä</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -846,9 +846,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="38">
-                            <div class="critic-name">Nea Pietiläinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Nea</span> <span class="critic-family-name">Pietiläinen</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -858,9 +858,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="44">
-                            <div class="critic-name">Niklas Tirkkonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Niklas</span> <span class="critic-family-name">Tirkkonen</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -870,9 +870,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="45">
-                            <div class="critic-name">Niko Ikonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Niko</span> <span class="critic-family-name">Ikonen</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -882,9 +882,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="7">
-                            <div class="critic-name">Olli-Matti Oinonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Olli-Matti</span> <span class="critic-family-name">Oinonen</span></div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -894,7 +894,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="83">
-                            <div class="critic-name">Olli-Matti OinonenTänään 16:00| Päivitettytänään</div>
+                            <div class="critic-name"><span class="critic-given-name">Olli-Matti OinonenTänään 16:00|</span> <span class="critic-family-name">Päivitettytänään</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -904,9 +904,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="74">
-                            <div class="critic-name">Outi Hakola</div>
+                            <div class="critic-name"><span class="critic-given-name">Outi</span> <span class="critic-family-name">Hakola</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -916,9 +916,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="90">
-                            <div class="critic-name">Pauliina Leinonen</div>
+                            <div class="critic-name"><span class="critic-given-name">Pauliina</span> <span class="critic-family-name">Leinonen</span></div>
                             
-                            <div class="critic-media">IS</div>
+                            <div class="critic-media" title="IS" aria-label="IS">IS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -928,9 +928,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="87">
-                            <div class="critic-name">Pauliina Savola</div>
+                            <div class="critic-name"><span class="critic-given-name">Pauliina</span> <span class="critic-family-name">Savola</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -940,9 +940,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="13">
-                            <div class="critic-name">Pekka Torvinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Pekka</span> <span class="critic-family-name">Torvinen</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -952,9 +952,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="4">
-                            <div class="critic-name">Pertti Avola</div>
+                            <div class="critic-name"><span class="critic-given-name">Pertti</span> <span class="critic-family-name">Avola</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -964,9 +964,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="72">
-                            <div class="critic-name">Petri Hänninen</div>
+                            <div class="critic-name"><span class="critic-given-name">Petri</span> <span class="critic-family-name">Hänninen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -976,9 +976,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="73">
-                            <div class="critic-name">Pilvi Meriläinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Pilvi</span> <span class="critic-family-name">Meriläinen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -988,9 +988,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="5">
-                            <div class="critic-name">Päivi Valotie</div>
+                            <div class="critic-name"><span class="critic-given-name">Päivi</span> <span class="critic-family-name">Valotie</span></div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1000,7 +1000,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="75">
-                            <div class="critic-name">Päivi Valotie, Päivi Valotie, Päivi Valotie</div>
+                            <div class="critic-name"><span class="critic-given-name">Päivi Valotie, Päivi Valotie, Päivi</span> <span class="critic-family-name">Valotie</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1010,9 +1010,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="68">
-                            <div class="critic-name">Rami Nummi</div>
+                            <div class="critic-name"><span class="critic-given-name">Rami</span> <span class="critic-family-name">Nummi</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1022,9 +1022,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="55">
-                            <div class="critic-name">Rane Aunimo</div>
+                            <div class="critic-name"><span class="critic-given-name">Rane</span> <span class="critic-family-name">Aunimo</span></div>
                             
-                            <div class="critic-media">DEMOKRAATTI</div>
+                            <div class="critic-media" title="DEMOKRAATTI" aria-label="DEMOKRAATTI">DEMOKRAATTI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1034,9 +1034,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="31">
-                            <div class="critic-name">Reko Latvanen</div>
+                            <div class="critic-name"><span class="critic-given-name">Reko</span> <span class="critic-family-name">Latvanen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1046,9 +1046,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="57">
-                            <div class="critic-name">Rolf Bamberg</div>
+                            <div class="critic-name"><span class="critic-given-name">Rolf</span> <span class="critic-family-name">Bamberg</span></div>
                             
-                            <div class="critic-media">DEMOKRAATTI</div>
+                            <div class="critic-media" title="DEMOKRAATTI" aria-label="DEMOKRAATTI">DEMOKRAATTI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1058,9 +1058,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="33">
-                            <div class="critic-name">Saana Saarinen</div>
+                            <div class="critic-name"><span class="critic-given-name">Saana</span> <span class="critic-family-name">Saarinen</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1070,9 +1070,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="3">
-                            <div class="critic-name">Sakri Pölönen</div>
+                            <div class="critic-name"><span class="critic-given-name">Sakri</span> <span class="critic-family-name">Pölönen</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1082,9 +1082,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="8">
-                            <div class="critic-name">Santtu Paananen</div>
+                            <div class="critic-name"><span class="critic-given-name">Santtu</span> <span class="critic-family-name">Paananen</span></div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1094,7 +1094,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="54">
-                            <div class="critic-name">Seura</div>
+                            <div class="critic-name"><span class="critic-given-name">Seura</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1104,9 +1104,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="48">
-                            <div class="critic-name">Susanna Bono</div>
+                            <div class="critic-name"><span class="critic-given-name">Susanna</span> <span class="critic-family-name">Bono</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1116,9 +1116,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="12">
-                            <div class="critic-name">Taneli Topelius</div>
+                            <div class="critic-name"><span class="critic-given-name">Taneli</span> <span class="critic-family-name">Topelius</span></div>
                             
-                            <div class="critic-media">IS</div>
+                            <div class="critic-media" title="IS" aria-label="IS">IS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1128,9 +1128,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="28">
-                            <div class="critic-name">Tatu Junni</div>
+                            <div class="critic-name"><span class="critic-given-name">Tatu</span> <span class="critic-family-name">Junni</span></div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1140,9 +1140,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="62">
-                            <div class="critic-name">Teppo Tiilikainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Teppo</span> <span class="critic-family-name">Tiilikainen</span></div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1152,9 +1152,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="11">
-                            <div class="critic-name">Tero Kartastenpää</div>
+                            <div class="critic-name"><span class="critic-given-name">Tero</span> <span class="critic-family-name">Kartastenpää</span></div>
                             
-                            <div class="critic-media">HS, SK</div>
+                            <div class="critic-media" title="HS, SK" aria-label="HS, SK">HS, SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1164,9 +1164,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="91">
-                            <div class="critic-name">Timo Teräsahjo</div>
+                            <div class="critic-name"><span class="critic-given-name">Timo</span> <span class="critic-family-name">Teräsahjo</span></div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1176,9 +1176,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="52">
-                            <div class="critic-name">Tuomo Marttila</div>
+                            <div class="critic-name"><span class="critic-given-name">Tuomo</span> <span class="critic-family-name">Marttila</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1188,9 +1188,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="17">
-                            <div class="critic-name">Tuomo Yrttiaho</div>
+                            <div class="critic-name"><span class="critic-given-name">Tuomo</span> <span class="critic-family-name">Yrttiaho</span></div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1200,7 +1200,7 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="61">
-                            <div class="critic-name">Turun Sanomat</div>
+                            <div class="critic-name"><span class="critic-given-name">Turun</span> <span class="critic-family-name">Sanomat</span></div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1210,9 +1210,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="85">
-                            <div class="critic-name">Unknown</div>
+                            <div class="critic-name"><span class="critic-given-name">Unknown</span></div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1222,9 +1222,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="86">
-                            <div class="critic-name">Verneri Jauhiainen</div>
+                            <div class="critic-name"><span class="critic-given-name">Verneri</span> <span class="critic-family-name">Jauhiainen</span></div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1234,9 +1234,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="39">
-                            <div class="critic-name">Viktoria Murskaja</div>
+                            <div class="critic-name"><span class="critic-given-name">Viktoria</span> <span class="critic-family-name">Murskaja</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1246,9 +1246,9 @@
                         </th>
                         
                         <th class="rating-cell" data-critic-id="21">
-                            <div class="critic-name">Werneri Pihlajamäki</div>
+                            <div class="critic-name"><span class="critic-given-name">Werneri</span> <span class="critic-family-name">Pihlajamäki</span></div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 

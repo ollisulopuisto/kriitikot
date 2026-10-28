@@ -156,10 +156,14 @@ function initReviewCountFilter() {
         const reviewWord = document.getElementById('review-word');
         const word = actualCountValue === 1 ? 'arvostelu' : 'arvostelua';
         if (reviewWord) reviewWord.textContent = word;
+        slider.title = `Vähintään ${actualCountValue} ${word}`;
+        slider.setAttribute('aria-valuetext', slider.title);
     }
 
     // Desktop slider
-    const debouncedFilterByReviewCount = debounceFilter(filterByReviewCount);
+    const debouncedFilterByReviewCount = debounceFilter(value => { filterByReviewCount(value); window.topUpSliderResults?.(); });
+    slider.addEventListener('pointerdown', () => window.rememberSliderWindow?.());
+    slider.addEventListener('keydown', () => window.rememberSliderWindow?.());
     slider.addEventListener('input', function () {
         const sliderPos = parseInt(this.value);
         const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
@@ -183,6 +187,7 @@ function initReviewCountFilter() {
         let currentSliderPos = 1;
 
         const updateReviewStepper = (newSliderPos, shouldFilter = true) => {
+            if (shouldFilter) window.rememberSliderWindow?.();
             currentSliderPos = Math.max(1, Math.min(5, newSliderPos));
             const mappedValue = reviewValueMapping[currentSliderPos] || currentSliderPos;
             
@@ -193,6 +198,7 @@ function initReviewCountFilter() {
 
             if (shouldFilter) {
                 filterByReviewCount(mappedValue);
+                window.topUpSliderResults?.();
             }
 
             reviewsMinusBtn.disabled = currentSliderPos <= 1;
@@ -236,6 +242,8 @@ function initStarFilter() {
         const label = labels[value] || 'Vähintään ★';
         const mobileLabel = mobileLabels[value] || '★';
         if (starValueDisplay) starValueDisplay.innerHTML = label;
+        starSlider.title = `Arvosanat: ${label}`;
+        starSlider.setAttribute('aria-valuetext', starSlider.title);
         if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
     }
 
@@ -355,7 +363,9 @@ function initStarFilter() {
     }
 
     // Desktop slider
-    const debouncedFilterByStars = debounceFilter(filterByStars);
+    const debouncedFilterByStars = debounceFilter(value => { filterByStars(value); window.topUpSliderResults?.(); });
+    starSlider.addEventListener('pointerdown', () => window.rememberSliderWindow?.());
+    starSlider.addEventListener('keydown', () => window.rememberSliderWindow?.());
     starSlider.addEventListener('input', function () {
         const value = parseInt(this.value);
         updateStarLabel(value);
@@ -371,6 +381,7 @@ function initStarFilter() {
         let currentValue = 1;
 
         const updateStarStepper = (newValue, shouldFilter = true) => {
+            if (shouldFilter) window.rememberSliderWindow?.();
             currentValue = Math.max(1, Math.min(5, newValue));
 
             updateStarLabel(currentValue);
@@ -378,6 +389,7 @@ function initStarFilter() {
 
             if (shouldFilter) {
                 filterByStars(currentValue);
+                window.topUpSliderResults?.();
             }
 
             starsMinusBtn.disabled = (currentValue <= 1);
@@ -667,23 +679,27 @@ function initFavoriteFilter() {
             if (!heart) {
                 heart = document.createElement('span');
                 heart.className = 'heart-icon';
+                heart.tabIndex = 0; heart.setAttribute('role', 'button');
+                heart.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') window.toggleFavorite(criticId, e); };
                 heart.innerHTML = '♥';
                 heart.title = 'Merkitse suosikkikriitikoksi';
                 heart.onclick = (e) => window.toggleFavorite(criticId, e);
 
-                // Insert into critic-bottom-row
-                const bottomRow = th.querySelector('.critic-bottom-row');
-                if (bottomRow) {
-                    bottomRow.appendChild(heart);
-                } else {
-                    th.appendChild(heart);
-                }
+                const name = th.querySelector('.critic-name');
+                if (name) {
+                    const identity = document.createElement('div');
+                    identity.className = 'critic-identity';
+                    name.before(identity);
+                    identity.append(name, heart);
+                } else th.appendChild(heart);
             }
 
             if (favorites.includes(criticId)) {
+                heart.setAttribute('aria-label', 'Poista suosikkikriitikoista'); heart.setAttribute('aria-pressed', 'true');
                 heart.classList.add('active');
                 heart.innerHTML = '❤️';
             } else {
+                heart.setAttribute('aria-label', 'Merkitse suosikkikriitikoksi'); heart.setAttribute('aria-pressed', 'false');
                 heart.classList.remove('active');
                 heart.innerHTML = '♡';
             }
@@ -699,16 +715,20 @@ function initFavoriteFilter() {
                 if (!heart) {
                     heart = document.createElement('span');
                     heart.className = 'heart-icon mobile-heart';
+                    heart.tabIndex = 0; heart.setAttribute('role', 'button');
+                    heart.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') window.toggleFavorite(criticId, e); };
                     heart.innerHTML = '♥';
                     heart.onclick = (e) => window.toggleFavorite(criticId, e);
                     criticNameSpan.parentNode.insertBefore(heart, criticNameSpan.nextSibling);
                 }
 
                 if (favorites.includes(criticId)) {
-                    heart.classList.add('active');
+                    heart.setAttribute('aria-label', 'Poista suosikkikriitikoista'); heart.setAttribute('aria-pressed', 'true');
+                heart.classList.add('active');
                     heart.innerHTML = '❤️';
                 } else {
-                    heart.classList.remove('active');
+                    heart.setAttribute('aria-label', 'Merkitse suosikkikriitikoksi'); heart.setAttribute('aria-pressed', 'false');
+                heart.classList.remove('active');
                     heart.innerHTML = '♡';
                 }
             }
@@ -945,7 +965,7 @@ function reconcileFacetVisibility() {
         headers.forEach(header => {
             const cell = row.cells[header.cellIndex];
             cell?.querySelectorAll('.rating-pill, .no-rating').forEach(review => {
-                const pub = review.dataset.publication || header.querySelector('.critic-media')?.textContent.trim();
+                const pub = review.dataset.publication || (header.querySelector('.critic-media')?.getAttribute('aria-label') || header.querySelector('.critic-media')?.textContent.trim());
                 const ok = matches(header.dataset.criticId, pub, review.querySelector('.rating-stars')?.textContent.trim().length || 0);
                 review.style.display = ok ? '' : 'none'; visible ||= ok;
             });

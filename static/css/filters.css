@@ -559,3 +559,69 @@ tr.dimmed {
     .group-reviews, .group-stars { grid-column: 3; }
     .media-group { grid-column: 4; }
 }
+/* Keep favorites under ordering, leaving room for publication choices. */
+@media (min-width: 1101px) {
+    .desktop-filters { grid-template-columns: minmax(13rem, 1.2fr) minmax(13rem, 1.2fr) minmax(17rem, 2fr); }
+    .desktop-filters > .sorting-group { grid-column: 1; grid-row: 1; }
+    .group-favorites { grid-column: 1; grid-row: 2; align-self: start; }
+    .group-favorites::before { content: none; }
+    .group-reviews, .group-stars { grid-column: 2; }
+    .media-group { grid-column: 3; }
+}
+@media (min-width: 1101px) {
+    .desktop-filters { grid-template-rows: auto auto; align-content: start; row-gap: .375rem; }
+    .desktop-filters > .sorting-group { grid-row: 1 / 3; padding-bottom: 2rem; }
+    .group-favorites { grid-row: 1 / 3; align-self: end; }
+    .group-reviews, .group-stars { align-self: start; }
+}
+/* Two icon-led slider rows; full labels remain in the accessibility tree. */
+@media (min-width: 769px) {
+    .desktop-filters .group-reviews, .desktop-filters .group-stars { display: grid; grid-template-columns: 1.5rem minmax(0,1fr); align-items: center; gap: .5rem; }
+    .desktop-filters .group-reviews label, .desktop-filters .group-stars label { margin: 0; min-height: 32px; justify-content: center; }
+    .desktop-filters .slider-label-text { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .desktop-filters .slider-labels { display: none; }
+    .desktop-filters .slider-container { width: 100%; }
+}
+@media (min-width: 1101px) {
+    .desktop-filters > .sorting-group { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .375rem; padding-bottom: 2rem; }
+    .desktop-filters > .sorting-group::before { grid-column: 1 / -1; }
+    .desktop-filters > .sorting-group .facet-btn { white-space: normal; }
+    .desktop-filters { row-gap: .25rem; }
+}
+@media (min-width: 769px) {
+    .desktop-filters .slider-container { display: flex; flex-direction: column-reverse; }
+    .desktop-filters .slider-labels { display: flex; margin: 0 0 .125rem; }
+}
+
+@media (min-width: 769px) {
+    .desktop-filters .group-reviews .filter-icon, .desktop-filters .group-stars .filter-icon { font-size: 1.35rem; line-height: 1; }
+    .desktop-filters .media-group { align-items: stretch; }
+    .desktop-filters .media-group > label { align-self: stretch; justify-content: flex-start; margin: 0; padding: 0; }
+    .desktop-filters .media-group > label .filter-icon { display: none; }
+}
+/* Tablet: keep related controls in compact columns, not loose full-width rows. */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters { grid-template-columns: minmax(11rem,1fr) minmax(10rem,1fr) minmax(14rem,1.5fr); grid-template-rows: auto auto; gap: .375rem .75rem; padding: .75rem 1rem; }
+    .desktop-filters > .filters-container { display: contents; }
+    .desktop-filters > .sorting-group { grid-column: 1; grid-row: 1 / 3; display: grid; grid-template-columns: 1fr; gap: .25rem; padding: 0 0 1.75rem; }
+    .desktop-filters > .sorting-group::before { height: 1rem; line-height: 1rem; }
+    .desktop-filters > .sorting-group .facet-btn { min-height: 30px; padding: .25rem .5rem; justify-content: flex-start; }
+    .desktop-filters .group-favorites { grid-column: 1; grid-row: 1 / 3; align-self: end; padding: 0; }
+    .desktop-filters .group-reviews { grid-column: 2; grid-row: 1; }
+    .desktop-filters .group-stars { grid-column: 2; grid-row: 2; }
+    .desktop-filters .media-group { grid-column: 3; grid-row: 1 / 3; gap: .375rem; }
+    .desktop-filters .media-filter-buttons { gap: .25rem; }
+    .desktop-filters .media-filter-btn { min-height: 28px; font-size: .75rem; padding: .15rem .4rem; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters > .sorting-group { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; padding-bottom: 1.75rem; }
+    .desktop-filters > .sorting-group::before { grid-column: 1 / -1; }
+    .desktop-filters > .sorting-group .facet-btn { width: auto; white-space: normal; line-height: 1.2; gap: .25rem; }
+    .desktop-filters .group-reviews, .desktop-filters .group-stars { align-self: start; }
+    .desktop-filters .group-reviews > label, .desktop-filters .group-stars > label { align-self: end; height: 32px; min-height: 32px; }
+    .desktop-filters .media-group > label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .desktop-filters .media-group { padding-top: .125rem; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters .group-reviews > label, .desktop-filters .group-stars > label { height: 22px; min-height: 22px; }
+}

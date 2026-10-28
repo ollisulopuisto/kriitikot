@@ -825,7 +825,8 @@ function syncCriticOrderFromDom() {
     allCritics.forEach(c => { allCriticsMap[c.id] = c; });
 }
 
-function loadMoreMovies() {
+function loadMoreMovies(batchSize = movieLimit) {
+    if (typeof batchSize !== 'number') batchSize = movieLimit;
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
 
@@ -849,7 +850,7 @@ function loadMoreMovies() {
         return;
     }
 
-    const moviesToRender = movieTitles.slice(currentMovieOffset, currentMovieOffset + movieLimit);
+    const moviesToRender = movieTitles.slice(currentMovieOffset, currentMovieOffset + batchSize);
 
     if (moviesToRender.length === 0) {
         loadMoreButton.parentElement.style.display = 'none';
@@ -898,6 +899,63 @@ function loadMoreMovies() {
     loadMoreButton.disabled = false;
     loadMoreButton.textContent = originalText;
 }
+
+
+// Slider top-ups are temporary pagination windows, remembered per facet state.
+let sliderWindows = null;
+let sliderWindowKey = null;
+let sliderBaseOffset = null;
+function sliderResultsKey() {
+    return JSON.stringify([
+        document.getElementById('min-reviews-slider')?.value,
+        document.getElementById('star-filter-slider')?.value,
+        [...document.querySelectorAll('.media-filter-btn.active, .filter-publication.active')].map(e => e.dataset.publication).sort(),
+        document.querySelector('thead th[data-filtered="true"]')?.dataset.criticId,
+        !!window.isFavoritesFilterActive?.(),
+        [...document.querySelectorAll('thead th.rating-cell')].filter(h => window.isFavoriteCritic?.(h.dataset.criticId)).map(h => h.dataset.criticId).sort(),
+        document.querySelector('.movie-card[data-filtered="true"]')?.dataset.movie
+    ]);
+}
+function rememberSliderWindow() {
+    if (sliderWindows) return;
+    sliderWindows = new Map();
+    sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
+    sliderWindowKey = sliderResultsKey();
+    sliderWindows.set(sliderWindowKey, sliderBaseOffset);
+}
+function topUpSliderResults() {
+    // Initialization and pagination reapplication never enter this function.
+    if (!sliderWindows) return;
+    sliderWindows.set(sliderWindowKey, window.currentMovieOffset ?? currentMovieOffset);
+    const key = sliderResultsKey();
+    const restoring = sliderWindows.has(key);
+    const offset = sliderWindows.get(key) ?? sliderBaseOffset;
+    const keep = new Set(movieTitles.slice(0, offset));
+    document.querySelectorAll('.movie-card').forEach(card => {
+        if (!keep.has(card.dataset.movie)) card.remove();
+    });
+    document.querySelectorAll('#review-container-desktop tbody tr').forEach(row => {
+        const title = row.querySelector('.movie-title-main')?.textContent.trim();
+        if (title && !keep.has(title)) row.remove();
+    });
+    const rendered = document.querySelectorAll('.movie-card').length;
+    currentMovieOffset = Math.min(rendered, offset);
+    window.currentMovieOffset = currentMovieOffset;
+    if (currentMovieOffset < offset) loadMoreMovies(offset - currentMovieOffset);
+    sliderWindowKey = key;
+    window.reapplyAllFacets?.();
+    const visibleCount = () => [...document.querySelectorAll('.movie-card')].filter(card => card.style.display !== 'none').length;
+    while (!restoring && visibleCount() < movieLimit && currentMovieOffset < movieTitles.length) {
+        const before = currentMovieOffset;
+        loadMoreMovies(movieLimit - visibleCount());
+        if (currentMovieOffset <= before) break;
+    }
+    sliderWindows.set(key, currentMovieOffset);
+    const button = document.getElementById('load-more-button');
+    if (button) button.parentElement.style.display = currentMovieOffset < movieTitles.length ? 'block' : 'none';
+}
+window.rememberSliderWindow = rememberSliderWindow;
+window.topUpSliderResults = topUpSliderResults;
 
 
 document.addEventListener('DOMContentLoaded', () => {
