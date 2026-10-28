@@ -588,3 +588,7 @@ tr.dimmed {
     .desktop-filters > .sorting-group .facet-btn { white-space: normal; }
     .desktop-filters { row-gap: .25rem; }
 }
+@media (min-width: 769px) {
+    .desktop-filters .slider-container { display: flex; flex-direction: column-reverse; }
+    .desktop-filters .slider-labels { display: flex; margin: 0 0 .125rem; }
+}
