@@ -101,11 +101,11 @@
                 <!-- Fasetti 1: Arvioiden määrä -->
                 <div class="filter-group group-reviews">
                     <label for="min-reviews-slider">
-                        <span class="filter-icon">🔍</span>
-                        Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span>
+                        <span class="filter-icon" aria-hidden="true">🎬</span>
+                        <span class="slider-label-text">Vähintään <strong id="min-reviews-value">1</strong> <span id="review-word">arvostelu</span></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="min-reviews-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="min-reviews-slider" title="Vähintään 1 arvostelu" aria-valuetext="Vähintään 1 arvostelu" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -119,11 +119,11 @@
                 <!-- Fasetti 2: Tähdet -->
                 <div class="filter-group group-stars">
                     <label for="star-filter-slider">
-                        <span class="filter-icon">⭐</span>
-                        Arvosanat: <strong id="star-filter-value">Vähintään ★</strong>
+                        <span class="filter-icon" aria-hidden="true">★</span>
+                        <span class="slider-label-text">Arvosanat: <strong id="star-filter-value">Vähintään ★</strong></span>
                     </label>
                     <div class="slider-container">
-                        <input type="range" id="star-filter-slider" min="1" max="5" value="1" step="1" class="slider">
+                        <input type="range" id="star-filter-slider" title="Arvosanat: Vähintään ★" aria-valuetext="Arvosanat: Vähintään ★" min="1" max="5" value="1" step="1" class="slider">
                         <div class="slider-labels">
                             <span>1</span>
                             <span>2</span>
@@ -232,7 +232,7 @@
                         <th class="rating-cell" data-critic-id="66">
                             <div class="critic-name">Aisha Benahmed</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -244,7 +244,7 @@
                         <th class="rating-cell" data-critic-id="26">
                             <div class="critic-name">Aki Lehti</div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -256,7 +256,7 @@
                         <th class="rating-cell" data-critic-id="80">
                             <div class="critic-name">Anni Kanniainen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -268,7 +268,7 @@
                         <th class="rating-cell" data-critic-id="76">
                             <div class="critic-name">Anniina Kankaanpää</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -290,7 +290,7 @@
                         <th class="rating-cell" data-critic-id="50">
                             <div class="critic-name">Antti Selkokari</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -302,7 +302,7 @@
                         <th class="rating-cell" data-critic-id="77">
                             <div class="critic-name">Arto Köykkä</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -314,7 +314,7 @@
                         <th class="rating-cell" data-critic-id="36">
                             <div class="critic-name">Eija Niskanen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -326,7 +326,7 @@
                         <th class="rating-cell" data-critic-id="1">
                             <div class="critic-name">Eleonoora Riihinen</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -338,7 +338,7 @@
                         <th class="rating-cell" data-critic-id="29">
                             <div class="critic-name">Emmi Koivumäki</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -350,7 +350,7 @@
                         <th class="rating-cell" data-critic-id="89">
                             <div class="critic-name">Episodi</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -362,7 +362,7 @@
                         <th class="rating-cell" data-critic-id="30">
                             <div class="critic-name">Esa Karell</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -374,7 +374,7 @@
                         <th class="rating-cell" data-critic-id="49">
                             <div class="critic-name">Hannele Virsu</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -386,7 +386,7 @@
                         <th class="rating-cell" data-critic-id="22">
                             <div class="critic-name">Hannu Liekso</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -398,7 +398,7 @@
                         <th class="rating-cell" data-critic-id="47">
                             <div class="critic-name">Harri Uusitorppa</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -410,7 +410,7 @@
                         <th class="rating-cell" data-critic-id="27">
                             <div class="critic-name">Helinä Laajalahti</div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -422,7 +422,7 @@
                         <th class="rating-cell" data-critic-id="6">
                             <div class="critic-name">Henri Waltter Rehnström</div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -434,7 +434,7 @@
                         <th class="rating-cell" data-critic-id="63">
                             <div class="critic-name">Iikka Taavitsainen</div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -446,7 +446,7 @@
                         <th class="rating-cell" data-critic-id="78">
                             <div class="critic-name">Ilkka Mattila</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -458,7 +458,7 @@
                         <th class="rating-cell" data-critic-id="46">
                             <div class="critic-name">Ira Hurskainen</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -470,7 +470,7 @@
                         <th class="rating-cell" data-critic-id="67">
                             <div class="critic-name">Jani Tuovinen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -482,7 +482,7 @@
                         <th class="rating-cell" data-critic-id="64">
                             <div class="critic-name">Janne Kahila</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -494,7 +494,7 @@
                         <th class="rating-cell" data-critic-id="42">
                             <div class="critic-name">Jesse Raatikainen</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -506,7 +506,7 @@
                         <th class="rating-cell" data-critic-id="51">
                             <div class="critic-name">Joonas Pikkarainen</div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -518,7 +518,7 @@
                         <th class="rating-cell" data-critic-id="37">
                             <div class="critic-name">Jouni Vikman</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -530,7 +530,7 @@
                         <th class="rating-cell" data-critic-id="32">
                             <div class="critic-name">Juha Rosenqvist</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -542,7 +542,7 @@
                         <th class="rating-cell" data-critic-id="25">
                             <div class="critic-name">Juho Rissanen</div>
                             
-                            <div class="critic-media">IL</div>
+                            <div class="critic-media" title="IL" aria-label="IL">IL</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -554,7 +554,7 @@
                         <th class="rating-cell" data-critic-id="43">
                             <div class="critic-name">Juho Typpö</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -566,7 +566,7 @@
                         <th class="rating-cell" data-critic-id="14">
                             <div class="critic-name">Jussi Ahlroth</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -578,7 +578,7 @@
                         <th class="rating-cell" data-critic-id="24">
                             <div class="critic-name">Jussi Huhtala</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -590,7 +590,7 @@
                         <th class="rating-cell" data-critic-id="53">
                             <div class="critic-name">Jussi Lahtonen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -602,7 +602,7 @@
                         <th class="rating-cell" data-critic-id="9">
                             <div class="critic-name">Jussi Virratvuori</div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -614,7 +614,7 @@
                         <th class="rating-cell" data-critic-id="20">
                             <div class="critic-name">Justus Elo</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -626,7 +626,7 @@
                         <th class="rating-cell" data-critic-id="10">
                             <div class="critic-name">Kalle Kinnunen</div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -638,7 +638,7 @@
                         <th class="rating-cell" data-critic-id="81">
                             <div class="critic-name">Kasperi Kainulainen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -650,7 +650,7 @@
                         <th class="rating-cell" data-critic-id="82">
                             <div class="critic-name">Kirsi Haapamatti</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -682,7 +682,7 @@
                         <th class="rating-cell" data-critic-id="15">
                             <div class="critic-name">Leena Virtanen</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -694,7 +694,7 @@
                         <th class="rating-cell" data-critic-id="79">
                             <div class="critic-name">Liina Leikkonen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -706,7 +706,7 @@
                         <th class="rating-cell" data-critic-id="41">
                             <div class="critic-name">Luka Lipponen</div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -728,7 +728,7 @@
                         <th class="rating-cell" data-critic-id="16">
                             <div class="critic-name">Maija Alander</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -740,7 +740,7 @@
                         <th class="rating-cell" data-critic-id="34">
                             <div class="critic-name">Maija Kääntä</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -752,7 +752,7 @@
                         <th class="rating-cell" data-critic-id="23">
                             <div class="critic-name">Maria Lättilä</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -764,7 +764,7 @@
                         <th class="rating-cell" data-critic-id="60">
                             <div class="critic-name">Marita Nyrhinen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -776,7 +776,7 @@
                         <th class="rating-cell" data-critic-id="69">
                             <div class="critic-name">Marja Heinonen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -788,7 +788,7 @@
                         <th class="rating-cell" data-critic-id="70">
                             <div class="critic-name">Matti Kuusela</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -800,7 +800,7 @@
                         <th class="rating-cell" data-critic-id="18">
                             <div class="critic-name">Matti Rämö</div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -812,7 +812,7 @@
                         <th class="rating-cell" data-critic-id="2">
                             <div class="critic-name">Mikko-Pekka Heikkinen</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -824,7 +824,7 @@
                         <th class="rating-cell" data-critic-id="71">
                             <div class="critic-name">Mimosa Linnea Ahderinne</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -836,7 +836,7 @@
                         <th class="rating-cell" data-critic-id="35">
                             <div class="critic-name">Muru Vähänikkilä</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -848,7 +848,7 @@
                         <th class="rating-cell" data-critic-id="38">
                             <div class="critic-name">Nea Pietiläinen</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -860,7 +860,7 @@
                         <th class="rating-cell" data-critic-id="44">
                             <div class="critic-name">Niklas Tirkkonen</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -872,7 +872,7 @@
                         <th class="rating-cell" data-critic-id="45">
                             <div class="critic-name">Niko Ikonen</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -884,7 +884,7 @@
                         <th class="rating-cell" data-critic-id="7">
                             <div class="critic-name">Olli-Matti Oinonen</div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -906,7 +906,7 @@
                         <th class="rating-cell" data-critic-id="74">
                             <div class="critic-name">Outi Hakola</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -918,7 +918,7 @@
                         <th class="rating-cell" data-critic-id="90">
                             <div class="critic-name">Pauliina Leinonen</div>
                             
-                            <div class="critic-media">IS</div>
+                            <div class="critic-media" title="IS" aria-label="IS">IS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -930,7 +930,7 @@
                         <th class="rating-cell" data-critic-id="87">
                             <div class="critic-name">Pauliina Savola</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -942,7 +942,7 @@
                         <th class="rating-cell" data-critic-id="13">
                             <div class="critic-name">Pekka Torvinen</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -954,7 +954,7 @@
                         <th class="rating-cell" data-critic-id="4">
                             <div class="critic-name">Pertti Avola</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -966,7 +966,7 @@
                         <th class="rating-cell" data-critic-id="72">
                             <div class="critic-name">Petri Hänninen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -978,7 +978,7 @@
                         <th class="rating-cell" data-critic-id="73">
                             <div class="critic-name">Pilvi Meriläinen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -990,7 +990,7 @@
                         <th class="rating-cell" data-critic-id="5">
                             <div class="critic-name">Päivi Valotie</div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1012,7 +1012,7 @@
                         <th class="rating-cell" data-critic-id="68">
                             <div class="critic-name">Rami Nummi</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1024,7 +1024,7 @@
                         <th class="rating-cell" data-critic-id="55">
                             <div class="critic-name">Rane Aunimo</div>
                             
-                            <div class="critic-media">DEMOKRAATTI</div>
+                            <div class="critic-media" title="DEMOKRAATTI" aria-label="DEMOKRAATTI">DEMOKRAATTI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1036,7 +1036,7 @@
                         <th class="rating-cell" data-critic-id="31">
                             <div class="critic-name">Reko Latvanen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1048,7 +1048,7 @@
                         <th class="rating-cell" data-critic-id="57">
                             <div class="critic-name">Rolf Bamberg</div>
                             
-                            <div class="critic-media">DEMOKRAATTI</div>
+                            <div class="critic-media" title="DEMOKRAATTI" aria-label="DEMOKRAATTI">DEMOKRAATTI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1060,7 +1060,7 @@
                         <th class="rating-cell" data-critic-id="33">
                             <div class="critic-name">Saana Saarinen</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1072,7 +1072,7 @@
                         <th class="rating-cell" data-critic-id="3">
                             <div class="critic-name">Sakri Pölönen</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1084,7 +1084,7 @@
                         <th class="rating-cell" data-critic-id="8">
                             <div class="critic-name">Santtu Paananen</div>
                             
-                            <div class="critic-media">KSML</div>
+                            <div class="critic-media" title="KSML" aria-label="KSML">KSML</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1106,7 +1106,7 @@
                         <th class="rating-cell" data-critic-id="48">
                             <div class="critic-name">Susanna Bono</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1118,7 +1118,7 @@
                         <th class="rating-cell" data-critic-id="12">
                             <div class="critic-name">Taneli Topelius</div>
                             
-                            <div class="critic-media">IS</div>
+                            <div class="critic-media" title="IS" aria-label="IS">IS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1130,7 +1130,7 @@
                         <th class="rating-cell" data-critic-id="28">
                             <div class="critic-name">Tatu Junni</div>
                             
-                            <div class="critic-media">MUROPAKETTI</div>
+                            <div class="critic-media" title="MUROPAKETTI" aria-label="MUROPAKETTI">MURO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1142,7 +1142,7 @@
                         <th class="rating-cell" data-critic-id="62">
                             <div class="critic-name">Teppo Tiilikainen</div>
                             
-                            <div class="critic-media">SK</div>
+                            <div class="critic-media" title="SK" aria-label="SK">SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1154,7 +1154,7 @@
                         <th class="rating-cell" data-critic-id="11">
                             <div class="critic-name">Tero Kartastenpää</div>
                             
-                            <div class="critic-media">HS, SK</div>
+                            <div class="critic-media" title="HS, SK" aria-label="HS, SK">HS, SK</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1166,7 +1166,7 @@
                         <th class="rating-cell" data-critic-id="91">
                             <div class="critic-name">Timo Teräsahjo</div>
                             
-                            <div class="critic-media">KULTTUURITOIMITUS</div>
+                            <div class="critic-media" title="KULTTUURITOIMITUS" aria-label="KULTTUURITOIMITUS">KUTO</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1178,7 +1178,7 @@
                         <th class="rating-cell" data-critic-id="52">
                             <div class="critic-name">Tuomo Marttila</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1190,7 +1190,7 @@
                         <th class="rating-cell" data-critic-id="17">
                             <div class="critic-name">Tuomo Yrttiaho</div>
                             
-                            <div class="critic-media">HS</div>
+                            <div class="critic-media" title="HS" aria-label="HS">HS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1212,7 +1212,7 @@
                         <th class="rating-cell" data-critic-id="85">
                             <div class="critic-name">Unknown</div>
                             
-                            <div class="critic-media">TS</div>
+                            <div class="critic-media" title="TS" aria-label="TS">TS</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1224,7 +1224,7 @@
                         <th class="rating-cell" data-critic-id="86">
                             <div class="critic-name">Verneri Jauhiainen</div>
                             
-                            <div class="critic-media">FILMOHOLIC</div>
+                            <div class="critic-media" title="FILMOHOLIC" aria-label="FILMOHOLIC">FILMOHOLIC</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1236,7 +1236,7 @@
                         <th class="rating-cell" data-critic-id="39">
                             <div class="critic-name">Viktoria Murskaja</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 
@@ -1248,7 +1248,7 @@
                         <th class="rating-cell" data-critic-id="21">
                             <div class="critic-name">Werneri Pihlajamäki</div>
                             
-                            <div class="critic-media">EPISODI</div>
+                            <div class="critic-media" title="EPISODI" aria-label="EPISODI">EPISODI</div>
                             
                             <div class="critic-bottom-row">
                                 

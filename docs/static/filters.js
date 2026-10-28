@@ -156,6 +156,8 @@ function initReviewCountFilter() {
         const reviewWord = document.getElementById('review-word');
         const word = actualCountValue === 1 ? 'arvostelu' : 'arvostelua';
         if (reviewWord) reviewWord.textContent = word;
+        slider.title = `Vähintään ${actualCountValue} ${word}`;
+        slider.setAttribute('aria-valuetext', slider.title);
     }
 
     // Desktop slider
@@ -240,6 +242,8 @@ function initStarFilter() {
         const label = labels[value] || 'Vähintään ★';
         const mobileLabel = mobileLabels[value] || '★';
         if (starValueDisplay) starValueDisplay.innerHTML = label;
+        starSlider.title = `Arvosanat: ${label}`;
+        starSlider.setAttribute('aria-valuetext', starSlider.title);
         if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
     }
 
@@ -961,7 +965,7 @@ function reconcileFacetVisibility() {
         headers.forEach(header => {
             const cell = row.cells[header.cellIndex];
             cell?.querySelectorAll('.rating-pill, .no-rating').forEach(review => {
-                const pub = review.dataset.publication || header.querySelector('.critic-media')?.textContent.trim();
+                const pub = review.dataset.publication || (header.querySelector('.critic-media')?.getAttribute('aria-label') || header.querySelector('.critic-media')?.textContent.trim());
                 const ok = matches(header.dataset.criticId, pub, review.querySelector('.rating-stars')?.textContent.trim().length || 0);
                 review.style.display = ok ? '' : 'none'; visible ||= ok;
             });

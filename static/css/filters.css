@@ -574,3 +574,17 @@ tr.dimmed {
     .group-favorites { grid-row: 1 / 3; align-self: end; }
     .group-reviews, .group-stars { align-self: start; }
 }
+/* Two icon-led slider rows; full labels remain in the accessibility tree. */
+@media (min-width: 769px) {
+    .desktop-filters .group-reviews, .desktop-filters .group-stars { display: grid; grid-template-columns: 1.5rem minmax(0,1fr); align-items: center; gap: .5rem; }
+    .desktop-filters .group-reviews label, .desktop-filters .group-stars label { margin: 0; min-height: 32px; justify-content: center; }
+    .desktop-filters .slider-label-text { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .desktop-filters .slider-labels { display: none; }
+    .desktop-filters .slider-container { width: 100%; }
+}
+@media (min-width: 1101px) {
+    .desktop-filters > .sorting-group { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .375rem; padding-bottom: 2rem; }
+    .desktop-filters > .sorting-group::before { grid-column: 1 / -1; }
+    .desktop-filters > .sorting-group .facet-btn { white-space: normal; }
+    .desktop-filters { row-gap: .25rem; }
+}
