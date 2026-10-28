@@ -613,3 +613,15 @@ tr.dimmed {
     .desktop-filters .media-filter-buttons { gap: .25rem; }
     .desktop-filters .media-filter-btn { min-height: 28px; font-size: .75rem; padding: .15rem .4rem; }
 }
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters > .sorting-group { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; padding-bottom: 1.75rem; }
+    .desktop-filters > .sorting-group::before { grid-column: 1 / -1; }
+    .desktop-filters > .sorting-group .facet-btn { width: auto; white-space: normal; line-height: 1.2; gap: .25rem; }
+    .desktop-filters .group-reviews, .desktop-filters .group-stars { align-self: start; }
+    .desktop-filters .group-reviews > label, .desktop-filters .group-stars > label { align-self: end; height: 32px; min-height: 32px; }
+    .desktop-filters .media-group > label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .desktop-filters .media-group { padding-top: .125rem; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters .group-reviews > label, .desktop-filters .group-stars > label { height: 22px; min-height: 22px; }
+}
