@@ -147,6 +147,7 @@ function initReviewCountFilter() {
             updateCriticColumnVisibility();
         }
 
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
         return hiddenCount;
     }
     window.filterByReviewCount = filterByReviewCount;
@@ -350,6 +351,7 @@ function initStarFilter() {
         if (typeof updateCriticColumnVisibility === 'function') {
             updateCriticColumnVisibility();
         }
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
     }
 
     // Desktop slider
@@ -756,6 +758,7 @@ function initFavoriteFilter() {
         if (enabled) {
             if (window.showResetButton) window.showResetButton();
         }
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
     };
 
     // Toggle Event Listeners
@@ -906,12 +909,52 @@ function applyPublicationFilter(publications) {
             updateCriticColumnVisibility();
         }
 
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
         setTimeout(() => {
             if (window.removeFillerColumns) window.removeFillerColumns();
             if (window.addFillerColumns) window.addFillerColumns();
         }, 50);
     }
 }
+
+// One final intersection after legacy facet helpers. Never clear another facet.
+function reconcileFacetVisibility() {
+    const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
+    const criticId = selected?.dataset.criticId;
+    const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')].map(b => (b.dataset.publication || '').toUpperCase()))];
+    const minStars = Number(document.getElementById('star-filter-slider')?.value || 1);
+    const favorites = window.isFavoritesFilterActive?.();
+    const matches = (id, pub, stars) => (!criticId || id === criticId) &&
+        (!favorites || window.isFavoriteCritic?.(id)) &&
+        (!pubs.length || pubs.includes((pub || '').toUpperCase())) &&
+        (minStars <= 1 || stars >= minStars);
+    const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
+    document.querySelectorAll('.movie-card').forEach(card => {
+        let visible = false;
+        card.querySelectorAll('.review-item').forEach(item => {
+            const stars = item.querySelector('.rating-stars')?.textContent.trim().length || 0;
+            const ok = matches(item.dataset.critic, item.dataset.publication || item.querySelector('.review-media')?.textContent.trim(), stars);
+            item.style.display = ok ? '' : 'none'; visible ||= ok;
+        });
+        card.style.display = visible && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
+    });
+    const headers = [...document.querySelectorAll('thead th.rating-cell')];
+    const chosenMovie = document.querySelector('tbody tr[data-filtered="true"]');
+    document.querySelectorAll('tbody tr:not(.poster-row)').forEach(row => {
+        let visible = false;
+        headers.forEach(header => {
+            const cell = row.cells[header.cellIndex];
+            cell?.querySelectorAll('.rating-pill, .no-rating').forEach(review => {
+                const pub = review.dataset.publication || header.querySelector('.critic-media')?.textContent.trim();
+                const ok = matches(header.dataset.criticId, pub, review.querySelector('.rating-stars')?.textContent.trim().length || 0);
+                review.style.display = ok ? '' : 'none'; visible ||= ok;
+            });
+        });
+        row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
+    });
+    headers.forEach(h => h.querySelector('.critic-name')?.setAttribute('aria-pressed', String(h === selected)));
+}
+window.reconcileFacetVisibility = reconcileFacetVisibility;
 
 function reapplyAllFacets() {
     // 1. Minimum number of reviews
@@ -940,6 +983,7 @@ function reapplyAllFacets() {
     if (typeof window.applyPublicationFilter === 'function') {
         window.applyPublicationFilter(activePubs);
     }
+    reconcileFacetVisibility();
 }
 
 window.applyPublicationFilter = applyPublicationFilter;

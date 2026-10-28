@@ -295,6 +295,9 @@ window.filterByCritic = function(criticIdOrHeader) {
     }
 
 
+    const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
+    const clearCritic = selected && selected.dataset.criticId === criticId;
+    if (clearCritic) criticId = null;
     const table = document.querySelector('table');
     const allCards = document.querySelectorAll('.movie-card');
 
@@ -317,7 +320,7 @@ window.filterByCritic = function(criticIdOrHeader) {
 
         // Aseta filtered-tila vain valitulle otsikolle
         criticHeaders.forEach(header => {
-            if (header === criticHeader) {
+            if (!clearCritic && header === criticHeader) {
                 header.dataset.filtered = 'true';
                 header.classList.add('selected');
             } else {
@@ -335,14 +338,14 @@ window.filterByCritic = function(criticIdOrHeader) {
     if (allCards.length > 0) {
         allCards.forEach(card => {
             const cardHasSelectedCritic = Array.from(card.querySelectorAll('.review-item'))
-                .some(item => item.dataset.critic === criticId);
+                .some(item => !criticId || item.dataset.critic === criticId);
 
             if (!cardHasSelectedCritic) {
                 card.style.display = 'none';
             } else {
                 card.style.display = '';
                 card.querySelectorAll('.review-item').forEach(item => {
-                    item.style.display = (item.dataset.critic === criticId) ? '' : 'none';
+                    item.style.display = (!criticId || item.dataset.critic === criticId) ? '' : 'none';
                 });
             }
         });
@@ -374,9 +377,11 @@ window.filterByCritic = function(criticIdOrHeader) {
                 const nameEl = criticHeader.querySelector('.critic-name');
                 if (nameEl && nameEl.textContent) displayName = nameEl.textContent.trim();
             }
-            criticFilterValue.textContent = displayName;
+            criticFilterValue.textContent = criticId ? displayName : 'Kaikki';
         }
     }
+
+    if (window.reapplyAllFacets) window.reapplyAllFacets();
 
     // Näytä nollauspainike
     if (window.showResetButton) window.showResetButton();
@@ -403,7 +408,16 @@ function initCriticClickHandlers() {
     criticHeaders.forEach((criticHeader) => {
         // Alusta klikattavaksi
         criticHeader.style.cursor = 'pointer';
-        criticHeader.title = 'Klikkaa näyttääksesi vain tämän kriitikon arvostelut';
+        criticHeader.title = 'Valitse kriitikko tai näytä kaikki kriitikot';
+        const name = criticHeader.querySelector('.critic-name');
+        if (name && !name.dataset.keyboardInitialized) {
+            name.tabIndex = 0;
+            name.setAttribute('role', 'button');
+            name.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.filterByCritic(criticHeader); }
+            });
+            name.dataset.keyboardInitialized = 'true';
+        }
 
         // Käytä nimettyä funktiota delegoinnin helpottamiseksi
         if (!criticHeader.dataset.clickInitialized) {
@@ -429,6 +443,12 @@ function initMobileCriticClickHandlers() {
         if (!criticArea) return;
 
         const criticName = reviewItem.querySelector('.review-critic-name');
+        if (criticName) {
+            criticName.tabIndex = 0; criticName.setAttribute('role', 'button');
+            criticName.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.filterByCritic(reviewItem.dataset.critic); }
+            });
+        }
 
         criticArea.style.cursor = 'pointer';
         criticArea.style.userSelect = 'none';
@@ -437,13 +457,6 @@ function initMobileCriticClickHandlers() {
         criticArea.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-
-            const isAnyFilterActive = window.isAnyFilterActive && window.isAnyFilterActive();
-
-            if (isAnyFilterActive) {
-                if (window.resetAllFilters) window.resetAllFilters();
-                return;
-            }
 
             const selectedCritic = reviewItem.dataset.critic;
             if (window.filterByCritic) {
