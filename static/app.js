@@ -754,8 +754,10 @@ function renderMovie(movieTitle, criticsReviewsDict) {
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
                         <div class="movie-card-title">${movieTitle}</div>
+                        <div class="movie-card-summary">
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
                         ${mobileSparklineHtml}
+                        </div>
                         ${posterUrl ? `
                             <div class="movie-card-poster-container">
                                 <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${movieTitle} poster" loading="lazy" decoding="async" width="100" height="150" />
