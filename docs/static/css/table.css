@@ -679,3 +679,14 @@ td.movie-col.selected, tr[data-filtered="true"], tr[data-filtered="true"] .ratin
 .critic-identity { flex-direction: column; gap: .125rem; }
 .critic-identity .critic-name { width: 100%; overflow-wrap: normal; }
 .critic-identity .heart-icon { flex-basis: auto; width: 32px; min-height: 24px; }
+/* Titles lead; ratings and counts remain readable supporting information. */
+.movie-title-main { font-size: 1.125rem; line-height: 1.35; }
+.rating-pill .rating-stars { font-size: 1rem; }
+.rating-pill { box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.rating-pill.stars-5 { box-shadow: 0 1px 3px rgba(140,110,0,.2); }
+.movie-review-count, th .review-count { font-size: .8125rem; font-weight: 500; }
+@media (max-width: 768px) {
+    .review-item .rating-stars { font-size: 1.0625rem; }
+    .movie-card-title { font-size: 1.25rem; }
+    .movie-card-summary .movie-card-review-count { font-size: .8125rem; }
+}
