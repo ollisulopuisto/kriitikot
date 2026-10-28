@@ -592,3 +592,10 @@ tr.dimmed {
     .desktop-filters .slider-container { display: flex; flex-direction: column-reverse; }
     .desktop-filters .slider-labels { display: flex; margin: 0 0 .125rem; }
 }
+
+@media (min-width: 769px) {
+    .desktop-filters .group-reviews .filter-icon, .desktop-filters .group-stars .filter-icon { font-size: 1.35rem; line-height: 1; }
+    .desktop-filters .media-group { align-items: stretch; }
+    .desktop-filters .media-group > label { align-self: stretch; justify-content: flex-start; margin: 0; padding: 0; }
+    .desktop-filters .media-group > label .filter-icon { display: none; }
+}

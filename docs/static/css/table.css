@@ -701,3 +701,11 @@ th.rating-cell { position: relative; }
 .critic-identity { display: block; position: static; padding: 0; margin: 0 .5rem; }
 .critic-identity .heart-icon { position: absolute; top: .125rem; left: .125rem; right: auto; bottom: auto; width: 24px; min-height: 24px; margin: 0; }
 .critic-identity { margin: 0; padding-left: 20px; }
+
+/* Names share the same first/last-name baselines, independent of the heart. */
+@media (min-width: 769px) {
+    .critic-identity { padding: 1.25rem .125rem 0; }
+    .critic-identity .critic-name { display: flex; flex-direction: column; justify-content: flex-end; min-height: 3.6em; width: 100%; line-height: 1.2; }
+    .critic-given-name, .critic-family-name { display: block; }
+    .critic-media { min-height: 1.2em; }
+}

@@ -194,7 +194,7 @@
                         </th>
                         {% for critic in all_critics %}
                         <th class="rating-cell" data-critic-id="{{ critic.id }}">
-                            <div class="critic-name">{{ critic.name }}</div>
+                            <div class="critic-name">{% set parts = critic.name.rsplit(' ', 1) %}<span class="critic-given-name">{{ parts[0] }}</span>{% if parts|length > 1 %} <span class="critic-family-name">{{ parts[1] }}</span>{% endif %}</div>
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
                             <div class="critic-media" title="{{ critic_media_map[critic.id]|join(', ') }}" aria-label="{{ critic_media_map[critic.id]|join(', ') }}">{{ critic_media_map[critic.id]|join(', ')|replace('MUROPAKETTI', 'MURO')|replace('KULTTUURITOIMITUS', 'KUTO') }}</div>
                             {% endif %}
