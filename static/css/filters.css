@@ -544,3 +544,18 @@ tr.dimmed {
     .desktop-filters > .sorting-group::before { width: auto; }
     .desktop-filters > .filters-container { gap: .75rem 1rem; }
 }
+/* The two minimum controls share one column, one control per row. */
+@media (min-width: 1101px) {
+    .desktop-filters { grid-template-columns: minmax(11rem,1.1fr) minmax(13rem,1.3fr) minmax(17rem,2fr) minmax(8rem,.8fr); grid-template-rows: auto auto; row-gap: .5rem; }
+    .desktop-filters > .sorting-group { grid-column: 1; grid-row: 1 / 3; }
+    .group-reviews { grid-column: 2; grid-row: 1; }
+    .group-stars { grid-column: 2; grid-row: 2; }
+    .media-group { grid-column: 3; grid-row: 1 / 3; }
+    .group-favorites { grid-column: 4; grid-row: 1 / 3; }
+}
+@media (min-width: 1101px) {
+    .desktop-filters { grid-template-columns: minmax(11rem,1.1fr) minmax(8rem,.8fr) minmax(13rem,1.3fr) minmax(17rem,2fr); }
+    .group-favorites { grid-column: 2; }
+    .group-reviews, .group-stars { grid-column: 3; }
+    .media-group { grid-column: 4; }
+}
