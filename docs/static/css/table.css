@@ -690,3 +690,9 @@ td.movie-col.selected, tr[data-filtered="true"], tr[data-filtered="true"] .ratin
     .movie-card-title { font-size: 1.25rem; }
     .movie-card-summary .movie-card-review-count { font-size: .8125rem; }
 }
+/* Keep identity in natural text flow: no additional heart row. */
+.critic-identity { display: block; }
+.critic-identity .critic-name { display: inline; width: auto; }
+.critic-identity .heart-icon { display: inline-flex; width: 20px; min-height: 24px; margin-left: .125rem; vertical-align: middle; }
+.critic-identity { display: inline-block; position: relative; max-width: 100%; padding-right: 20px; box-sizing: border-box; }
+.critic-identity .heart-icon { position: absolute; right: 0; bottom: -3px; margin: 0; }

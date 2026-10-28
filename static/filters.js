@@ -686,7 +686,7 @@ function initFavoriteFilter() {
                     const identity = document.createElement('div');
                     identity.className = 'critic-identity';
                     name.before(identity);
-                    identity.append(heart, name);
+                    identity.append(name, heart);
                 } else th.appendChild(heart);
             }
 

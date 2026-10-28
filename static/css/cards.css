@@ -395,3 +395,10 @@
 @media (max-width: 768px) {
     .review-media { overflow-wrap: anywhere; }
 }
+/* Favorite belongs beside the critic text, without a reserved leading lane. */
+@media (max-width: 768px) {
+    .review-critic-top { display: block; }
+    .review-critic-name { display: inline; }
+    .review-critic-top .mobile-heart { display: inline-flex; width: 36px; min-height: 44px; margin: -.5rem 0 -.5rem .125rem; vertical-align: middle; }
+    .review-media { margin-left: 0; }
+}
