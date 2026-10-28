@@ -891,6 +891,7 @@ function loadMoreMovies() {
     
     if (typeof window.reapplyAllFacets === 'function') window.reapplyAllFacets();
     if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+    if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
     
     loadMoreButton.disabled = false;
     loadMoreButton.textContent = originalText;

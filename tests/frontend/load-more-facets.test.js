@@ -182,4 +182,68 @@ describe('Facet reapplication when pressing Load more', () => {
     expect(visibleDesktopTitles).toContain('Movie 4');
     expect(hiddenDesktopTitles).toContain('Movie 1');
   });
+  it('keeps a selected critic on both views after loading, and toggles only that facet', () => {
+    const { document, window: win } = dom;
+    win.filterByCritic('1');
+    const pubBtn = document.createElement('button');
+    pubBtn.className = 'filter-publication active'; pubBtn.dataset.publication = 'episodi';
+    document.body.appendChild(pubBtn);
+    win.currentMovieOffset = 0;
+    document.querySelector('tbody').innerHTML = '';
+    document.querySelector('.mobile-cards').innerHTML = '';
+    win.loadMoreMovies();
+    const visible = selector => [...document.querySelectorAll(selector)].filter(e => e.style.display !== 'none');
+    expect(visible('tbody tr').map(e => e.querySelector('.movie-title-main').textContent.trim())).toEqual(['Movie 1', 'Movie 3']);
+    expect(visible('.mobile-cards .review-item').every(e => e.dataset.critic === '1')).toBe(true);
+    win.filterByCritic('1');
+    expect(document.querySelector('[data-filtered="true"]')).toBeNull();
+    expect(pubBtn.classList.contains('active')).toBe(true);
+    expect(visible('tbody tr').map(e => e.querySelector('.movie-title-main').textContent.trim())).toEqual(['Movie 1', 'Movie 3']);
+  });
+
+  it('intersects critic and publication on the same review, not unrelated reviews', () => {
+    const { document, window: win } = dom;
+    const pubBtn = document.createElement('button');
+    pubBtn.className = 'filter-publication active'; pubBtn.dataset.publication = 'hs';
+    document.body.appendChild(pubBtn);
+    win.filterByCritic('1'); win.currentMovieOffset = 0;
+    document.querySelector('tbody').innerHTML = ''; document.querySelector('.mobile-cards').innerHTML = '';
+    win.loadMoreMovies();
+    expect([...document.querySelectorAll('tbody tr, .movie-card')].every(e => e.style.display === 'none')).toBe(true);
+    win.filterByCritic('1');
+    expect([...document.querySelectorAll('tbody tr')].filter(e => e.style.display !== 'none').length).toBe(3);
+  });
+
+  it('keeps favorites intersected with critic, rating, outlet and count across consecutive pages', () => {
+    const reviews = Object.fromEntries(Array.from({ length: 125 }, (_, i) => ['Film ' + i, {
+      'Susanna Bono': [{rating_stars: i % 2 ? 2 : 5, source_publication: 'episodi'}],
+      'Toinen Kriitikko': [{rating_stars: 5, source_publication: 'hs'}]
+    }]));
+    const {document, window: win} = setupDOM(createTestHTML(reviews));
+    document.getElementById('star-filter-slider').value = '4';
+    document.getElementById('min-reviews-slider').value = '2';
+    const pub = document.createElement('button'); pub.className = 'filter-publication active'; pub.dataset.publication = 'episodi';document.body.appendChild(pub);
+    win.isFavoritesFilterActive = () => true; win.isFavoriteCritic = id => id === '1';
+    win.filterByCritic('1');
+    win.currentMovieOffset = 0; document.querySelector('tbody').innerHTML = ''; document.querySelector('.mobile-cards').innerHTML = '';
+    win.loadMoreMovies(); win.loadMoreMovies();
+    const visible = [...document.querySelectorAll('tbody tr')].filter(e=>e.style.display !== 'none');
+    expect(visible.length).toBeGreaterThan(0);
+    expect(visible.every(e=>Number(e.querySelector('.movie-title-main').textContent.trim().split(' ')[1]) % 2 === 0)).toBe(true);
+    expect([...document.querySelectorAll('.review-item')].filter(e=>e.style.display !== 'none').every(e=>e.dataset.critic === '1')).toBe(true);
+    win.isFavoriteCritic = () => false; win.reapplyAllFacets();
+    expect([...document.querySelectorAll('tbody tr, .movie-card')].every(e=>e.style.display === 'none')).toBe(true);
+  });
+
+  it('supports keyboard toggling and heart clicks without clearing the critic facet', () => {
+    const {document, window: win} = dom;
+    const name = document.querySelector('thead .critic-name');
+    name.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+    expect(name.closest('th').dataset.filtered).toBe('true');
+    name.closest('th').querySelector('.heart-icon').click();
+    expect(name.closest('th').dataset.filtered).toBe('true');
+    name.dispatchEvent(new KeyboardEvent('keydown', {key: ' ', bubbles: true}));
+    expect(name.closest('th').dataset.filtered).toBeUndefined();
+  });
+
 });
