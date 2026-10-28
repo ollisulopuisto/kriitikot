@@ -529,3 +529,18 @@ tr.dimmed {
     .group-favorites { padding-top: 0; }
     .group-favorites::before { content: 'Suosikit'; min-height: 1.5rem; font-size: .75rem; font-weight: 700; color: #4b5563; text-transform: uppercase; }
 }
+/* Compact desktop toolbar: preserve controls, remove spacer rows and padding. */
+@media (min-width: 1101px) {
+    .desktop-filters { padding: .75rem 1rem; column-gap: 1rem; row-gap: 0; }
+    .desktop-filters > .sorting-group { gap: .375rem; }
+    .sorting-group::before { height: 1rem; line-height: 1rem; }
+    .filter-group { gap: .375rem; }
+    .filter-group label, .group-favorites::before { min-height: 1rem; line-height: 1rem; }
+    .media-filter-buttons { gap: .25rem; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters { padding: .75rem 1rem; gap: .625rem 1rem; }
+    .desktop-filters > .sorting-group { flex-direction: row; align-items: center; gap: .5rem; }
+    .desktop-filters > .sorting-group::before { width: auto; }
+    .desktop-filters > .filters-container { gap: .75rem 1rem; }
+}
