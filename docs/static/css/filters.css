@@ -599,3 +599,17 @@ tr.dimmed {
     .desktop-filters .media-group > label { align-self: stretch; justify-content: flex-start; margin: 0; padding: 0; }
     .desktop-filters .media-group > label .filter-icon { display: none; }
 }
+/* Tablet: keep related controls in compact columns, not loose full-width rows. */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters { grid-template-columns: minmax(11rem,1fr) minmax(10rem,1fr) minmax(14rem,1.5fr); grid-template-rows: auto auto; gap: .375rem .75rem; padding: .75rem 1rem; }
+    .desktop-filters > .filters-container { display: contents; }
+    .desktop-filters > .sorting-group { grid-column: 1; grid-row: 1 / 3; display: grid; grid-template-columns: 1fr; gap: .25rem; padding: 0 0 1.75rem; }
+    .desktop-filters > .sorting-group::before { height: 1rem; line-height: 1rem; }
+    .desktop-filters > .sorting-group .facet-btn { min-height: 30px; padding: .25rem .5rem; justify-content: flex-start; }
+    .desktop-filters .group-favorites { grid-column: 1; grid-row: 1 / 3; align-self: end; padding: 0; }
+    .desktop-filters .group-reviews { grid-column: 2; grid-row: 1; }
+    .desktop-filters .group-stars { grid-column: 2; grid-row: 2; }
+    .desktop-filters .media-group { grid-column: 3; grid-row: 1 / 3; gap: .375rem; }
+    .desktop-filters .media-filter-buttons { gap: .25rem; }
+    .desktop-filters .media-filter-btn { min-height: 28px; font-size: .75rem; padding: .15rem .4rem; }
+}
