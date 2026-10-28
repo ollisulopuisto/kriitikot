@@ -191,3 +191,9 @@ a:hover {
         scroll-behavior: auto !important;
     }
 }
+
+/* Short, quiet feedback. Never animate layout or replay a long glow. */
+:root { --motion-fast: 140ms; --motion-ease: cubic-bezier(.2,.7,.2,1); }
+button, .movie-link, .rating-pill, .heart-icon { transition-property: background-color, color, border-color, opacity, transform; transition-duration: var(--motion-fast); transition-timing-function: var(--motion-ease); }
+:focus-visible { outline: 3px solid #7c3aed; outline-offset: 3px; }
+@keyframes selectionReveal { from { opacity: .6; transform: translateY(3px); } to { opacity: 1; transform: none; } }

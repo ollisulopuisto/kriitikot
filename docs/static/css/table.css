@@ -655,3 +655,10 @@ th.rating-cell:hover {
         display: none !important;
     }
 }
+
+/* Keep each review under its critic, including multi-review cells. */
+tbody td.rating-cell { text-align: center; vertical-align: middle; }
+.movie-content-wrapper { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; }
+.movie-info { grid-column: 2; min-width: 0; }
+.movie-poster-container { grid-column: 1; grid-row: 1; }
+td.movie-col.selected, tr[data-filtered="true"], tr[data-filtered="true"] .rating-pill, th.rating-cell.selected, td.rating-cell.selected-critic-cell { animation: selectionReveal 180ms var(--motion-ease); }
