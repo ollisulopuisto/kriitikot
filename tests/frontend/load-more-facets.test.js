@@ -246,4 +246,28 @@ describe('Facet reapplication when pressing Load more', () => {
     expect(name.closest('th').dataset.filtered).toBeUndefined();
   });
 
+  it('tops up sparse slider matches and restores the exact previous window', () => {
+    const reviews = Object.fromEntries(Array.from({length: 125}, (_, i) => ['Film ' + i, {
+      'Susanna Bono': [{rating_stars: i % 3 === 0 ? 5 : 1, source_publication: 'episodi'}]
+    }]));
+    const {document, window: win} = setupDOM(createTestHTML(reviews));
+    win.currentMovieOffset = 0; document.querySelector('tbody').innerHTML = ''; document.querySelector('.mobile-cards').innerHTML = '';
+    win.loadMoreMovies(); win.loadMoreMovies(); // user's existing two batches
+    const titles = () => [...document.querySelectorAll('.movie-card')].filter(c=>c.style.display !== 'none').map(c=>c.dataset.movie);
+    const original = titles();
+    win.rememberSliderWindow();
+    document.getElementById('star-filter-slider').value = '5'; win.filterByStars(5); win.topUpSliderResults();
+    expect(titles()).toHaveLength(30);
+    const filtered = titles(); const filteredOffset = win.currentMovieOffset;
+    expect(filteredOffset).toBeGreaterThan(60);
+    document.getElementById('star-filter-slider').value = '1'; win.filterByStars(1); win.topUpSliderResults();
+    expect(win.currentMovieOffset).toBe(60); expect(titles()).toEqual(original);
+    document.getElementById('star-filter-slider').value = '5'; win.filterByStars(5); win.topUpSliderResults();
+    expect(win.currentMovieOffset).toBe(filteredOffset); expect(titles()).toEqual(filtered);
+    document.getElementById('min-reviews-slider').value = '5'; win.filterByReviewCount(8); win.topUpSliderResults();
+    expect(titles()).toHaveLength(0); expect(win.currentMovieOffset).toBe(125);
+    document.getElementById('min-reviews-slider').value = '1'; win.filterByReviewCount(1); win.topUpSliderResults();
+    expect(titles()).toEqual(filtered);
+  });
+
 });

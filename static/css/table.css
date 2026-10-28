@@ -672,3 +672,10 @@ td.movie-col.selected, tr[data-filtered="true"], tr[data-filtered="true"] .ratin
     table { table-layout: auto; }
     th.rating-cell, td.rating-cell { min-width: 7.5rem; }
 }
+/* Critic identity and favorite action are one group; counts stay separate. */
+.critic-identity { display: flex; align-items: center; justify-content: center; gap: .25rem; }
+.critic-identity .critic-name { min-width: 0; overflow-wrap: anywhere; }
+.critic-identity .heart-icon { flex: 0 0 24px; margin: 0; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+.critic-identity { flex-direction: column; gap: .125rem; }
+.critic-identity .critic-name { width: 100%; overflow-wrap: normal; }
+.critic-identity .heart-icon { flex-basis: auto; width: 32px; min-height: 24px; }

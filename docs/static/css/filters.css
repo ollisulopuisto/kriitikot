@@ -559,3 +559,12 @@ tr.dimmed {
     .group-reviews, .group-stars { grid-column: 3; }
     .media-group { grid-column: 4; }
 }
+/* Keep favorites under ordering, leaving room for publication choices. */
+@media (min-width: 1101px) {
+    .desktop-filters { grid-template-columns: minmax(13rem, 1.2fr) minmax(13rem, 1.2fr) minmax(17rem, 2fr); }
+    .desktop-filters > .sorting-group { grid-column: 1; grid-row: 1; }
+    .group-favorites { grid-column: 1; grid-row: 2; align-self: start; }
+    .group-favorites::before { content: none; }
+    .group-reviews, .group-stars { grid-column: 2; }
+    .media-group { grid-column: 3; }
+}
