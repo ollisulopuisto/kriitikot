@@ -118,17 +118,25 @@ class DataService:
             # Tilastot ja metatiedot
             movie_review_counts = {title: sum(len(r) for r in cr.values()) for title, cr in grouped_reviews.items()}
 
-            critic_media_map = {}
-            critic_review_counts = {}
-            for critic in all_critics:
-                c_reviews = session.query(DBReview).filter(
-                    DBReview.critic_id == critic.id,
-                    DBReview.is_published == 1
-                ).options(joinedload(DBReview.publication)).all()
-
-                publications = sorted(list(set([r.publication.short_name.upper() for r in c_reviews if r.publication])))
-                critic_media_map[critic.id] = publications
-                critic_review_counts[critic.id] = len(c_reviews)
+            # The published reviews and their publication are already eager
+            # loaded above. Reuse that snapshot instead of querying once per
+            # critic (51 statements for 40 critics in the scale regression).
+            critic_publications = {critic.id: set() for critic in all_critics}
+            critic_review_counts = {critic.id: 0 for critic in all_critics}
+            for critics_reviews in grouped_reviews.values():
+                for reviews_list in critics_reviews.values():
+                    for review in reviews_list:
+                        critic_review_counts[review.critic_id] = (
+                            critic_review_counts.get(review.critic_id, 0) + 1
+                        )
+                        if review.publication:
+                            critic_publications.setdefault(review.critic_id, set()).add(
+                                review.publication.short_name.upper()
+                            )
+            critic_media_map = {
+                critic.id: sorted(critic_publications[critic.id])
+                for critic in all_critics
+            }
 
             rating_distribution = {i: session.query(DBReview).filter(DBReview.rating_stars == i).count() for i in range(1, 6)}
 
