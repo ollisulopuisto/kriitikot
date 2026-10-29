@@ -143,3 +143,13 @@ Key patterns:
 - **`scraper.py` is deprecated:** use `from scrapers import ...` not `from scraper import ...`
 - **DB location:** `reviews.db` at project root (SQLite file)
 - **Flask template folder:** `../templates` relative to `src/app.py`
+
+## Audit follow-through, 2026-10-29
+
+Index critic media/count summaries reuse the already eager-loaded published
+reviews instead of one SQL query per critic. Isolated40criticfixture:51SQL
+statements before,11after; exact count regression plus no-review critic and
+pending-review exclusion covered. Full185Python testsPASS1skip;23JStestsPASS.
+No wall-time/deployed speedup claim. Existing data_service typing/import lint
+debt remains; broadruff is not green. reviews.db hash unchanged fromHEAD,
+no scrape/model call, generatedPages writes, deploy or merge. Human merge pending.
