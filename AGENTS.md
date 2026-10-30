@@ -153,3 +153,15 @@ pending-review exclusion covered. Full185Python testsPASS1skip;23JStestsPASS.
 No wall-time/deployed speedup claim. Existing data_service typing/import lint
 debt remains; broadruff is not green. reviews.db hash unchanged fromHEAD,
 no scrape/model call, generatedPages writes, deploy or merge. Human merge pending.
+
+## CI follow-through, 2026-10-30
+
+Scheduled runs reported "Frontend tests failed" since 2026-10-25 (automation
+comments on issue #19). Cause: Dependabot all-npm bump 936d34e (jsdom 30.1.3,
+vitest 5.0.5) raised the devDependency engines floor to Node >=22.12; undici
+8.12.3 calls zlib.createZstdDecompress at module load (Node 22.15+ only), so
+on the workflow's Node 20 every vitest forks worker died at startup. Fix:
+NODE_VERSION '20' -> '24' in scrape_and_deploy.yml (PR #67). Backend pytest
+unaffected (185 passed, 1 skipped); 23 JS tests pass on Node 22. If frontend
+CI fails again after a Dependabot bump, compare the workflow NODE_VERSION
+against the engines floor in package-lock.json first.
