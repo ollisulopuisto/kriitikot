@@ -20,6 +20,22 @@ window.movie_review_counts = window.movie_review_counts || {};
 window.movie_rating_distributions = window.movie_rating_distributions || {};
 
 
+
+// HTML-suojaus skreipatulle datalle
+// =================================
+// Arvosteludata (otsikot, tekstit, URL:t) tulee ulkoisilta sivuilta ja
+// interpoloidaan HTML-merkkijonoihin. Pako estää tallennetun XSS:n.
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+// Vain http(s)-URL:t sallitaan href/src-attribuutteihin (estää javascript:-URL:t)
+function safeHttpUrl(url) {
+    const u = String(url ?? '').trim();
+    return /^https?:\/\//i.test(u) ? escapeHtml(u) : '';
+}
+
 // Desktop-taulukon laiska rakentaminen
 // ====================================
 // Taulukko on piilotettu alle 769px leveydellä, joten sen ~2500 solua
@@ -641,22 +657,23 @@ function updateRowVisibility() {
 // ============
 
 function createReviewPill(review) {
-    let tooltipText = review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu';
+    const tooltipText = escapeHtml(review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu');
     let starsHtml = '★'.repeat(review.rating_stars);
-    let publicationName = allPublicationMap[review.source_publication]?.name || review.source_publication; // Get full name
-    let pubAttr = review.source_publication ? `data-publication="${review.source_publication}"` : '';
+    const publicationName = escapeHtml(allPublicationMap[review.source_publication]?.name || review.source_publication); // Get full name
+    const pubAttr = review.source_publication ? `data-publication="${escapeHtml(review.source_publication)}"` : '';
     
-    if (review.source_url) {
+    const safeReviewUrl = safeHttpUrl(review.source_url);
+    if (safeReviewUrl) {
         return `
-            <a href="${review.source_url}"
-                class="rating-link rating-pill stars-${review.rating_stars}" ${pubAttr} target="_blank"
+            <a href="${safeReviewUrl}"
+                class="rating-link rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr} target="_blank"
                 title="${publicationName}: ${tooltipText}...">
                 <span class="rating-stars">${starsHtml}</span>
             </a>
         `;
     } else {
         return `
-            <span class="rating-pill stars-${review.rating_stars}" ${pubAttr}>
+            <span class="rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr}>
                 <span class="rating-stars">${starsHtml}</span>
             </span>
         `;
@@ -669,9 +686,10 @@ function createReviewPill(review) {
  */
 function renderMovie(movieTitle, criticsReviewsDict) {
     // Collect movie meta info (poster, letterboxd, nytleffaan, review counts) from the global data structures
-    const posterUrl = window.poster_urls[movieTitle] || '';
-    const letterboxdUrl = window.letterboxd_urls[movieTitle] || '';
-    const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
+    const posterUrl = safeHttpUrl(window.poster_urls[movieTitle]);
+    const letterboxdUrl = safeHttpUrl(window.letterboxd_urls[movieTitle]);
+    const nytleffaanUrl = safeHttpUrl(window.nytleffaan_urls[movieTitle]);
+    const safeMovieTitle = escapeHtml(movieTitle);
     const movieReviewCount = window.movie_review_counts[movieTitle];
 
     let calculatedReviewCount = 0;
@@ -715,12 +733,12 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                 <div class="movie-content-wrapper">
                     ${posterUrl ? `
                     <div class="movie-poster-container">
-                        <img src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-thumb" loading="lazy" decoding="async" width="48" height="72">
-                        <img data-src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-full" loading="lazy" decoding="async">
+                        <img src="${posterUrl}" alt="${safeMovieTitle} juliste" class="movie-poster-thumb" loading="lazy" decoding="async" width="48" height="72">
+                        <img data-src="${posterUrl}" alt="${safeMovieTitle} juliste" class="movie-poster-full" loading="lazy" decoding="async">
                     </div>
                     ` : ''}
                     <div class="movie-info">
-                        <div class="movie-title-main">${movieTitle}</div>
+                        <div class="movie-title-main">${safeMovieTitle}</div>
                         <div class="movie-meta-row">
                             ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
                             ${sparklineHtml}
@@ -750,17 +768,17 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Mobile card
     let mobileHtml = `
-        <div class="movie-card" data-movie="${movieTitle}" data-poster="${posterUrl}" data-review-count="${calculatedReviewCount}">
+        <div class="movie-card" data-movie="${safeMovieTitle}" data-poster="${posterUrl}" data-review-count="${calculatedReviewCount}">
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
-                        <div class="movie-card-title">${movieTitle}</div>
+                        <div class="movie-card-title">${safeMovieTitle}</div>
                         <div class="movie-card-summary">
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
                         ${mobileSparklineHtml}
                         </div>
                         ${posterUrl ? `
                             <div class="movie-card-poster-container">
-                                <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${movieTitle} poster" loading="lazy" decoding="async" width="100" height="150" />
+                                <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${safeMovieTitle} poster" loading="lazy" decoding="async" width="100" height="150" />
                             </div>
                         ` : ''}
                     </div>
@@ -772,13 +790,13 @@ function renderMovie(movieTitle, criticsReviewsDict) {
         if (criticsReviewsDict[critic.name]) {
             criticsReviewsDict[critic.name].forEach(review => {
                 mobileHtml += `
-                    <div class="review-item" data-critic="${critic.id}"
-                        data-publication="${review.source_publication}">
+                    <div class="review-item" data-critic="${escapeHtml(critic.id)}"
+                        data-publication="${escapeHtml(review.source_publication)}">
                         <div class="review-critic">
                             <div class="review-critic-top">
-                                <span class="review-critic-name">${critic.name}</span>
+                                <span class="review-critic-name">${escapeHtml(critic.name)}</span>
                             </div>
-                            <div class="review-media">${review.source_publication.toUpperCase()}</div>
+                            <div class="review-media">${escapeHtml(review.source_publication.toUpperCase())}</div>
                         </div>
                         <div class="review-rating">
                             ${review.rating_stars ? createReviewPill(review) : ''}
