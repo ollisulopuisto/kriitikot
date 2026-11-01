@@ -246,9 +246,11 @@ describe('Facet reapplication when pressing Load more', () => {
     expect(name.closest('th').dataset.filtered).toBeUndefined();
   });
 
-  it('tops up sparse slider matches and restores the exact previous window', () => {
+  it('tops up sparse slider matches to a batch of 10 matching reviews and restores the exact previous window', { timeout: 30000 }, () => {
+    // 5-star reviews every 13th film: only 5 matches in the first 60 movies,
+    // so the facet top-up must load more until 10 matching reviews show.
     const reviews = Object.fromEntries(Array.from({length: 125}, (_, i) => ['Film ' + i, {
-      'Susanna Bono': [{rating_stars: i % 3 === 0 ? 5 : 1, source_publication: 'episodi'}]
+      'Susanna Bono': [{rating_stars: i % 13 === 0 ? 5 : 1, source_publication: 'episodi'}]
     }]));
     const {document, window: win} = setupDOM(createTestHTML(reviews));
     win.currentMovieOffset = 0; document.querySelector('tbody').innerHTML = ''; document.querySelector('.mobile-cards').innerHTML = '';
@@ -257,7 +259,9 @@ describe('Facet reapplication when pressing Load more', () => {
     const original = titles();
     win.rememberSliderWindow();
     document.getElementById('star-filter-slider').value = '5'; win.filterByStars(5); win.topUpSliderResults();
-    expect(titles()).toHaveLength(30);
+    // one matching review per matching movie: >=10 matching reviews
+    expect(win.matchingVisibleReviewCount()).toBeGreaterThanOrEqual(10);
+    expect(titles()).toHaveLength(win.matchingVisibleReviewCount());
     const filtered = titles(); const filteredOffset = win.currentMovieOffset;
     expect(filteredOffset).toBeGreaterThan(60);
     document.getElementById('star-filter-slider').value = '1'; win.filterByStars(1); win.topUpSliderResults();

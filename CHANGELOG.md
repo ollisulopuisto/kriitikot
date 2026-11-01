@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026.11.01.1] - 2026-11-01
+
+- Facet-aware pagination in bounded batches of 10: selecting a critic, outlet, star minimum, review-count minimum or favorites auto-loads movies until the first batch of 10 matching reviews can be shown, and only that batch is visible. "Lataa lisää" reveals the next batch of 10 matching reviews under the active facets (loading more data when needed) and hides when no matches remain. Batches are counted in matching reviews but cut only at whole-movie boundaries, so a movie with several matching reviews is never split and a batch can slightly exceed 10. Clearing facets restores the previous unfiltered window.
+- Outlet facet fixed for HS, KSML, IL, IS, SK, TS and Film-O-Holic: reviews.json carried full publication names while facet buttons use short codes, so those outlets matched nothing. reviews.json gains a `publication_short` field and the UI normalizes both forms when matching.
+
 ## [2026.10.05.2] - 2026-10-05
 
 - `llms.txt` describes the site and its review data (reviews.json, RSS) for AI assistants and AI search.
