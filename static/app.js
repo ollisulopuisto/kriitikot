@@ -8,6 +8,32 @@ let originalTableWidth = 0;
 let originalVisibleColumns = 0;
 let currentMovieOffset = window.currentMovieOffset || 30; // Aloitetaan 30:stä, koska ensimmäiset 30 on jo ladattu Jinjalla
 const movieLimit = 30;
+// Fasettien ollessa päällä automaattinen täydennys ja "Lataa lisää" tähtäävät
+// tähän määrään aktiivisia fasetteja vastaavia arvosteluja kerrallaan.
+const FACET_REVIEW_BATCH = 10;
+
+// Arviomääräliukusäätimen asento -> vähimmäisarviomäärä (myös filters.js käyttää)
+const REVIEW_VALUE_MAPPING = { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+
+// Julkaisujen kokonimet -> suodatin nappien lyhenteet. reviews.jsonin
+// source_publication on koko nimi ("Helsingin Sanomat"), kun taas nappien
+// data-publication on lyhenne ("HS"). Uudet versiot reviews.jsonista
+// sisältävät publication_short-kentän, jolloin kartoitusta ei tarvita.
+const PUB_FULL_NAME_TO_SHORT = {
+    'HELSINGIN SANOMAT': 'HS',
+    'KESKISUOMALAINEN': 'KSML',
+    'ILTALEHTI': 'IL',
+    'TURUN SANOMAT': 'TS',
+    'SUOMEN KUVALEHTI': 'SK',
+    'ILTA-SANOMAT': 'IS',
+    'FILM-O-HOLIC': 'FILMOHOLIC'
+};
+
+// Palauta julkaisun lyhenne (isot kirjaimet) koko nimestä tai lyhenteestä.
+function pubShortOf(value) {
+    const v = String(value || '').trim().toUpperCase();
+    return PUB_FULL_NAME_TO_SHORT[v] || v;
+}
 let allGroupedReviews = window.allGroupedReviews || {}; // Tähän ladataan kaikki arvostelut JSONista
 let movieTitles = Object.keys(allGroupedReviews);
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
@@ -507,7 +533,7 @@ function updateCriticColumnVisibility() {
                 
                 // Tarkista julkaisu-match
                 if (hasActivePubFilter) {
-                    const revPub = (el.dataset.publication || '').toUpperCase();
+                    const revPub = pubShortOf(el.dataset.publication);
                     if (!activePubs.some(pub => revPub === pub.toUpperCase())) return;
                 }
                 
@@ -643,12 +669,7 @@ function updateRowVisibility() {
             // Piilota nappi jos olemme yksittäisen elokuvan näkymässä (desktop)
             loadMoreButton.parentElement.style.display = 'none';
         } else {
-            // Palauta napin näkyvyys jos dataa on vielä lataamatta
-            if (currentMovieOffset < movieTitles.length) {
-                loadMoreButton.parentElement.style.display = 'block';
-            } else {
-                loadMoreButton.parentElement.style.display = 'none';
-            }
+            updateLoadMoreVisibility();
         }
     }
 }
@@ -660,7 +681,8 @@ function createReviewPill(review) {
     const tooltipText = escapeHtml(review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu');
     let starsHtml = '★'.repeat(review.rating_stars);
     const publicationName = escapeHtml(allPublicationMap[review.source_publication]?.name || review.source_publication); // Get full name
-    const pubAttr = review.source_publication ? `data-publication="${escapeHtml(review.source_publication)}"` : '';
+    const pubId = review.publication_short || review.source_publication;
+    const pubAttr = pubId ? `data-publication="${escapeHtml(pubId)}"` : '';
     
     const safeReviewUrl = safeHttpUrl(review.source_url);
     if (safeReviewUrl) {
@@ -791,7 +813,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
             criticsReviewsDict[critic.name].forEach(review => {
                 mobileHtml += `
                     <div class="review-item" data-critic="${escapeHtml(critic.id)}"
-                        data-publication="${escapeHtml(review.source_publication)}">
+                        data-publication="${escapeHtml(review.publication_short || review.source_publication)}">
                         <div class="review-critic">
                             <div class="review-critic-top">
                                 <span class="review-critic-name">${escapeHtml(critic.name)}</span>
@@ -895,11 +917,7 @@ function loadMoreMovies(batchSize = movieLimit) {
     currentMovieOffset += moviesToRender.length;
     window.currentMovieOffset = currentMovieOffset;
 
-    if (currentMovieOffset >= movieTitles.length) {
-        loadMoreButton.parentElement.style.display = 'none';
-    } else {
-        loadMoreButton.parentElement.style.display = 'block';
-    }
+    updateLoadMoreVisibility();
 
     // Re-initialize event handlers for newly added elements
     if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
@@ -919,10 +937,107 @@ function loadMoreMovies(batchSize = movieLimit) {
 }
 
 
-// Slider top-ups are temporary pagination windows, remembered per facet state.
+// Aktiivisten fasettien tila, luettuna DOM:sta samoin perustein kuin
+// filters.js:n reconcileFacetVisibility ne tulkitsee.
+function currentFacetState() {
+    const selectedHeader = document.querySelector('thead th.rating-cell[data-filtered="true"]');
+    const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')]
+        .map(b => (b.dataset.publication || '').toUpperCase()))];
+    const minStars = Number(document.getElementById('star-filter-slider')?.value || 1);
+    const rcPos = Number(document.getElementById('min-reviews-slider')?.value || 1);
+    const minReviews = REVIEW_VALUE_MAPPING[rcPos] || rcPos;
+    const favoritesOn = !!window.isFavoritesFilterActive?.();
+    const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
+    const chosenRow = document.querySelector('tbody tr[data-filtered="true"]');
+    const chosenMovie = chosenCard?.dataset.movie
+        || chosenRow?.querySelector('.movie-title-main')?.textContent.trim()
+        || null;
+    return { criticId: selectedHeader?.dataset.criticId || null, pubs, minStars, minReviews, favoritesOn, chosenMovie };
+}
+
+// Onko jokin hakufasetti päällä? (Yksittäisen elokuvan valinta ei ole fasetti.)
+function facetFiltersActive() {
+    const st = currentFacetState();
+    return !!(st.criticId || st.pubs.length || st.minStars > 1 || st.minReviews > 1 || st.favoritesOn);
+}
+
+// Täsmääkö yksittäinen arvostelu aktiivisiin fasetteihin? Peilaa
+// reconcileFacetVisibilityn matches()-logiikkaa puhtaaseen dataan,
+// jotta lataamattomien elokuvien osumat voidaan laskea renderöimättä.
+function reviewMatchesFacetState(review, criticName, st) {
+    const critic = allCritics.find(c => c.name === criticName);
+    const criticId = critic ? critic.id : null;
+    if (st.criticId && criticId !== st.criticId) return false;
+    if (st.favoritesOn && !(criticId && window.isFavoriteCritic?.(criticId))) return false;
+    if (st.pubs.length && !st.pubs.includes(pubShortOf(review.publication_short || review.source_publication))) return false;
+    if (st.minStars > 1 && !(Number(review.rating_stars) >= st.minStars)) return false;
+    return true;
+}
+
+function movieHasFacetMatch(movieTitle, st) {
+    if (st.chosenMovie && movieTitle !== st.chosenMovie) return false;
+    const dict = allGroupedReviews[movieTitle];
+    if (!dict) return false;
+    if (st.minReviews > 1) {
+        let total = 0;
+        Object.values(dict).forEach(rs => { total += rs ? rs.length : 0; });
+        if (total < st.minReviews) return false;
+    }
+    return Object.entries(dict).some(([criticName, rs]) =>
+        (rs || []).some(r => reviewMatchesFacetState(r, criticName, st)));
+}
+
+// Onko lataamattomassa datassa vielä fasetteja vastaavia arvosteluja?
+function tailHasFacetMatches() {
+    const st = currentFacetState();
+    return movieTitles.slice(currentMovieOffset).some(t => movieHasFacetMatch(t, st));
+}
+
+// Näkyvissä olevien fasetteja vastaavien arvostelujen määrä. Mobiilikortit
+// renderöidään aina (myös desktopilla), joten ne ovat luotettava lähde.
+function matchingVisibleReviewCount() {
+    let n = 0;
+    document.querySelectorAll('.movie-card').forEach(card => {
+        if (card.style.display === 'none') return;
+        card.querySelectorAll('.review-item').forEach(item => {
+            if (item.style.display !== 'none') n++;
+        });
+    });
+    return n;
+}
+
+// "Lataa lisää" -napin näkyvyys: ilman fasetteja näytetään kun dataa on
+// lataamatta; fasettien kanssa vain jos loppudatasta löytyy vielä osumia.
+function updateLoadMoreVisibility() {
+    const btn = document.getElementById('load-more-button');
+    if (!btn) return;
+    let show = false;
+    if (currentMovieOffset < movieTitles.length) {
+        show = facetFiltersActive() ? tailHasFacetMatches() : true;
+    }
+    btn.parentElement.style.display = show ? 'block' : 'none';
+}
+
+// Fasettien ollessa päällä "Lataa lisää" lataa elokuvia kunnes näkyvissä on
+// FACET_REVIEW_BATCH uutta fasetteja vastaavaa arvostelua (tai data loppuu).
+function loadMoreFacetAware() {
+    const before = matchingVisibleReviewCount();
+    while (matchingVisibleReviewCount() < before + FACET_REVIEW_BATCH && currentMovieOffset < movieTitles.length) {
+        const prev = currentMovieOffset;
+        loadMoreMovies(movieLimit);
+        if (currentMovieOffset <= prev) break;
+    }
+    if (sliderWindows && sliderWindowKey) {
+        sliderWindows.set(sliderWindowKey, window.currentMovieOffset ?? currentMovieOffset);
+    }
+    updateLoadMoreVisibility();
+}
+
+// Facet top-ups are temporary pagination windows, remembered per facet state.
 let sliderWindows = null;
 let sliderWindowKey = null;
 let sliderBaseOffset = null;
+let sliderBaseKey = null;
 function sliderResultsKey() {
     return JSON.stringify([
         document.getElementById('min-reviews-slider')?.value,
@@ -939,6 +1054,7 @@ function rememberSliderWindow() {
     sliderWindows = new Map();
     sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
     sliderWindowKey = sliderResultsKey();
+    sliderBaseKey = sliderWindowKey;
     sliderWindows.set(sliderWindowKey, sliderBaseOffset);
 }
 function topUpSliderResults() {
@@ -962,15 +1078,20 @@ function topUpSliderResults() {
     if (currentMovieOffset < offset) loadMoreMovies(offset - currentMovieOffset);
     sliderWindowKey = key;
     window.reapplyAllFacets?.();
+    const facetsActive = facetFiltersActive();
     const visibleCount = () => [...document.querySelectorAll('.movie-card')].filter(card => card.style.display !== 'none').length;
-    while (!restoring && visibleCount() < movieLimit && currentMovieOffset < movieTitles.length) {
+    // Faseteilla täydennetään kunnes näkyvissä on FACET_REVIEW_BATCH osuvaa
+    // arvostelua; ilman fasetteja täytetään movieLimitiin asti.
+    const targetMet = () => facetsActive
+        ? matchingVisibleReviewCount() >= FACET_REVIEW_BATCH
+        : visibleCount() >= movieLimit;
+    while (!restoring && !targetMet() && currentMovieOffset < movieTitles.length) {
         const before = currentMovieOffset;
-        loadMoreMovies(movieLimit - visibleCount());
+        loadMoreMovies(movieLimit);
         if (currentMovieOffset <= before) break;
     }
     sliderWindows.set(key, currentMovieOffset);
-    const button = document.getElementById('load-more-button');
-    if (button) button.parentElement.style.display = currentMovieOffset < movieTitles.length ? 'block' : 'none';
+    updateLoadMoreVisibility();
 }
 window.rememberSliderWindow = rememberSliderWindow;
 window.topUpSliderResults = topUpSliderResults;
@@ -1071,10 +1192,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Load more button event listener
+    // Load more button event listener: fasettien kanssa ladataan seuraava
+    // erä fasetteja vastaavia arvosteluja, muuten raakaa elokuvaerää.
     const loadMoreButton = document.getElementById('load-more-button');
     if (loadMoreButton) {
-        loadMoreButton.addEventListener('click', loadMoreMovies);
+        loadMoreButton.addEventListener('click', () => {
+            if (facetFiltersActive()) {
+                loadMoreFacetAware();
+            } else {
+                loadMoreMovies();
+                // Suodattamaton manuaalinen lataus kasvattaa perusikkunaa,
+                // jotta fasetin poiston palautus säilyttää käyttäjän lataamat.
+                if (sliderWindows && sliderBaseKey === sliderResultsKey()) {
+                    sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
+                    sliderWindows.set(sliderBaseKey, sliderBaseOffset);
+                }
+            }
+        });
     }
 
     // Mobile poster toggle functionality
@@ -1183,6 +1317,14 @@ window.activateDesktopTable = activateDesktopTable;
 window.isDesktopWidth = isDesktopWidth;
 window.syncCriticOrderFromDom = syncCriticOrderFromDom;
 window.loadMoreMovies = loadMoreMovies;
+window.loadMoreFacetAware = loadMoreFacetAware;
+window.updateLoadMoreVisibility = updateLoadMoreVisibility;
+window.pubShortOf = pubShortOf;
+window.facetFiltersActive = facetFiltersActive;
+window.matchingVisibleReviewCount = matchingVisibleReviewCount;
+window.tailHasFacetMatches = tailHasFacetMatches;
+window.REVIEW_VALUE_MAPPING = REVIEW_VALUE_MAPPING;
+window.FACET_REVIEW_BATCH = FACET_REVIEW_BATCH;
 
 // Sarakkeiden uudelleenjärjestys mitätöi talletetun kriitikkojärjestyksen
 document.addEventListener('table-sorted', syncCriticOrderFromDom);

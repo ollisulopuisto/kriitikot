@@ -117,6 +117,7 @@ class Review(Base):
             'movie_title': self.movie.title if self.movie else None,
             'critic_name': self.critic.name if self.critic else None,
             'source_publication': self.publication.name if self.publication else None,
+            'publication_short': self.publication.short_name if self.publication else None,
             'rating_stars': self.rating_stars,
             'review_text': self.review_text,
             'source_url': self.source_url,

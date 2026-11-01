@@ -18,6 +18,7 @@
 
 # Toiminnallisuus
 - ✅ **Kriitikon valinta (Desktop/Mobile) - FIX IN PROGRESS**
+    - **2026-11-01 (fasettisivutus):** fasetin valinta (kriitikko, julkaisu, tähdet, arviomäärä, suosikit) lataa automaattisesti lisää elokuvia kunnes ≥10 fasettia vastaavaa arvostelua näkyy; "Lataa lisää" lataa seuraavan osumaerän ja piiloutuu kun osumat loppuvat. Julkaisufasetti korjattu koko nimi vs. lyhenne -bugilta (HS/KSML/IL/IS/SK/TS/FILMOHOLIC eivät osuneet lainkaan).
     - **Nykytila:** Kriitikon nimen klikkaaminen headerissa (desktop) asettaa `dataset.filtered = 'true'`, mutta ei päivitä sarakkeiden näkyvyyttä taulukossa. Mobiili-näkymän kortit päivittyvät osittain, mutta logiikka on hajallaan.
     - **Havainnot:** `static/interactions.js`:n `window.filterByCritic` ei kutsu `updateCriticColumnVisibility()` -funktiota (tahallaan tai vahingossa), jolloin taulukon sarakkeet eivät piiloudu.
     - **Tehdyt askeleet:**

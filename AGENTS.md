@@ -165,3 +165,30 @@ NODE_VERSION '20' -> '24' in scrape_and_deploy.yml (PR #67). Backend pytest
 unaffected (185 passed, 1 skipped); 23 JS tests pass on Node 22. If frontend
 CI fails again after a Dependabot bump, compare the workflow NODE_VERSION
 against the engines floor in package-lock.json first.
+
+## Facet-aware pagination follow-through, 2026-11-01
+
+User report: clicking a critic showing "9 reviews" displayed only the already
+loaded movies (1 of 9), and "Lataa lisää" ignored active facets. Root causes:
+(1) the slider-window top-up (`rememberSliderWindow`/`topUpSliderResults`) was
+wired only to the two sliders, not to critic/outlet/favorites facets or the
+Load more button; (2) the top-up target was 30 visible movies, not matching
+reviews; (3) the outlet facet matched nothing for HS/KSML/IL/IS/SK/TS/
+FILMOHOLIC because reviews.json carries full publication names while the
+facet buttons carry short codes.
+
+Fix: all facet changes (critic click, outlet buttons, favorites toggle,
+sliders, reset) go through the window top-up; with facets active the target
+is FACET_REVIEW_BATCH=10 visible matching reviews (counted from always-
+rendered mobile cards), unfiltered keeps 30-movie batches. Load more is
+facet-aware and hides when the unloaded tail has no matches (pure-data
+matcher over allGroupedReviews mirrors reconcileFacetVisibility).
+Publication matching normalizes full names to short codes
+(PUB_FULL_NAME_TO_SHORT + new `publication_short` field in Review.to_dict;
+reviews.json picks it up at the next site generation, the client map covers
+legacy data until then). Desktop + mobile verified with headless Chrome
+against generated docs/ (critic facet 1->9 movies, outlet facet 0->24
+reviews, facet Load more +25 matching, reset restores window). 32 JS tests
+pass (6 new in facet-autoload.test.js), 185 Python tests pass, ruff shows
+only pre-existing debt. No deploy, no docs/ regeneration committed, human
+merge pending.
