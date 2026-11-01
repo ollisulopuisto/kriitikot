@@ -44,6 +44,7 @@ describe('Facet-aware auto-loading and Load more', () => {
           </table>
       </div>
       <div class="mobile-cards"></div>
+      <button class="filter-publication media-filter-btn" data-publication="HS">Helsingin Sanomat</button>
       <div><button id="load-more-button">Lataa lisää</button></div>
     </div>
   `;
@@ -69,8 +70,8 @@ describe('Facet-aware auto-loading and Load more', () => {
     // Ennen fasettia: kohdekriitikön 13 arvostelusta vain 3 on ladattu (0,10,20... -> 0,10,20 <= 60)
     win.filterByCritic('2');
     const visible = visibleReviewItems(document);
-    // Erä kerrallaan: vähintään 10 osuvaa arvostelua (tai kaikki jos vähemmän)
-    expect(visible.length).toBeGreaterThanOrEqual(10);
+    // Tasan yksi erä: 10 osuvaa arvostelua näkyvissä, loput 2 eräpiilotettuna
+    expect(visible.length).toBe(10);
     expect(visible.every(i => i.dataset.critic === '2')).toBe(true);
     expect(visibleCards(document).length).toBe(visible.length); // 1 arvostelu/elokuva
     // Lataamaan jää vielä dataa, koska arvosteluja on 13
@@ -81,8 +82,7 @@ describe('Facet-aware auto-loading and Load more', () => {
     const { document, window: win } = dom;
     win.filterByCritic('2');
     const firstBatch = visibleReviewItems(document).length;
-    expect(firstBatch).toBeGreaterThanOrEqual(10);
-    expect(firstBatch).toBeLessThan(13);
+    expect(firstBatch).toBe(10);
 
     document.getElementById('load-more-button').click();
     const all = visibleReviewItems(document);
@@ -105,16 +105,13 @@ describe('Facet-aware auto-loading and Load more', () => {
 
   it('publication facet matches reviews whose JSON carries the full publication name', () => {
     const { document, window: win } = dom;
-    const hsBtn = document.createElement('button');
-    hsBtn.className = 'filter-publication media-filter-btn';
-    hsBtn.dataset.publication = 'HS';
-    document.body.appendChild(hsBtn);
-    // Klikkaus käyttää todellista listeneriä
-    hsBtn.click();
+    // Klikkaus käyttää todellista listeneriä (nappi on templaatissa ennen init-bindingia)
+    document.querySelector('.filter-publication[data-publication="HS"]').click();
     const visible = visibleReviewItems(document);
-    // HS-arvosteluja on 13 (source_publication on koko nimi "Helsingin Sanomat")
-    expect(visible.length).toBeGreaterThanOrEqual(10);
-    expect(visibleCards(document).length).toBeGreaterThanOrEqual(10);
+    // HS-osumia yhteensä 13 (source_publication on koko nimi "Helsingin Sanomat"),
+    // joista ensimmäinen erä on tasan 10
+    expect(visible.length).toBe(10);
+    expect(visibleCards(document).length).toBe(10);
   });
 
   it('hides Load more under a facet when the remaining data has no matches', () => {
@@ -123,6 +120,52 @@ describe('Facet-aware auto-loading and Load more', () => {
     win.filterByCritic('2');
     document.getElementById('load-more-button').click();
     expect(win.tailHasFacetMatches()).toBe(false);
+    expect(document.getElementById('load-more-button').parentElement.style.display).toBe('none');
+  });
+
+  it('keeps movie rows whole at batch boundaries when a movie has several matching reviews', () => {
+    // Kolme HS-kriitikkoa arvostelee samat elokuvat (joka 7.): 3 osumaa/elokuva.
+    // Eräraja 10 voi ylittyä vain viimeisen elokuvan omilla osumilla.
+    const reviews = Object.fromEntries(Array.from({ length: 50 }, (_, i) => ['Film ' + i, {
+      'Susanna Bono': [{ rating_stars: 4, source_publication: 'Episodi' }],
+      ...(i % 7 === 0 ? {
+        'HS A': [{ rating_stars: 5, source_publication: 'Helsingin Sanomat' }],
+        'HS B': [{ rating_stars: 4, source_publication: 'Helsingin Sanomat' }],
+        'HS C': [{ rating_stars: 3, source_publication: 'Helsingin Sanomat' }]
+      } : {})
+    }]));
+    const html = createTestHTML(reviews)
+      .replace('</tr>', `
+        <th class="rating-cell" data-critic-id="3"><div class="critic-name">HS A</div><div class="critic-media">HS</div></th>
+        <th class="rating-cell" data-critic-id="4"><div class="critic-name">HS B</div><div class="critic-media">HS</div></th>
+        <th class="rating-cell" data-critic-id="5"><div class="critic-name">HS C</div><div class="critic-media">HS</div></th>
+      </tr>`);
+    const { document, window: win } = setupDOM(html);
+    win.currentMovieOffset = 0;
+    document.querySelector('tbody').innerHTML = '';
+    document.querySelector('.mobile-cards').innerHTML = '';
+    win.loadMoreMovies(); // 30 elokuvaa: osumat 0,7,14,21,28 (5 x 3 = 15)
+    document.querySelector('.filter-publication[data-publication="HS"]').click();
+
+    const pairSet = () => new Set(visibleReviewItems(document).map(i => i.closest('.movie-card').dataset.movie + '|' + i.dataset.critic));
+    // Erä 1: 4 elokuvaa (3+3+3+3=12 osumaa); raja ylittyy koska 9 < 10 ja 4. elokuva viedään kokonaan
+    expect(visibleCards(document).length).toBe(4);
+    expect(visibleReviewItems(document).length).toBe(12);
+    expect(pairSet().size).toBe(12); // ei duplikaatteja
+    expect(document.getElementById('load-more-button').parentElement.style.display).toBe('block');
+
+    // Erä 2: +10 -> paljastus 20; elokuvat 5-7 paljastuvat (12+3+3+3=21), 8. jää piiloon
+    document.getElementById('load-more-button').click();
+    expect(visibleCards(document).length).toBe(7);
+    expect(visibleReviewItems(document).length).toBe(21);
+    expect(pairSet().size).toBe(21); // ei duplikaatteja erien välillä
+    expect(document.getElementById('load-more-button').parentElement.style.display).toBe('block');
+
+    // Erä 3: loput 3 osumaa; nappi piiloutuu
+    document.getElementById('load-more-button').click();
+    expect(visibleCards(document).length).toBe(8);
+    expect(visibleReviewItems(document).length).toBe(24);
+    expect(pairSet().size).toBe(24); // kaikki osumat, ei kaksoiskappaleita
     expect(document.getElementById('load-more-button').parentElement.style.display).toBe('none');
   });
 

@@ -993,6 +993,21 @@ function tailHasFacetMatches() {
     return movieTitles.slice(currentMovieOffset).some(t => movieHasFacetMatch(t, st));
 }
 
+// Ladattujen elokuvien fasetteja vastaavien arvostelujen määrä (puhdas
+// datalaskenta, riippumaton siitä mikä on parhaillaan näkyvissä).
+function loadedMatchingReviewCount() {
+    const st = currentFacetState();
+    let n = 0;
+    movieTitles.slice(0, currentMovieOffset).forEach(title => {
+        const dict = allGroupedReviews[title];
+        if (!dict || !movieHasFacetMatch(title, st)) return;
+        Object.entries(dict).forEach(([criticName, rs]) => {
+            (rs || []).forEach(r => { if (reviewMatchesFacetState(r, criticName, st)) n++; });
+        });
+    });
+    return n;
+}
+
 // Näkyvissä olevien fasetteja vastaavien arvostelujen määrä. Mobiilikortit
 // renderöidään aina (myös desktopilla), joten ne ovat luotettava lähde.
 function matchingVisibleReviewCount() {
@@ -1007,28 +1022,77 @@ function matchingVisibleReviewCount() {
 }
 
 // "Lataa lisää" -napin näkyvyys: ilman fasetteja näytetään kun dataa on
-// lataamatta; fasettien kanssa vain jos loppudatasta löytyy vielä osumia.
+// lataamatta; fasettien kanssa kun paljastamattomia osumia on vielä jäljellä
+// (joko ladattujen joukossa eräpiilotettuna tai lataamattomassa datassa).
 function updateLoadMoreVisibility() {
     const btn = document.getElementById('load-more-button');
     if (!btn) return;
-    let show = false;
-    if (currentMovieOffset < movieTitles.length) {
-        show = facetFiltersActive() ? tailHasFacetMatches() : true;
+    let show;
+    if (facetFiltersActive()) {
+        show = document.querySelector('.movie-card[data-batch-filtered="true"]') !== null
+            || (currentMovieOffset < movieTitles.length && tailHasFacetMatches());
+    } else {
+        show = currentMovieOffset < movieTitles.length;
     }
     btn.parentElement.style.display = show ? 'block' : 'none';
 }
 
-// Fasettien ollessa päällä "Lataa lisää" lataa elokuvia kunnes näkyvissä on
-// FACET_REVIEW_BATCH uutta fasetteja vastaavaa arvostelua (tai data loppuu).
+// Kuinka monta fasetteja vastaavaa arvostelua on tällä hetkellä paljastettu.
+// Kasvaa FACET_REVIEW_BATCH-erissä käyttäjän painellessa "Lataa lisää".
+let facetRevealCount = FACET_REVIEW_BATCH;
+
+// Rajaa näkyvissä olevat osumat facetRevealCountiin. Elokuvarajat säilyvät
+// ehjinä: elokuva, jossa eräraja ylittyy, näytetään kokonaan (erä voi siksi
+// ylittää tavoitteen viimeisen elokuvan ylimääräisillä osumilla). Ajetaan
+// aina reconcileFacetVisibilityn jälkeen, joka on näkyvyyden lopullinen lähde.
+function applyFacetBatchVisibility() {
+    const cards = [...document.querySelectorAll('.movie-card')];
+    if (facetFiltersActive()) {
+        let acc = 0;
+        cards.forEach(card => {
+            delete card.dataset.batchFiltered;
+            if (card.style.display === 'none') return;
+            const items = [...card.querySelectorAll('.review-item')].filter(i => i.style.display !== 'none');
+            if (!items.length) return;
+            if (acc >= facetRevealCount) {
+                card.dataset.batchFiltered = 'true';
+                card.style.display = 'none';
+            } else {
+                acc += items.length;
+            }
+        });
+    } else {
+        cards.forEach(card => { delete card.dataset.batchFiltered; });
+    }
+    // Peilaa eräpiilotus desktop-riveihin korttien mukaisesti
+    const cardByTitle = new Map(cards.map(c => [c.dataset.movie, c]));
+    document.querySelectorAll('#review-container-desktop tbody tr:not(.poster-row)').forEach(row => {
+        const title = row.querySelector('.movie-title-main')?.textContent.trim();
+        const card = title ? cardByTitle.get(title) : null;
+        if (!card) return;
+        if (card.dataset.batchFiltered === 'true') {
+            row.dataset.batchFiltered = 'true';
+            row.style.display = 'none';
+        } else if (row.dataset.batchFiltered === 'true') {
+            delete row.dataset.batchFiltered;
+            row.style.display = card.style.display === 'none' ? 'none' : '';
+        }
+    });
+    updateLoadMoreVisibility();
+}
+
+// Fasettien ollessa päällä "Lataa lisää" paljastaa seuraavan FACET_REVIEW_BATCH
+// osuvan arvostelun erän, lataen tarvittaessa lisää elokuvia taustalla.
 function loadMoreFacetAware() {
-    const before = matchingVisibleReviewCount();
-    while (matchingVisibleReviewCount() < before + FACET_REVIEW_BATCH && currentMovieOffset < movieTitles.length) {
+    facetRevealCount += FACET_REVIEW_BATCH;
+    while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
         const prev = currentMovieOffset;
         loadMoreMovies(movieLimit);
         if (currentMovieOffset <= prev) break;
     }
+    window.reapplyAllFacets?.();
     if (sliderWindows && sliderWindowKey) {
-        sliderWindows.set(sliderWindowKey, window.currentMovieOffset ?? currentMovieOffset);
+        sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });
     }
     updateLoadMoreVisibility();
 }
@@ -1055,15 +1119,16 @@ function rememberSliderWindow() {
     sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
     sliderWindowKey = sliderResultsKey();
     sliderBaseKey = sliderWindowKey;
-    sliderWindows.set(sliderWindowKey, sliderBaseOffset);
+    sliderWindows.set(sliderWindowKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
 }
 function topUpSliderResults() {
     // Initialization and pagination reapplication never enter this function.
     if (!sliderWindows) return;
-    sliderWindows.set(sliderWindowKey, window.currentMovieOffset ?? currentMovieOffset);
+    sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });
     const key = sliderResultsKey();
     const restoring = sliderWindows.has(key);
-    const offset = sliderWindows.get(key) ?? sliderBaseOffset;
+    const saved = sliderWindows.get(key) || { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH };
+    const offset = saved.offset;
     const keep = new Set(movieTitles.slice(0, offset));
     document.querySelectorAll('.movie-card').forEach(card => {
         if (!keep.has(card.dataset.movie)) card.remove();
@@ -1077,20 +1142,28 @@ function topUpSliderResults() {
     window.currentMovieOffset = currentMovieOffset;
     if (currentMovieOffset < offset) loadMoreMovies(offset - currentMovieOffset);
     sliderWindowKey = key;
+    facetRevealCount = saved.reveal;
     window.reapplyAllFacets?.();
     const facetsActive = facetFiltersActive();
-    const visibleCount = () => [...document.querySelectorAll('.movie-card')].filter(card => card.style.display !== 'none').length;
-    // Faseteilla täydennetään kunnes näkyvissä on FACET_REVIEW_BATCH osuvaa
-    // arvostelua; ilman fasetteja täytetään movieLimitiin asti.
-    const targetMet = () => facetsActive
-        ? matchingVisibleReviewCount() >= FACET_REVIEW_BATCH
-        : visibleCount() >= movieLimit;
-    while (!restoring && !targetMet() && currentMovieOffset < movieTitles.length) {
-        const before = currentMovieOffset;
-        loadMoreMovies(movieLimit);
-        if (currentMovieOffset <= before) break;
+    if (!restoring && facetsActive) {
+        // Varmista että ladattujen joukossa riittää osumia erätavoitteeseen
+        while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
+            const before = currentMovieOffset;
+            loadMoreMovies(movieLimit);
+            if (currentMovieOffset <= before) break;
+        }
+    } else if (!restoring && !facetsActive) {
+        const visibleCount = () => [...document.querySelectorAll('.movie-card')].filter(card => card.style.display !== 'none').length;
+        while (visibleCount() < movieLimit && currentMovieOffset < movieTitles.length) {
+            const before = currentMovieOffset;
+            loadMoreMovies(movieLimit - visibleCount());
+            if (currentMovieOffset <= before) break;
+        }
     }
-    sliderWindows.set(key, currentMovieOffset);
+    // reapplyAllFacets ajaa reconcileFacetVisibilityn, joka soveltaa
+    // eränäkyvyyden (applyFacetBatchVisibility) lopuksi
+    window.reapplyAllFacets?.();
+    sliderWindows.set(key, { offset: currentMovieOffset, reveal: facetRevealCount });
     updateLoadMoreVisibility();
 }
 window.rememberSliderWindow = rememberSliderWindow;
@@ -1205,7 +1278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // jotta fasetin poiston palautus säilyttää käyttäjän lataamat.
                 if (sliderWindows && sliderBaseKey === sliderResultsKey()) {
                     sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
-                    sliderWindows.set(sliderBaseKey, sliderBaseOffset);
+                    sliderWindows.set(sliderBaseKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
                 }
             }
         });
@@ -1318,6 +1391,8 @@ window.isDesktopWidth = isDesktopWidth;
 window.syncCriticOrderFromDom = syncCriticOrderFromDom;
 window.loadMoreMovies = loadMoreMovies;
 window.loadMoreFacetAware = loadMoreFacetAware;
+window.applyFacetBatchVisibility = applyFacetBatchVisibility;
+window.loadedMatchingReviewCount = loadedMatchingReviewCount;
 window.updateLoadMoreVisibility = updateLoadMoreVisibility;
 window.pubShortOf = pubShortOf;
 window.facetFiltersActive = facetFiltersActive;

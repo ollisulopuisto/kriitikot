@@ -178,17 +178,29 @@ FILMOHOLIC because reviews.json carries full publication names while the
 facet buttons carry short codes.
 
 Fix: all facet changes (critic click, outlet buttons, favorites toggle,
-sliders, reset) go through the window top-up; with facets active the target
-is FACET_REVIEW_BATCH=10 visible matching reviews (counted from always-
-rendered mobile cards), unfiltered keeps 30-movie batches. Load more is
-facet-aware and hides when the unloaded tail has no matches (pure-data
-matcher over allGroupedReviews mirrors reconcileFacetVisibility).
-Publication matching normalizes full names to short codes
-(PUB_FULL_NAME_TO_SHORT + new `publication_short` field in Review.to_dict;
-reviews.json picks it up at the next site generation, the client map covers
-legacy data until then). Desktop + mobile verified with headless Chrome
-against generated docs/ (critic facet 1->9 movies, outlet facet 0->24
-reviews, facet Load more +25 matching, reset restores window). 32 JS tests
-pass (6 new in facet-autoload.test.js), 185 Python tests pass, ruff shows
-only pre-existing debt. No deploy, no docs/ regeneration committed, human
-merge pending.
+sliders, reset) go through the window top-up; with facets active the loader
+pulls 30-movie chunks until the loaded data holds the current reveal target
+of matching reviews (loadedMatchingReviewCount, pure-data over
+allGroupedReviews), then applyFacetBatchVisibility (hooked at the end of
+reconcileFacetVisibility) shows exactly one batch of FACET_REVIEW_BATCH=10
+matching reviews and batch-hides the rest with data-batch-filtered. Batches
+are counted in matching reviews but cut only at whole-movie boundaries: a
+movie with several matching reviews is never split, so a batch can exceed
+10 by the last movie's extra matches. Load more raises the reveal target by
+10, loads more chunks if the loaded data lacks them, and hides when neither
+batch-hidden cards nor tail matches remain (tailHasFacetMatches mirrors
+reconcileFacetVisibility over the unloaded tail). Slider windows store
+{offset, reveal} so facet toggles restore both. Publication matching
+normalizes full names to short codes (PUB_FULL_NAME_TO_SHORT + new
+`publication_short` field in Review.to_dict; reviews.json picks it up at
+the next site generation, the client map covers legacy data until then).
+Desktop + mobile verified with headless Chrome against generated docs/:
+critic facet (Maria Lättilä) auto-loads all 291 movies and shows her 9/9
+reviews with Load more hidden; outlet facet (HS, 152 matching reviews)
+shows exactly 10 per batch, +10 per Load more click, final partial batch
+150->152, button hides at the end, no duplicate (movie, critic) pairs at
+any step; facet toggle-off restores the previous 60-movie window. 33 JS
+tests pass (7 in facet-autoload.test.js incl. a whole-movie batch-boundary
+test: 3 matching critics per movie reveals 12, then 21, then all 24 with no
+duplicates), 185 Python tests pass, ruff shows only pre-existing debt. No
+deploy, no docs/ regeneration committed, human merge pending.

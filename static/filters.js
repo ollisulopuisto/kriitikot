@@ -976,6 +976,8 @@ function reconcileFacetVisibility() {
         row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
     });
     headers.forEach(h => h.querySelector('.critic-name')?.setAttribute('aria-pressed', String(h === selected)));
+    // Sovella eränäkyvyys (fasettien osumat FACET_REVIEW_BATCH-erissä)
+    if (window.applyFacetBatchVisibility) window.applyFacetBatchVisibility();
 }
 window.reconcileFacetVisibility = reconcileFacetVisibility;
 

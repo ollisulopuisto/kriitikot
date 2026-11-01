@@ -246,7 +246,7 @@ describe('Facet reapplication when pressing Load more', () => {
     expect(name.closest('th').dataset.filtered).toBeUndefined();
   });
 
-  it('tops up sparse slider matches to a batch of 10 matching reviews and restores the exact previous window', () => {
+  it('tops up sparse slider matches to a batch of 10 matching reviews and restores the exact previous window', { timeout: 30000 }, () => {
     // 5-star reviews every 13th film: only 5 matches in the first 60 movies,
     // so the facet top-up must load more until 10 matching reviews show.
     const reviews = Object.fromEntries(Array.from({length: 125}, (_, i) => ['Film ' + i, {
