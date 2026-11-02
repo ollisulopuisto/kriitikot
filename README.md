@@ -4,15 +4,15 @@ Web-sovellus joka kerää, analysoi ja esittää suomalaisten medioiden elokuva-
 
 ## 🌐 Live-sivusto
 
-**Sivusto:** https://ollisulopuisto.github.io/kriitikot/
+**Sivusto:** https://kriitikot.sulopuis.to/
 
-Päivittyy automaattisesti 6 tunnin välein (GitHub Actions: `.github/workflows/scrape_and_deploy.yml`).
+Päivittyy automaattisesti GitHub Actions -ajastuksella (aikataulu: `.github/workflows/scrape_and_deploy.yml`).
 
 ## 📋 Tila
 
-- **11 aktiivista lähdettä**: HS, Keskisuomalainen, Iltalehti, Turun Sanomat, Suomen Kuvalehti, Ilta-Sanomat, Episodi, Muropaketti, Film-O-Holic, Kulttuuritoimitus, Demokraatti
+- **Aktiiviset lähteet**: HS, Keskisuomalainen, Iltalehti, Turun Sanomat, Suomen Kuvalehti, Ilta-Sanomat, Episodi, Muropaketti, Film-O-Holic, Kulttuuritoimitus, Demokraatti
   - Kaleva ja Seura on toteutettu mutta deaktivoitu (maksumuuri / parsintaongelmat)
-- **~800 arvostelua, ~230 elokuvaa** SQLite-kannassa (`reviews.db`)
+- **Arvostelut, elokuvat ja kriitikot** SQLite-kannassa (`reviews.db`) - ajantasaiset lukumäärät näkyvät live-sivuston ylälaidassa
 - **Discovery-järjestelmä**: löytää uudet arvostelu-URLit automaattisesti joka lähteestä (`src/discovery.py`)
 - **Metatiedot**: TMDB-julisteet, IMDB- ja Letterboxd-linkit (`src/metadata_fetcher.py`)
 - **Staattinen julkaisu**: `scripts/generate_static.py` renderöi Flask-sovelluksen `docs/`-kansioon GitHub Pagesia varten
@@ -53,7 +53,7 @@ python3 batch_update.py --full
 ./run_batch_update.sh daily
 ```
 
-Normaalisti tätä ei tarvitse ajaa käsin — GitHub Actions hoitaa päivityksen 6 tunnin välein ja committaa `reviews.db`:n ja `docs/`-kansion.
+Normaalisti tätä ei tarvitse ajaa käsin — GitHub Actions hoitaa päivityksen ajastetusti ja committaa `reviews.db`:n ja `docs/`-kansion.
 
 ### Staattisten sivujen generointi
 
