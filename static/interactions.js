@@ -384,6 +384,21 @@ window.filterByCritic = function(criticIdOrHeader) {
 
     if (window.reapplyAllFacets) window.reapplyAllFacets();
 
+    // Jos valittiin kriitikko, näytetään välittömästi puuttuvien rivien skeleton/spinner-paikkamerkit
+    if (criticId && typeof window.showSkeletonPlaceholders === 'function') {
+        const headerEl = criticHeader || document.querySelector(`thead th.rating-cell[data-critic-id="${criticId}"]`);
+        const countText = headerEl?.querySelector('.review-count')?.textContent || '';
+        const totalMatches = parseInt(countText.replace(/\D/g, ''), 10) || 0;
+        const currentMatches = document.querySelectorAll(`.review-item[data-critic="${criticId}"]`).length;
+        const batchTarget = window.FACET_REVIEW_BATCH || 10;
+        const needed = Math.min(totalMatches, batchTarget) - currentMatches;
+        if (needed > 0) {
+            window.showSkeletonPlaceholders(needed, criticId);
+        }
+    } else if (!criticId && typeof window.removeSkeletonPlaceholders === 'function') {
+        window.removeSkeletonPlaceholders();
+    }
+
     // Täydennä näkymä automaattisesti kunnes fasettia vastaavia arvosteluja
     // on erän verran näkyvissä (tai palauta edellinen ikkuna poistettaessa)
     if (window.topUpSliderResults) window.topUpSliderResults();

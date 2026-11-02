@@ -402,3 +402,42 @@
     .review-critic-top .mobile-heart { display: inline-flex; width: 36px; min-height: 44px; margin: -.5rem 0 -.5rem .125rem; vertical-align: middle; }
     .review-media { margin-left: 0; }
 }
+
+/* Skeleton placeholder cards for mobile */
+.movie-card.skeleton-card {
+    background-color: #ffffff;
+    opacity: 0.9;
+    border-color: #e9ecef;
+}
+.skeleton-card .skeleton-card-title {
+    width: 60%;
+    height: 18px;
+    margin-bottom: 8px;
+}
+.skeleton-card .skeleton-card-summary {
+    width: 40%;
+    height: 14px;
+}
+.skeleton-card .skeleton-card-poster {
+    width: 64px;
+    height: 96px;
+    border-radius: 4px;
+}
+.skeleton-card .skeleton-card-body {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.skeleton-card .skeleton-card-critic {
+    flex: 1;
+}
+.skeleton-card .skeleton-card-critic-name {
+    width: 120px;
+    height: 16px;
+    margin-bottom: 6px;
+}
+.skeleton-card .skeleton-card-media {
+    width: 80px;
+    height: 12px;
+}

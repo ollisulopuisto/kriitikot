@@ -1081,15 +1081,90 @@ function applyFacetBatchVisibility() {
     updateLoadMoreVisibility();
 }
 
+// Placeholder / Skeleton helper functions for lazy loading
+function removeSkeletonPlaceholders() {
+    window._placeholdersActive = false;
+    document.querySelectorAll('.skeleton-row, .skeleton-card').forEach(el => el.remove());
+}
+
+function showSkeletonPlaceholders(count, criticId) {
+    removeSkeletonPlaceholders();
+    if (!count || count <= 0) return;
+    window._placeholdersActive = true;
+
+    // Desktop placeholder rows
+    const desktopTbody = document.querySelector('#review-container-desktop tbody');
+    const table = document.querySelector('table');
+    let targetCellIndex = -1;
+    if (criticId && table) {
+        const header = table.querySelector(`thead th.rating-cell[data-critic-id="${criticId}"]`);
+        if (header) targetCellIndex = header.cellIndex;
+    }
+    const totalHeaders = table ? table.querySelectorAll('thead th').length : 0;
+
+    if (desktopTbody && desktopTableReady && totalHeaders > 0) {
+        let rowsHtml = '';
+        for (let i = 0; i < count; i++) {
+            rowsHtml += `<tr class="skeleton-row"><td class="movie-col">` +
+                `<div class="movie-content-wrapper">` +
+                `<div class="skeleton-box skeleton-thumb"></div>` +
+                `<div class="movie-info">` +
+                `<div class="skeleton-box skeleton-title"></div>` +
+                `<div class="skeleton-box skeleton-meta"></div>` +
+                `</div></div></td>`;
+            for (let c = 1; c < totalHeaders; c++) {
+                if (c === targetCellIndex) {
+                    rowsHtml += `<td class="rating-cell"><div class="skeleton-spinner-container"><div class="skeleton-spinner"></div></div></td>`;
+                } else {
+                    rowsHtml += `<td class="rating-cell" style="display: none;"></td>`;
+                }
+            }
+            rowsHtml += `</tr>`;
+        }
+        desktopTbody.insertAdjacentHTML('beforeend', rowsHtml);
+    }
+
+    // Mobile placeholder cards
+    const mobileContainer = document.querySelector('.mobile-cards');
+    if (mobileContainer) {
+        let cardsHtml = '';
+        for (let i = 0; i < count; i++) {
+            cardsHtml += `<div class="movie-card skeleton-card">` +
+                `<div class="movie-card-header">` +
+                `<div class="movie-card-title-row">` +
+                `<div class="skeleton-box skeleton-card-title"></div>` +
+                `<div class="skeleton-box skeleton-card-summary"></div>` +
+                `<div class="skeleton-box skeleton-card-poster"></div>` +
+                `</div></div>` +
+                `<div class="skeleton-card-body">` +
+                `<div class="skeleton-card-critic">` +
+                `<div class="skeleton-box skeleton-card-critic-name"></div>` +
+                `<div class="skeleton-box skeleton-card-media"></div>` +
+                `</div>` +
+                `<div class="skeleton-spinner"></div>` +
+                `</div></div>`;
+        }
+        mobileContainer.insertAdjacentHTML('beforeend', cardsHtml);
+    }
+}
+window.removeSkeletonPlaceholders = removeSkeletonPlaceholders;
+window.showSkeletonPlaceholders = showSkeletonPlaceholders;
+
 // Fasettien ollessa päällä "Lataa lisää" paljastaa seuraavan FACET_REVIEW_BATCH
 // osuvan arvostelun erän, lataen tarvittaessa lisää elokuvia taustalla.
 function loadMoreFacetAware() {
     facetRevealCount += FACET_REVIEW_BATCH;
+    const st = currentFacetState();
+    const needed = facetRevealCount - loadedMatchingReviewCount();
+    if (needed > 0 && currentMovieOffset < movieTitles.length) {
+        showSkeletonPlaceholders(Math.min(needed, FACET_REVIEW_BATCH), st.criticId);
+    }
     while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
         const prev = currentMovieOffset;
         loadMoreMovies(movieLimit);
         if (currentMovieOffset <= prev) break;
     }
+    removeSkeletonPlaceholders();
     window.reapplyAllFacets?.();
     if (sliderWindows && sliderWindowKey) {
         sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });
@@ -1160,6 +1235,8 @@ function topUpSliderResults() {
             if (currentMovieOffset <= before) break;
         }
     }
+    // Poistetaan skeleton-paikkamerkit kun oikeat rivit on ladattu
+    removeSkeletonPlaceholders();
     // reapplyAllFacets ajaa reconcileFacetVisibilityn, joka soveltaa
     // eränäkyvyyden (applyFacetBatchVisibility) lopuksi
     window.reapplyAllFacets?.();
@@ -1233,31 +1310,66 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Lataa loput arvostelut: inline-data jos sivulla on sellainen (testit,
-    // vanha sivupohja), muuten erillinen JSON-tiedosto joka ei blokkaa ensirenderöintiä
+    // vanha sivupohja), muuten erillinen JSON-tiedosto joka ei blokkaa ensirenderöintiä.
+    // reviews.json välimuistitetaan (window._cachedReviewsData & promise), jotta
+    // toistuvat kutsut tai fasettilataukset saavat datan välittömästi ilman uutta verkkomaksua.
     const hideLoadMore = () => {
         const btn = document.getElementById('load-more-button');
         if (btn) btn.parentElement.style.display = 'none';
     };
     const applyReviewsData = (data) => {
+        window._cachedReviewsData = data;
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('cached_reviews_data', JSON.stringify(data));
+            }
+        } catch (_) {}
         allGroupedReviews = data;
         movieTitles = Object.keys(allGroupedReviews);
         loadMoreMovies();
     };
 
+    const fetchReviewsJson = () => {
+        if (window._reviewsJsonPromise) return window._reviewsJsonPromise;
+        if (window._cachedReviewsData) {
+            return Promise.resolve(window._cachedReviewsData);
+        }
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                const stored = sessionStorage.getItem('cached_reviews_data');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    window._cachedReviewsData = parsed;
+                    return Promise.resolve(parsed);
+                }
+            }
+        } catch (_) {}
+
+        window._reviewsJsonPromise = fetch('reviews.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                window._cachedReviewsData = data;
+                return data;
+            });
+        return window._reviewsJsonPromise;
+    };
+    window.fetchReviewsJson = fetchReviewsJson;
+
     const inlineData = document.getElementById('all-reviews-data');
     if (inlineData) {
         try {
-            applyReviewsData(JSON.parse(inlineData.textContent));
+            const parsed = JSON.parse(inlineData.textContent);
+            window._cachedReviewsData = parsed;
+            applyReviewsData(parsed);
         } catch (e) {
             console.error('Error parsing all-reviews-data:', e);
             hideLoadMore();
         }
     } else {
-        fetch('reviews.json')
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
+        fetchReviewsJson()
             .then(applyReviewsData)
             .catch(e => {
                 console.error('Error loading reviews.json:', e);
