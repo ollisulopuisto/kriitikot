@@ -282,6 +282,7 @@ function initMovieClickHandlers() {
  * Suodata näkymä näyttämään vain yhden kriitikon arvostelut
  */
 window.filterByCritic = function(criticIdOrHeader) {
+    if (window.rememberSliderWindow) window.rememberSliderWindow();
     let criticId;
     let criticHeader;
     
@@ -382,6 +383,10 @@ window.filterByCritic = function(criticIdOrHeader) {
     }
 
     if (window.reapplyAllFacets) window.reapplyAllFacets();
+
+    // Täydennä näkymä automaattisesti kunnes fasettia vastaavia arvosteluja
+    // on erän verran näkyvissä (tai palauta edellinen ikkuna poistettaessa)
+    if (window.topUpSliderResults) window.topUpSliderResults();
 
     // Näytä nollauspainike
     if (window.showResetButton) window.showResetButton();
@@ -585,6 +590,7 @@ function initPublicationFilterClickHandlers() {
         pubFilter.addEventListener('click', function (e) {
             e.preventDefault();
 
+            if (window.rememberSliderWindow) window.rememberSliderWindow();
             const selectedPub = this.dataset.publication;
             const isCurrentlyActive = this.classList.contains('active');
             
@@ -604,6 +610,8 @@ function initPublicationFilterClickHandlers() {
             if (typeof window.applyPublicationFilter === 'function') {
                 window.applyPublicationFilter(activePubs);
             }
+
+            if (window.topUpSliderResults) window.topUpSliderResults();
 
             if (activePubs.length > 0) {
                 if (window.showResetButton) window.showResetButton();

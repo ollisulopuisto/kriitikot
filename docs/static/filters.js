@@ -67,13 +67,7 @@ function initReviewCountFilter() {
         card.dataset.reviewCount = reviewCount;
     });
 
-    const reviewValueMapping = {
-        1: 1,
-        2: 2,
-        3: 4,
-        4: 6,
-        5: 8
-    };
+    const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
 
     function filterByReviewCount(mappedMinCount) {
         let hiddenCount = 0;
@@ -598,6 +592,10 @@ function initResetButton() {
             updateCriticColumnVisibility();
         }
 
+        // Palauta perusikkuna (fasettien aikana ladatut erät poistuvat)
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+        if (window.topUpSliderResults) window.topUpSliderResults();
+
         hideResetButton();
     }
 
@@ -645,6 +643,8 @@ function initFavoriteFilter() {
             event.preventDefault();
             event.stopPropagation();
         }
+
+        if (window.rememberSliderWindow) window.rememberSliderWindow();
 
         const index = favorites.indexOf(criticId);
         if (index === -1) {
@@ -779,6 +779,7 @@ function initFavoriteFilter() {
             if (window.showResetButton) window.showResetButton();
         }
         if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+        if (window.topUpSliderResults) window.topUpSliderResults();
     };
 
     // Toggle Event Listeners
@@ -787,6 +788,7 @@ function initFavoriteFilter() {
 
     if (favToggleDesktop && !favToggleDesktop.dataset.initialized) {
         function handleToggleChange(e) {
+            if (window.rememberSliderWindow) window.rememberSliderWindow();
             const checked = e.target.checked;
             if (favToggleDesktop) favToggleDesktop.checked = checked;
             if (favToggleMobile) favToggleMobile.checked = checked;
@@ -833,7 +835,8 @@ function applyPublicationFilter(publications) {
                 const mediaElement = item.querySelector('.review-media');
                 const mediaText = mediaElement ? mediaElement.textContent.trim().toUpperCase() : '';
 
-                const matches = publications.some(pub => mediaText.includes(pub.toUpperCase()));
+                const matches = publications.some(pub =>
+                    (window.pubShortOf ? window.pubShortOf(mediaText) : mediaText) === pub.toUpperCase());
 
                 if (matches) {
                     item.style.display = '';
@@ -886,8 +889,8 @@ function applyPublicationFilter(publications) {
                     let cellHasVisibleReview = false;
 
                     cellReviews.forEach(rev => {
-                        const revPub = (rev.dataset.publication || '').toUpperCase();
-                        const matchesRev = noFilter || publications.some(pub => revPub.includes(pub.toUpperCase()));
+                        const revPub = window.pubShortOf ? window.pubShortOf(rev.dataset.publication) : (rev.dataset.publication || '').toUpperCase();
+                        const matchesRev = noFilter || publications.some(pub => revPub === pub.toUpperCase());
 
                         if (matchesRev) {
                             rev.style.display = '';
@@ -946,7 +949,7 @@ function reconcileFacetVisibility() {
     const favorites = window.isFavoritesFilterActive?.();
     const matches = (id, pub, stars) => (!criticId || id === criticId) &&
         (!favorites || window.isFavoriteCritic?.(id)) &&
-        (!pubs.length || pubs.includes((pub || '').toUpperCase())) &&
+        (!pubs.length || pubs.includes(window.pubShortOf ? window.pubShortOf(pub) : (pub || '').toUpperCase())) &&
         (minStars <= 1 || stars >= minStars);
     const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
     document.querySelectorAll('.movie-card').forEach(card => {
@@ -973,6 +976,8 @@ function reconcileFacetVisibility() {
         row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
     });
     headers.forEach(h => h.querySelector('.critic-name')?.setAttribute('aria-pressed', String(h === selected)));
+    // Sovella eränäkyvyys (fasettien osumat FACET_REVIEW_BATCH-erissä)
+    if (window.applyFacetBatchVisibility) window.applyFacetBatchVisibility();
 }
 window.reconcileFacetVisibility = reconcileFacetVisibility;
 
@@ -981,7 +986,7 @@ function reapplyAllFacets() {
     const reviewSlider = document.getElementById('min-reviews-slider');
     if (reviewSlider) {
         const sliderPos = parseInt(reviewSlider.value, 10);
-        const reviewValueMapping = { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+        const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
         const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
         if (typeof window.filterByReviewCount === 'function') {
             window.filterByReviewCount(mappedValue);

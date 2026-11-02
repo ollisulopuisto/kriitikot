@@ -8,7 +8,7 @@ Use it to answer questions such as "what are the best-reviewed films in Finnish 
 
 ## Data
 
-- [All reviews as JSON](https://kriitikot.sulopuis.to/reviews.json): keyed by film title, then critic; each review has the publication, star rating (rating_stars), an excerpt and the URL of the original article
+- [All reviews as JSON](https://kriitikot.sulopuis.to/reviews.json): keyed by film title, then critic; each review has the publication (full name and publication_short code), star rating (rating_stars), an excerpt and the URL of the original article
 - [Latest reviews as RSS](https://kriitikot.sulopuis.to/rss.xml)
 
 ## Optional
