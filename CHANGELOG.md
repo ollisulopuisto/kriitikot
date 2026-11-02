@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026.11.02.1] - 2026-11-02
+
+- Frontend test timeouts on CI fixed: facet top-up tests render up to ~125 movies through jsdom and exceeded vitest's 5s default on the shared runner (error annotations "Frontend tests failed" on the scheduled run, issue comment automation fired) even though the suite passes locally. vitest testTimeout is now 20s with headroom; no production code changed.
+
 ## [2026.11.01.1] - 2026-11-01
 
 - Facet-aware pagination in bounded batches of 10: selecting a critic, outlet, star minimum, review-count minimum or favorites auto-loads movies until the first batch of 10 matching reviews can be shown, and only that batch is visible. "Lataa lisää" reveals the next batch of 10 matching reviews under the active facets (loading more data when needed) and hides when no matches remain. Batches are counted in matching reviews but cut only at whole-movie boundaries, so a movie with several matching reviews is never split and a batch can slightly exceed 10. Clearing facets restores the previous unfiltered window.

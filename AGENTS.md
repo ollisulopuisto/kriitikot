@@ -166,6 +166,20 @@ unaffected (185 passed, 1 skipped); 23 JS tests pass on Node 22. If frontend
 CI fails again after a Dependabot bump, compare the workflow NODE_VERSION
 against the engines floor in package-lock.json first.
 
+## CI frontend test timeouts, 2026-11-02
+
+The scheduled Scrape and Update run that deployed the facet pagination fix
+(run 41384251805) succeeded as a deploy but carried "::error:: Frontend
+tests failed" annotations: two facet tests (favorites intersection,
+facet-autoload tail-exhaustion) exceeded vitest's 5s default testTimeout on
+the shared runner. The workflow's test step annotates failures and comments
+on tracking issue #19 but does NOT stop the deploy. Local runs were green
+(33/33, slowest ~3.7s); the shared runner is simply slower with jsdom
+rendering ~125 movies per top-up test. Fix: testTimeout 20000 in
+vitest.config.js. If frontend timeouts reappear on CI, compare local vs CI
+per-test durations before assuming a real regression; the heavy tests are
+correctness tests over large synthetic datasets, not perf budgets.
+
 ## Facet-aware pagination follow-through, 2026-11-01
 
 User report: clicking a critic showing "9 reviews" displayed only the already
