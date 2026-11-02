@@ -1,5 +1,9 @@
 # Changelog
 
+## [2026.11.02.2] - 2026-11-02
+
+- README korjattu: live-sivuston osoite on https://kriitikot.sulopuis.to/ (mukautettu domain, docs/CNAME), ei enää ollisulopuisto.github.io/kriitikot. Vanhenevat lukemat (~800 arvostelua / ~230 elokuvaa) ja lähdesijoitus (11) korvattu pysyvällä sanamuodolla - ajantasaiset määrät näkyvät live-sivustolla. Päivitysvälin maininta (6 h) korvattu viittauksella workflow-tiedoston aikatauluun, jottei numero pääse vanhenemaan.
+
 ## [2026.11.02.1] - 2026-11-02
 
 - Frontend test timeouts on CI fixed: facet top-up tests render up to ~125 movies through jsdom and exceeded vitest's 5s default on the shared runner (error annotations "Frontend tests failed" on the scheduled run, issue comment automation fired) even though the suite passes locally. vitest testTimeout is now 20s with headroom; no production code changed.
