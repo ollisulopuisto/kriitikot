@@ -54,3 +54,33 @@ def test_critic_summaries_keep_zero_critics_and_exclude_pending_reviews():
     data = DataService(engine).get_index_data()
     assert data['critic_media_map'] == {active: ['A'], empty: []}
     assert data['critic_review_counts'] == {active: 1, empty: 0}
+
+
+def test_paged_movies_queries_do_not_grow_with_page_size():
+    """get_paged_movies should not execute N+1 count queries for each movie on the page."""
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        publication = Publication(name='Test publication', short_name='test')
+        critic = Critic(name='Test critic')
+        session.add_all([publication, critic])
+        for i in range(25):
+            movie = Movie(title=f'Movie {i:02d}')
+            session.add(movie)
+            session.add(Review(movie=movie, critic=critic, publication=publication,
+                               source_url=f'https://example.test/m{i}', rating_stars=4,
+                               is_published=1, scraped_at=datetime(2026, 10, 29)))
+        session.commit()
+
+    queries = []
+    event.listen(engine, 'before_cursor_execute', lambda conn, cur, statement, params, ctx, many: queries.append(statement))
+    data = DataService(engine).get_paged_movies(offset=0, limit=20)
+
+    assert len(data['paged_titles']) == 20
+    assert all(count == 1 for count in data['meta']['movie_review_counts'].values())
+    # Exactly 4 queries:
+    # 1. all published reviews for ordering
+    # 2. reviews joined for paged movies
+    # 3. movies objects for paged movies metadata
+    # 4. all critics for table headers
+    assert len(queries) == 4, f"Expected 4 queries, got {len(queries)}"

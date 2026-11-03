@@ -222,9 +222,16 @@ class DataService:
             # 3. Hae metatiedot
             movies_objs = session.query(Movie).filter(Movie.title.in_(paged_titles)).all()
 
+            # Compute movie review counts from already eager-loaded grouped_ordered reviews
+            # to avoid N+1 queries (1 SQL COUNT query per movie).
+            movie_review_counts = {
+                m.title: sum(len(reviews_list) for reviews_list in grouped_ordered.get(m.title, {}).values())
+                for m in movies_objs
+            }
+
             meta = {
                 **self._movie_link_maps(movies_objs),
-                'movie_review_counts': {m.title: session.query(DBReview).filter_by(movie_id=m.id, is_published=1).count() for m in movies_objs},
+                'movie_review_counts': movie_review_counts,
                 'movie_rating_distributions': self._rating_distributions(grouped_ordered)
             }
 
