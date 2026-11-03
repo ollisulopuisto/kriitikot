@@ -622,8 +622,8 @@ function updateRowVisibility() {
         // Mutta meidän pitää erottaa "ei arvosteluja" -piilotus "filtteri"-piilotuksesta logic chainissa.
         // Tässä oletamme, että tämä ajetaan viimeisenä.
 
-        // Emme koske riveihin, jotka on piilotettu review-count, star tai publication filtterillä
-        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true') {
+        // Emme koske riveihin, jotka on piilotettu filtterillä tai erärajauksella
+        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true' || row.dataset.batchFiltered === 'true') {
             return;
         }
 
@@ -1073,7 +1073,7 @@ function applyFacetBatchVisibility() {
         if (card.dataset.batchFiltered === 'true') {
             row.dataset.batchFiltered = 'true';
             row.style.display = 'none';
-        } else if (row.dataset.batchFiltered === 'true') {
+        } else {
             delete row.dataset.batchFiltered;
             row.style.display = card.style.display === 'none' ? 'none' : '';
         }

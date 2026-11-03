@@ -182,4 +182,31 @@ describe('Facet-aware auto-loading and Load more', () => {
     expect(visibleReviewItems(document).length).toBe(0);
     expect(document.getElementById('load-more-button').parentElement.style.display).toBe('none');
   });
+
+  it('keeps critic facet isolation on desktop rows when clicking Load more', () => {
+    const { document, window: win } = dom;
+    // Activate critic facet (Toinen Kriitikko = '2')
+    win.filterByCritic('2');
+
+    // Click "Load more"
+    document.getElementById('load-more-button').click();
+
+    // Verify all visible desktop rows have a visible review from critic '2'
+    const visibleDesktopRows = Array.from(document.querySelectorAll('#review-container-desktop tbody tr'))
+      .filter(r => r.style.display !== 'none');
+
+    expect(visibleDesktopRows.length).toBeGreaterThan(0);
+    visibleDesktopRows.forEach(row => {
+      const critic2Cell = row.cells[2]; // Index 0: movie-col, Index 1: critic 1, Index 2: critic 2
+      const reviewsInCell = critic2Cell ? Array.from(critic2Cell.querySelectorAll('.rating-pill, .no-rating'))
+        .filter(el => el.style.display !== 'none') : [];
+      expect(reviewsInCell.length).toBeGreaterThan(0);
+
+      // Other critic cells must not have visible reviews
+      const critic1Cell = row.cells[1];
+      const otherReviews = critic1Cell ? Array.from(critic1Cell.querySelectorAll('.rating-pill, .no-rating'))
+        .filter(el => el.style.display !== 'none') : [];
+      expect(otherReviews.length).toBe(0);
+    });
+  });
 });
