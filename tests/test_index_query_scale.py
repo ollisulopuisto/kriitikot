@@ -31,7 +31,14 @@ def test_index_critic_queries_do_not_grow_with_critic_count():
     assert data['total_reviews'] == 40
     assert all(value == ['TEST'] for value in data['critic_media_map'].values())
     assert all(value == 1 for value in data['critic_review_counts'].values())
-    assert len(queries) == 11, len(queries)
+    assert data['pub_stats'] == {'TEST': 40}
+    assert data['rating_distribution'] == {1: 0, 2: 0, 3: 0, 4: 40, 5: 0}
+    # Exactly 4 queries:
+    # 1. published reviews with joinedload (movie, critic, publication)
+    # 2. all critics
+    # 3. all movies for link_maps
+    # 4. latest review for last_updated
+    assert len(queries) == 4, f"Expected 4 queries, got {len(queries)}"
 
 
 def test_critic_summaries_keep_zero_critics_and_exclude_pending_reviews():
@@ -54,6 +61,8 @@ def test_critic_summaries_keep_zero_critics_and_exclude_pending_reviews():
     data = DataService(engine).get_index_data()
     assert data['critic_media_map'] == {active: ['A'], empty: []}
     assert data['critic_review_counts'] == {active: 1, empty: 0}
+    # Pending reviews are excluded from pub_stats and rating_distribution
+    assert data['pub_stats'] == {'A': 1}
 
 
 def test_paged_movies_queries_do_not_grow_with_page_size():
