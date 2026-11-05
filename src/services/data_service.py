@@ -55,10 +55,31 @@ class DataService:
 
     @staticmethod
     def _movie_link_maps(movies) -> Dict[str, Dict[str, str]]:
+        """Maps for movie external links and posters.
+
+        Accepts either Movie ORM objects or column-tuple query results
+        (title, nytleffaan_url, poster_url, letterboxd_url).
+        """
+        nytleffaan = {}
+        poster = {}
+        letterboxd = {}
+        for m in movies:
+            title = getattr(m, 'title', None) if not isinstance(m, (tuple, list)) else m[0]
+            nyt = getattr(m, 'nytleffaan_url', None) if not isinstance(m, (tuple, list)) else m[1]
+            pst = getattr(m, 'poster_url', None) if not isinstance(m, (tuple, list)) else m[2]
+            lb = getattr(m, 'letterboxd_url', None) if not isinstance(m, (tuple, list)) else m[3]
+
+            if nyt:
+                nytleffaan[title] = nyt
+            if pst:
+                poster[title] = pst
+            if lb:
+                letterboxd[title] = lb
+
         return {
-            'nytleffaan_urls': {m.title: m.nytleffaan_url for m in movies if m.nytleffaan_url},
-            'poster_urls': {m.title: m.poster_url for m in movies if m.poster_url},
-            'letterboxd_urls': {m.title: m.letterboxd_url for m in movies if m.letterboxd_url},
+            'nytleffaan_urls': nytleffaan,
+            'poster_urls': poster,
+            'letterboxd_urls': letterboxd,
         }
 
     @staticmethod
@@ -149,16 +170,26 @@ class DataService:
             }
             pub_stats = dict(sorted(pub_counts.items()))
 
-            # Elokuvakohtaiset linkit
-            link_maps = self._movie_link_maps(session.query(Movie).all())
+            # Elokuvakohtaiset linkit: query only the required columns instead
+            # of hydrating 290+ full Movie ORM entities with unused fields.
+            movie_links = session.query(
+                Movie.title,
+                Movie.nytleffaan_url,
+                Movie.poster_url,
+                Movie.letterboxd_url
+            ).all()
+            link_maps = self._movie_link_maps(movie_links)
 
             # Viimeisin päivitys
             latest_update = session.query(DBReview).filter_by(is_published=1).order_by(DBReview.scraped_at.desc()).first()
             last_updated = self._format_last_updated(latest_update)
 
+            # Note on all_reviews_json:
+            # Full reviews dataset is lazy-loaded by the client via `/reviews.json`
+            # (DataService.get_reviews_json). Serializing ~2.8MB of JSON here on every
+            # index page load was unused dead work (~27ms + ~3.4MB memory overhead).
             return {
                 'grouped_reviews': grouped_reviews,
-                'all_reviews_json': json.dumps(self._reviews_json_dict(grouped_reviews)),
                 'all_critics': all_critics,
                 'total_reviews': total_reviews,
                 'rating_distribution': rating_distribution,
