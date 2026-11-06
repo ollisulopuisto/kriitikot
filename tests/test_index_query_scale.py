@@ -33,12 +33,12 @@ def test_index_critic_queries_do_not_grow_with_critic_count():
     assert all(value == 1 for value in data['critic_review_counts'].values())
     assert data['pub_stats'] == {'TEST': 40}
     assert data['rating_distribution'] == {1: 0, 2: 0, 3: 0, 4: 40, 5: 0}
-    # Exactly 4 queries:
+    # Exactly 3 queries:
     # 1. published reviews with joinedload (movie, critic, publication)
     # 2. all critics
     # 3. all movies for link_maps
-    # 4. latest review for last_updated
-    assert len(queries) == 4, f"Expected 4 queries, got {len(queries)}"
+    # (latest review for last_updated is determined in memory from published reviews)
+    assert len(queries) == 3, f"Expected 3 queries, got {len(queries)}"
 
 
 def test_critic_summaries_keep_zero_critics_and_exclude_pending_reviews():
