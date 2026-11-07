@@ -962,16 +962,30 @@ function reconcileFacetVisibility() {
         card.style.display = visible && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
     });
     const headers = [...document.querySelectorAll('thead th.rating-cell')];
+    // Pre-cache critic metadata by cellIndex once per reconcile pass instead of
+    // querying each header's .critic-media across all 298 rows x 89 columns (26,500+ lookups).
+    const headerInfoByCellIndex = new Map();
+    headers.forEach(h => {
+        headerInfoByCellIndex.set(h.cellIndex, {
+            criticId: h.dataset.criticId,
+            media: h.querySelector('.critic-media')?.getAttribute('aria-label') || h.querySelector('.critic-media')?.textContent.trim()
+        });
+    });
+
     const chosenMovie = document.querySelector('tbody tr[data-filtered="true"]');
     document.querySelectorAll('tbody tr:not(.poster-row)').forEach(row => {
         let visible = false;
-        headers.forEach(header => {
-            const cell = row.cells[header.cellIndex];
-            cell?.querySelectorAll('.rating-pill, .no-rating').forEach(review => {
-                const pub = review.dataset.publication || (header.querySelector('.critic-media')?.getAttribute('aria-label') || header.querySelector('.critic-media')?.textContent.trim());
-                const ok = matches(header.dataset.criticId, pub, review.querySelector('.rating-stars')?.textContent.trim().length || 0);
-                review.style.display = ok ? '' : 'none'; visible ||= ok;
-            });
+        // Query reviews directly on the row rather than iterating through 89 empty cells.
+        // Movies have ~3.5 reviews on average, cutting inner checks from ~26,500 down to ~1,000.
+        const reviewElements = row.querySelectorAll('.rating-pill, .no-rating');
+        reviewElements.forEach(review => {
+            const cell = review.closest('td');
+            const headerInfo = cell ? headerInfoByCellIndex.get(cell.cellIndex) : null;
+            const pub = review.dataset.publication || headerInfo?.media;
+            const stars = review.querySelector('.rating-stars')?.textContent.trim().length || 0;
+            const ok = matches(headerInfo?.criticId, pub, stars);
+            review.style.display = ok ? '' : 'none';
+            visible ||= ok;
         });
         row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
     });
