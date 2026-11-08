@@ -944,52 +944,86 @@ function applyPublicationFilter(publications) {
 function reconcileFacetVisibility() {
     const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
     const criticId = selected?.dataset.criticId;
-    const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')].map(b => (b.dataset.publication || '').toUpperCase()))];
+
+    // Performance optimization: collect active publications into a Set once.
+    // Set.has() is O(1) compared to repeated Array.includes() lookups across every review element.
+    const pubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
+    let pubsSet = null;
+    if (pubButtons.length > 0) {
+        pubsSet = new Set();
+        for (let i = 0; i < pubButtons.length; i++) {
+            const pubName = (pubButtons[i].dataset.publication || '').toUpperCase();
+            if (pubName) pubsSet.add(pubName);
+        }
+    }
+
     const minStars = Number(document.getElementById('star-filter-slider')?.value || 1);
+    const hasMinStars = minStars > 1;
     const favorites = window.isFavoritesFilterActive?.();
+    const isFavCritic = window.isFavoriteCritic;
+    const pubShort = window.pubShortOf;
+
+    // Fast-path match predicate with hoisted functions and pre-evaluated branch conditions
     const matches = (id, pub, stars) => (!criticId || id === criticId) &&
-        (!favorites || window.isFavoriteCritic?.(id)) &&
-        (!pubs.length || pubs.includes(window.pubShortOf ? window.pubShortOf(pub) : (pub || '').toUpperCase())) &&
-        (minStars <= 1 || stars >= minStars);
+        (!favorites || (isFavCritic && isFavCritic(id))) &&
+        (!pubsSet || pubsSet.has(pubShort ? pubShort(pub) : (pub || '').toUpperCase())) &&
+        (!hasMinStars || stars >= minStars);
+
     const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
-    document.querySelectorAll('.movie-card').forEach(card => {
+    const cards = document.querySelectorAll('.movie-card');
+    for (let c = 0; c < cards.length; c++) {
+        const card = cards[c];
         let visible = false;
-        card.querySelectorAll('.review-item').forEach(item => {
-            const stars = item.querySelector('.rating-stars')?.textContent.trim().length || 0;
-            const ok = matches(item.dataset.critic, item.dataset.publication || item.querySelector('.review-media')?.textContent.trim(), stars);
-            item.style.display = ok ? '' : 'none'; visible ||= ok;
-        });
+        const items = card.querySelectorAll('.review-item');
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const starSpan = item.querySelector('.rating-stars');
+            const stars = starSpan ? starSpan.textContent.trim().length : 0;
+            const pub = item.dataset.publication || (item.querySelector('.review-media')?.textContent.trim());
+            const ok = matches(item.dataset.critic, pub, stars);
+            item.style.display = ok ? '' : 'none';
+            if (ok) visible = true;
+        }
         card.style.display = visible && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
-    });
-    const headers = [...document.querySelectorAll('thead th.rating-cell')];
+    }
+
+    const headers = document.querySelectorAll('thead th.rating-cell');
     // Pre-cache critic metadata by cellIndex once per reconcile pass instead of
-    // querying each header's .critic-media across all 298 rows x 89 columns (26,500+ lookups).
+    // querying each header's .critic-media across all rows x columns.
+    // Also update aria-pressed in the same pass to avoid a second loop over headers.
     const headerInfoByCellIndex = new Map();
-    headers.forEach(h => {
-        headerInfoByCellIndex.set(h.cellIndex, {
-            criticId: h.dataset.criticId,
-            media: h.querySelector('.critic-media')?.getAttribute('aria-label') || h.querySelector('.critic-media')?.textContent.trim()
+    for (let h = 0; h < headers.length; h++) {
+        const head = headers[h];
+        const mediaEl = head.querySelector('.critic-media');
+        headerInfoByCellIndex.set(head.cellIndex, {
+            criticId: head.dataset.criticId,
+            media: mediaEl ? (mediaEl.getAttribute('aria-label') || mediaEl.textContent.trim()) : ''
         });
-    });
+        head.querySelector('.critic-name')?.setAttribute('aria-pressed', String(head === selected));
+    }
 
     const chosenMovie = document.querySelector('tbody tr[data-filtered="true"]');
-    document.querySelectorAll('tbody tr:not(.poster-row)').forEach(row => {
+    const rows = document.querySelectorAll('tbody tr:not(.poster-row)');
+    for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
         let visible = false;
         // Query reviews directly on the row rather than iterating through 89 empty cells.
         // Movies have ~3.5 reviews on average, cutting inner checks from ~26,500 down to ~1,000.
         const reviewElements = row.querySelectorAll('.rating-pill, .no-rating');
-        reviewElements.forEach(review => {
+        for (let j = 0; j < reviewElements.length; j++) {
+            const review = reviewElements[j];
             const cell = review.closest('td');
             const headerInfo = cell ? headerInfoByCellIndex.get(cell.cellIndex) : null;
             const pub = review.dataset.publication || headerInfo?.media;
-            const stars = review.querySelector('.rating-stars')?.textContent.trim().length || 0;
+            const starSpan = review.querySelector('.rating-stars');
+            const stars = starSpan ? starSpan.textContent.trim().length : 0;
             const ok = matches(headerInfo?.criticId, pub, stars);
             review.style.display = ok ? '' : 'none';
-            visible ||= ok;
-        });
+            if (ok) visible = true;
+        }
         row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
-    });
-    headers.forEach(h => h.querySelector('.critic-name')?.setAttribute('aria-pressed', String(h === selected)));
+    }
+
     // Sovella eränäkyvyys (fasettien osumat FACET_REVIEW_BATCH-erissä)
     if (window.applyFacetBatchVisibility) window.applyFacetBatchVisibility();
 }
