@@ -218,3 +218,8 @@ tests pass (7 in facet-autoload.test.js incl. a whole-movie batch-boundary
 test: 3 matching critics per movie reveals 12, then 21, then all 24 with no
 duplicates), 185 Python tests pass, ruff shows only pre-existing debt. No
 deploy, no docs/ regeneration committed, human merge pending.
+
+
+## Pull request descriptions
+
+Start with 2-4 short sentences explaining the change and whether it needs attention. Put implementation and test detail in a `<details>` block. Use `Agent details (model unknown, effort: maximum)` when the model cannot be verified; do not guess an identity.
