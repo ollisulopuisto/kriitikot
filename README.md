@@ -122,3 +122,9 @@ Katso [AGENTS.md](AGENTS.md) — vaiheittainen ohje (scraper-moduuli, rekisterö
 ## 📄 Lisenssi
 
 MIT
+
+
+## Pull request tests
+
+Run `uv sync --locked --extra dev` and `uv run --locked --extra dev pytest`. The PR workflow uses the same locked environment on Linux. External services are mocked; no credentials or macOS Reminders access are needed.
+Frontend regressions also run with Node 24: `npm ci --ignore-scripts && npm test`.
