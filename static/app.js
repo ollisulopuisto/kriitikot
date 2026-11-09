@@ -253,9 +253,10 @@ function addFillerColumns() {
     fillerTh.innerHTML = '&nbsp;';
     thead.appendChild(fillerTh);
 
-    // Lisää täytesarake jokaiselle näkyvissä olevalle riville
+    // Lisää täytesarake jokaiselle riville, myös piilotetuille: rivi voi
+    // tulla näkyviin myöhemmin, ja sarakkeiden solumäärien on täsmättävä
     tbody.querySelectorAll('tr').forEach(row => {
-        if (row.style.display === 'none') return;
+        if (row.querySelector(':scope > td.filler-column')) return;
 
         const fillerTd = document.createElement('td');
         fillerTd.className = 'filler-column';
@@ -263,6 +264,23 @@ function addFillerColumns() {
         fillerTd.innerHTML = '&nbsp;';
         row.appendChild(fillerTd);
     });
+
+    // Kiinteä sticky-otsikko on otsikon klooni: rakenna se uudelleen, jotta
+    // täytesarake on mukana, muuten klooni venyy ja valittu kriitikko hyppää oikealle
+    if (window.refreshStickyHeader) window.refreshStickyHeader();
+}
+
+/**
+ * Synkronoi täytesolut rivien kanssa, jos täytesarake on käytössä.
+ * "Lataa lisää" lisää rivejä ilman täytesolua; ilman tätä otsikon täytesarake
+ * ja uudet rivit eivät ole samassa sarakeruudukossa ja valittu kriitikko
+ * hyppää taulukon oikeaan reunaan.
+ */
+function syncFillerCells() {
+    const thead = document.querySelector('table thead tr');
+    if (!thead || !thead.querySelector('.filler-column')) return;
+    removeFillerColumns();
+    addFillerColumns();
 }
 
 /**
@@ -271,6 +289,7 @@ function addFillerColumns() {
 function removeFillerColumns() {
     const fillers = document.querySelectorAll('.filler-column');
     fillers.forEach(filler => filler.remove());
+    if (fillers.length && window.refreshStickyHeader) window.refreshStickyHeader();
 }
 
 // Column Management
@@ -931,6 +950,7 @@ function loadMoreMovies(batchSize = movieLimit) {
     if (typeof window.reapplyAllFacets === 'function') window.reapplyAllFacets();
     if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
     if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+    syncFillerCells();
     
     loadMoreButton.disabled = false;
     loadMoreButton.textContent = originalText;
@@ -1496,6 +1516,7 @@ window.showPosterInCell = showPosterInCell;
 window.hidePosterInCell = hidePosterInCell;
 window.resetMovieCell = resetMovieCell;
 window.addFillerColumns = addFillerColumns;
+window.syncFillerCells = syncFillerCells;
 window.removeFillerColumns = removeFillerColumns;
 window.ensureDesktopTable = ensureDesktopTable;
 window.activateDesktopTable = activateDesktopTable;
