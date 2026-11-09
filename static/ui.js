@@ -52,6 +52,14 @@ function initStickyTableHeader() {
         sizes.forEach((size, index) => {
             const clone = clonedCells[index];
             if (!clone) return;
+            // Täytesarake saa venyä jäljellä olevan tilan: sen mitattu leveys voi
+            // olla hetkellinen, ja kiinteä leveys työntäisi kriitikon oikeaan reunaan
+            if (clone.classList.contains('filler-column')) {
+                clone.style.width = 'auto';
+                clone.style.minWidth = '0';
+                clone.style.maxWidth = 'none';
+                return;
+            }
             clone.style.width = size.width + 'px';
             clone.style.minWidth = size.width + 'px';
             clone.style.maxWidth = size.width + 'px';
@@ -90,6 +98,8 @@ function initStickyTableHeader() {
                 theadClone = document.createElement('table');
                 theadClone.id = 'sticky-thead-clone';
                 theadClone.style.borderCollapse = 'collapse';
+                theadClone.style.tableLayout = 'fixed';
+                theadClone.style.width = tableRect.width + 'px';
                 theadClone.style.margin = '0';
                 theadClone.style.padding = '0';
                 theadClone.style.background = '#f8f9fa';
