@@ -126,5 +126,5 @@ MIT
 
 ## Pull request tests
 
-Run `uv sync --locked --extra dev` and `uv run --locked --extra dev pytest`. The PR workflow uses the same locked environment on Linux. External services are mocked; no credentials or macOS Reminders access are needed.
+Run `uv sync --locked --python 3.13 --extra dev` and `uv run --locked --extra dev pytest`. The PR workflow uses the same locked environment on Linux. Tests use local fixtures and mocked services; no scraper run, credentials, production database or deployment is needed.
 Frontend regressions also run with Node 24: `npm ci --ignore-scripts && npm test`.
