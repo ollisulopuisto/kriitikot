@@ -124,6 +124,8 @@ class DataService:
             # querying unused Critic entities via get_grouped_reviews.
             # Building dictionaries directly from tuples reduces get_reviews_json latency
             # by ~48% (from ~75ms down to ~38ms), avoiding massive ORM state allocation.
+            # Publication metadata is optional for legacy/orphan rows. Keep the
+            # review as before, exporting null names when its publication is gone.
             rows = session.query(
                 Movie.title,
                 Critic.name,
@@ -136,9 +138,10 @@ class DataService:
                 DBReview.is_published,
                 DBReview.published_date,
                 DBReview.scraped_at
-            ).join(DBReview.movie)\
+            ).select_from(DBReview)\
+             .join(DBReview.movie)\
              .join(DBReview.critic)\
-             .join(DBReview.publication)\
+             .outerjoin(DBReview.publication)\
              .filter(DBReview.is_published == 1)\
              .all()
 

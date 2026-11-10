@@ -837,7 +837,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                             <div class="review-critic-top">
                                 <span class="review-critic-name">${escapeHtml(critic.name)}</span>
                             </div>
-                            <div class="review-media">${escapeHtml(review.source_publication.toUpperCase())}</div>
+                            <div class="review-media">${escapeHtml((review.source_publication || '').toUpperCase())}</div>
                         </div>
                         <div class="review-rating">
                             ${review.rating_stars ? createReviewPill(review) : ''}

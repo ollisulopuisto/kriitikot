@@ -74,7 +74,7 @@ def test_get_reviews_json_structure(data_service):
     with patch('services.data_service.get_session') as mock_sess_ctx:
         mock_session = mock_sess_ctx.return_value
         query_mock = mock_session.query.return_value
-        query_mock.join.return_value.join.return_value.join.return_value.filter.return_value.all.return_value = [mock_row]
+        query_mock.select_from.return_value.join.return_value.join.return_value.outerjoin.return_value.filter.return_value.all.return_value = [mock_row]
 
         reviews_json = data_service.get_reviews_json()
         all_reviews = json.loads(reviews_json)
