@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Keep published reviews in reviews.json when their publication row is missing. Preserve null publication fields and the single scalar-query export. Real SQLite regressions cover dangling IDs and deleted publications.
+
 ## [2026.11.09.1] - 2026-11-09
 
 - Fixed: with one critic selected, "Lataa lisää" threw the critic column to the far right edge of the table. The fixed (sticky) header is a clone of the table header; it was rebuilt while the filler column was missing and froze the filler column's momentary pixel width, so the clone stretched and pushed the critic away from its cells. The clone now lets the filler column take the remaining width and is rebuilt whenever the filler column is added or removed. Filler cells are also added to every row (including hidden ones) and re-synced after "Lataa lisää", so loaded rows no longer lack them. Regression tests in `tests/frontend/critic-filler-column.test.js`. `APP_VERSION` bumped from 2026.10.05.2 (it had not followed the changelog).
