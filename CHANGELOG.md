@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Keep lazy-loaded pagination working when a review has no publication name; the mobile label stays empty rather than throwing on null.
 - Keep published reviews in reviews.json when their publication row is missing. Preserve null publication fields and the single scalar-query export. Real SQLite regressions cover dangling IDs and deleted publications.
 
 ## [2026.11.09.1] - 2026-11-09
