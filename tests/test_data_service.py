@@ -56,33 +56,43 @@ def test_get_grouped_reviews_logic():
 def test_get_reviews_json_structure(data_service):
     # This test verifies that get_reviews_json returns correctly formatted JSON
     # containing the expected structure for frontend consumption via /reviews.json
-    mock_review_dict = {
-        'movie_title': 'Movie A',
-        'critic_name': 'Critic 1',
-        'rating_stars': 5,
-        'source_publication': 'HS'
-    }
+    # using the optimized column-querying path.
+    mock_row = (
+        'Movie A',                      # Movie.title
+        'Critic 1',                     # Critic.name
+        42,                             # DBReview.id
+        'Helsingin Sanomat',            # Publication.name
+        'hs',                           # Publication.short_name
+        5,                              # DBReview.rating_stars
+        'Loistava elokuva',             # DBReview.review_text
+        'https://example.com/review',   # DBReview.source_url
+        1,                              # DBReview.is_published
+        datetime(2024, 1, 1),           # DBReview.published_date
+        datetime(2024, 1, 1, 12, 0)     # DBReview.scraped_at
+    )
 
-    mock_review = MagicMock()
-    mock_review.to_dict.return_value = mock_review_dict
-    mock_review.rating_stars = 5
-    mock_review.is_published = 1
-    mock_review.published_date = datetime(2024, 1, 1)
+    with patch('services.data_service.get_session') as mock_sess_ctx:
+        mock_session = mock_sess_ctx.return_value
+        query_mock = mock_session.query.return_value
+        query_mock.join.return_value.join.return_value.join.return_value.filter.return_value.all.return_value = [mock_row]
 
-    with patch.object(DataService, 'get_grouped_reviews') as mock_grouped:
-        mock_grouped.return_value = (
-            OrderedDict({"Movie A": {"Critic 1": [mock_review]}}),
-            [MagicMock(id=1, name="Critic 1")],
-            1
-        )
+        reviews_json = data_service.get_reviews_json()
+        all_reviews = json.loads(reviews_json)
 
-        with patch('services.data_service.get_session') as mock_sess_ctx:
-            reviews_json = data_service.get_reviews_json()
-            all_reviews = json.loads(reviews_json)
-
-            assert "Movie A" in all_reviews
-            assert "Critic 1" in all_reviews["Movie A"]
-            assert all_reviews["Movie A"]["Critic 1"][0]['rating_stars'] == 5
+        assert "Movie A" in all_reviews
+        assert "Critic 1" in all_reviews["Movie A"]
+        review = all_reviews["Movie A"]["Critic 1"][0]
+        assert review['id'] == 42
+        assert review['movie_title'] == 'Movie A'
+        assert review['critic_name'] == 'Critic 1'
+        assert review['source_publication'] == 'Helsingin Sanomat'
+        assert review['publication_short'] == 'hs'
+        assert review['rating_stars'] == 5
+        assert review['review_text'] == 'Loistava elokuva'
+        assert review['source_url'] == 'https://example.com/review'
+        assert review['is_published'] is True
+        assert review['published_date'] == '2024-01-01T00:00:00'
+        assert review['scraped_at'] == '2024-01-01T12:00:00'
 
 
 def test_get_index_data_does_not_serialize_redundant_reviews_json(data_service):
