@@ -296,7 +296,10 @@ class DataService:
             ).join(DBReview, DBReview.movie_id == Movie.id)\
              .filter(DBReview.is_published == 1)\
              .group_by(Movie.id, Movie.title)\
-             .order_by(func.max(func.coalesce(DBReview.published_date, DBReview.scraped_at, datetime(1900, 1, 1))).desc())\
+             .order_by(
+                 func.max(func.coalesce(DBReview.published_date, DBReview.scraped_at, datetime(1900, 1, 1))).desc(),
+                 Movie.title
+             )\
              .all()
 
             total_movies = len(title_rows)

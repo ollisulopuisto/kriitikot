@@ -142,3 +142,31 @@ def test_paged_movies_ordering_and_pagination():
     assert p3['total'] == 3
     assert p3['paged_titles'] == []
     assert len(p3['grouped_reviews']) == 0
+
+
+def test_paged_movies_tiebreak_on_identical_timestamp():
+    """Verify movies with identical timestamps are deterministically sorted by title."""
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        pub = Publication(name='Pub', short_name='p')
+        c1 = Critic(name='Critic 1')
+        session.add_all([pub, c1])
+        m_z = Movie(title='Movie Z')
+        m_a = Movie(title='Movie A')
+        session.add_all([m_z, m_a])
+        session.flush()
+
+        shared_time = datetime(2026, 3, 15, 12, 0, 0)
+        session.add_all([
+            Review(movie=m_z, critic=c1, publication=pub, source_url='http://z', is_published=1,
+                   published_date=shared_time, scraped_at=shared_time),
+            Review(movie=m_a, critic=c1, publication=pub, source_url='http://a', is_published=1,
+                   published_date=shared_time, scraped_at=shared_time),
+        ])
+        session.commit()
+
+    ds = DataService(engine)
+    paged = ds.get_paged_movies(offset=0, limit=10)
+    assert paged['paged_titles'] == ['Movie A', 'Movie Z']
+    assert paged['total'] == 2
