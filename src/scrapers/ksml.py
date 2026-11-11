@@ -2,7 +2,6 @@
 Keskisuomalainen (KSML.fi) movie review scraper.
 """
 
-import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup

@@ -74,7 +74,7 @@ def main():
             
             updated += 1
         else:
-            print(f"  ❌ No poster found")
+            print("  ❌ No poster found")
             failed.append(movie.title)
         
         print()
