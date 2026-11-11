@@ -88,8 +88,85 @@ def test_paged_movies_queries_do_not_grow_with_page_size():
     assert len(data['paged_titles']) == 20
     assert all(count == 1 for count in data['meta']['movie_review_counts'].values())
     # Exactly 4 queries:
-    # 1. all published reviews for ordering
+    # 1. aggregated movie title ordering query
     # 2. reviews joined for paged movies
     # 3. movies objects for paged movies metadata
     # 4. all critics for table headers
     assert len(queries) == 4, f"Expected 4 queries, got {len(queries)}"
+
+
+def test_paged_movies_ordering_and_pagination():
+    """Verify get_paged_movies orders by latest review, slices accurately, and excludes unreviewed/unpublished."""
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        pub = Publication(name='Pub', short_name='p')
+        c1 = Critic(name='Critic 1')
+        session.add_all([pub, c1])
+        m_old = Movie(title='Movie Old')
+        m_mid = Movie(title='Movie Mid')
+        m_new = Movie(title='Movie New')
+        m_unpub = Movie(title='Movie Unpub')
+        m_empty = Movie(title='Movie No Reviews')
+        session.add_all([m_old, m_mid, m_new, m_unpub, m_empty])
+        session.flush()
+
+        session.add_all([
+            Review(movie=m_old, critic=c1, publication=pub, source_url='http://old', is_published=1,
+                   published_date=datetime(2025, 1, 1), scraped_at=datetime(2025, 1, 1)),
+            Review(movie=m_mid, critic=c1, publication=pub, source_url='http://mid', is_published=1,
+                   published_date=datetime(2025, 6, 1), scraped_at=datetime(2025, 6, 1)),
+            Review(movie=m_new, critic=c1, publication=pub, source_url='http://new', is_published=1,
+                   published_date=datetime(2026, 1, 1), scraped_at=datetime(2026, 1, 1)),
+            Review(movie=m_unpub, critic=c1, publication=pub, source_url='http://unpub', is_published=0,
+                   published_date=datetime(2026, 12, 1), scraped_at=datetime(2026, 12, 1)),
+        ])
+        session.commit()
+
+    ds = DataService(engine)
+
+    # Page 1 (limit 2)
+    p1 = ds.get_paged_movies(offset=0, limit=2)
+    assert p1['total'] == 3
+    assert p1['paged_titles'] == ['Movie New', 'Movie Mid']
+    assert list(p1['grouped_reviews'].keys()) == ['Movie New', 'Movie Mid']
+
+    # Page 2 (limit 2)
+    p2 = ds.get_paged_movies(offset=2, limit=2)
+    assert p2['total'] == 3
+    assert p2['paged_titles'] == ['Movie Old']
+    assert list(p2['grouped_reviews'].keys()) == ['Movie Old']
+
+    # Page 3 (past end)
+    p3 = ds.get_paged_movies(offset=4, limit=2)
+    assert p3['total'] == 3
+    assert p3['paged_titles'] == []
+    assert len(p3['grouped_reviews']) == 0
+
+
+def test_paged_movies_tiebreak_on_identical_timestamp():
+    """Verify movies with identical timestamps are deterministically sorted by title."""
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        pub = Publication(name='Pub', short_name='p')
+        c1 = Critic(name='Critic 1')
+        session.add_all([pub, c1])
+        m_z = Movie(title='Movie Z')
+        m_a = Movie(title='Movie A')
+        session.add_all([m_z, m_a])
+        session.flush()
+
+        shared_time = datetime(2026, 3, 15, 12, 0, 0)
+        session.add_all([
+            Review(movie=m_z, critic=c1, publication=pub, source_url='http://z', is_published=1,
+                   published_date=shared_time, scraped_at=shared_time),
+            Review(movie=m_a, critic=c1, publication=pub, source_url='http://a', is_published=1,
+                   published_date=shared_time, scraped_at=shared_time),
+        ])
+        session.commit()
+
+    ds = DataService(engine)
+    paged = ds.get_paged_movies(offset=0, limit=10)
+    assert paged['paged_titles'] == ['Movie A', 'Movie Z']
+    assert paged['total'] == 2
