@@ -1,6 +1,5 @@
 """Kulttuuritoimitus scraper for movie reviews."""
 from .base import BaseScraper, Review
-import json
 from bs4 import BeautifulSoup
 
 
