@@ -29,6 +29,14 @@ const PUB_FULL_NAME_TO_SHORT = {
     'FILM-O-HOLIC': 'FILMOHOLIC'
 };
 
+// Shared with server-rendered chips and labels. Unknown names stay unchanged.
+const publicationNamesData = document.getElementById('publication-names-data');
+const publicationNames = publicationNamesData ? JSON.parse(publicationNamesData.textContent) : {};
+function publicationFullName(value) {
+    const key = pubShortOf(value);
+    return publicationNames[key] || value || '';
+}
+
 // Palauta julkaisun lyhenne (isot kirjaimet) koko nimestä tai lyhenteestä.
 function pubShortOf(value) {
     const v = String(value || '').trim().toUpperCase();
@@ -837,7 +845,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
                             <div class="review-critic-top">
                                 <span class="review-critic-name">${escapeHtml(critic.name)}</span>
                             </div>
-                            <div class="review-media">${escapeHtml((review.source_publication || '').toUpperCase())}</div>
+                            <div class="review-media" title="${escapeHtml(publicationFullName(review.publication_short || review.source_publication))}" aria-label="${escapeHtml(publicationFullName(review.publication_short || review.source_publication))}">${escapeHtml((review.source_publication || '').toUpperCase())}</div>
                         </div>
                         <div class="review-rating">
                             ${review.rating_stars ? createReviewPill(review) : ''}
@@ -1290,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Julkaisujen nimet suodatinnapeista (short_name -> koko nimi)
     document.querySelectorAll('.media-filter-btn').forEach(btn => {
         const short_name = btn.dataset.publication.toLowerCase();
-        const name = btn.textContent.trim();
+        const name = btn.getAttribute('aria-label') || btn.textContent.trim();
         allPublicationMap[short_name] = { short_name: short_name, name: name };
     });
 

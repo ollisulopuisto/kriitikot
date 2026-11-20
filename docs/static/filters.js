@@ -992,7 +992,7 @@ function reconcileFacetVisibility() {
         const mediaEl = head.querySelector('.critic-media');
         headerInfoByCellIndex.set(head.cellIndex, {
             criticId: head.dataset.criticId,
-            media: mediaEl ? (mediaEl.getAttribute('aria-label') || mediaEl.textContent.trim()) : ''
+            media: mediaEl ? (mediaEl.dataset.publications || mediaEl.textContent.trim()) : ''
         });
         head.querySelector('.critic-name')?.setAttribute('aria-pressed', String(head === selected));
     }
