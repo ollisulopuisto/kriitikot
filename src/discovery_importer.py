@@ -314,6 +314,8 @@ class DiscoveryImporter:
                 if not (valid_title and valid_author and valid_rating):
                     print('   ❌ Incomplete review identity, author or rating; needs source review')
                     failed += 1
+                    if queue:
+                        queue.finish(url, 'failed')
                     continue
 
                 # If HS returned its article headline, the film facts were
