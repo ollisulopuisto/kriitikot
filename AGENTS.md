@@ -223,3 +223,18 @@ deploy, no docs/ regeneration committed, human merge pending.
 ## Pull request descriptions
 
 Start with 2-4 short sentences explaining the change and whether it needs attention. Put implementation and test detail in a `<details>` block. Use `Agent details (model unknown, effort: maximum)` when the model cannot be verified; do not guess an identity.
+
+## Compact header, 2026-11-20
+
+Owner selected sketch 1: dark compact controls in three desktop columns and
+two rows. Tablet uses two columns with publications below; phone keeps its
+existing collapsible panel with 44px controls and internal scrolling on short
+screens. Removed accumulated desktop overrides rather than appending another
+competing layout. Sort/filter IDs and JS behaviour are unchanged. Favourites
+now have clickable labels and a visible keyboard-focus ring.
+
+Regression commands: `uv run pytest` and `npm test`.
+Optional real-Chrome geometry + interaction checks and screenshots:
+`uv run --with playwright python scripts/check_header_layout.py`.
+Set CHROME_BIN if Chrome is elsewhere; SCREENSHOT_DIR selects capture output.
+No scraping or site regeneration is part of that check.
