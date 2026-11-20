@@ -385,3 +385,5 @@ if __name__ == '__main__':
     else:
         # Default: importoi kaikista lähteistä 10 arvostelua
         importer.import_all_sources(limit_per_source=10)
+
+    sys.exit(1 if any(importer.source_failures.values()) else 0)

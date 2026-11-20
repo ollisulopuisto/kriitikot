@@ -284,3 +284,20 @@ def test_all_source_discovery_failures_are_counted(monkeypatch):
     importer.session = MagicMock()
     assert all(value == 0 for value in importer.import_all_sources().values())
     assert importer.source_failures == {source:1 for source in CategoryCrawler.CATEGORY_PAGES}
+
+
+def test_direct_import_cli_failure_exit_status(monkeypatch):
+    import runpy
+    import models
+    import discovery
+    def outage(*a, **k):
+        raise OSError('offline')
+    monkeypatch.setattr(discovery.MetaScraper,'discover_new_reviews',outage)
+    monkeypatch.setattr(models,'get_engine',MagicMock())
+    monkeypatch.setattr(models,'get_session',lambda *a:MagicMock())
+    for args in (['discovery_importer.py','hs'],['discovery_importer.py']):
+        monkeypatch.setattr(sys,'argv',args)
+        import pytest
+        with pytest.raises(SystemExit) as exc:
+            runpy.run_path(str(Path(__file__).resolve().parents[1]/'src'/'discovery_importer.py'),run_name='__main__')
+        assert exc.value.code == 1
