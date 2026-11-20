@@ -309,7 +309,7 @@ article tags, cinema evidence, film subject, author and stars; --limit counts
 admitted reviews, not candidates. Each run makes at most40article requests,
 spaced1second apart, and carries its backlog in data/is-discovery.json.
 The queue caches explicit exclusions for7days and retries failures after12hours;
-oldest pending/retry work comes first. A failed cached item keeps the source
+due failures come first, then oldest pending work and exclusion overlap. A failed cached item keeps the source
 failure visible until resolved. The scheduled workflow persists only the public
 queue file even if partial review publication is blocked. Cached success without
 a saved ReviewURL is requeued, so failed deployments do not lose articles.

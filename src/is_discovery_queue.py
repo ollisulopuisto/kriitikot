@@ -67,8 +67,10 @@ class ISDiscoveryQueue:
             expiry = timedelta(hours=12 if row['status'] == 'failed' else 168)
             if row['status'] == 'pending' or checked is None or checked <= self.now-expiry:
                 due.append((url,row))
-        # Pending backlog first; within retries/overlap oldest check first.
-        due.sort(key=lambda item:(item[1]['status'] != 'pending',
+        # Due errors first: otherwise restored successes can consume the
+        # admission limit on every failed-deployment retry and starve recovery.
+        priority = {'failed':0, 'pending':1, 'excluded':2}
+        due.sort(key=lambda item:(priority[item[1]['status']],
             item[1]['checked_at'] or item[1]['discovered_at'],item[1]['sequence'],item[0]))
         return [{'url':url, 'title':row['title']} for url,row in due[:max(0,budget)]]
 

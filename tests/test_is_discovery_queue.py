@@ -141,3 +141,35 @@ def test_edit_recheck_and_retry_fairness(tmp_path):
     q.now=now+timedelta(days=9)
     q.enqueue([{'url':url(1),'title':'Edited card'}])
     assert next(i for i in q.due(40) if i['url']==url(1))['title']=='Edited card'
+
+
+def test_retry_clears_failure_after_unsaved_admissions(monkeypatch,tmp_path):
+    import discovery_importer
+    import time
+    monkeypatch.setattr(time,'sleep',lambda *a:None)
+    cache=tmp_path/'queue.json'
+    candidates=[{'title':str(n),'url':url(n)} for n in range(11)]
+    def importer():
+        db=session();db.add(Publication(name='Ilta-Sanomat',short_name='is'))
+        db.add_all([Movie(title=f'Film {n}') for n in range(11)]);db.commit()
+        obj=DiscoveryImporter.__new__(DiscoveryImporter)
+        obj.session=db;obj.source_failures={};obj.is_cache_path=cache;obj.scrapers={'is':ISScraper()}
+        obj.meta_scraper=SimpleNamespace(discover_new_reviews=lambda *a:candidates)
+        return obj
+    broken=True;calls=[]
+    def get(target,**kwargs):
+        calls.append(target);n=int(target.split('art-')[1].split('.')[0])
+        return SimpleNamespace(text='Broken' if n==0 and broken else page(review_asset(f'Film {n}')),
+            status_code=200,raise_for_status=lambda:None)
+    monkeypatch.setattr(discovery_importer.requests,'get',get)
+    first=importer()
+    assert first.import_discovered_reviews('is',limit=10)==10
+    assert first.source_failures['is']==1
+    # Simulate failed workflow: queue persisted, original DB is checked out.
+    data=json.loads(cache.read_text())
+    for row in data['articles'].values():row['checked_at']='2026-01-01T00:00:00'
+    cache.write_text(json.dumps(data))
+    broken=False;calls.clear();second=importer()
+    assert second.import_discovered_reviews('is',limit=10)==10
+    assert second.source_failures['is']==0
+    assert calls[0]==url(0) and len(calls)<=40
