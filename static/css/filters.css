@@ -506,12 +506,12 @@ tr.dimmed {
    One layout definition replaces the accumulated desktop overrides. */
 .desktop-filters,
 .mobile-filters-container {
-    --toolbar-bg: #151b25;
-    --toolbar-button: #202938;
-    --toolbar-ink: #f3f5fa;
-    --toolbar-muted: #bac4d6;
-    --toolbar-border: #46546b;
-    --toolbar-accent: #b7a2ff;
+    --toolbar-bg: var(--card-bg);
+    --toolbar-button: #f3f4f6;
+    --toolbar-ink: var(--text-color);
+    --toolbar-muted: #4b5563;
+    --toolbar-border: var(--border-color);
+    --toolbar-accent: var(--primary-color);
     background: var(--toolbar-bg);
     color: var(--toolbar-ink);
     font-family: 'Afacad', system-ui, sans-serif;
@@ -531,13 +531,14 @@ tr.dimmed {
 }
 
 :is(.desktop-filters, .mobile-filters-container) button:hover {
-    background: #303d52;
+    background: #ede9fe;
     border-color: var(--toolbar-accent);
     transform: none;
 }
 
-:is(.desktop-filters, .mobile-filters-container) .active {
-    background: #49376d;
+:is(.desktop-filters, .mobile-filters-container) button.active,
+:is(.desktop-filters, .mobile-filters-container) button.active:hover {
+    background: var(--primary-color);
     border-color: var(--toolbar-accent);
     color: white;
 }
@@ -549,8 +550,8 @@ tr.dimmed {
 /* Keep the input focusable and expose focus on the visible switch. */
 .toggle-switch { flex-shrink: 0; }
 .toggle-switch input { position: absolute; inset: 0; width: 100%; height: 100%; }
-.toggle-switch:focus-within { outline: 3px solid #b7a2ff; outline-offset: 3px; border-radius: 22px; }
-.toggle-slider { background: #566176; }
+.toggle-switch:focus-within { outline: 3px solid var(--primary-color); outline-offset: 3px; border-radius: 22px; }
+.toggle-slider { background: #9ca3af; }
 .toggle-switch input:checked + .toggle-slider { background: #8b5cf6; }
 :is(.desktop-filters, .mobile-filters-container) label.toggle-container {
     cursor: pointer;
@@ -616,7 +617,7 @@ tr.dimmed {
     .desktop-filters .group-reviews { grid-column: 2; grid-row: 1; }
     .desktop-filters .group-stars { grid-column: 2; grid-row: 2; }
     .desktop-filters .filter-icon { display: none; }
-    .desktop-filters .slider { background: #46546b; margin: .45rem 0 .25rem; }
+    .desktop-filters .slider { background: #d1d5db; margin: .45rem 0 .25rem; }
     .desktop-filters .slider::-webkit-slider-thumb { background: var(--toolbar-accent); }
     .desktop-filters .slider::-moz-range-thumb { background: var(--toolbar-accent); border: 0; }
     .desktop-filters .slider-labels { color: var(--toolbar-muted); font-family: system-ui, sans-serif; font-size: .75rem; }

@@ -226,7 +226,7 @@ Start with 2-4 short sentences explaining the change and whether it needs attent
 
 ## Compact header, 2026-11-20
 
-Owner selected sketch 1: dark compact controls in three desktop columns and
+Owner selected sketch 1: compact controls in the existing site palette in three desktop columns and
 two rows. Tablet uses two columns with publications below; phone keeps its
 existing collapsible panel with 44px controls and internal scrolling on short
 screens. Removed accumulated desktop overrides rather than appending another
