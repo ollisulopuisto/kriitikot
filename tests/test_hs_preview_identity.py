@@ -133,3 +133,15 @@ def test_case_inflected_headline_imports(monkeypatch,noun):
     obj=importer(monkeypatch,a)
     assert obj.import_discovered_reviews('hs') == 1
     assert obj.session.query(Review).one().rating_stars == 5
+
+
+@pytest.mark.parametrize('title', ['3 / 5 tähteä','2–3 tähteä','2 - 3 tähteä','3/5 tähteä'])
+def test_fraction_and_range_are_not_endpoint_ratings(title):
+    assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':title}) is None
+
+
+def test_incidental_hotel_does_not_hide_explicit_verdict(monkeypatch):
+    a=preview();a['title']='Viiden tähden hotellissa kuvattu elokuva saa viisi tähteä'
+    obj=importer(monkeypatch,a)
+    assert obj.import_discovered_reviews('hs') == 1
+    assert obj.session.query(Review).one().rating_stars == 5

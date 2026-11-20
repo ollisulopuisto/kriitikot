@@ -166,6 +166,10 @@ class HSScraper(BaseScraper):
         if asset_data.get('storyLogo') == 'Elokuva-arvio':
             title = self.clean_text(asset_data.get('title', '')) or ''
             pattern = r'(?<![\w.,/])([1-5]|yksi|kaksi|kolme|neljä|viisi|yhden|kahden|kolmen|neljän|viiden)\s+täh(?:teä|ti|den)(?!\w)'
+            # Fractions and rating ranges need their own semantics; never read
+            # only the denominator or range endpoint as the verdict.
+            if re.search(r'\d\s*[/–—-]\s*\d\s+täh', title, re.IGNORECASE):
+                return None
             matches = list(re.finditer(pattern, title, re.IGNORECASE))
             ratings = set()
             for match in matches:
@@ -182,7 +186,7 @@ class HSScraper(BaseScraper):
                                  r'|(?:trilleri|musikaali)' + cases +
                                  r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
                     if not re.match(film_noun, following):
-                        return None
+                        continue
                 ratings.add(self.parse_rating(match.group(0)))
             ratings.discard(None)
             if len(ratings) == 1:
