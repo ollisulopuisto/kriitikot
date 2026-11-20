@@ -163,3 +163,16 @@ def test_is_plot_clock_time_is_not_broadcast_evidence():
     scraper=ISScraper()
     assert scraper.exclusion_reason(html(asset)) is None
     assert scraper.parse_html(html(asset)).movie_title == 'Punaista lunta'
+
+
+def test_is_broadcast_schedule_case_and_channel_variants():
+    scraper = ISScraper()
+    for clock in ('klo', 'Klo', 'KLO'):
+        for channel in ('TV5', 'Yle', 'Nelonen', 'Sub'):
+            for endnote in (True, False):
+                asset = {'tags': [{'key': 'tv-lehti'}, {'key': 'arviot'}], 'splitBody': [
+                    {'type': 'paragraph', 'crumbs': [{'content': f'{clock} 21.00 {channel}',
+                                                     'marks': ['endnote'] if endnote else []}]},
+                    {'type': 'paragraph', 'crumbs': [{'content': 'Komedia ★★★'}]}]}
+                assert scraper.exclusion_reason(html(asset)) == 'outside_cinema', (clock, channel, endnote)
+                assert scraper.parse_html(html(asset)) is None

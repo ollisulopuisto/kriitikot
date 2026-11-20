@@ -136,7 +136,7 @@ class ISScraper(BaseScraper):
         # A bare clock in a plot synopsis is not broadcast evidence. Outside
         # the distribution endnote, require a channel in the same paragraph.
         is_tv_schedule = bool(re.search(clock, endnote)) or any(
-            re.search(clock, text) and re.search(channel, text, re.IGNORECASE)
+            re.search(clock, text, re.IGNORECASE) and re.search(channel, text, re.IGNORECASE)
             for text in (''.join(c.get('content', '') for c in section.get('crumbs', []))
                          for section in self._paragraph_sections(asset_data))
         )
