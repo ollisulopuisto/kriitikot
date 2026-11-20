@@ -176,3 +176,38 @@ def test_is_broadcast_schedule_case_and_channel_variants():
                     {'type': 'paragraph', 'crumbs': [{'content': 'Komedia ★★★'}]}]}
                 assert scraper.exclusion_reason(html(asset)) == 'outside_cinema', (clock, channel, endnote)
                 assert scraper.parse_html(html(asset)) is None
+
+
+def test_episodi_api_rejects_untrusted_article_origins_and_redirects(monkeypatch):
+    from scrapers.episodi import EpisodiScraper
+    import scrapers.episodi
+    scraper = EpisodiScraper()
+    bad_urls = ('http://www.episodi.fi/elokuvat/test/', 'https://episodi.fi.attacker.test/',
+                'https://attacker.test/', 'https://127.0.0.1/', '//episodi.fi/test',
+                'https://user@episodi.fi/test', 'https://episodi.fi:8443/test',
+                'https://[bad', None)
+    for url in bad_urls:
+        calls = []
+        def get(target, **kwargs):
+            calls.append(target)
+            return SimpleNamespace(json=lambda:[{'link':url,'content':{'rendered':''}}],
+                                   raise_for_status=lambda:None)
+        monkeypatch.setattr(scrapers.episodi.requests, 'get', get)
+        assert scraper.parse_json_api() == []
+        assert calls == [scraper.api_url]
+    for host in ('episodi.fi', 'www.episodi.fi'):
+        url = f'https://{host}/elokuvat/test/'
+        for status in (200, 302):
+            calls = []
+            def get(target, **kwargs):
+                calls.append((target, kwargs))
+                if target == scraper.api_url:
+                    return SimpleNamespace(json=lambda:[{'link':url,'content':{'rendered':''}}],
+                                           raise_for_status=lambda:None)
+                return SimpleNamespace(status_code=status, text='<h2 class="epi-rv-n">Dry Leaf</h2>',
+                                       headers={'Location':'http://127.0.0.1/private'}, raise_for_status=lambda:None)
+            monkeypatch.setattr(scrapers.episodi.requests, 'get', get)
+            reviews = scraper.parse_json_api()
+            assert len(reviews) == (1 if status == 200 else 0)
+            assert len(calls) == 2
+            assert calls[-1][1]['allow_redirects'] is False

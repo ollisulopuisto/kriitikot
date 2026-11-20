@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 from typing import List, Optional
+from urllib.parse import urlsplit
 
 
 class EpisodiScraper(BaseScraper):
@@ -69,13 +70,19 @@ class EpisodiScraper(BaseScraper):
             # Parsitaan jokainen arvostelu
             for item in data:
                 try:
+                    source_url = item.get('link', '')
+                    if not self._is_article_url(source_url):
+                        continue
                     # WP title.rendered is the article headline too. Film
                     # identity must come from a card/Review, including here.
                     content = item.get('content', {}).get('rendered', '')
                     movie_title = self._extract_title(self.get_soup(content))
                     if not movie_title:
-                        page = requests.get(item['link'], timeout=10)
+                        # Do not follow redirects to an unchecked destination.
+                        page = requests.get(source_url, timeout=10, allow_redirects=False)
                         page.raise_for_status()
+                        if 300 <= page.status_code < 400:
+                            continue
                         movie_title = self._extract_title(self.get_soup(page.text))
                     if not movie_title:
                         continue
@@ -142,6 +149,18 @@ class EpisodiScraper(BaseScraper):
         # Jos ei löydy, palautetaan None
         return None
     
+    @staticmethod
+    def _is_article_url(value) -> bool:
+        """Only the publication's HTTPS origin is a fetchable article URL."""
+        if not isinstance(value, str):
+            return False
+        try:
+            url = urlsplit(value)
+            return (url.scheme == 'https' and url.hostname in ('episodi.fi', 'www.episodi.fi')
+                    and url.port in (None, 443) and url.username is None and url.password is None)
+        except ValueError:
+            return False
+
     def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
         """Read the film card, never the article headline.
 
