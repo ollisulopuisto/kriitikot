@@ -66,7 +66,9 @@ with tempfile.TemporaryFile() as log:
             page.locator("#reset-filters-desktop").click()
             # Capture with active publication to show the reset button and active chip.
             page.locator('.desktop-filters [data-publication="HS"]').click()
-            page.screenshot(path=str(output / "desktop.png"))
+            page.mouse.move(0, 0)
+        page.wait_for_timeout(200)  # Let the active-chip colour transition finish.
+        page.screenshot(path=str(output / "desktop.png"))
             print("desktop bar", page.locator(".desktop-filters").bounding_box())
             regions = {
                 name: page.locator(".desktop-filters ." + name).bounding_box()
