@@ -116,3 +116,12 @@ def test_finnish_film_suffix_is_not_a_sequel(monkeypatch,suffix):
 @pytest.mark.parametrize('noun',['elokuvaa','sotaelokuvaksi','dokumentin','draamaa','komediaa','trillerin'])
 def test_inflected_film_nouns_still_carry_rating(noun):
     assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':'Kriitikko kehuu 5 tähden '+noun})==5
+
+
+@pytest.mark.parametrize('noun',['elokuvateatterissa','elokuvantekijä'])
+def test_non_film_compound_is_not_a_rating_or_import(monkeypatch,noun):
+    a=preview();a['title']='Viiden tähden '+noun+' tapahtuu murha'
+    assert HSScraper().parse_html(document(a)).rating_stars is None
+    obj=importer(monkeypatch,a)
+    assert obj.import_discovered_reviews('hs') == 0
+    assert obj.session.query(Review).count() == 0
