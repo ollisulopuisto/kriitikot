@@ -18,6 +18,7 @@ it('keeps full publication names on lazy-loaded mobile labels', () => {
   win.loadMoreMovies();
   const label = document.querySelector('.review-media');
   expect(label.textContent).toBe('IS');
+  expect(label.getAttribute('role')).toBe('group');
   expect(label.title).toBe('Ilta-Sanomat');
   expect(label.getAttribute('aria-label')).toBe('Ilta-Sanomat');
 });

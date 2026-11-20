@@ -30,4 +30,5 @@ def test_filter_chips_and_critic_tags_have_full_names():
         assert label['title'] == publication_names(codes)
         assert label['aria-label'] == publication_names(codes)
     for label in soup.select('.review-media'):
+        assert label['role'] == 'group'
         assert label['title'] == publication_name(label.get_text(strip=True))
