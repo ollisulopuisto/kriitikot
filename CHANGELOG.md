@@ -1,5 +1,10 @@
 ## 2026-11-20
 
+- Treat incomplete discovered review identities/authors/ratings as source errors,
+  not silent skips or placeholder critics. Validate before database writes.
+
+## 2026-11-20
+
 - Repair seven Episodi headline-as-film-title rows: merge four into existing films,
   rename three, preserve every review, and remove invalid headline-derived ticket links.
 

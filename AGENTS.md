@@ -256,3 +256,13 @@ Dry-run by default; --apply is transactional and idempotent. It guards source UR
 original titles, merge targets, critic conflicts and foreign keys, preserving review
 content and IDs. Four merges and three renames reduce316films to312, keeping1069reviews.
 No source imports or author edits included. Regression: pytest tests/test_episodi_repair.py.
+
+## Discovered review admission, 2026-11-20
+
+A discovered candidate lacking a nonblank film title, named author or integer
+1–5rating is an unresolved source/parser failure, not a successful empty import.
+Unknown/publication-name/URL author placeholders are not real critic identities.
+Admission validation runs before any movie/critic creation. Explicit source-level
+non-review exclusions (such as the IS classifier) still skip normally. This guard
+does not claim arbitrary nonblank headline titles are valid; source-title evidence
+remains a separate audit. Regression: pytest tests/test_review_admission.py.

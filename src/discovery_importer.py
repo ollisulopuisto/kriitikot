@@ -253,10 +253,19 @@ class DiscoveryImporter:
                     failed += 1
                     continue
 
-                # Skip articles without ratings - they are not movie reviews
-                if review.rating_stars is None:
-                    print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
-                    skipped += 1
+                # Discovery alone cannot prove an article is a complete review.
+                # Missing metadata is unresolved, not evidence of a non-review.
+                title = review.movie_title
+                author = review.critic_name
+                placeholders = {'unknown', 'tuntematon', source.casefold(), publication.name.casefold()}
+                valid_title = isinstance(title,str) and bool(title.strip())
+                valid_author = (isinstance(author,str) and bool(author.strip()) and
+                                author.strip().casefold() not in placeholders and
+                                not re.match(r'https?://',author.strip(),re.IGNORECASE))
+                valid_rating = type(review.rating_stars) is int and 1 <= review.rating_stars <= 5
+                if not (valid_title and valid_author and valid_rating):
+                    print('   ❌ Incomplete review identity, author or rating; needs source review')
+                    failed += 1
                     continue
 
                 # If HS returned its article headline, the film facts were
