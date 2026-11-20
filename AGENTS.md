@@ -266,3 +266,17 @@ Admission validation runs before any movie/critic creation. Explicit source-leve
 non-review exclusions (such as the IS classifier) still skip normally. This guard
 does not claim arbitrary nonblank headline titles are valid; source-title evidence
 remains a separate audit. Regression: pytest tests/test_review_admission.py.
+
+## Source film-subject evidence, 2026-11-20
+
+Never substitute an editorial h1, SEO title, keyword or generic short paragraph
+for film identity when source film facts are absent. TS uses its intro film name,
+IL its title/country-year facts pair, KSML its film storyline lead, SK its
+film/distributor endnote, Muropaketti its premiere block, Demokraatti its ELOKUVA
+infobox and Kulttuuritoimitus its film metadata block. Missing facts fail parsing;
+#101 reports such unresolved previews as source failures rather than silent skips.
+This deliberately drops headline-only previews until independent title evidence
+is supported. The historical IL paywall fixture is one such preview; its byline
+still parses but the review is rejected. Paired positive film-facts tests and
+saved live-source replays preserve current supported layouts. No DB changes or
+live bulk imports. Focused regression: pytest tests/test_subject_evidence.py.

@@ -1,5 +1,9 @@
 ## 2026-11-20
 
+- Require source-specific film facts across seven scrapers instead of silently creating films from editorial headlines, SEO titles or keywords. Headline-only previews fail closed.
+
+## 2026-11-20
+
 - Treat incomplete discovered review identities/authors/ratings as source errors,
   not silent skips or placeholder critics. Validate before database writes.
 

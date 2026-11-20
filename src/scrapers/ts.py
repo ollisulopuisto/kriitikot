@@ -43,7 +43,7 @@ class TSScraper(BaseScraper):
         Poimii elokuvan nimen.
         Käyttää järjestyksessä:
         1. <p class="intro"> - sisältää pelkän elokuvan nimen (esim. "Bugonia.")
-        2. h1 otsikko (parsitaan verbeillä)
+        Headline-only pages have no verified film identity.
         """
         # 1. <p class="intro"> - paras lähde, sisältää puhtaan elokuvan nimen
         intro_p = soup.find('p', class_='intro')
@@ -54,34 +54,8 @@ class TSScraper(BaseScraper):
             if title:
                 return title
         
-        # 2. h1 tag (fallback)
-        h1 = soup.find('h1')
-        if h1:
-            title = h1.get_text(strip=True)
-            
-            # Poista "Elokuva-arvostelu |" tai vastaavat prefixit
-            title = re.sub(r'^Elokuva-arvostelu\s*\|\s*', '', title, flags=re.I)
-            
-            # Poista kriitikon nimi jos se on otsikossa
-            # Esim: "Emma Stone tekee loistoroolin..." -> ota vain ennen verbiä
-            # Etsitään pattern: "[Nimi] tekee|on|olisi|vie|tarjoaa [kuvaus]"
-            verb_patterns = [
-                r'^(.+?)\s+(tekee|on|olisi|vie|tarjoaa|kertoo)\s+.*',
-            ]
-            for pattern in verb_patterns:
-                match = re.search(pattern, title)
-                if match:
-                    # Tarkista onko ensimmäinen osa lyhyt (todennäköisesti elokuvan nimi)
-                    first_part = match.group(1).strip()
-                    # Jos alle 50 merkkiä ja ei piste, todennäköisesti elokuvan nimi
-                    if len(first_part) < 50 and '.' not in first_part:
-                        title = first_part
-                        break
-            
-            return title
-        
         return None
-    
+
     def _extract_author(self, soup: BeautifulSoup, html_content: str) -> Optional[str]:
         """Poimii kirjoittajan nimen."""
         # 1. Open Graph article:author meta tag (luotettavin lähde)

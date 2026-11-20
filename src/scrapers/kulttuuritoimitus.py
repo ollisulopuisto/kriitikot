@@ -30,6 +30,9 @@ class KulttuuritoimitusScraper(BaseScraper):
         rating_stars = self._extract_rating(soup)
         review_text = self._extract_text(soup)
         
+        if not movie_title:
+            return None
+
         return Review(
             movie_title=movie_title,
             critic_name=critic_name,
@@ -70,28 +73,9 @@ class KulttuuritoimitusScraper(BaseScraper):
         soup = BeautifulSoup(content_html, 'html.parser')
         movie_title = self._extract_title(soup)
 
-        # 2. Extract movie name from title
         if not movie_title:
-            # Kulttuuritoimitus pattern: "Some description – arviossa ensi-iltaelokuva MOVIENAME"
-            # or "Some description – arviossa MOVIENAME"
-            movie_title = self._extract_movie_name_from_title(full_title)
-        
-        # If pattern matching fails, try to get from Yoast keywords (first keyword is usually the movie)
-        if not movie_title:
-            yoast = json_data.get('yoast_head_json', {})
-            keywords = yoast.get('keywords', [])
-            if keywords and len(keywords) > 0:
-                movie_title = keywords[0]
-        
-        # Fallback: use full title with common prefixes removed
-        if not movie_title:
-            prefixes = ['Arvio:', 'Arviossa', 'Kritiikki:', 'Elokuva-arvio:']
-            movie_title = full_title
-            for prefix in prefixes:
-                if movie_title.startswith(prefix):
-                    movie_title = movie_title[len(prefix):].strip()
-                    break
-        
+            return None
+
         # Extract critic name from embedded author data
         critic_name = None
         embedded = json_data.get('_embedded', {})
@@ -245,33 +229,8 @@ class KulttuuritoimitusScraper(BaseScraper):
                     # This is likely the movie title
                     return prev_text
         
-        # Method 2: Fallback to headline parsing
-        title = None
-        h1 = soup.find('h1')
-        if h1:
-            title = h1.get_text(strip=True)
-        else:
-            og_title = soup.find('meta', property='og:title')
-            if og_title:
-                title = og_title.get('content', '').strip()
-                title = title.split(' - Kulttuuritoimitus')[0].strip()
-        
-        if title:
-            # Try to extract movie name from title pattern
-            movie_name = self._extract_movie_name_from_title(title)
-            if movie_name:
-                return movie_name
-            
-            # Fallback: remove common prefixes
-            prefixes = ['Arvio:', 'Arviossa', 'Kritiikki:', 'Elokuva-arvio:']
-            for prefix in prefixes:
-                if title.startswith(prefix):
-                    return title[len(prefix):].strip()
-            
-            return title
-        
         return None
-    
+
     def _extract_critic(self, soup):
         """Extract critic name from HTML."""
         # Meta author + JSON-LD (ml. Yoastin @graph) jaetulla apurilla
