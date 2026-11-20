@@ -33,17 +33,26 @@ class DiscoveryImporter:
         # Scrapers per source — sama rekisteri kuin scrapers/__init__.py:ssä
         self.scrapers = SCRAPERS
     
-    def resolve_hs_preview_title(self, asset: dict):
-        """Resolve missing film facts only against one existing, explicit film name.
+    def resolve_hs_preview_title(self, asset: dict, source_url: str = None):
+        """Recover only individually verified previews, never guess film subjects.
 
-        Do not manufacture a movie from a paid article's headline. Short names
-        and conflicting matches are left for manual review. Public metadata only.
+        A generic substring match can mistake a sequel for an existing original
+        or select another film mentioned in a review. This source was reviewed
+        against its public metadata; future missing-facts previews need review.
         """
-        text = ' '.join(str(asset.get(key, '')) for key in ('metaTitle', 'ingress'))
-        matches = {movie.title for movie in self.session.query(Movie).all()
-                   if len(movie.title) >= 5
-                   and re.search(r'(?<!\w)' + re.escape(movie.title) + r'(?!\w)', text)}
-        return next(iter(matches)) if len(matches) == 1 else None
+        verified = {
+            'https://www.hs.fi/popkulttuuri/art-2000012404132.html':
+                (2000012404132, 'You Can See Everything'),
+        }
+        entry = verified.get(source_url)
+        if not entry or asset.get('id') != entry[0]:
+            return None
+        title = entry[1]
+        texts = [str(asset.get(key, '')) for key in ('metaTitle', 'ingress')]
+        if not all(re.search(r'(?<!\w)' + re.escape(title) + r'(?!\w)', text) for text in texts):
+            return None
+        existing = self.session.query(Movie).filter_by(title=title).first()
+        return title if existing else None
 
     def normalize_movie_title(self, title: str) -> str:
         """
@@ -248,7 +257,7 @@ class DiscoveryImporter:
                 # If HS returned its article headline, the film facts were
                 # absent from the public preview. Require one existing title.
                 if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
-                    resolved = self.resolve_hs_preview_title(review.raw_data)
+                    resolved = self.resolve_hs_preview_title(review.raw_data, url)
                     if not resolved:
                         print("   ❌ HS preview: film title needs manual review")
                         failed += 1

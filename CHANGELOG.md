@@ -7,7 +7,7 @@
 - IS discovery includes Kari Järvinen. Non-review and TV/streaming exclusions
   are skips, while missing payloads remain errors.
 - HS can use an explicit rating from a public review headline; missing film facts
-  resolve only against one existing name present in public metadata.
+  require an individually verified article mapping and matching public metadata.
 
 - Move desktop critic favourites beside the review count and remove the unused
   top heart row. Keep phone review cards unchanged.

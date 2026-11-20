@@ -33,16 +33,19 @@ def test_hs_public_review_headline_can_supply_explicit_rating_only():
     assert scraper._extract_rating({'storyLogo': 'Elokuva-arvio', 'title': 'Viiden tähden hotellissa'}) is None
 
 
-def test_hs_missing_body_matches_one_existing_film_from_public_metadata():
+def test_hs_preview_recovery_requires_verified_article_and_existing_film():
     importer = DiscoveryImporter.__new__(DiscoveryImporter)
     importer.session = MagicMock()
-    importer.session.query.return_value.all.return_value = [
-        SimpleNamespace(title='You Can See Everything'), SimpleNamespace(title='Lapin sota')]
-    asset = {'title': 'Vuoden puhutuin dokumentti täyttää odotukset: viisi tähteä',
-             'ingress': 'Dokumentissa You Can See Everything tekijät yhdistävät keinonsa.'}
-    assert importer.resolve_hs_preview_title(asset) == 'You Can See Everything'
-    assert importer.resolve_hs_preview_title({'ingress': 'Lapin sota ja You Can See Everything'}) is None
-    assert importer.resolve_hs_preview_title({'ingress': 'Ei tunnettua nimeä'}) is None
+    importer.session.query.return_value.filter_by.return_value.first.return_value = SimpleNamespace(title='You Can See Everything')
+    url = 'https://www.hs.fi/popkulttuuri/art-2000012404132.html'
+    asset = {'id':2000012404132, 'metaTitle':'Dokumentti You Can See Everything vakuuttaa',
+             'ingress':'Dokumentissa You Can See Everything tekijät yhdistävät keinonsa.'}
+    assert importer.resolve_hs_preview_title(asset, url) == 'You Can See Everything'
+    assert importer.resolve_hs_preview_title(asset, 'https://www.hs.fi/another') is None
+    assert importer.resolve_hs_preview_title({'metaTitle':'Top Gun: Maverick', 'ingress':'Top Gun: Maverick'}, url) is None
+    assert importer.resolve_hs_preview_title({**asset,'ingress':'Unknown movie'}, url) is None
+    importer.session.query.return_value.filter_by.return_value.first.return_value = None
+    assert importer.resolve_hs_preview_title(asset, url) is None
 
 
 def test_episodi_film_card_not_the_article_headline():
