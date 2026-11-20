@@ -28,8 +28,15 @@ def test_fatal_batch_error_remains_exit_one(monkeypatch):
 
 def test_workflow_uses_single_successful_commit_path_and_reports_partial_failure():
     workflow=(Path(__file__).parents[1]/'.github/workflows/scrape_and_deploy.yml').read_text(encoding='utf-8')
-    assert workflow.count('git push origin HEAD:main')==1
-    assert 'if: always()' not in workflow
+    # The separate, explicitly held IS queue design persists only its queue.
+    queue = workflow.split('      - name: Save IS discovery queue', 1)[1].split('      - name:', 1)[0]
+    assert workflow.count('git push origin HEAD:main')==2
+    assert queue.count('git push origin HEAD:main')==1
+    assert 'git add data/is-discovery.json' in queue
+    assert 'reviews.db' not in queue and 'git add docs' not in queue
+    publication = workflow.replace(queue, '')
+    assert publication.count('git push origin HEAD:main')==1
+    assert 'if: always()' not in publication
     assert 'if [ "$status" -eq 2 ]' in workflow
     assert 'elif [ "$status" -ne 0 ]; then\n            exit "$status"' in workflow
     assert workflow.index('Stop publication after failed tests')<workflow.index('Run scrapers (batch update)')
@@ -41,7 +48,7 @@ def test_workflow_uses_single_successful_commit_path_and_reports_partial_failure
 def test_scrape_shell_only_allows_completed_partial_results(tmp_path):
     import subprocess,os
     workflow=(Path(__file__).parents[1]/'.github/workflows/scrape_and_deploy.yml').read_text(encoding='utf-8')
-    step=workflow.split('      - name: Run scrapers (batch update)',1)[1].split('      - name: Backfill',1)[0]
+    step=workflow.split('      - name: Run scrapers (batch update)',1)[1].split('      # Persist discovery progress',1)[0]
     shell=step.split('        run: |\n',1)[1]
     shell='\n'.join(line[10:] for line in shell.splitlines())
     executable=tmp_path/'uv'
