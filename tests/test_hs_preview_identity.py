@@ -22,10 +22,10 @@ def document(asset):
 @pytest.mark.parametrize('title,rating',[
     ('Kriitikko antoi neljä tähteä elokuvalle',4),
     ('Viiden tähden sotaelokuva',5),('Elokuva: kaksi tähteä',2),
-    ('Elokuva saa 3 tähteä',3),('Yhden tähden pettymys',1),
+    ('Elokuva saa 3 tähteä',3),('Yhden tähden elokuva',1),
     ('Kolmen tähden draama',3),('Kahden tähden draama',2),
     ('Neljän tähden draama',4),('Ei arviota',None),
-    ('Neljä tähteä vai viisi tähteä?',None),('6 tähteä',None),('3.5 tähteä',None),('13 tähteä',None),
+    ('Neljä tähteä vai viisi tähteä?',None),('Viiden tähden hotellissa tapahtuu murha',None),('Viiden tähden ravintolassa',None),('6 tähteä',None),('3.5 tähteä',None),('13 tähteä',None),
 ])
 def test_headline_star_verdicts(title,rating):
     assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':title}) == rating
@@ -86,3 +86,21 @@ def test_identity_rejects_missing_ambiguous_sequel_and_wrong_type(monkeypatch,ti
 def test_caption_and_ingress_can_match_without_meta_title(monkeypatch):
     a=preview();a['metaTitle']='A long editorial headline';obj=importer(monkeypatch,a)
     assert obj.resolve_hs_preview_title(a)=='Dry Leaf'
+
+
+@pytest.mark.parametrize('sequel',['Top Gun – Maverick','Top Gun - Maverick','Top Gun II','Top Gun Ⅱ'])
+def test_unknown_sequel_never_imported_as_original(monkeypatch,sequel):
+    a=preview();a.update(metaTitle=sequel,ingress=sequel,mainPicture={})
+    obj=importer(monkeypatch,a,('Top Gun',))
+    assert obj.import_discovered_reviews('hs') == 0
+    assert obj.session.query(Review).count() == 0
+    assert obj.session.query(Movie).one().title == 'Top Gun'
+
+
+def test_resolved_full_title_keeps_existing_movie_id(monkeypatch):
+    title='Teräsleidit – kuin viimeistä päivää'
+    a=preview();a.update(metaTitle=title,ingress=title,mainPicture={})
+    obj=importer(monkeypatch,a,(title,));movie_id=obj.session.query(Movie).one().id
+    assert obj.import_discovered_reviews('hs') == 1
+    assert obj.session.query(Movie).count() == 1
+    assert obj.session.query(Review).one().movie_id == movie_id

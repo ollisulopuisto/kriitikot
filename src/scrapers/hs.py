@@ -166,7 +166,17 @@ class HSScraper(BaseScraper):
         if asset_data.get('storyLogo') == 'Elokuva-arvio':
             title = self.clean_text(asset_data.get('title', '')) or ''
             pattern = r'(?<![\w.,/])([1-5]|yksi|kaksi|kolme|neljä|viisi|yhden|kahden|kolmen|neljän|viiden)\s+täh(?:teä|ti|den)(?!\w)'
-            ratings = {self.parse_rating(match.group(0)) for match in re.finditer(pattern, title, re.IGNORECASE)}
+            matches = list(re.finditer(pattern, title, re.IGNORECASE))
+            ratings = set()
+            for match in matches:
+                # Genitive star classifications need a film noun, not a hotel.
+                phrase = match.group(0).casefold()
+                if phrase.endswith('tähden'):
+                    following = title[match.end():].lstrip().casefold()
+                    film_noun = r'(?:[\w-]*elokuva|dokumentti|draama|komedia|trilleri|animaatio|western|musikaali)(?!\w)'
+                    if not re.match(film_noun, following):
+                        return None
+                ratings.add(self.parse_rating(match.group(0)))
             ratings.discard(None)
             if len(ratings) == 1:
                 return ratings.pop()

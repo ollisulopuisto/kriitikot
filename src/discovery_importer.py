@@ -62,8 +62,8 @@ class DiscoveryImporter:
             if len(hits) < 2:
                 continue
             # A known original must not absorb an unknown numbered/subtitled sequel.
-            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[0-9])'
-            if any(re.search(raw_pattern, str(fields[i]), re.IGNORECASE) for i in hits):
+            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[-–—]|[0-9]|[IVX]+\b)'
+            if any(re.search(raw_pattern, unicodedata.normalize('NFKC', str(fields[i])), re.IGNORECASE) for i in hits):
                 continue
             candidates.append(movie.title)
         return candidates[0] if len(candidates) == 1 else None
@@ -289,16 +289,18 @@ class DiscoveryImporter:
 
                 # If HS returned its article headline, the film facts were
                 # absent from the public preview. Require repeated existing-film evidence.
+                resolved_movie = None
                 if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
                     resolved = self.resolve_hs_preview_title(review.raw_data, url)
                     if not resolved:
                         print("   ❌ HS preview: film title needs manual review")
                         failed += 1
                         continue
-                    review.movie_title = resolved
+                    resolved_movie = self.session.query(Movie).filter_by(title=resolved).one()
+                    review.movie_title = resolved_movie.title
 
                 # Luo relaatiot
-                movie = self.get_or_create_movie(review.movie_title)
+                movie = resolved_movie if resolved_movie is not None else self.get_or_create_movie(review.movie_title)
                 critic = self.get_or_create_critic(review.critic_name, media=source.upper())
 
                 # Tarkista uusi duplikaatti: onko samalta kriitikolta jo arvostelu tälle elokuvalle?
