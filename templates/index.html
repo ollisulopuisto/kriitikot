@@ -95,20 +95,12 @@
         <!-- Desktop suodattimet (ENNEN taulukkoa, jotta sticky toimii) -->
         <div class="desktop-filters">
 
-            
-            <div class="sorting-group desktop-only">
-            <button id="reset-filters-desktop" class="reset-button desktop-only" style="display: none;" title="Näytä kaikki">
-                <span class="reset-button-icon">🔄</span>
-                <span>Kaikki</span>
-            </button>
-                <button id="sort-movies-btn" class="facet-btn" title="Aakkosta elokuvat">
-                    <span class="facet-icon">🎬</span>
-                    Aakkosta elokuvat
-                </button>
-                <button id="sort-critics-btn" class="facet-btn" title="Aakkosta kriitikot">
-                    <span class="facet-icon">✍️</span>
-                    Aakkosta kriitikot
-                </button>
+            <div class="sorting-group desktop-only" role="group" aria-label="Järjestys">
+                <span class="toolbar-heading">Järjestys</span>
+                <div class="sort-buttons">
+                    <button id="sort-movies-btn" class="facet-btn" title="Aakkosta elokuvat">Elokuvat A–Ö</button>
+                    <button id="sort-critics-btn" class="facet-btn" title="Aakkosta kriitikot">Kriitikot A–Ö</button>
+                </div>
             </div>
 
             <div class="filters-container">
@@ -166,13 +158,14 @@
 
                 <!-- Fasetti 4: Suosikit -->
                 <div class="filter-group group-favorites">
-                    <div class="toggle-container" title="Näytä vain suosikkikriitikot">
-                        <label class="toggle-switch">
+                    <label class="toggle-container" title="Näytä vain suosikkikriitikot">
+                        <span class="toggle-switch">
                             <input type="checkbox" id="favorites-toggle-desktop">
-                            <span class="toggle-slider round"></span>
-                        </label>
-                        <span class="toggle-label">Näytä suosikkikriitikot</span>
-                    </div>
+                            <span class="toggle-slider round" aria-hidden="true"></span>
+                        </span>
+                        <span class="toggle-label">Suosikkikriitikot</span>
+                    </label>
+                    <button id="reset-filters-desktop" class="reset-button" style="display: none;" title="Näytä kaikki">Kaikki</button>
                 </div>
             </div>
         </div>
@@ -286,13 +279,13 @@
 
             <!-- Fasetti 6: Suosikit Mobile -->
             <div class="mobile-filter-group mobile-filter-inline">
-                <div class="toggle-container">
-                    <label class="toggle-switch">
+                <label class="toggle-container">
+                    <span class="toggle-switch">
                         <input type="checkbox" id="favorites-toggle-mobile">
-                        <span class="toggle-slider round"></span>
-                    </label>
-                    <span class="toggle-label">Näytä suosikkikriitikot</span>
-                </div>
+                        <span class="toggle-slider round" aria-hidden="true"></span>
+                    </span>
+                    <span class="toggle-label">Suosikkikriitikot</span>
+                </label>
             </div>
         </div>
     </div>

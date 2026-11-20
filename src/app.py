@@ -28,7 +28,7 @@ def rfc2822(dt):
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
-APP_VERSION = "2026.11.09.1"
+APP_VERSION = "2026.11.20.1"
 
 # Tietokantayhteys
 engine = get_engine()
