@@ -281,5 +281,6 @@ def test_all_source_discovery_failures_are_counted(monkeypatch):
     importer = DiscoveryImporter.__new__(DiscoveryImporter)
     importer.source_failures = {}
     importer.meta_scraper = MetaScraper()
+    importer.session = MagicMock()
     assert all(value == 0 for value in importer.import_all_sources().values())
     assert importer.source_failures == {source:1 for source in CategoryCrawler.CATEGORY_PAGES}
