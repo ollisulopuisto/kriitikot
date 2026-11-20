@@ -677,32 +677,27 @@ function initFavoriteFilter() {
             let heart = th.querySelector('.heart-icon');
 
             if (!heart) {
-                heart = document.createElement('span');
+                heart = document.createElement('button');
+                heart.type = 'button';
                 heart.className = 'heart-icon';
-                heart.tabIndex = 0; heart.setAttribute('role', 'button');
-                heart.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') window.toggleFavorite(criticId, e); };
-                heart.innerHTML = '♥';
-                heart.title = 'Merkitse suosikkikriitikoksi';
                 heart.onclick = (e) => window.toggleFavorite(criticId, e);
-
-                const name = th.querySelector('.critic-name');
-                if (name) {
-                    const identity = document.createElement('div');
-                    identity.className = 'critic-identity';
-                    name.before(identity);
-                    identity.append(name, heart);
-                } else th.appendChild(heart);
+                let bottomRow = th.querySelector('.critic-bottom-row');
+                if (!bottomRow) {
+                    bottomRow = document.createElement('div');
+                    bottomRow.className = 'critic-bottom-row';
+                    th.appendChild(bottomRow);
+                }
+                bottomRow.appendChild(heart);
             }
 
-            if (favorites.includes(criticId)) {
-                heart.setAttribute('aria-label', 'Poista suosikkikriitikoista'); heart.setAttribute('aria-pressed', 'true');
-                heart.classList.add('active');
-                heart.innerHTML = '❤️';
-            } else {
-                heart.setAttribute('aria-label', 'Merkitse suosikkikriitikoksi'); heart.setAttribute('aria-pressed', 'false');
-                heart.classList.remove('active');
-                heart.innerHTML = '♡';
-            }
+            const criticName = th.querySelector('.critic-name')?.textContent.trim() || '';
+            const isFavorite = favorites.includes(criticId);
+            const action = isFavorite ? 'Poista suosikkikriitikoista' : 'Merkitse suosikkikriitikoksi';
+            heart.setAttribute('aria-label', `${action}: ${criticName}`);
+            heart.setAttribute('aria-pressed', String(isFavorite));
+            heart.title = `${action}: ${criticName}`;
+            heart.classList.toggle('active', isFavorite);
+            heart.textContent = isFavorite ? '♥' : '♡';
         });
 
         // Mobile Reviews
