@@ -19,6 +19,10 @@
 
 - Repair seven Episodi headline-as-film-title rows: merge four into existing films,
   rename three, preserve every review, and remove invalid headline-derived ticket links.
+- Discover IS article candidates without author/headline allowlists; classify
+  articles under a bounded request budget with persistent backlog, retries,
+  exclusion rechecks and separate outcome statistics.
+- Require IS film-subject evidence, author and stars instead of generic headlines.
 
 ## 2026-11-20
 

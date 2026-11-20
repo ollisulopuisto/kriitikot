@@ -25,6 +25,8 @@ class DiscoveryImporter:
     
     def __init__(self):
         self.source_failures = {}
+        from pathlib import Path
+        self.is_cache_path = Path(__file__).resolve().parents[1] / 'data' / 'is-discovery.json'
         self.meta_scraper = MetaScraper()
         self.engine = get_engine()
         self.session = get_session(self.engine)
@@ -180,7 +182,7 @@ class DiscoveryImporter:
         """Hakee julkaisun."""
         return self.session.query(Publication).filter_by(short_name=short_name).first()
     
-    def import_discovered_reviews(self, source: str, limit: int = 20) -> int:
+    def import_discovered_reviews(self, source: str, limit: int = 20, request_budget: int = 40) -> int:
         """
         Löytää ja importoi uudet arvostelut lähteestä.
         
@@ -210,6 +212,16 @@ class DiscoveryImporter:
             print("⚠️  Ei uusia arvosteluja\n")
             return 0
         
+        queue = None
+        stats = {'discovered':len(discovered), 'requested':0, 'admitted':0,
+                 'excluded':0, 'failed':0, 'queued':0}
+        if source == 'is':
+            from is_discovery_queue import ISDiscoveryQueue
+            queue = ISDiscoveryQueue(self.session, path=getattr(self, 'is_cache_path', None))
+            queue.enqueue(discovered)
+            discovered = queue.due(min(40,max(0,request_budget)))
+            self.is_stats = stats
+
         # 2. Scrape ja tallenna
         scraper = self.scrapers.get(source)
         if not scraper:
@@ -228,6 +240,8 @@ class DiscoveryImporter:
         failed = 0
         
         for i, discovery in enumerate(discovered, 1):
+            if queue and stats['admitted'] >= max(0,limit):
+                break
             url = discovery['url']
             title_preview = discovery['title'][:60]
             
@@ -242,6 +256,8 @@ class DiscoveryImporter:
             if existing_by_url:
                 print("   ⏭️  Jo tietokannassa (URL-duplikaatti)")
                 skipped += 1
+                if queue:
+                    queue.finish(url, 'imported')
                 continue
             
             # Scrape arvostelu
@@ -250,8 +266,15 @@ class DiscoveryImporter:
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                 }
-                response = requests.get(url, headers=headers, timeout=10)
+                if queue:
+                    if stats['requested']:
+                        import time
+                        time.sleep(1)
+                    stats['requested'] += 1
+                response = requests.get(url, headers=headers, timeout=10, **({'allow_redirects':False} if queue else {}))
                 response.raise_for_status()
+                if queue and 300 <= response.status_code < 400:
+                    raise ValueError('IS article redirect needs review')
                 html = response.text
 
                 if source == 'is':
@@ -259,12 +282,18 @@ class DiscoveryImporter:
                     if reason:
                         print(f"   ⏭️  IS exclusion: {reason}")
                         skipped += 1
+                        if queue:
+                            stats['excluded'] += 1
+                            queue.finish(url, 'excluded')
                         continue
 
                 review = scraper.parse_html(html, url)
                 if not review:
                     print("   ❌ Scraping epäonnistui")
                     failed += 1
+                    if queue:
+                        stats['failed'] += 1
+                        queue.finish(url, 'failed')
                     continue
 
                 # Discovery alone cannot prove an article is a complete review.
@@ -285,6 +314,9 @@ class DiscoveryImporter:
                 if not (valid_title and valid_author and valid_rating):
                     print('   ❌ Incomplete review identity, author or rating; needs source review')
                     failed += 1
+                    if queue:
+                        stats['failed'] += 1
+                        queue.finish(url, 'failed')
                     continue
 
                 # If HS returned its article headline, the film facts were
@@ -298,6 +330,9 @@ class DiscoveryImporter:
                         continue
                     resolved_movie = self.session.query(Movie).filter_by(title=resolved).one()
                     review.movie_title = resolved_movie.title
+
+                if queue:
+                    stats['admitted'] += 1
 
                 # Luo relaatiot
                 movie = resolved_movie if resolved_movie is not None else self.get_or_create_movie(review.movie_title)
@@ -313,6 +348,9 @@ class DiscoveryImporter:
                     print(f"   ⏭️  Ohitettu: Kriitikolla {critic.name} on jo arvostelu elokuvasta {movie.title}")
                     skipped += 1
                     self.session.rollback() # Varmuuden vuoksi, jos flush on tapahtunut
+                    if queue:
+                        stats['excluded'] += 1
+                        queue.finish(url, 'excluded')
                     continue
                 
                 # Tallenna arvostelu (AUTOMAATTISESTI JULKAISTU - pending pois päältä)
@@ -329,6 +367,8 @@ class DiscoveryImporter:
                 self.session.add(db_review)
                 self.session.commit()
                 
+                if queue:
+                    queue.finish(url, 'imported')
                 imported += 1
                 print(f"   ✅ Tallennettu (julkaistu): {movie.title} - {critic.name} - {review.rating_stars}★")
                 
@@ -336,9 +376,15 @@ class DiscoveryImporter:
                 print(f"   ❌ Virhe: {e}")
                 failed += 1
                 self.session.rollback()
+                if queue:
+                    stats['failed'] += 1
+                    queue.finish(url, 'failed')
                 continue
         
-        self.source_failures[source] = failed
+        if queue:
+            stats['queued'] = queue.queued()
+            print(f'IS discovery outcomes: {stats}')
+        self.source_failures[source] = max(failed, queue.failed() if queue else 0)
 
         # Yhteenveto
         print(f"\n{'='*60}")

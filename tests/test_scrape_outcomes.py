@@ -68,8 +68,8 @@ def test_importer_separates_is_skips_from_true_parse_failures(monkeypatch):
     importer.session.add(Publication(name='Ilta-Sanomat',short_name='is'))
     importer.session.commit()
     importer.scrapers={'is':ISScraper()}
-    importer.meta_scraper=SimpleNamespace(discover_new_reviews=lambda *a:[{'url':'https://www.is.fi/example','title':'Not a cinema review'}])
-    response = SimpleNamespace(text=html({'tags':[{'key':'tv-lehti'}]}),raise_for_status=lambda:None)
+    importer.meta_scraper=SimpleNamespace(discover_new_reviews=lambda *a:[{'url':'https://www.is.fi/tv-ja-elokuvat/art-999.html','title':'Not a cinema review'}])
+    response = SimpleNamespace(text=html({'tags':[{'key':'tv-lehti'}]}),status_code=200,raise_for_status=lambda:None)
     monkeypatch.setattr(discovery_importer.requests,'get',lambda *a,**k:response)
     assert importer.import_discovered_reviews('is') == 0
     assert importer.source_failures == {'is':0}
@@ -266,7 +266,11 @@ def test_next_discovery_missing_or_malformed_payload_is_error():
             with pytest.raises(Exception):
                 method(BeautifulSoup(body,'html.parser'),10)
         payload = {'props':{'pageProps':{'page':{'data':{'data':[]}}}}}
-        assert method(BeautifulSoup('<script id="__NEXT_DATA__">'+json.dumps(payload)+'</script>','html.parser'),10) == []
+        if method.__name__ == '_find_is_reviews':
+            with pytest.raises(ValueError):
+                method(BeautifulSoup('<script id="__NEXT_DATA__">'+json.dumps(payload)+'</script>','html.parser'),10)
+        else:
+            assert method(BeautifulSoup('<script id="__NEXT_DATA__">'+json.dumps(payload)+'</script>','html.parser'),10) == []
 
 
 def test_all_source_discovery_failures_are_counted(monkeypatch):

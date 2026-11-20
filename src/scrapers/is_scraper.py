@@ -49,8 +49,10 @@ class ISScraper(BaseScraper):
         if not movie_title:
             return None
             
-        critic_name = asset_data.get('byLine', 'Unknown')
+        critic_name = str(asset_data.get('byLine') or '').strip()
         rating_stars = self._extract_rating(asset_data)
+        if not critic_name or rating_stars not in range(1,6):
+            return None
         review_text = self._extract_review_text(asset_data)
         
         # URL joko parametrina tai asset_datasta
@@ -73,7 +75,9 @@ class ISScraper(BaseScraper):
         asset = self._extract_asset_data(data) if data else None
         if not isinstance(asset, dict) or not asset:
             return None
-        keys = {tag.get('key', '').lower() for tag in asset.get('tags', [])}
+        if not isinstance(asset.get('tags'), list):
+            return None
+        keys = {tag.get('key', '').lower() for tag in asset['tags']}
         if not {'tv-lehti', 'arviot'} <= keys:
             return 'not_review'
         # A tagged preview without article paragraphs is a parser failure,
@@ -274,6 +278,8 @@ class ISScraper(BaseScraper):
 
         if not candidate or len(candidate) > 60:
             return None
+        if re.match(r'^(?:ensi-ilta|elokuvateatter|teattereissa|tv[1256]\b|klo\s)', candidate, re.IGNORECASE):
+            return None
         if not re.search(r'[A-Za-zÀ-ÿ0-9]', candidate):
             return None
         if self._looks_like_genre(candidate):
@@ -352,23 +358,6 @@ class ISScraper(BaseScraper):
                     candidate = self._clean_title_candidate(match.group(1))
                     if candidate:
                         return candidate
-
-        # "Tällainen on Sisu 2 – moni olisi kateellinen"
-        match = re.search(r'(?:Tällainen on|on)\s+(.+?)\s+[-–]', title)
-        if match:
-            movie_name = re.sub(r'\s+elokuva$', '', match.group(1).strip(),
-                                flags=re.IGNORECASE)
-            candidate = self._clean_title_candidate(movie_name)
-            if candidate:
-                return candidate
-
-        if '–' in title:
-            candidate = self._clean_title_candidate(title.split('–')[0])
-            if candidate and len(candidate) <= 50:
-                return candidate
-
-        if title and len(title) <= 50:
-            return self._clean_title_candidate(title)
 
         return None
 
