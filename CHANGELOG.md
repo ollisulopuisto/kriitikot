@@ -1,5 +1,8 @@
 ## 2026-11-20
 
+- Move desktop critic favourites beside the review count and remove the unused
+  top heart row. Keep phone review cards unchanged.
+
 - Compact filter header: three desktop columns, two rows, shorter sorting
   labels, readable minimum filters and smaller publication chips.
 - Keep mobile controls touch-sized and allow scrolling through filters on short

@@ -56,6 +56,21 @@ with tempfile.TemporaryFile() as log:
             page.locator(".desktop-filters").wait_for()
             page.evaluate("document.fonts.ready")
             page.wait_for_timeout(300)
+            # The favourite action shares the review-count line, not the name row.
+            header = page.locator("th.rating-cell").first
+            heart = header.locator("button.heart-icon")
+            bottom = header.locator(".critic-bottom-row").bounding_box()
+            position = heart.bounding_box()
+            assert position["y"] >= bottom["y"]
+            assert (
+                position["y"] + position["height"] <= bottom["y"] + bottom["height"] + 1
+            )
+            heart.click()
+            assert heart.get_attribute("aria-pressed") == "true"
+            heart.focus()
+            page.keyboard.press("Space")
+            assert heart.get_attribute("aria-pressed") == "false"
+            assert header.get_attribute("data-filtered") != "true"
             page.locator("#sort-movies-btn").click()
             page.locator("#sort-critics-btn").click()
             page.locator('.desktop-filters [data-publication="HS"]').click()
