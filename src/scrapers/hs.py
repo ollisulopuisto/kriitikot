@@ -65,7 +65,7 @@ class HSScraper(BaseScraper):
         except (KeyError, TypeError):
             return None
     
-    def _extract_movie_title(self, asset_data: dict) -> str:
+    def _extract_movie_title(self, asset_data: dict, allow_headline: bool = True) -> Optional[str]:
         """
         Poimii elokuvan nimen splitBody-rakenteesta.
         HS:ssä elokuvan tiedot ovat kappaleen muodossa:
@@ -123,6 +123,9 @@ class HSScraper(BaseScraper):
                     if title and len(title) > 2:
                         return title
         
+        if not allow_headline:
+            return None
+
         # Fallback: Käytä otsikkoa ja poista "Elokuva-arvio |" -prefix
         title = asset_data.get('title', 'Unknown Movie')
         if '|' in title:

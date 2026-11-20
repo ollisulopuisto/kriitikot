@@ -77,7 +77,16 @@ class ISScraper(BaseScraper):
         if not {'tv-lehti', 'arviot'} <= keys:
             return 'not_review'
         if not self._is_movie_review(asset):
-            return 'outside_cinema'
+            # Absence of cinema evidence is not evidence of a TV review.
+            # Missing/changed body payloads must reach the parser error path.
+            paragraphs = self._paragraph_sections(asset)
+            body = ' '.join(c.get('content', '') for p in paragraphs for c in p.get('crumbs', []))
+            if body.strip() and re.search(
+                r'klo\s+\d{1,2}[.:]\d{2}|tv:ssä|televisiossa|tv-ensi-ilta|televisioensi-ilta|'
+                r'netflix|katsomo|viaplay|hbo|disney\+|suoratoisto|yle areena|'
+                r'sky\s?showtime|prime video|apple tv', body, re.IGNORECASE
+            ):
+                return 'outside_cinema'
         return None
 
     def _extract_asset_data(self, data: dict) -> Optional[dict]:

@@ -247,7 +247,7 @@ class DiscoveryImporter:
 
                 # If HS returned its article headline, the film facts were
                 # absent from the public preview. Require one existing title.
-                if source == 'hs' and review.movie_title == review.raw_data.get('title'):
+                if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
                     resolved = self.resolve_hs_preview_title(review.raw_data)
                     if not resolved:
                         print("   ❌ HS preview: film title needs manual review")

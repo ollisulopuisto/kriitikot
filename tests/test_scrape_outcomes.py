@@ -111,3 +111,30 @@ def test_is_punaista_lunta_cinema_endnote_not_tv_exclusion():
     assert scraper.exclusion_reason(page) is None
     parsed=scraper.parse_html(page)
     assert (parsed.movie_title,parsed.critic_name,parsed.rating_stars)==('Punaista lunta','Kari Järvinen',3)
+
+
+def test_hs_transformed_headline_is_still_missing_film_facts(monkeypatch):
+    from models import Base, get_session, Publication, Movie
+    from sqlalchemy import create_engine
+    import discovery_importer
+    importer=DiscoveryImporter.__new__(DiscoveryImporter)
+    importer.source_failures={}
+    engine=create_engine('sqlite:///:memory:')
+    Base.metadata.create_all(engine)
+    importer.session=get_session(engine)
+    importer.session.add(Publication(name='Helsingin Sanomat',short_name='hs'))
+    importer.session.commit()
+    importer.scrapers={'hs':HSScraper()}
+    importer.meta_scraper=SimpleNamespace(discover_new_reviews=lambda *a:[{'url':'https://www.hs.fi/example','title':'Preview'}])
+    payload=html({'storyLogo':'Elokuva-arvio','title':'Elokuva-arvio | Dokumentti täyttää odotukset: viisi tähteä', 'splitBody':[]})
+    response=SimpleNamespace(text=payload,raise_for_status=lambda:None)
+    monkeypatch.setattr(discovery_importer.requests,'get',lambda *a,**k:response)
+    assert importer.import_discovered_reviews('hs') == 0
+    assert importer.source_failures == {'hs':1}
+    assert importer.session.query(Movie).count() == 0
+    importer.session.close()
+
+
+def test_is_tagged_review_without_body_is_an_error_not_exclusion():
+    assert ISScraper().exclusion_reason(html({'tags':[{'key':'tv-lehti'},{'key':'arviot'}],
+        'title':'Uusi kotimainen kauhukomedia vakuuttaa'})) is None
