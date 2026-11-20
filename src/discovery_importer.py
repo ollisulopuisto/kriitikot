@@ -184,7 +184,12 @@ class DiscoveryImporter:
         self.source_failures[source] = 0
 
         # 1. Löydä uudet arvostelut
-        discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        try:
+            discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        except Exception as exc:
+            self.source_failures[source] = 1
+            print(f'Discovery failed for {source}: {exc}')
+            return 0
         print(f"✅ Löydettiin {len(discovered)} arvostelua\n")
         
         if not discovered:

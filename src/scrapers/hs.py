@@ -167,7 +167,7 @@ class HSScraper(BaseScraper):
             title = asset_data.get('title', '')
             match = re.search(r':\s*(yksi|kaksi|kolme|neljä|viisi) täh(?:ti|teä)\s*[.!]?$', title, re.IGNORECASE)
             if match:
-                return {'yksi': 1, 'kaksi': 2, 'kolme': 3, 'neljä': 4, 'viisi': 5}[match.group(1).lower()]
+                return self.parse_rating(match.group(0).lstrip(':').strip().rstrip('.!'))
 
         return None
     

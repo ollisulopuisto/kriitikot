@@ -211,3 +211,75 @@ def test_episodi_api_rejects_untrusted_article_origins_and_redirects(monkeypatch
             assert len(reviews) == (1 if status == 200 else 0)
             assert len(calls) == 2
             assert calls[-1][1]['allow_redirects'] is False
+
+
+def test_discovery_errors_are_not_empty_successes(monkeypatch):
+    import requests
+    from discovery import CategoryCrawler
+    import discovery
+    import pytest
+    crawler = CategoryCrawler()
+    def outage(*a, **k):
+        raise requests.ConnectionError('offline')
+    monkeypatch.setattr(discovery.requests, 'get', outage)
+    for source in crawler.CATEGORY_PAGES:
+        with pytest.raises(Exception):
+            crawler.find_review_links(source)
+    for source in ('episodi', 'kulttuuritoimitus', 'demokraatti'):
+        # Demokraatti first fetches its category before its API.
+        response = SimpleNamespace(text='<html></html>',raise_for_status=lambda:None,
+                                   json=lambda: (_ for _ in ()).throw(ValueError('bad JSON')))
+        monkeypatch.setattr(discovery.requests, 'get', lambda *a,**k:response)
+        with pytest.raises(Exception):
+            crawler.find_review_links(source)
+    monkeypatch.setattr(discovery.requests, 'get',lambda *a,**k:SimpleNamespace(
+        json=lambda:[],raise_for_status=lambda:None))
+    assert crawler.find_review_links('episodi') == []
+
+
+def test_importer_records_discovery_failure_but_not_valid_empty():
+    importer = DiscoveryImporter.__new__(DiscoveryImporter)
+    importer.source_failures = {}
+    def fail(*a):
+        raise ValueError('Discovery failed')
+    importer.meta_scraper = SimpleNamespace(discover_new_reviews=fail)
+    assert importer.import_discovered_reviews('episodi') == 0
+    assert importer.source_failures == {'episodi':1}
+    importer.meta_scraper.discover_new_reviews = lambda *a:[]
+    assert importer.import_discovered_reviews('episodi') == 0
+    assert importer.source_failures == {'episodi':0}
+
+
+def test_hs_headline_conversion_uses_shared_parser(monkeypatch):
+    scraper = HSScraper()
+    calls = []
+    monkeypatch.setattr(scraper,'parse_rating', lambda text: calls.append(text) or 4)
+    assert scraper._extract_rating({'storyLogo':'Elokuva-arvio','title':'Dokumentti: neljä tähteä'}) == 4
+    assert calls == ['neljä tähteä']
+
+
+def test_next_discovery_missing_or_malformed_payload_is_error():
+    import pytest
+    from bs4 import BeautifulSoup
+    from discovery import CategoryCrawler
+    crawler = CategoryCrawler()
+    for method in (crawler._find_hs_reviews,crawler._find_is_reviews):
+        for body in ('<html>Error page</html>', '<script id="__NEXT_DATA__">{</script>',
+                     '<script id="__NEXT_DATA__">{}</script>'):
+            with pytest.raises(Exception):
+                method(BeautifulSoup(body,'html.parser'),10)
+        payload = {'props':{'pageProps':{'page':{'data':{'data':[]}}}}}
+        assert method(BeautifulSoup('<script id="__NEXT_DATA__">'+json.dumps(payload)+'</script>','html.parser'),10) == []
+
+
+def test_all_source_discovery_failures_are_counted(monkeypatch):
+    from discovery import CategoryCrawler, MetaScraper
+    import discovery
+    def outage(*a,**k):
+        raise OSError('offline')
+    monkeypatch.setattr(discovery.requests,'get',outage)
+    importer = DiscoveryImporter.__new__(DiscoveryImporter)
+    importer.source_failures = {}
+    importer.meta_scraper = MetaScraper()
+    assert all(value == 0 for value in importer.import_all_sources().values())
+    assert importer.source_failures == {source:1 for source in CategoryCrawler.CATEGORY_PAGES}
