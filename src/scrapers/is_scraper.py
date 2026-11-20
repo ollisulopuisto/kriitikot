@@ -131,7 +131,15 @@ class ISScraper(BaseScraper):
         ]
         
         # TV-kanava tai kello-viittaukset endnotessa (esim. "Teema & Fem klo 21.00")
-        is_tv_schedule = bool(re.search(r'klo\s+\d{1,2}[.:]\d{2}', text_content))
+        clock = r'klo\s+\d{1,2}[.:]\d{2}'
+        channel = r'\b(?:tv[1256]|yle|teema|fem|mtv3?|nelonen|sub|frii|hero|jim|kutonen)\b'
+        # A bare clock in a plot synopsis is not broadcast evidence. Outside
+        # the distribution endnote, require a channel in the same paragraph.
+        is_tv_schedule = bool(re.search(clock, endnote)) or any(
+            re.search(clock, text) and re.search(channel, text, re.IGNORECASE)
+            for text in (''.join(c.get('content', '') for c in section.get('crumbs', []))
+                         for section in self._paragraph_sections(asset_data))
+        )
         has_tv_channels = any(ch in endnote for ch in ['yle', 'teema', 'fem', 'mtv', 'nelonen', 'sub'])
         
         # Ensi-ilta on erikoistapaus: se voi olla myös tv-ensi-ilta

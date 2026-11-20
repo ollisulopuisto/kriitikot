@@ -152,3 +152,14 @@ def test_is_exclusions_share_the_cinema_policy_evidence():
         asset={**base,**metadata,'splitBody':[{'type':'paragraph','crumbs':[{'content':endnote,'marks':['endnote']}]}]}
         assert scraper.parse_html(html(asset)) is None
         assert scraper.exclusion_reason(html(asset)) == 'outside_cinema'
+
+
+def test_is_plot_clock_time_is_not_broadcast_evidence():
+    asset={'tags':[{'key':'tv-lehti'},{'key':'arviot'}], 'ingress':'Elokuvan ensi-ilta on perjantaina.',
+           'byLine':'Kari Järvinen','splitBody':[
+               {'type':'paragraph','crumbs':[{'content':'Punaista lunta','marks':['em']}]},
+               {'type':'paragraph','crumbs':[{'content':'Ryöstö alkaa klo 12.30 ja etenee reaaliajassa.'}]},
+               {'type':'paragraph','crumbs':[{'content':'Draama ★★★','marks':['endnote']}]}]}
+    scraper=ISScraper()
+    assert scraper.exclusion_reason(html(asset)) is None
+    assert scraper.parse_html(html(asset)).movie_title == 'Punaista lunta'
