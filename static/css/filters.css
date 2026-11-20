@@ -659,3 +659,33 @@ tr.dimmed {
 }
 /* The native input receives clicks on the visual switch, including automation. */
 .toggle-slider { pointer-events: none; }
+
+/* Inline desktop headings: two control rows, not two heading/track/tick stacks. */
+@media (min-width: 1101px) {
+    .desktop-filters {
+        grid-template-rows: minmax(43px, auto) minmax(43px, auto);
+        row-gap: 8px;
+    }
+    .desktop-filters > .sorting-group {
+        flex-direction: row;
+        align-items: center;
+        min-height: 43px;
+        gap: 12px;
+    }
+    .desktop-filters .sorting-group .toolbar-heading {
+        font-size: .875rem;
+        text-transform: none;
+    }
+    .desktop-filters :is(.group-reviews, .group-stars) {
+        display: grid;
+        grid-template-columns: minmax(0, 145px) minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        min-height: 43px;
+    }
+    .desktop-filters :is(.group-reviews, .group-stars) > label {
+        display: block;
+        text-transform: none;
+    }
+    .desktop-filters .group-favorites { min-height: 43px; }
+}

@@ -1,5 +1,8 @@
 ## 2026-11-20
 
+- Place desktop sort and slider headings beside their controls, reducing the
+  filter header from 173px to 128px at 1600px. Keep phone/tablet controls intact.
+
 - Move desktop critic favourites beside the review count and remove the unused
   top heart row. Keep phone review cards unchanged.
 
