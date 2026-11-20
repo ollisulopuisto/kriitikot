@@ -301,3 +301,18 @@ Ambiguous titles and numbered/subtitled sequel continuations are rejected.
 Regression: tests/test_hs_preview_identity.py, including captured Dry Leaf preview,
 independent caption evidence, no-rating admission and short-title collisions.
 No schema, workflow, production DB or generated-site change.
+## Author-independent IS discovery, 2026-11-20
+
+IS category cards are candidates, not reviews. Discovery collects all unique
+same-origin article URLs without author/headline gates. The importer classifies
+article tags, cinema evidence, film subject, author and stars; --limit counts
+admitted reviews, not candidates. Each run makes at most40article requests,
+spaced1second apart, and carries its backlog in data/is-discovery.json.
+The queue caches explicit exclusions for7days and retries failures after12hours;
+oldest pending/retry work comes first. A failed cached item keeps the source
+failure visible until resolved. The scheduled workflow persists only the public
+queue file even if partial review publication is blocked. Cached success without
+a saved ReviewURL is requeued, so failed deployments do not lose articles.
+Tests use isolated temporary queue files and in-memory databases. Do not run a
+live import just to test this code. Full regression: pytest; focused:
+pytest tests/test_is_discovery_queue.py. No sitemap/backfill coverage claim.

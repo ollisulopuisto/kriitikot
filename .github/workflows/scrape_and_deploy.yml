@@ -161,6 +161,24 @@ jobs:
             exit "$status"
           fi
 
+      # Persist discovery progress even when article errors stop publication.
+      # This commits only public category metadata/outcomes, never partial reviews.
+      - name: Save IS discovery queue
+        if: always()
+        env:
+          GIT_COMMITTER_NAME: 'github-actions[bot]'
+          GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+        run: |
+          if [ -f data/is-discovery.json ]; then
+            git config user.name "${GIT_COMMITTER_NAME}"
+            git config user.email "${GIT_COMMITTER_EMAIL}"
+            git add data/is-discovery.json
+            if ! git diff --staged --quiet; then
+              git commit -m "Save IS discovery queue [skip ci]"
+              git push origin HEAD:main
+            fi
+          fi
+
       - name: Backfill movie metadata links and posters
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
