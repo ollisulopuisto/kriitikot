@@ -141,3 +141,14 @@ def test_hs_transformed_headline_is_still_missing_film_facts(monkeypatch):
 def test_is_tagged_review_without_body_is_an_error_not_exclusion():
     assert ISScraper().exclusion_reason(html({'tags':[{'key':'tv-lehti'},{'key':'arviot'}],
         'title':'Uusi kotimainen kauhukomedia vakuuttaa'})) is None
+
+
+def test_is_exclusions_share_the_cinema_policy_evidence():
+    scraper=ISScraper()
+    base={'tags':[{'key':'tv-lehti'},{'key':'arviot'}]}
+    for metadata, endnote in [({},'Draama Ruutu ★★★'),({},'Draama Yle Teema ★★★'),
+                               ({'title':'Netflix-draama'},'Draama ★★★'),
+                               ({'ingress':'Suoratoistopalvelu esittää tämän.'},'Draama ★★★')]:
+        asset={**base,**metadata,'splitBody':[{'type':'paragraph','crumbs':[{'content':endnote,'marks':['endnote']}]}]}
+        assert scraper.parse_html(html(asset)) is None
+        assert scraper.exclusion_reason(html(asset)) == 'outside_cinema'
