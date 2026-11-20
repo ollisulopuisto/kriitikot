@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="static/css/cards.css">
 
     <!-- JavaScript modules -->
+    <script id="publication-names-data" type="application/json">{{ publication_names_map|tojson }}</script>
     <script src="static/app.js" defer></script>
     <script src="static/filters.js" defer></script>
     <script src="static/interactions.js" defer></script>
@@ -149,7 +150,7 @@
                     <div class="media-filter-buttons">
                         {% for pub, count in pub_stats.items() %}
                         <button class="media-filter-btn filter-publication" data-publication="{{ pub }}"
-                            title="Näytä {{ pub }}-arvostelut">
+                            title="{{ pub|publication_name }}" aria-label="{{ pub|publication_name }}">
                             {{ pub }}
                         </button>
                         {% endfor %}
@@ -189,7 +190,7 @@
                         <th class="rating-cell" data-critic-id="{{ critic.id }}">
                             <div class="critic-name">{% set parts = critic.name.rsplit(' ', 1) %}<span class="critic-given-name">{{ parts[0] }}</span>{% if parts|length > 1 %} <span class="critic-family-name">{{ parts[1] }}</span>{% endif %}</div>
                             {% if critic_media_map and critic.id in critic_media_map and critic_media_map[critic.id] %}
-                            <div class="critic-media" title="{{ critic_media_map[critic.id]|join(', ') }}" aria-label="{{ critic_media_map[critic.id]|join(', ') }}">{{ critic_media_map[critic.id]|join(', ')|replace('MUROPAKETTI', 'MURO')|replace('KULTTUURITOIMITUS', 'KUTO') }}</div>
+                            <div class="critic-media" data-publications="{{ critic_media_map[critic.id]|join(', ') }}" role="group" title="{{ critic_media_map[critic.id]|publication_names }}" aria-label="{{ critic_media_map[critic.id]|publication_names }}">{{ critic_media_map[critic.id]|join(', ')|replace('MUROPAKETTI', 'MURO')|replace('KULTTUURITOIMITUS', 'KUTO') }}</div>
                             {% endif %}
                             <div class="critic-bottom-row">
                                 {% if critic_review_counts and critic.id in critic_review_counts %}
@@ -262,7 +263,7 @@
                 <div class="media-filter-buttons">
                     {% for pub, count in pub_stats.items() %}
                     <button class="media-filter-btn filter-publication" data-publication="{{ pub }}"
-                        title="Näytä {{ pub }}-arvostelut">
+                        title="{{ pub|publication_name }}" aria-label="{{ pub|publication_name }}">
                         {{ pub }}
                     </button>
                     {% endfor %}

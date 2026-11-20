@@ -26,6 +26,8 @@
   are skips, while missing payloads remain errors.
 - HS can use an explicit rating from a public review headline; missing film facts
   require an individually verified article mapping and matching public metadata.
+- Publication chips and critic publication labels have full-name tooltips and
+  accessible names, including mobile cards loaded after the first batch.
 
 - Move desktop critic favourites beside the review count and remove the unused
   top heart row. Keep phone review cards unchanged.

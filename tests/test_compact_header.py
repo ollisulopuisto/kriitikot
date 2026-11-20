@@ -6,6 +6,10 @@ from jinja2 import Environment, FileSystemLoader
 
 def toolbar():
     env = Environment(loader=FileSystemLoader("templates"))
+    from publication_names import PUBLICATION_NAMES, publication_name, publication_names
+    env.filters['publication_name'] = publication_name
+    env.filters['publication_names'] = publication_names
+    env.globals['publication_names_map'] = PUBLICATION_NAMES
     html = env.get_template("index.html").render(
         grouped_reviews={},
         all_critics=[],
