@@ -1,0 +1,90 @@
+{
+  "id": 2000012404113,
+  "storyLogo": "Elokuva-arvio",
+  "title": "Kriitikko antoi neljä tähteä elokuvalle, jonka uskoo tuskastuttavan tylsyydellä",
+  "metaTitle": "Elokuva-arvio: Dry Leaf tarjoaa tuskallista tylsyyttä seikkailunhaluisille katsojille",
+  "ingress": "Vanhalla kännykällä kuvattu georgialaiselokuva Dry Leaf on ikävystymisen taidetta.",
+  "byLine": "Sakri Pölönen",
+  "mainPicture": {
+    "id": 0,
+    "width": 1920,
+    "height": 1446,
+    "url": "https://images.sanoma-sndp.fi/995d9827752020b9621c0cc22096112b/normal/WIDTH.EXT",
+    "squareUrl": "https://images.sanoma-sndp.fi/995d9827752020b9621c0cc22096112b/square/WIDTH.EXT",
+    "caption": "Isä etsii tytärtään elokuvassa Dry Leaf, jossa kuvan laatu on juonta tärkeämpää.",
+    "photographer": "New Matter Films"
+  },
+  "splitBody": [
+    {
+      "type": "articleadplaceholder"
+    },
+    {
+      "type": "articleadplaceholder"
+    },
+    {
+      "type": "paragraph",
+      "crumbs": [
+        {
+          "type": "text",
+          "content": "BRITTIMUUSIKKO ",
+          "marks": [
+            "leadin"
+          ]
+        },
+        {
+          "type": "personLink",
+          "content": "Brian Eno",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "content": " ",
+          "marks": []
+        },
+        {
+          "type": "externalLink",
+          "content": "kirjoitti",
+          "marks": [],
+          "href": "https://www.goodreads.com/quotes/649039-whatever-you-now-find-weird-ugly-uncomfortable-and-nasty-about"
+        },
+        {
+          "type": "text",
+          "content": " vuonna 1996, että ilmaisuvälineiden tekniset rajoitukset ja niistä aiheutuvat rosot muuttuvat ajan myötä toivotuiksi ominaisuuksiksi.",
+          "marks": []
+        }
+      ]
+    },
+    {
+      "type": "articleadplaceholder"
+    },
+    {
+      "type": "paragraph",
+      "crumbs": [
+        {
+          "type": "text",
+          "content": "Näin on käynyt myös varhaisten kännykkäkameroiden kohdalla.",
+          "marks": []
+        }
+      ]
+    },
+    {
+      "type": "articleadplaceholder"
+    },
+    {
+      "type": "paragraph",
+      "crumbs": [
+        {
+          "type": "text",
+          "content": "Monet 2020-luvun arthouse-ohjaajat ovat hylänneet kliinisen 4K-digiteknologian ja hakeutuneet epätäydellisen kuvausjäljen pariin.",
+          "marks": []
+        }
+      ]
+    },
+    {
+      "type": "articleadplaceholder"
+    }
+  ],
+  "shareUrl": "https://www.hs.fi/popkulttuuri/art-2000012404113.html",
+  "paidType": "paid",
+  "showPaywall": true
+}

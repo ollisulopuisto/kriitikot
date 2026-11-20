@@ -161,13 +161,15 @@ class HSScraper(BaseScraper):
                 if 1 <= stars <= 5:
                     return stars
         
-        # Paid articles may expose only a preview. Use an explicit public
-        # review-headline verdict, not arbitrary star words in the ingress.
+        # Current public previews may omit the film-facts block. An explicit
+        # star verdict in the review headline is still source rating evidence.
         if asset_data.get('storyLogo') == 'Elokuva-arvio':
-            title = asset_data.get('title', '')
-            match = re.search(r':\s*(yksi|kaksi|kolme|neljä|viisi) täh(?:ti|teä)\s*[.!]?$', title, re.IGNORECASE)
-            if match:
-                return self.parse_rating(match.group(0).lstrip(':').strip().rstrip('.!'))
+            title = self.clean_text(asset_data.get('title', '')) or ''
+            pattern = r'(?<![\w.,/])([1-5]|yksi|kaksi|kolme|neljä|viisi|yhden|kahden|kolmen|neljän|viiden)\s+täh(?:teä|ti|den)(?!\w)'
+            ratings = {self.parse_rating(match.group(0)) for match in re.finditer(pattern, title, re.IGNORECASE)}
+            ratings.discard(None)
+            if len(ratings) == 1:
+                return ratings.pop()
 
         return None
     

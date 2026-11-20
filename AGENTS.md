@@ -290,3 +290,14 @@ and import count in the summary, then fails after publication so the existing
 failure issue remains visible. Failed tests, fatal batches, failed metadata or
 failed generation/commit stop publication. No always()-push is introduced.
 Regression: pytest tests/test_batch_exit.py, including actual bash exit handling.
+
+## HS preview evidence, 2026-11-20
+
+HS ratings prefer literal body stars, then an explicit 1–5 star verdict in the
+film-review headline. No rating means no import, not a source outage. Missing
+film facts can resolve only to one existing DB film repeated in at least two of
+metaTitle, ingress and main-picture caption; the editorial h1 is not a film name.
+Ambiguous titles and numbered/subtitled sequel continuations are rejected.
+Regression: tests/test_hs_preview_identity.py, including captured Dry Leaf preview,
+independent caption evidence, no-rating admission and short-title collisions.
+No schema, workflow, production DB or generated-site change.

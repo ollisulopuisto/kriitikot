@@ -34,25 +34,39 @@ class DiscoveryImporter:
         self.scrapers = SCRAPERS
     
     def resolve_hs_preview_title(self, asset: dict, source_url: str = None):
-        """Recover only individually verified previews, never guess film subjects.
+        """Match an existing film in two independent preview fields, never an h1.
 
-        A generic substring match can mistake a sequel for an existing original
-        or select another film mentioned in a review. This source was reviewed
-        against its public metadata; future missing-facts previews need review.
+        Reject overlapping DB titles and sequel continuations rather than choosing
+        a short title or fuzzy match. Unresolved previews remain source failures.
         """
-        verified = {
-            'https://www.hs.fi/popkulttuuri/art-2000012404132.html':
-                (2000012404132, 'You Can See Everything'),
-        }
-        entry = verified.get(source_url)
-        if not entry or asset.get('id') != entry[0]:
+        if asset.get('storyLogo') != 'Elokuva-arvio':
             return None
-        title = entry[1]
-        texts = [str(asset.get(key, '')) for key in ('metaTitle', 'ingress')]
-        if not all(re.search(r'(?<!\w)' + re.escape(title) + r'(?!\w)', text) for text in texts):
-            return None
-        existing = self.session.query(Movie).filter_by(title=title).first()
-        return title if existing else None
+        import unicodedata
+
+        def normalize(text):
+            text = unicodedata.normalize('NFKC', str(text or '')).casefold()
+            text = re.sub(r'[\u00ad\u200b\u200c\u200d\u2060\ufeff]', '', text)
+            return re.sub(r'[^\w]+', ' ', text).strip()
+
+        picture = asset.get('mainPicture') or {}
+        fields = [asset.get('metaTitle'), asset.get('ingress'),
+                  picture.get('caption') if isinstance(picture, dict) else None]
+        normalized = [normalize(text) for text in fields]
+        candidates = []
+        for movie in self.session.query(Movie).all():
+            title = normalize(movie.title)
+            if not title:
+                continue
+            pattern = r'(?<!\w)' + re.escape(title) + r'(?!\w)'
+            hits = [i for i, text in enumerate(normalized) if re.search(pattern, text)]
+            if len(hits) < 2:
+                continue
+            # A known original must not absorb an unknown numbered/subtitled sequel.
+            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[0-9])'
+            if any(re.search(raw_pattern, str(fields[i]), re.IGNORECASE) for i in hits):
+                continue
+            candidates.append(movie.title)
+        return candidates[0] if len(candidates) == 1 else None
 
     def normalize_movie_title(self, title: str) -> str:
         """
@@ -255,6 +269,11 @@ class DiscoveryImporter:
 
                 # Discovery alone cannot prove an article is a complete review.
                 # Missing metadata is unresolved, not evidence of a non-review.
+                if source == 'hs' and review.rating_stars is None:
+                    print('   ⏭️  HS review has no star rating; not imported')
+                    skipped += 1
+                    continue
+
                 title = review.movie_title
                 author = review.critic_name
                 placeholders = {'unknown', 'tuntematon', source.casefold(), publication.name.casefold()}
@@ -269,7 +288,7 @@ class DiscoveryImporter:
                     continue
 
                 # If HS returned its article headline, the film facts were
-                # absent from the public preview. Require one existing title.
+                # absent from the public preview. Require repeated existing-film evidence.
                 if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
                     resolved = self.resolve_hs_preview_title(review.raw_data, url)
                     if not resolved:
