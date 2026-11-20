@@ -125,3 +125,11 @@ def test_non_film_compound_is_not_a_rating_or_import(monkeypatch,noun):
     obj=importer(monkeypatch,a)
     assert obj.import_discovered_reviews('hs') == 0
     assert obj.session.query(Review).count() == 0
+
+
+@pytest.mark.parametrize('noun',['komediaan','dokumenttiin','trillerille','musikaaliin','draamalle','elokuvalle','dokumentista','animaatioon'])
+def test_case_inflected_headline_imports(monkeypatch,noun):
+    a=preview();a['title']='Viiden tähden '+noun+' on helppo rakastua'
+    obj=importer(monkeypatch,a)
+    assert obj.import_discovered_reviews('hs') == 1
+    assert obj.session.query(Review).one().rating_stars == 5

@@ -173,11 +173,14 @@ class HSScraper(BaseScraper):
                 phrase = match.group(0).casefold()
                 if phrase.endswith('tähden'):
                     following = title[match.end():].lstrip().casefold()
-                    film_noun = (r'(?:[\w-]*elokuva(?:a|n|ssa|sta|an|ksi|lla|lta|lle|t|na)?'
-                                 r'|dokument(?:ti(?:a|na)?|in|issa|ista|iksi)'
-                                 r'|(?:draama|komedia|animaatio)(?:a|n|ssa|sta|ksi|na)?'
-                                 r'|trilleri(?:n|ä|ssä|stä|ksi)?|western(?:in|iä|issä)?'
-                                 r'|musikaali(?:n|a|ssa|sta|ksi)?)(?!\w)')
+                    # Explicit Finnish case endings, not arbitrary compounds.
+                    cases = r'(?:n|a|ä|ssa|ssä|sta|stä|lla|llä|lta|ltä|lle|ksi|na|nä|tta|ttä|t)?'
+                    film_noun = (r'(?:[\w-]*elokuva' + cases + r'|[\w-]*elokuvaan'
+                                 r'|(?:draama|komedia|animaatio)' + cases +
+                                 r'|(?:draamaan|komediaan|animaatioon)'
+                                 r'|dokument(?:ti(?:a|in|na|ksi)?|i' + cases + r')'
+                                 r'|(?:trilleri|musikaali)' + cases +
+                                 r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
                     if not re.match(film_noun, following):
                         return None
                 ratings.add(self.parse_rating(match.group(0)))
