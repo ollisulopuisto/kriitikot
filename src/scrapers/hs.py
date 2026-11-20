@@ -173,7 +173,7 @@ class HSScraper(BaseScraper):
                 phrase = match.group(0).casefold()
                 if phrase.endswith('tähden'):
                     following = title[match.end():].lstrip().casefold()
-                    film_noun = r'(?:[\w-]*elokuva|dokumentti|draama|komedia|trilleri|animaatio|western|musikaali)(?!\w)'
+                    film_noun = r'(?:[\w-]*elokuv|dokument|draam|komedi|triller|animaatio|western|musikaal)\w*(?!\w)'
                     if not re.match(film_noun, following):
                         return None
                 ratings.add(self.parse_rating(match.group(0)))

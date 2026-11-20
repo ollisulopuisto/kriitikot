@@ -104,3 +104,15 @@ def test_resolved_full_title_keeps_existing_movie_id(monkeypatch):
     assert obj.import_discovered_reviews('hs') == 1
     assert obj.session.query(Movie).count() == 1
     assert obj.session.query(Review).one().movie_id == movie_id
+
+
+@pytest.mark.parametrize('suffix',[' -elokuva',' -elokuvassa',' -dokumentti'])
+def test_finnish_film_suffix_is_not_a_sequel(monkeypatch,suffix):
+    a=preview();a.update(metaTitle='Dry Leaf'+suffix,ingress='Dry Leaf'+suffix)
+    obj=importer(monkeypatch,a)
+    assert obj.resolve_hs_preview_title(a)=='Dry Leaf'
+
+
+@pytest.mark.parametrize('noun',['elokuvaa','sotaelokuvaksi','dokumentin','draamaa','komediaa','trillerin'])
+def test_inflected_film_nouns_still_carry_rating(noun):
+    assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':'Kriitikko kehuu 5 tähden '+noun})==5

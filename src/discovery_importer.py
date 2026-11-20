@@ -62,7 +62,7 @@ class DiscoveryImporter:
             if len(hits) < 2:
                 continue
             # A known original must not absorb an unknown numbered/subtitled sequel.
-            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[-–—]|[0-9]|[IVX]+\b)'
+            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[-–—](?!(?:elokuva|dokumentti|draama|komedia|trilleri|animaatio)\w*\b)|[0-9]|[IVX]+\b)'
             if any(re.search(raw_pattern, unicodedata.normalize('NFKC', str(fields[i])), re.IGNORECASE) for i in hits):
                 continue
             candidates.append(movie.title)
