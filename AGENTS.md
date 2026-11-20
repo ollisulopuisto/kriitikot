@@ -238,3 +238,13 @@ Optional real-Chrome geometry + interaction checks and screenshots:
 `uv run --with playwright python scripts/check_header_layout.py`.
 Set CHROME_BIN if Chrome is elsewhere; SCREENSHOT_DIR selects capture output.
 No scraping or site regeneration is part of that check.
+
+## Favourite beside count, 2026-11-20
+
+The desktop favourite button now sits after the review count in
+`.critic-bottom-row`; no dedicated heart/name-row padding remains. It is a
+native button with the critic name in its accessible action label. The mobile
+review-card placement is unchanged. Removed the accumulated identity/absolute
+positioning overrides. Regression coverage includes no-count fixtures,
+favourite persistence, no accidental critic filtering, native Space activation
+in Chrome, and geometry. The optional Chrome script checks this too.
