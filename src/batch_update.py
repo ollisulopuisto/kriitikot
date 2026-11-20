@@ -86,9 +86,9 @@ def main():
         failures = {source: count for source, count in importer.source_failures.items() if count}
         if failures:
             print(f"❌ Source failures: {failures}")
-            # Existing workflow failure handler opens/reopens an issue. Do not
-            # publish a partial update as a successful scheduled scrape.
-            sys.exit(1)
+            # Distinguish completed partial batches from fatal errors. The
+            # workflow may publish their valid imports, then report failure.
+            sys.exit(2)
         sys.exit(0)
         
     except KeyboardInterrupt:
