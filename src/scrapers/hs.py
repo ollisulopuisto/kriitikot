@@ -161,13 +161,36 @@ class HSScraper(BaseScraper):
                 if 1 <= stars <= 5:
                     return stars
         
-        # Paid articles may expose only a preview. Use an explicit public
-        # review-headline verdict, not arbitrary star words in the ingress.
+        # Current public previews may omit the film-facts block. An explicit
+        # star verdict in the review headline is still source rating evidence.
         if asset_data.get('storyLogo') == 'Elokuva-arvio':
-            title = asset_data.get('title', '')
-            match = re.search(r':\s*(yksi|kaksi|kolme|neljä|viisi) täh(?:ti|teä)\s*[.!]?$', title, re.IGNORECASE)
-            if match:
-                return self.parse_rating(match.group(0).lstrip(':').strip().rstrip('.!'))
+            title = self.clean_text(asset_data.get('title', '')) or ''
+            pattern = r'(?<![\w.,/])([1-5]|yksi|kaksi|kolme|neljä|viisi|yhden|kahden|kolmen|neljän|viiden)\s+täh(?:teä|ti|den)(?!\w)'
+            # Fractions and rating ranges need their own semantics; never read
+            # only the denominator or range endpoint as the verdict.
+            if re.search(r'\d\s*[/–—-]\s*\d\s+täh', title, re.IGNORECASE):
+                return None
+            matches = list(re.finditer(pattern, title, re.IGNORECASE))
+            ratings = set()
+            for match in matches:
+                # Genitive star classifications need a film noun, not a hotel.
+                phrase = match.group(0).casefold()
+                if phrase.endswith('tähden'):
+                    following = title[match.end():].lstrip().casefold()
+                    # Explicit Finnish case endings, not arbitrary compounds.
+                    cases = r'(?:n|a|ä|ssa|ssä|sta|stä|lla|llä|lta|ltä|lle|ksi|na|nä|tta|ttä|t)?'
+                    film_noun = (r'(?:[\w-]*elokuva' + cases + r'|[\w-]*elokuvaan'
+                                 r'|(?:draama|komedia|animaatio)' + cases +
+                                 r'|(?:draamaan|komediaan|animaatioon)'
+                                 r'|dokument(?:ti(?:a|in|na|ksi)?|i' + cases + r')'
+                                 r'|(?:trilleri|musikaali)' + cases +
+                                 r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
+                    if not re.match(film_noun, following):
+                        continue
+                ratings.add(self.parse_rating(match.group(0)))
+            ratings.discard(None)
+            if len(ratings) == 1:
+                return ratings.pop()
 
         return None
     

@@ -1,5 +1,9 @@
 ## 2026-11-20
 
+- Match HS preview subjects to an existing film repeated in independent metadata fields. Read explicit headline star verdicts when body stars are absent; omit unrated HS reviews. Remove the per-article preview allowlist.
+
+## 2026-11-20
+
 - Publish validated imports from completed partial scraper batches, then visibly fail/report remaining source errors. Fatal errors and failed validation still block publication.
 
 ## 2026-11-20
