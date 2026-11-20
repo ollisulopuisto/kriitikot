@@ -18,7 +18,7 @@ FIXTURE=Path(__file__).resolve().parents[1]/'tests/test_data/hs_you_can_public_m
 
 
 def restore(db,apply=False):
-    asset=json.loads(FIXTURE.read_text())
+    asset=json.loads(FIXTURE.read_text(encoding='utf-8'))
     parser=HSScraper()
     author=parser._normalize_critic_name(asset['byLine'])
     rating=parser._extract_rating(asset)

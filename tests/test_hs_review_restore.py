@@ -42,3 +42,13 @@ def test_missing_film_refuses_new_identity():
     with pytest.raises(ValueError,match='existing film'):
         module.restore(db,True)
     assert db.execute('SELECT count(*) FROM critics').fetchone()==(0,)
+
+
+def test_public_metadata_read_explicitly_uses_utf8(monkeypatch):
+    original=module.FIXTURE
+    class CheckedFixture:
+        def read_text(self, *, encoding):
+            assert encoding=='utf-8'
+            return original.read_text(encoding=encoding)
+    monkeypatch.setattr(module,'FIXTURE',CheckedFixture())
+    assert module.restore(database()) is True
