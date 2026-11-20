@@ -1,5 +1,10 @@
 ## 2026-11-20
 
+- Repair seven Episodi headline-as-film-title rows: merge four into existing films,
+  rename three, preserve every review, and remove invalid headline-derived ticket links.
+
+## 2026-11-20
+
 - Place desktop sort and slider headings beside their controls, reducing the
   filter header from 173px to 128px at 1600px. Keep phone/tablet controls intact.
 - Episodi titles now come from the film card or structured Movie subject, never

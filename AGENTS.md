@@ -248,3 +248,11 @@ review-card placement is unchanged. Removed the accumulated identity/absolute
 positioning overrides. Regression coverage includes no-count fixtures,
 favourite persistence, no accidental critic filtering, native Space activation
 in Chrome, and geometry. The optional Chrome script checks this too.
+
+## Episodi data repair, 2026-11-20
+
+`scripts/repair_episodi_titles.py` is a one-time approved mapping for seven rows.
+Dry-run by default; --apply is transactional and idempotent. It guards source URLs,
+original titles, merge targets, critic conflicts and foreign keys, preserving review
+content and IDs. Four merges and three renames reduce316films to312, keeping1069reviews.
+No source imports or author edits included. Regression: pytest tests/test_episodi_repair.py.
