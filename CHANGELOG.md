@@ -1,6 +1,7 @@
 ## 2026-11-20
 
 - Require source-specific film facts across seven scrapers instead of silently creating films from editorial headlines, SEO titles or keywords. Headline-only previews fail closed.
+- Restore the verified five-star HS review of You Can See Everything, missed by the old preview-rating parser; regenerate the site without changing existing reviews.
 
 ## 2026-11-20
 

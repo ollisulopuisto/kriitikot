@@ -280,3 +280,13 @@ is supported. The historical IL paywall fixture is one such preview; its byline
 still parses but the review is rejected. Paired positive film-facts tests and
 saved live-source replays preserve current supported layouts. No DB changes or
 live bulk imports. Focused regression: pytest tests/test_subject_evidence.py.
+## Verified HS review restoration, 2026-11-20
+
+The last old-parser run found HS article2000012404132but silently skipped it
+because its public preview omitted body stars. The landed parser reads its
+explicit terminal five-star headline verdict. A narrow idempotent repair adds
+that one source to the exact existing You Can See Everything film and existing
+Tero Kartastenpää critic. It imports only public metadata/ingress, never the
+subscriber body. Default dry run, conflict checks, unchanged prior reviews and
+foreign-key validation. Rebuild output:1070reviews/312films. Regression:
+pytest tests/test_hs_review_restore.py. No broad source import.
