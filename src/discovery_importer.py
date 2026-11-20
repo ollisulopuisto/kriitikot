@@ -315,6 +315,7 @@ class DiscoveryImporter:
                     print('   ❌ Incomplete review identity, author or rating; needs source review')
                     failed += 1
                     if queue:
+                        stats['failed'] += 1
                         queue.finish(url, 'failed')
                     continue
 

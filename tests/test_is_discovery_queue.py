@@ -173,3 +173,17 @@ def test_retry_clears_failure_after_unsaved_admissions(monkeypatch,tmp_path):
     assert second.import_discovered_reviews('is',limit=10)==10
     assert second.source_failures['is']==0
     assert calls[0]==url(0) and len(calls)<=40
+
+
+def test_rejected_placeholder_author_counts_as_failed_outcome(monkeypatch,tmp_path):
+    import discovery_importer
+    db=session();db.add(Publication(name='Ilta-Sanomat',short_name='is'));db.commit()
+    obj=DiscoveryImporter.__new__(DiscoveryImporter);obj.session=db;obj.source_failures={}
+    obj.is_cache_path=tmp_path/'queue.json';obj.scrapers={'is':ISScraper()}
+    obj.meta_scraper=SimpleNamespace(discover_new_reviews=lambda *a:[{'title':'Film','url':url(99)}])
+    asset=review_asset();asset['byLine']='Unknown'
+    monkeypatch.setattr(discovery_importer.requests,'get',lambda *a,**k:SimpleNamespace(text=page(asset),status_code=200,raise_for_status=lambda:None))
+    assert obj.import_discovered_reviews('is') == 0
+    assert obj.is_stats['failed'] == 1
+    assert obj.source_failures['is'] == 1
+    assert db.query(Review).count() == 0
