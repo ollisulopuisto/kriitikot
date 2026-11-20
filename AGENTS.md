@@ -316,3 +316,11 @@ a saved ReviewURL is requeued, so failed deployments do not lose articles.
 Tests use isolated temporary queue files and in-memory databases. Do not run a
 live import just to test this code. Full regression: pytest; focused:
 pytest tests/test_is_discovery_queue.py. No sitemap/backfill coverage claim.
+## Film-O-Holic metadata, 2026-11-20
+
+The current pages expose Review.itemReviewed.Movie and reviewRating JSON-LD,
+plus article:author. The old rating meta/name=author paths alone now miss live
+reviews. Prefer the structured film subject and shared author helper; retain
+legacy h1/category, reviewer-span and rating-meta support. Missing identity,
+author or valid1–5rating is a parser failure, not a silent rating-less skip.
+Three failing-first regressions plus legacy tests pass. No DB import included.
