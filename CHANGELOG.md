@@ -1,5 +1,9 @@
 ## 2026-11-20
 
+- Publish validated imports from completed partial scraper batches, then visibly fail/report remaining source errors. Fatal errors and failed validation still block publication.
+
+## 2026-11-20
+
 - Require source-specific film facts across seven scrapers instead of silently creating films from editorial headlines, SEO titles or keywords. Headline-only previews fail closed.
 
 ## 2026-11-20

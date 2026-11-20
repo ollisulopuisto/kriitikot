@@ -280,3 +280,13 @@ is supported. The historical IL paywall fixture is one such preview; its byline
 still parses but the review is rejected. Paired positive film-facts tests and
 saved live-source replays preserve current supported layouts. No DB changes or
 live bulk imports. Focused regression: pytest tests/test_subject_evidence.py.
+
+## Partial scraper publication, 2026-11-20
+
+A completed batch with per-source failures exits2; fatal errors remain1 and
+interruptions130. The workflow permits only exit2to continue through the existing
+metadata, generation and single DB/docs commit path. It records the partial result
+and import count in the summary, then fails after publication so the existing
+failure issue remains visible. Failed tests, fatal batches, failed metadata or
+failed generation/commit stop publication. No always()-push is introduced.
+Regression: pytest tests/test_batch_exit.py, including actual bash exit handling.
