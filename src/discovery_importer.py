@@ -24,6 +24,7 @@ class DiscoveryImporter:
     """
     
     def __init__(self):
+        self.source_failures = {}
         self.meta_scraper = MetaScraper()
         self.engine = get_engine()
         self.session = get_session(self.engine)
@@ -32,6 +33,27 @@ class DiscoveryImporter:
         # Scrapers per source — sama rekisteri kuin scrapers/__init__.py:ssä
         self.scrapers = SCRAPERS
     
+    def resolve_hs_preview_title(self, asset: dict, source_url: str = None):
+        """Recover only individually verified previews, never guess film subjects.
+
+        A generic substring match can mistake a sequel for an existing original
+        or select another film mentioned in a review. This source was reviewed
+        against its public metadata; future missing-facts previews need review.
+        """
+        verified = {
+            'https://www.hs.fi/popkulttuuri/art-2000012404132.html':
+                (2000012404132, 'You Can See Everything'),
+        }
+        entry = verified.get(source_url)
+        if not entry or asset.get('id') != entry[0]:
+            return None
+        title = entry[1]
+        texts = [str(asset.get(key, '')) for key in ('metaTitle', 'ingress')]
+        if not all(re.search(r'(?<!\w)' + re.escape(title) + r'(?!\w)', text) for text in texts):
+            return None
+        existing = self.session.query(Movie).filter_by(title=title).first()
+        return title if existing else None
+
     def normalize_movie_title(self, title: str) -> str:
         """
         Normalisoi elokuvan nimen.
@@ -159,8 +181,15 @@ class DiscoveryImporter:
         print(f"🔍 IMPORT: {source.upper()}")
         print(f"{'='*60}\n")
         
+        self.source_failures[source] = 0
+
         # 1. Löydä uudet arvostelut
-        discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        try:
+            discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        except Exception as exc:
+            self.source_failures[source] = 1
+            print(f'Discovery failed for {source}: {exc}')
+            return 0
         print(f"✅ Löydettiin {len(discovered)} arvostelua\n")
         
         if not discovered:
@@ -171,11 +200,13 @@ class DiscoveryImporter:
         scraper = self.scrapers.get(source)
         if not scraper:
             print(f"❌ Ei scraperia lähteelle: {source}")
+            self.source_failures[source] = 1
             return 0
         
         publication = self.get_publication(source)
         if not publication:
             print(f"❌ Julkaisua ei löydy tietokannasta: {source}")
+            self.source_failures[source] = 1
             return 0
         
         imported = 0
@@ -209,6 +240,13 @@ class DiscoveryImporter:
                 response.raise_for_status()
                 html = response.text
 
+                if source == 'is':
+                    reason = scraper.exclusion_reason(html)
+                    if reason:
+                        print(f"   ⏭️  IS exclusion: {reason}")
+                        skipped += 1
+                        continue
+
                 review = scraper.parse_html(html, url)
                 if not review:
                     print("   ❌ Scraping epäonnistui")
@@ -220,6 +258,16 @@ class DiscoveryImporter:
                     print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
                     skipped += 1
                     continue
+
+                # If HS returned its article headline, the film facts were
+                # absent from the public preview. Require one existing title.
+                if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
+                    resolved = self.resolve_hs_preview_title(review.raw_data, url)
+                    if not resolved:
+                        print("   ❌ HS preview: film title needs manual review")
+                        failed += 1
+                        continue
+                    review.movie_title = resolved
 
                 # Luo relaatiot
                 movie = self.get_or_create_movie(review.movie_title)
@@ -260,6 +308,8 @@ class DiscoveryImporter:
                 self.session.rollback()
                 continue
         
+        self.source_failures[source] = failed
+
         # Yhteenveto
         print(f"\n{'='*60}")
         print(f"📊 YHTEENVETO: {source.upper()}")
@@ -295,6 +345,7 @@ class DiscoveryImporter:
             except Exception as e:
                 print(f"❌ Virhe lähteessä {source}: {e}")
                 results[source] = 0
+                self.source_failures[source] = max(1, self.source_failures.get(source, 0))
         
         # Lopullinen yhteenveto
         total = sum(results.values())
@@ -334,3 +385,5 @@ if __name__ == '__main__':
     else:
         # Default: importoi kaikista lähteistä 10 arvostelua
         importer.import_all_sources(limit_per_source=10)
+
+    sys.exit(1 if any(importer.source_failures.values()) else 0)

@@ -66,6 +66,24 @@ class ISScraper(BaseScraper):
             raw_data=asset_data
         )
     
+    def exclusion_reason(self, html_content: str) -> Optional[str]:
+        """Explain intentional exclusions, never classify a missing payload as one."""
+        soup = self.get_soup(html_content)
+        data = self.extract_next_data(soup)
+        asset = self._extract_asset_data(data) if data else None
+        if not isinstance(asset, dict) or not asset:
+            return None
+        keys = {tag.get('key', '').lower() for tag in asset.get('tags', [])}
+        if not {'tv-lehti', 'arviot'} <= keys:
+            return 'not_review'
+        # A tagged preview without article paragraphs is a parser failure,
+        # regardless of what a headline suggests about its distribution.
+        body = ' '.join(c.get('content', '') for p in self._paragraph_sections(asset)
+                        for c in p.get('crumbs', []))
+        if body.strip() and self._cinema_status(asset) == 'outside_cinema':
+            return 'outside_cinema'
+        return None
+
     def _extract_asset_data(self, data: dict) -> Optional[dict]:
         """Kaivaa assetData-osion Next.js datasta."""
         try:
@@ -88,6 +106,10 @@ class ISScraper(BaseScraper):
         if not ('tv-lehti' in tag_keys and 'arviot' in tag_keys):
             return False
         
+        return self._cinema_status(asset_data) == 'cinema'
+
+    def _cinema_status(self, asset_data: dict) -> Optional[str]:
+        """One policy for acceptance and explicit exclusions; None is unknown."""
         endnote = self._get_endnote_text(asset_data).lower()
         text_content = self._get_full_text(asset_data).lower()
         
@@ -109,7 +131,15 @@ class ISScraper(BaseScraper):
         ]
         
         # TV-kanava tai kello-viittaukset endnotessa (esim. "Teema & Fem klo 21.00")
-        is_tv_schedule = bool(re.search(r'klo\s+\d{1,2}\.\d{2}', endnote))
+        clock = r'klo\s+\d{1,2}[.:]\d{2}'
+        channel = r'\b(?:tv[1256]|yle|teema|fem|mtv3?|nelonen|sub|frii|hero|jim|kutonen)\b'
+        # A bare clock in a plot synopsis is not broadcast evidence. Outside
+        # the distribution endnote, require a channel in the same paragraph.
+        is_tv_schedule = bool(re.search(clock, endnote)) or any(
+            re.search(clock, text, re.IGNORECASE) and re.search(channel, text, re.IGNORECASE)
+            for text in (''.join(c.get('content', '') for c in section.get('crumbs', []))
+                         for section in self._paragraph_sections(asset_data))
+        )
         has_tv_channels = any(ch in endnote for ch in ['yle', 'teema', 'fem', 'mtv', 'nelonen', 'sub'])
         
         # Ensi-ilta on erikoistapaus: se voi olla myös tv-ensi-ilta
@@ -132,15 +162,15 @@ class ISScraper(BaseScraper):
         has_streaming = any(kw in text_content for kw in streaming_keywords)
         
         if (has_streaming or is_tv_schedule or has_tv_channels) and not has_theater_in_endnote:
-            return False  # Todennäköisesti TV/suoratoistoarvostelu
+            return 'outside_cinema'
             
         # Jos ei ole mitään viittausta teatteriin eikä ole ensi-ilta, hylkää
         has_theater_anywhere = any(kw in text_content for kw in theater_keywords) or has_premiere
         
         if not has_theater_anywhere:
-            return False
-        
-        return True
+            return None
+
+        return 'cinema'
     
     def _get_endnote_text(self, asset_data: dict) -> str:
         """Kaivaa arvostelun lopussa olevan tiivistelmätekstin (endnote)."""

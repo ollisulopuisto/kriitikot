@@ -83,7 +83,12 @@ def main():
         print(f"⏰ Päättyi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*70}\n")
         
-        # Exit code: onnistui
+        failures = {source: count for source, count in importer.source_failures.items() if count}
+        if failures:
+            print(f"❌ Source failures: {failures}")
+            # Existing workflow failure handler opens/reopens an issue. Do not
+            # publish a partial update as a successful scheduled scrape.
+            sys.exit(1)
         sys.exit(0)
         
     except KeyboardInterrupt:

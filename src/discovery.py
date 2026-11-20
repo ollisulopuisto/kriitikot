@@ -157,17 +157,16 @@ class CategoryCrawler:
         # Etsi __NEXT_DATA__ script tag
         next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
         if not next_data_script:
-            return reviews
+            raise ValueError("Missing discovery payload")
         
         try:
             # Parsitaan JSON
             data = json.loads(next_data_script.string)
             
             # Navigoidaan: props.pageProps.page.data.data[].lanes[].items[]
-            page_props = data.get('props', {}).get('pageProps', {})
-            page = page_props.get('page', {})
-            page_data_wrapper = page.get('data', {})
-            page_data = page_data_wrapper.get('data', [])
+            page_data = data['props']['pageProps']['page']['data']['data']
+            if not isinstance(page_data, list):
+                raise ValueError('Expected category discovery lanes')
             
             # Käy läpi kaikki lanes ja items
             for data_item in page_data:
@@ -198,7 +197,7 @@ class CategoryCrawler:
         
         except (json.JSONDecodeError, KeyError, TypeError) as e:
             print(f"  [HS] JSON parsing error: {e}")
-            return reviews
+            raise
         
         return reviews
     
@@ -262,7 +261,7 @@ class CategoryCrawler:
                                 break
                 except Exception as e:
                     print(f"  [IL] JSON parsing error: {e}")
-                    continue
+                    raise
         
         return reviews
     
@@ -279,20 +278,19 @@ class CategoryCrawler:
         # Etsi __NEXT_DATA__ script tag
         next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
         if not next_data_script:
-            return reviews
+            raise ValueError("Missing discovery payload")
         
         try:
             # Parsitaan JSON
             data = json.loads(next_data_script.string)
             
             # IS.fi:n rakenne: props.pageProps.page.data.data[].lanes[].items[]
-            page_props = data.get('props', {}).get('pageProps', {})
-            page = page_props.get('page', {})
-            page_data_wrapper = page.get('data', {})
-            page_data = page_data_wrapper.get('data', [])
+            page_data = data['props']['pageProps']['page']['data']['data']
+            if not isinstance(page_data, list):
+                raise ValueError('Expected category discovery lanes')
             
             # Tunnetut IS.fi:n elokuvakriitikot
-            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu']
+            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu', 'Kari Järvinen']
             
             # Hylättävät otsikkopatternit (TV-arvostelut)
             excluded_patterns = [
@@ -363,8 +361,10 @@ class CategoryCrawler:
         
         except json.JSONDecodeError as e:
             print(f"Virhe JSON parsinnassa: {e}")
+            raise
         except Exception as e:
             print(f"Virhe IS.fi arvostelujen etsinnässä: {e}")
+            raise
         
         return reviews
     
@@ -503,6 +503,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 # Title on rendered HTML, puhdistetaan
@@ -529,6 +531,7 @@ class CategoryCrawler:
         
         except Exception as e:
             print(f"  [Kulttuuritoimitus] JSON API virhe: {e}")
+            raise
         
         return reviews
     
@@ -547,6 +550,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 title = item.get('title', {}).get('rendered', '').strip()
@@ -563,6 +568,7 @@ class CategoryCrawler:
         
         except Exception as e:
             print(f"  [Episodi] JSON API virhe: {e}")
+            raise
         
         return reviews
     
@@ -583,6 +589,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 # Title on rendered HTML, puhdistetaan
@@ -609,6 +617,7 @@ class CategoryCrawler:
                         
         except Exception as e:
             print(f"  [Demokraatti] JSON API virhe: {e}")
+            raise
             
         return reviews
 
