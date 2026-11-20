@@ -37,6 +37,9 @@ class MuropakettiScraper(BaseScraper):
         rating_stars = self._extract_rating(soup)
         review_text = self._extract_text(soup)
         
+        if not movie_title:
+            return None
+
         return Review(
             movie_title=movie_title,
             critic_name=critic_name,
@@ -97,19 +100,8 @@ class MuropakettiScraper(BaseScraper):
                     
                     return title
         
-        # Fallback: käytä h1-otsikkoa
-        h1 = soup.find('h1')
-        if h1:
-            title = h1.get_text().strip()
-            # Poista "Arvostelu  " etuliite (kaksi välilyöntiä)
-            if title.startswith('Arvostelu  '):
-                title = title[len('Arvostelu  '):]
-            elif title.startswith('Arvio  '):
-                title = title[len('Arvio  '):]
-            return title
-        
         return None
-    
+
     def _extract_critic(self, soup):
         """Etsi kriitikon nimi meta-tagista."""
         author_meta = soup.find('meta', {'name': 'author'})

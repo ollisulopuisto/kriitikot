@@ -50,8 +50,8 @@ def test_parse_json_api_uses_content_extraction(scraper):
     review = scraper.parse_json_api(json_data)
     assert review.movie_title == "Correct Movie Title"
     
-def test_parse_json_api_fallback(scraper):
-    """Test fallback to title if content extraction fails."""
+def test_parse_json_api_headline_only_fails_closed(scraper):
+    """A headline is not film identity when the film infobox is absent."""
     json_data = {
         'title': {'rendered': 'Arviossa Fallback Title'},
         'content': {'rendered': '<p>Just some text</p>'},
@@ -59,4 +59,4 @@ def test_parse_json_api_fallback(scraper):
     }
     
     review = scraper.parse_json_api(json_data)
-    assert review.movie_title == "Fallback Title"
+    assert review is None
