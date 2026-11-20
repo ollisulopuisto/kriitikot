@@ -6,7 +6,7 @@ from .base import BaseScraper, Review
 from bs4 import BeautifulSoup
 import requests
 import json
-from typing import List
+from typing import List, Optional
 
 
 class EpisodiScraper(BaseScraper):
@@ -22,6 +22,8 @@ class EpisodiScraper(BaseScraper):
         
         # Hae elokuvan nimi
         movie_title = self._extract_title(soup)
+        if not movie_title:
+            return None
         
         # Hae kriitikon nimi
         critic_name = self._extract_critic(soup)
@@ -67,8 +69,14 @@ class EpisodiScraper(BaseScraper):
             # Parsitaan jokainen arvostelu
             for item in data:
                 try:
-                    # Hae elokuvan nimi
-                    movie_title = item.get('title', {}).get('rendered', '').strip()
+                    # WP title.rendered is the article headline too. Film
+                    # identity must come from a card/Review, including here.
+                    content = item.get('content', {}).get('rendered', '')
+                    movie_title = self._extract_title(self.get_soup(content))
+                    if not movie_title:
+                        page = requests.get(item['link'], timeout=10)
+                        page.raise_for_status()
+                        movie_title = self._extract_title(self.get_soup(page.text))
                     if not movie_title:
                         continue
                     
@@ -134,18 +142,26 @@ class EpisodiScraper(BaseScraper):
         # Jos ei löydy, palautetaan None
         return None
     
-    def _extract_title(self, soup: BeautifulSoup) -> str:
-        """Hae elokuvan nimi."""
-        # Yritetään ensin h1-otsikkoa
-        title_tag = soup.find('h1', class_='entry-title')
-        if not title_tag:
-            title_tag = soup.find('h1')
-        
-        if title_tag:
-            return title_tag.get_text(strip=True)
-        
-        return "Tuntematon elokuva"
-    
+    def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
+        """Read the film card, never the article headline.
+
+        The visible film-card name is independent of the review's h1. The
+        matching Review JSON-LD also identifies its subject as a Movie.
+        """
+        card = soup.select_one('h2.epi-rv-n')
+        card_name = self.clean_text(card.get_text(' ', strip=True)) if card else None
+        review = self.extract_jsonld(soup, types=('Review',))
+        structured_name = None
+        if review:
+            movie = review.get('itemReviewed', {})
+            if isinstance(movie, dict) and movie.get('@type') == 'Movie':
+                name = movie.get('name')
+                if isinstance(name, str) and name.strip():
+                    structured_name = self.clean_text(name)
+        if card_name and structured_name and card_name.casefold() != structured_name.casefold():
+            return None  # Conflicting subject identity needs manual review.
+        return card_name or structured_name
+
     def _extract_critic(self, soup: BeautifulSoup) -> str:
         """Hae kriitikon nimi."""
         # Yritetään ensin /kirjoittajat/-linkistä

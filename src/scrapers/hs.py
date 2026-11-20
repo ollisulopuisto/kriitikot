@@ -158,6 +158,14 @@ class HSScraper(BaseScraper):
                 if 1 <= stars <= 5:
                     return stars
         
+        # Paid articles may expose only a preview. Use an explicit public
+        # review-headline verdict, not arbitrary star words in the ingress.
+        if asset_data.get('storyLogo') == 'Elokuva-arvio':
+            title = asset_data.get('title', '')
+            match = re.search(r':\s*(yksi|kaksi|kolme|neljä|viisi) täh(?:ti|teä)\s*[.!]?$', title, re.IGNORECASE)
+            if match:
+                return {'yksi': 1, 'kaksi': 2, 'kolme': 3, 'neljä': 4, 'viisi': 5}[match.group(1).lower()]
+
         return None
     
     def _extract_review_text(self, asset_data: dict) -> Optional[str]:

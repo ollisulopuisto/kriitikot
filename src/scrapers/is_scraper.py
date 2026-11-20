@@ -66,6 +66,20 @@ class ISScraper(BaseScraper):
             raw_data=asset_data
         )
     
+    def exclusion_reason(self, html_content: str) -> Optional[str]:
+        """Explain intentional exclusions, never classify a missing payload as one."""
+        soup = self.get_soup(html_content)
+        data = self.extract_next_data(soup)
+        asset = self._extract_asset_data(data) if data else None
+        if not isinstance(asset, dict) or not asset:
+            return None
+        keys = {tag.get('key', '').lower() for tag in asset.get('tags', [])}
+        if not {'tv-lehti', 'arviot'} <= keys:
+            return 'not_review'
+        if not self._is_movie_review(asset):
+            return 'outside_cinema'
+        return None
+
     def _extract_asset_data(self, data: dict) -> Optional[dict]:
         """Kaivaa assetData-osion Next.js datasta."""
         try:

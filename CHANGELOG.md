@@ -2,6 +2,12 @@
 
 - Place desktop sort and slider headings beside their controls, reducing the
   filter header from 173px to 128px at 1600px. Keep phone/tablet controls intact.
+- Episodi titles now come from the film card or structured Movie subject, never
+  the article headline. Conflicting identities fail closed.
+- IS discovery includes Kari Järvinen. Non-review and TV/streaming exclusions
+  are skips, while missing payloads remain errors.
+- HS can use an explicit rating from a public review headline; missing film facts
+  resolve only against one existing name present in public metadata.
 
 - Move desktop critic favourites beside the review count and remove the unused
   top heart row. Keep phone review cards unchanged.

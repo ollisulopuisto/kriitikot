@@ -292,7 +292,7 @@ class CategoryCrawler:
             page_data = page_data_wrapper.get('data', [])
             
             # Tunnetut IS.fi:n elokuvakriitikot
-            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu']
+            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu', 'Kari Järvinen']
             
             # Hylättävät otsikkopatternit (TV-arvostelut)
             excluded_patterns = [
