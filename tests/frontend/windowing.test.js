@@ -3,15 +3,18 @@ import { readFileSync } from 'node:fs';
 
 let frame;
 let fontDone;
+let proximity;
 function setup({ width = 1200, height = 200 } = {}) {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
     frame = null;
+    proximity = null;
+    vi.stubGlobal('IntersectionObserver', class { constructor(fn) { proximity = fn; } observe() {} });
     Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve(), addEventListener: (event, fn) => { if (event === 'loadingdone') fontDone = fn; } } });
     vi.stubGlobal('requestAnimationFrame', fn => { frame = fn; return 1; });
     const cell = i => `<td class="${i ? 'rating-cell' : 'movie-col'}"><button>${i}</button></td>`;
-    document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button>
+    document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button><button id="load-more-button">More</button>
       <div id="review-container-desktop"><div class="table-wrapper"><table><thead><tr>
       ${Array.from({ length: 40 }, (_, i) => `<th>${i}</th>`).join('')}</tr></thead><tbody>
       ${Array.from({ length: 40 }, (_, i) => `<tr data-index="${i}">${Array.from({ length: 40 }, (_, j) => cell(j)).join('')}</tr>`).join('')}
@@ -153,6 +156,23 @@ describe('review viewport window', () => {
             expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
         }
         expect(document.getElementById('windowing-toggle').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('preloads phone batches on downward scroll without windowing cards', () => {
+        const { tick } = setup({width:390});
+        const more=document.getElementById('load-more-button');
+        Object.defineProperty(more,'offsetParent',{configurable:true,value:document.body});
+        const click=vi.spyOn(more,'click');
+        proximity([{isIntersecting:true}]);
+        expect(click).not.toHaveBeenCalled();
+        Object.defineProperty(window,'scrollY',{configurable:true,value:40});
+        window.dispatchEvent(new Event('scroll'));tick();
+        expect(click).toHaveBeenCalledTimes(1);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        expect(window.reviewWindow.enabled).toBe(false);
+        Object.defineProperty(window,'scrollY',{configurable:true,value:20});
+        window.dispatchEvent(new Event('scroll'));tick();
+        expect(click).toHaveBeenCalledTimes(1);
     });
 
 });

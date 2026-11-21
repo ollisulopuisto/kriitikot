@@ -44,7 +44,9 @@ try:
             last = page.locator('.movie-card').last
             title = last.locator('.movie-card-title').inner_text()
             assert title and last.evaluate('n=>n.isConnected')
-            page.locator('#load-more-button').evaluate('n=>n.click()')
+            # Keep scroll-ahead pagination even with card windowing disabled.
+            page.wait_for_timeout(250)
+            page.evaluate('window.scrollTo(0,document.documentElement.scrollHeight-innerHeight-50)')
             page.wait_for_function('window.currentMovieOffset>60')
             full_phone()
             assert last.evaluate('n=>n.isConnected')
@@ -61,6 +63,13 @@ try:
             page.wait_for_function('window.reviewWindow.enabled')
             assert page.locator('#windowing-toggle').is_visible()
             assert page.locator('.window-spacer').count()>0
+            assert page.locator('.movie-card').count()==0
+            # Desktop actually parked cards. Switching to phone must restore
+            # the same original nodes before any full-view toggle can mask it.
+            page.set_viewport_size({'width': width, 'height': 844})
+            full_phone()
+            page.set_viewport_size({'width': 1200, 'height': 900})
+            page.wait_for_function('window.reviewWindow.enabled && window.reviewWindow.retainedCount>0')
             page.locator('#windowing-toggle').click()
             page.wait_for_function('!window.reviewWindow.enabled && window.reviewWindow.retainedCount===0')
             page.set_viewport_size({'width': width, 'height': 844})

@@ -154,6 +154,7 @@
             if (!isWindowed() || printing) {
                 restore(); clearCoordinates();
                 records = []; columns = []; parkedCells.clear();
+                dirty = false;
                 return;
             }
             if (dirty) snapshot();
@@ -216,7 +217,7 @@
         let preloadY = window.scrollY;
         let pendingDownY = null;
         function attemptPreload() {
-            if (isWindowed() && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
+            if ((window.innerWidth < 769 || desktopEnabled) && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
                 pendingDownY === window.scrollY && moreInRange && more.offsetParent !== null && !more.disabled) {
                 pendingDownY = null;
                 more.click();

@@ -65,7 +65,8 @@ Print visibility uses Chromium's ancestor-aware checkVisibility with opacity and
 
 At phone widths (up to768px), the mode button and explainer are hidden and all
 already-loaded cards stay connected. Existing pagination limits the initial
-batch, and the normal Load more button remains available. This avoids removing
+batch. Scroll-ahead pagination remains enabled independently of card windowing,
+and the normal Load more button remains available. This avoids removing
 the only full-view accessibility/page-find escape while leaving phone windowing
 on. The desktop mode and user choice are unchanged, including across breakpoint
 round trips. Phones no longer get the connected-DOM reduction in the historical
