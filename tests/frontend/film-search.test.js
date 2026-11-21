@@ -17,6 +17,7 @@ describe('film search intersects catalog facets', () => {
     expect(document.querySelectorAll('.film-search')[1].value).toBe('ääNEKÄS');
     expect(visible()).toEqual(['Äänekäs ZEBRA']);
     expect(window.currentMovieOffset).toBe(105);
+    expect(document.querySelectorAll('.movie-card')).toHaveLength(61);
     const slider=document.querySelector('#star-filter-slider');slider.value='4';window.filterByStars(4);window.reconcileFacetVisibility();
     expect(visible()).toEqual([]);
     slider.value='1';window.filterByStars(1);window.reconcileFacetVisibility();

@@ -104,3 +104,20 @@ desktop and44px phone tap targets remain. Numeric accessible labels and text
 counts stay unchanged. Chromium checks320/390/900/1600cover proportional
 transforms, intended size progression, glow target, touch targets, page width
 and star filters. Physical devices, Safari/Firefox and screen readers unrun.
+
+## Catalog search post-merge review follow-up
+
+Search scans titles in the full JSON but only renders matching tail movies,
+retaining the original loaded prefix and restoring missing prefix nodes when
+reset. The offset is a scan position, not the number of sparse DOM cards.
+Final visibility checks keep search active after sorting. Selecting a result
+keeps its query and facets instead of resetting/removing the chosen node.
+Pinned search retains focus while results change and sits below the actual
+toolbar bottom; phone resize removes the clone and restores the header.
+A query entered before catalog arrival invalidates its premature result cache.
+Absent and blocked storage both have fresh default-full-view tests.
+
+Chromium900/1600regressions cover sparse tail rendering, sorting, selecting,
+reset, repeated pinned typing, visible hit target, and phone cleanup. A delayed
+JSON response covers early input. No scraper/data change. Other browsers,
+physical devices, screen reader and full print exercise unrun.

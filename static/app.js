@@ -118,6 +118,9 @@ function isDesktopWidth() {
  * Rakenna desktop-taulukon rivit jos ollaan työpöytäleveydellä.
  * Turvallinen kutsua monta kertaa.
  */
+function cardsForDesktop() {
+    return [...document.querySelectorAll('.movie-card')].map(card => card.dataset.movie);
+}
 function ensureDesktopTable() {
     window.reviewWindow?.prepare();
     if (desktopTableReady || !isDesktopWidth()) return false;
@@ -134,10 +137,11 @@ function ensureDesktopTable() {
     // Täydennä rivit elokuville jotka on jo ladattu mobiilikortteihin
     const serverRendered = template ? tbody.rows.length : 0;
     if (currentMovieOffset > serverRendered) {
-        const pending = movieTitles.slice(serverRendered, currentMovieOffset);
+        const existing = new Set([...tbody.querySelectorAll('.movie-title-main')].map(n => n.textContent.trim()));
+        const pending = [...new Set([...movieTitles.slice(0, currentMovieOffset).filter(matchesFilmSearch), ...cardsForDesktop()])];
         let html = '';
         pending.forEach(title => {
-            if (allGroupedReviews[title]) {
+            if (allGroupedReviews[title] && !existing.has(title)) {
                 html += renderMovie(title, allGroupedReviews[title]).desktop;
             }
         });
@@ -684,7 +688,7 @@ function updateRowVisibility() {
         // Tässä oletamme, että tämä ajetaan viimeisenä.
 
         // Emme koske riveihin, jotka on piilotettu filtterillä tai erärajauksella
-        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true' || row.dataset.batchFiltered === 'true') {
+        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true' || row.dataset.batchFiltered === 'true' || !matchesFilmSearch(row.querySelector('.movie-title-main')?.textContent.trim())) {
             return;
         }
 
@@ -930,7 +934,7 @@ function syncCriticOrderFromDom() {
     allCritics.forEach(c => { allCriticsMap[c.id] = c; });
 }
 
-function loadMoreMovies(batchSize = movieLimit) {
+function loadMoreMovies(batchSize = movieLimit, missingTitles = null) {
     window.reviewWindow?.prepare();
     if (typeof batchSize !== 'number') batchSize = movieLimit;
     const loadMoreButton = document.getElementById('load-more-button');
@@ -956,9 +960,10 @@ function loadMoreMovies(batchSize = movieLimit) {
         return;
     }
 
-    const moviesToRender = movieTitles.slice(currentMovieOffset, currentMovieOffset + batchSize);
+    const scannedTitles = missingTitles || movieTitles.slice(currentMovieOffset, currentMovieOffset + batchSize);
+    const moviesToRender = scannedTitles.filter(matchesFilmSearch);
 
-    if (moviesToRender.length === 0) {
+    if (scannedTitles.length === 0) {
         loadMoreButton.parentElement.style.display = 'none';
         loadMoreButton.disabled = false;
         loadMoreButton.textContent = originalText;
@@ -981,7 +986,7 @@ function loadMoreMovies(batchSize = movieLimit) {
     mobileCardsContainer.insertAdjacentHTML('beforeend', mobileHtml);
     window.applyMovieSortOrder?.();
 
-    currentMovieOffset += moviesToRender.length;
+    if (!missingTitles) currentMovieOffset += scannedTitles.length;
     window.currentMovieOffset = currentMovieOffset;
 
     updateLoadMoreVisibility();
@@ -1294,10 +1299,11 @@ function topUpSliderResults() {
         const title = row.querySelector('.movie-title-main')?.textContent.trim();
         if (title && !keep.has(title)) row.remove();
     });
-    const rendered = document.querySelectorAll('.movie-card').length;
-    currentMovieOffset = Math.min(rendered, offset);
-    window.currentMovieOffset = currentMovieOffset;
-    if (currentMovieOffset < offset) loadMoreMovies(offset - currentMovieOffset);
+    const mounted = new Set([...document.querySelectorAll('.movie-card')].map(card => card.dataset.movie));
+    currentMovieOffset = offset;
+    window.currentMovieOffset = offset;
+    const missing = movieTitles.slice(0, offset).filter(title => matchesFilmSearch(title) && !mounted.has(title));
+    if (missing.length) loadMoreMovies(0, missing);
     sliderWindowKey = key;
     facetRevealCount = saved.reveal;
     window.reapplyAllFacets?.();
@@ -1306,7 +1312,7 @@ function topUpSliderResults() {
         // Varmista että ladattujen joukossa riittää osumia erätavoitteeseen
         while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
             const before = currentMovieOffset;
-            loadMoreMovies(movieLimit);
+            loadMoreMovies(filmSearchQuery ? movieTitles.length - currentMovieOffset : movieLimit);
             if (currentMovieOffset <= before) break;
         }
     } else if (!restoring && !facetsActive) {
@@ -1409,7 +1415,12 @@ document.addEventListener('DOMContentLoaded', () => {
         allGroupedReviews = data;
         movieTitles = Object.keys(allGroupedReviews);
         loadMoreMovies();
-        if (filmSearchQuery) window.topUpSliderResults?.();
+        if (filmSearchQuery) {
+            // A pending search may have cached an empty result before JSON arrived.
+            sliderWindows?.delete(sliderResultsKey());
+            sliderWindowKey = null;
+            window.topUpSliderResults?.();
+        }
     };
 
     const fetchReviewsJson = () => {

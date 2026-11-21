@@ -72,14 +72,22 @@ function initStickyTableHeader() {
     }
     
     function handleScroll() {
-        if (window.innerWidth <= 768) return; // Mobiilissa taulukko on piilossa
+        if (window.innerWidth <= 768) {
+            if (theadClone) {
+                theadClone.wrapperElement?.remove();
+                theadClone = null;
+                thead.style.visibility = 'visible';
+            }
+            return;
+        }
 
         const filtersHeight = updateFiltersHeight();
-        const filterBottom = filtersHeight; // Otsikkoheader kiinnittyy fasetin alle
+        const filterBottom = Math.max(0, desktopFilters.getBoundingClientRect().bottom); // Keep the focused search below the actual toolbar edge.
         const tableRect = tableWrapper.getBoundingClientRect();
         
-        const shouldBeSticky = tableRect.top < filterBottom && 
-                              tableRect.bottom > filterBottom + thead.offsetHeight;
+        const searchFocused = theadClone?.contains(document.activeElement) && document.activeElement.matches('.film-search');
+        const shouldBeSticky = searchFocused || (tableRect.top < filterBottom &&
+                              tableRect.bottom > filterBottom + thead.offsetHeight);
         
         if (shouldBeSticky) {
             if (!theadClone) {
@@ -188,6 +196,9 @@ function initStickyTableHeader() {
      */
     function refreshStickyHeader() {
         if (theadClone) {
+            // Preserve the focused search node across table-sort refreshes.
+            const focused = theadClone.contains(document.activeElement) && document.activeElement.matches('.film-search') ? document.activeElement : null;
+            if (focused) { syncColumnWidths(); handleScroll(); return; }
             if (theadClone.wrapperElement) {
                 theadClone.wrapperElement.remove();
             } else {
@@ -210,6 +221,7 @@ function initStickyTableHeader() {
         });
     }
 
+    document.addEventListener('focusout', () => requestAnimationFrame(handleScroll));
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => {
         updateFiltersHeight();
