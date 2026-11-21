@@ -35,7 +35,7 @@ try:
                 const fixture=document.createElement('div');fixture.id='rating-fixture';
                 fixture.style='display:flex;flex-wrap:wrap;gap:12px;background:white;padding:20px';
                 for(let n=1;n<=5;n++)for(const url of ['https://example.com/',''])
-                    fixture.insertAdjacentHTML('beforeend', createReviewPill({rating_stars:n,source_url:url,source_publication:'hs'}));
+                    fixture.insertAdjacentHTML('beforeend', '<div class="review-item">'+createReviewPill({rating_stars:n,source_url:url,source_publication:'hs'})+'</div>');
                 document.body.prepend(fixture);
             }''')
             assert page.locator('#rating-fixture .rating-pill').count() == 10
@@ -49,6 +49,11 @@ try:
             })''')
             assert all(p['slots'] == 5 and p['empty'] == 5-p['text'] for p in geometry)
             assert all(p['fits'] and p['inTarget'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry)
+            if width < 769:
+                assert all(p['target'] >= 44 for p in geometry), geometry
+                actual_targets = page.locator('.movie-card a.rating-pill').evaluate_all(
+                    'nodes=>nodes.filter(n=>n.getBoundingClientRect().height>0).map(n=>n.getBoundingClientRect().height)')
+                assert actual_targets and min(actual_targets) >= 44, actual_targets
             assert len({p['w'] for p in geometry}) == len({p['h'] for p in geometry}) == 1
             page.screenshot(path=str(output / f'scale-{width}.png'))
             page.locator('#rating-fixture').evaluate('e=>e.remove()')

@@ -18,7 +18,7 @@ def test_server_stars_match_the_lazy_contract(rating):
 
 def test_all_server_pills_use_shared_slots():
     for name in ('_movie_row.html', '_movie_card.html'):
-        assert (ROOT / 'templates' / name).read_text().count("include '_rating_stars.html'") == 2
+        assert (ROOT / 'templates' / name).read_text(encoding='utf-8').count("include '_rating_stars.html'") == 2
 
 def test_generated_assets_match_source():
     for name in ('app.js', 'css/base.css', 'css/table.css', 'css/cards.css'):
