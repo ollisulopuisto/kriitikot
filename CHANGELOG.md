@@ -14,6 +14,8 @@
 
 - Treat incomplete discovered review identities/authors/ratings as source errors,
   not silent skips or placeholder critics. Validate before database writes.
+- Read Film-O-Holic's current structured film/rating and article author metadata,
+  retaining legacy markup and rejecting incomplete review identities.
 
 ## 2026-11-20
 

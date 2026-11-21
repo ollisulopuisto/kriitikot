@@ -32,6 +32,9 @@ class FilmOHolicScraper(BaseScraper):
         rating_stars = self._extract_rating(soup)
         review_text = self._extract_text(soup)
         
+        if not movie_title or not critic_name or rating_stars is None:
+            return None
+
         return Review(
             movie_title=movie_title,
             critic_name=critic_name,
@@ -47,6 +50,13 @@ class FilmOHolicScraper(BaseScraper):
         Title format: "Sisu 2 \n valkokangas"
         We need just the movie name before the category.
         """
+        review = self.extract_jsonld(soup, types=('Review',))
+        if review:
+            subject = review.get('itemReviewed', {})
+            if isinstance(subject, dict) and subject.get('@type') == 'Movie':
+                name = subject.get('name')
+                if isinstance(name,str) and name.strip():
+                    return self.clean_text(name)
         h1 = soup.find('h1')
         if h1:
             # Get text and split by whitespace/newlines
@@ -63,16 +73,16 @@ class FilmOHolicScraper(BaseScraper):
         Critic is in: <meta name="author" content="Juha Rosenqvist" />
         Or in: <span itemprop="reviewer">Juha Rosenqvist</span>
         """
-        # Try meta tag first
-        author_meta = soup.find('meta', {'name': 'author'})
-        if author_meta:
-            return author_meta.get('content')
-        
+        author = self.extract_author(soup, self.extract_jsonld(soup, types=('Review',)),
+                                     exclude=('Film-O-Holic','Film-O-Holic.com','Unknown'))
+        if author:
+            return author
         # Try itemprop="reviewer"
         reviewer_span = soup.find('span', itemprop='reviewer')
         if reviewer_span:
             # Remove &nbsp; and clean
-            return reviewer_span.get_text(strip=True).replace('\xa0', ' ')
+            name = reviewer_span.get_text(strip=True).replace('\xa0', ' ')
+            return name if name.lower() not in ('film-o-holic','film-o-holic.com','unknown') else None
         
         return None
     
@@ -82,7 +92,23 @@ class FilmOHolicScraper(BaseScraper):
         Rating is in: <meta itemprop="rating" content="3" />
         Returns integer 1-5 or None.
         """
-        # Find meta tag with itemprop="rating"
+        review = self.extract_jsonld(soup, types=('Review',))
+        if review and 'reviewRating' in review:
+            rating = review['reviewRating']
+            if not isinstance(rating,dict):
+                return None
+            value = rating.get('ratingValue')
+            if isinstance(value,bool):
+                return None
+            try:
+                number = float(value)
+                if float(rating.get('bestRating',5)) == 5 and number.is_integer() and 1 <= number <= 5:
+                    return int(number)
+            except (ValueError,TypeError,OverflowError):
+                pass
+            return None
+
+        # Find legacy meta tag with itemprop="rating"
         rating_meta = soup.find('meta', itemprop='rating')
         if rating_meta:
             try:
