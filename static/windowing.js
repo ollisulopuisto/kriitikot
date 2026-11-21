@@ -175,6 +175,7 @@
         wrapper.addEventListener('scroll', schedule, { passive: true });
         window.addEventListener('resize', prepare);
         document.fonts?.ready.then(prepare);
+        document.fonts?.addEventListener('loadingdone', prepare);
         window.addEventListener('beforeprint', () => { printing = true; restore(); });
         window.addEventListener('afterprint', () => { printing = false; prepare(); });
         // Preload the next logical batch before the user reaches the boundary.

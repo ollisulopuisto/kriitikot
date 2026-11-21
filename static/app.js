@@ -1124,11 +1124,13 @@ function applyFacetBatchVisibility() {
 
 // Placeholder / Skeleton helper functions for lazy loading
 function removeSkeletonPlaceholders() {
+    window.reviewWindow?.prepare();
     window._placeholdersActive = false;
     document.querySelectorAll('.skeleton-row, .skeleton-card').forEach(el => el.remove());
 }
 
 function showSkeletonPlaceholders(count, criticId) {
+    window.reviewWindow?.prepare();
     removeSkeletonPlaceholders();
     if (!count || count <= 0) return;
     window._placeholdersActive = true;
