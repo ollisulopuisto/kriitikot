@@ -753,7 +753,7 @@ function createReviewPill(review) {
     const tooltipText = escapeHtml(review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu');
     const rating = Number(review.rating_stars);
     const starsHtml = Array.from({length: 5}, (_, slot) =>
-        `<span class="rating-star${slot >= rating ? ' rating-star-empty' : ''}" aria-hidden="true">${slot < rating ? '★' : ''}</span>`
+        `<span class="rating-star${slot >= rating ? ' rating-star-empty' : ''}" aria-hidden="true"><span class="rating-star-shadow"></span><span class="rating-star-paint">${slot < rating ? '★' : ''}</span></span>`
     ).join('');
     const publicationName = escapeHtml(allPublicationMap[review.source_publication]?.name || review.source_publication); // Get full name
     const pubId = review.publication_short || review.source_publication;

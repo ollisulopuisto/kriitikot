@@ -1,15 +1,4 @@
-"""Arvosanavärien kontrastitestit.
-
-Tähdet ovat aina valkoisia. Kaksi tummaa porrasta kantavat sen omin voimin ja
-niiltä vaaditaan WCAG AA (4,5:1). Kolme vaaleinta ei voi täyttää sitä ilman
-että kirkas kulta uhrataan, joten niillä luettavuus lepää tumman ääriviivan
-varassa — ja testit vaativat että ääriviiva erottuu yhtä selvästi kuin musteen
-muuten pitäisi.
-
-Sävyt luetaan suoraan CSS-muuttujista, joten uusi värivalinta ei voi jäädä
-lukukelvottomaksi huomaamatta. Aiempi asteikko epäonnistui pahasti: 3★
-keltainen oli 1,66:1 eikä ääriviivaa ollut.
-"""
+"""Contrast checks for colored A1v3c stars and monochrome sparklines."""
 
 import os
 import re
@@ -20,11 +9,6 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 CSS_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'css')
-
-# Kaikki tähdet ovat valkoisia; portaat eroavat siinä, tarvitsevatko ne
-# ääriviivan erottuakseen taustastaan.
-SELF_SUFFICIENT_STEPS = (1, 2)   # tumma pohja kantaa valkoisen tähden sellaisenaan
-OUTLINED_STEPS = (3, 4, 5)       # vaalea pohja: reunan tekee ääriviiva
 
 WCAG_AA_SMALL_TEXT = 4.5
 MARK_CONTRAST_MIN = 3.0     # merkin erottuminen taustasta
@@ -95,83 +79,6 @@ def test_contrast_helper_matches_known_values():
     assert contrast('#ffffff', '#ffffff') == pytest.approx(1.0, abs=0.01)
 
 
-def test_all_five_steps_are_defined(tokens):
-    for step in range(1, 6):
-        assert f'--star-{step}' in tokens, f'--star-{step} puuttuu base.css:stä'
-    assert '--star-ink' in tokens
-    assert '--star-outline' in tokens
-
-
-def _gradient_stops(tokens, step):
-    """Portaan kaikki kolme pysäkkiä ylhäältä alas."""
-    return (tokens[f'--star-{step}-top'],
-            tokens[f'--star-{step}'],
-            tokens[f'--star-{step}-bot'])
-
-
-@pytest.mark.parametrize('step', SELF_SUFFICIENT_STEPS)
-def test_dark_steps_readable_at_every_gradient_stop(tokens, step):
-    """Kahdella tummalla portaalla valkoinen tähti kantaa ilman ääriviivaa.
-
-    Pilli on gradientti, joten kontrastin on kestettävä sen jokaisessa kohdassa.
-    Tämä ei ole teoreettista: 2★:n ylin pysäkki putosi 4,22:1:een kun sitä
-    vaalennettiin muiden portaiden tapaan 6 %, ja nosto jouduttiin puolittamaan.
-    """
-    for stop in _gradient_stops(tokens, step):
-        ratio = contrast(tokens['--star-ink'], stop)
-        assert ratio >= WCAG_AA_SMALL_TEXT, (
-            f'{step}★ pysäkki {stop} valkoisella tähdellä vain {ratio:.2f}:1')
-
-
-@pytest.mark.parametrize('step', OUTLINED_STEPS)
-def test_light_steps_outline_separates_from_every_gradient_stop(tokens, step):
-    """Vaaleilla portailla luettavuus lepää ääriviivan varassa.
-
-    Valkoinen tähti kirkkaalla kullalla on 1,41:1 eli WCAG:n mittarilla
-    lukukelvoton; reunan tekee ääriviiva. Siksi ääriviivan on erotuttava
-    portaan sävystä yhtä selvästi kuin musteen muuten pitäisi.
-    """
-    for stop in _gradient_stops(tokens, step):
-        ratio = contrast(tokens['--star-outline'], stop)
-        assert ratio >= WCAG_AA_SMALL_TEXT, (
-            f'{step}★ pysäkki {stop} vs ääriviiva vain {ratio:.2f}:1')
-
-
-@pytest.mark.parametrize('step', OUTLINED_STEPS)
-def test_light_steps_declare_an_outline(step):
-    """Ilman ääriviivaa vaaleiden portaiden tähdet katoaisivat kokonaan."""
-    table = _read('table.css')
-    block = re.search(
-        r'\.stars-3 \.rating-stars,\s*\.stars-4 \.rating-stars,\s*'
-        r'\.stars-5 \.rating-stars\s*\{([^}]*)\}', table, re.S)
-    assert block, 'vaaleiden portaiden ääriviivasääntöä ei löytynyt'
-    assert 'text-shadow' in block.group(1)
-    assert 'var(--star-outline)' in block.group(1)
-
-
-def test_all_stars_use_the_same_ink(tokens):
-    """Muste ei saa vaihtua kesken asteikon — se oli C-variantin koko pointti."""
-    table = _read('table.css')
-    assert '--pill-ink' not in table, 'porraskohtainen muste on yhä käytössä'
-    assert tokens['--star-ink'] == '#ffffff'
-
-
-@pytest.mark.parametrize('step', range(1, 6))
-def test_gradient_darkens_downward(tokens, step):
-    """Alareunan on oltava tummin: siitä syntyy pillin raja ilman reunusviivaa."""
-    top, mid, bot = _gradient_stops(tokens, step)
-    assert relative_luminance(top) > relative_luminance(mid) > relative_luminance(bot), (
-        f'{step}★ gradientti ei syvene alaspäin: {top} → {mid} → {bot}')
-
-
-def test_pills_have_no_border_rule():
-    """Raja tulee gradientista, ei reunusviivasta."""
-    table = _read('table.css')
-    block = re.search(r'\.rating-pill\s*\{([^}]*)\}', table)
-    assert block, '.rating-pill-sääntöä ei löytynyt'
-    assert 'border:' not in block.group(1), 'pillillä on yhä reunus'
-
-
 def test_sparkline_is_monochrome(tokens):
     """Väriasteikko on pilleissä; sparklinessa arvosanan kertoo palkin paikka."""
     table = _read('table.css')
@@ -235,13 +142,25 @@ def test_sparkline_track_stays_recessive(tokens):
     assert contrast(track, '#ffffff') <= 1.8, f'lokero liian vahva: {track}'
 
 
-def test_five_star_glyph_owns_contrasting_outline(tokens):
-    """The child shadow overrides inherited shadow, so check the actual owner."""
+def test_cluster_ink_separates_from_light_surfaces():
+    """A1v3c uses colored shapes, not white glyphs on colored pills."""
     table = _read('table.css')
-    block = re.search(r'\.rating-pill\.stars-5 \.rating-star\s*\{([^}]*)\}', table, re.S)
-    assert block
-    shadow = block.group(1)
-    assert '0 0 1px var(--star-outline)' in shadow
-    assert '0 0 2px var(--star-outline)' in shadow
-    for stop in _gradient_stops(tokens, 5):
-        assert contrast(tokens['--star-outline'], stop) >= WCAG_AA_SMALL_TEXT
+    blocks = re.findall(r'\.rating-pill\.stars-[1-5]\s*\{([^}]+)\}', table)
+    assert len(blocks) == 5
+    for block in blocks:
+        color = re.search(r'--cluster-color: (#[0-9a-f]+)', block).group(1)
+        edge = re.search(r'--cluster-edge: (#[0-9a-f]+)', block)
+        if edge:
+            color = edge.group(1)
+        wash = re.search(r'--cluster-wash: (rgba\([^)]*\))', block).group(1)
+        for surface in ('#ffffff', '#f0f4ff', '#fcfcfc', '#f8f9fa', '#ede9fe'):
+            assert contrast(color, composite(wash, surface)) >= 3
+
+
+def test_five_star_cluster_glows_without_a_face_shadow():
+    table = _read('table.css')
+    block = re.search(
+        r'\.rating-pill\.stars-5 \.rating-star-paint\s*\{([^}]*)\}', table, re.S)
+    assert block and 'drop-shadow' in block.group(1)
+    assert '#bbf7d0' in block.group(1)
+    assert 'box-shadow' not in block.group(1)
