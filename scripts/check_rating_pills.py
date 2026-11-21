@@ -113,11 +113,31 @@ def verify_fallback_pixels(pill):
 
 def verify_printed_ink(page, mode):
     """Rasterize actual PDFs with/without glyphs, not just screen CSS."""
+    # Retain the real published layout check alongside isolated per-rating
+    # crops, because either oracle alone would miss the other's regressions.
+    with tempfile.TemporaryDirectory(prefix='kriitikot-layout-') as temp:
+        folder = Path(temp)
+        page.pdf(path=str(folder / 'visible.pdf'), print_background=False,
+                 page_ranges='1', width='900px', height='1100px')
+        hidden = page.add_style_tag(content=(
+            '.rating-star-paint {visibility:hidden!important}'))
+        page.pdf(path=str(folder / 'hidden.pdf'), print_background=False,
+                 page_ranges='1', width='900px', height='1100px')
+        hidden.evaluate('n=>n.remove()')
+        images = []
+        for name in ('visible', 'hidden'):
+            subprocess.run(['pdftoppm', '-f', '1', '-singlefile', '-scale-to',
+                            '1200', '-png', str(folder / f'{name}.pdf'),
+                            str(folder / name)], check=True)
+            images.append(Image.open(folder / f'{name}.png').convert('RGB'))
+        diff = ImageChops.difference(*images)
+        assert sum(diff.convert('L').histogram()[31:]) > 100
+        images[0].save(OUT / f'{mode}-published.png')
     fixture = page.context.browser.new_page()
     fixture.set_viewport_size({'width': 900, 'height': 1100})
     fixture.set_content('<style>' +
-                        (ROOT / 'static/css/base.css').read_text() +
-                        (ROOT / 'static/css/table.css').read_text() +
+                        (ROOT / 'static/css/base.css').read_text(encoding='utf-8') +
+                        (ROOT / 'static/css/table.css').read_text(encoding='utf-8') +
                         'body {margin:0!important}</style>' + ''.join(
                             '<div style="height:80px">' +
                             server_pill(n, True, False) + '</div>'
