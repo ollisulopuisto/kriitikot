@@ -388,7 +388,7 @@
 .movie-card-summary .movie-card-review-count, .movie-card-summary .movie-card-sparkline { margin: 0; align-self: center; }
 .review-rating { justify-content: flex-start; }
 @media (max-width: 768px) {
-    .review-item .rating-pill { padding-left: .3rem; padding-right: .3rem; }
+    .review-item .rating-pill { padding-left: 0; padding-right: 0; }
     .review-rating { width: auto; }
     .movie-card-summary .movie-card-review-count { color: #495057; font-size: .9rem; }
 }
