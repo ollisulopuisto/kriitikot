@@ -885,3 +885,15 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     .rating-star-shadow { display: none; }
     .rating-star-paint::before, .rating-star-paint::after { content: none; }
 }
+
+/* Paper stays white even when the screen uses a dark forced-color scheme. */
+@media print {
+    .rating-pill .rating-stars {
+        background: #ffffff;
+        forced-color-adjust: none;
+    }
+    .rating-star-paint {
+        color: #000000;
+        forced-color-adjust: none;
+    }
+}

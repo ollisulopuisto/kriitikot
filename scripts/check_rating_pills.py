@@ -263,11 +263,12 @@ try:
                                 'style',old)''', saved)
                         verify(pill, rating)
             # Background-free modes must retain real, visible awarded text.
-            for mode in ('forced-colors', 'print'):
+            for mode in ('forced-colors', 'print', 'dark-forced-print'):
                 page.emulate_media(
-                    forced_colors=('active' if mode == 'forced-colors'
-                                   else 'none'),
-                    media='print' if mode == 'print' else 'screen')
+                    forced_colors=('active' if mode != 'print' else 'none'),
+                    color_scheme=('dark' if mode == 'dark-forced-print'
+                                  else 'light'),
+                    media='print' if 'print' in mode else 'screen')
                 for linked in (False, True):
                     for rating in range(1, 6):
                         html = server_pill(rating, linked, width < 769)
@@ -276,6 +277,11 @@ try:
                             return h.querySelector('.rating-pill');
                         }''', html).as_element()
                         verify_fallback(pill, rating)
+                        if 'print' in mode:
+                            assert pill.evaluate(
+                                "p=>getComputedStyle(p.querySelector("
+                                "'.rating-star-paint')).color"
+                            ) == 'rgb(0, 0, 0)'
                         # Hidden descendants or ancestors must fail the oracle.
                         for target in (pill, pill.query_selector(
                                 '.rating-star')):
@@ -299,11 +305,12 @@ try:
                 pill.scroll_into_view_if_needed()
                 verify_fallback_pixels(pill)
                 page.screenshot(path=str(OUT / f'{mode}-{width}.png'))
-                if mode == 'print' and width == 900:
-                    page.pdf(path=str(OUT / 'background-free.pdf'),
+                if 'print' in mode and width == 900:
+                    page.pdf(path=str(OUT / f'{mode}-background-free.pdf'),
                              print_background=False, page_ranges='1',
                              width='900px', height='1100px')
-            page.emulate_media(forced_colors='none', media='screen')
+            page.emulate_media(forced_colors='none', media='screen',
+                               color_scheme='light')
             host.evaluate('''(h,html)=>{
                 h.querySelector('.rating-pill').outerHTML=html;
             }''', original)
