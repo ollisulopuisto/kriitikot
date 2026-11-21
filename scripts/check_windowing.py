@@ -155,6 +155,9 @@ with tempfile.TemporaryFile() as log:
                     assert set(before) <= set(
                         after
                     ), "sorted facet pagination hid revealed films"
+                    assert len(after) > len(
+                        before
+                    ), "sorted facet pagination revealed no new films"
                     p.evaluate("window.resetAllFilters();window.loadMoreMovies(30)")
                 same("sorted pagination")
                 for p in pages:
@@ -276,14 +279,16 @@ with tempfile.TemporaryFile() as log:
             )
             page.wait_for_timeout(300)
             page.evaluate(
-                "window.scrollTo(0,document.documentElement.scrollHeight-1800)"
+                "window.reviewWindow.prepare();window.scrollTo(0,document.documentElement.scrollHeight-1800)"
             )
-            page.wait_for_timeout(150)
+            page.wait_for_timeout(300)
             page.evaluate("window.scrollBy(0,-30)")
             page.wait_for_timeout(150)
             before_jump = page.evaluate("window.currentMovieOffset")
             page.evaluate("window.scrollBy(0,60)")
-            page.wait_for_function("window.currentMovieOffset>60")
+            page.wait_for_function(
+                "(baseline) => window.currentMovieOffset>baseline", arg=before_jump
+            )
             print(
                 "scrollbar-compatible directional preload",
                 page.evaluate("window.currentMovieOffset"),
@@ -303,11 +308,14 @@ with tempfile.TemporaryFile() as log:
             )
             page.locator("#sort-movies-btn").focus()
             page.evaluate(
-                "window.scrollTo(0,document.documentElement.scrollHeight-1800)"
+                "window.reviewWindow.prepare();window.scrollTo(0,document.documentElement.scrollHeight-1800)"
             )
             page.wait_for_timeout(300)
+            keyboard_before = page.evaluate("window.currentMovieOffset")
             page.keyboard.press("PageDown")
-            page.wait_for_function("window.currentMovieOffset>60")
+            page.wait_for_function(
+                "(baseline) => window.currentMovieOffset>baseline", arg=keyboard_before
+            )
             print(
                 "keyboard pagination from focused toolbar",
                 page.evaluate("window.currentMovieOffset"),

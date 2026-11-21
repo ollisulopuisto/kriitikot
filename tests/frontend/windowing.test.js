@@ -47,8 +47,8 @@ afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe('review viewport window', () => {
     it('remeasures after a late font load and parks with the new heights', () => {
         const { tick } = setup();
-        window.reviewWindow.prepare();
-        const first = document.querySelector('tbody tr');
+        const first = document.querySelector('tbody tr:not(.window-spacer)');
+        expect(first.style.height).toBe('40px');
         first.getBoundingClientRect = () => ({top:0,bottom:80,left:0,right:1600,width:1600,height:80});
         fontDone();
         tick();
