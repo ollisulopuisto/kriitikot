@@ -43,6 +43,32 @@ try:
             page.evaluate('window.resetAllFilters()')
             assert page.evaluate('window.currentMovieOffset') == 60
             assert page.locator('.movie-card').count() == 60
+            # Initial-batch selection must release both row and cell styles.
+            search = page.locator('.film-search').first
+            search.fill('Paper Tiger')
+            page.wait_for_timeout(250)
+            page.locator('tbody .movie-title-main', has_text='Paper Tiger').click()
+            search.fill('Dry Leaf')
+            page.wait_for_timeout(250)
+            dry = page.locator('tbody tr').filter(
+                has=page.locator('.movie-title-main', has_text='Dry Leaf'))
+            def visible_ratings(row):
+                return row.locator('.rating-pill').evaluate_all(
+                    'ns=>ns.filter(n=>n.checkVisibility({checkVisibilityCSS:true})).length')
+            assert dry.is_visible() and visible_ratings(dry) > 0
+            # Negative control: the leaked row class must fail this oracle.
+            dry.evaluate('n=>n.classList.add("dimmed")')
+            assert visible_ratings(dry) == 0
+            dry.evaluate('n=>n.classList.remove("dimmed")')
+            search.fill('the')
+            page.wait_for_timeout(250)
+            page.locator('tbody .movie-title-main', has_text='The Magic Faraway Tree').click()
+            search.fill('')
+            page.wait_for_timeout(250)
+            assert page.locator('tbody .selected, tbody .dimmed, tbody [data-filtered="true"]').count() == 0
+            shown = page.locator('tbody tr').evaluate_all('ns=>ns.filter(n=>n.style.display!=="none" && n.querySelector(".rating-pill")).every(n=>[...n.querySelectorAll(".rating-pill")].some(p=>p.checkVisibility({checkVisibilityCSS:true})))')
+            assert shown
+            page.evaluate('window.resetAllFilters()')
             # Search through the actual pinned control without losing focus.
             page.evaluate('window.scrollTo(0,650)')
             pinned = page.locator('#sticky-thead-clone .film-search')
@@ -84,16 +110,39 @@ try:
         page.wait_for_timeout(220)
         page.evaluate('''() => {window.rememberSliderWindow();const s=document.querySelector('#star-filter-slider');s.value=5;window.filterByStars(5);window.topUpSliderResults();}''')
         assert page.locator('.movie-card').count() < 100
+        # Bounded DOM is not success if the matching review batch is short.
+        completeness = page.evaluate('''() => {
+            const state=currentFacetState();
+            const total=movieTitles.reduce((count,title)=>count+
+                (matchesFilmSearch(title)?Object.entries(allGroupedReviews[title])
+                    .reduce((n,[critic,items])=>n+items.filter(review=>
+                        reviewMatchesFacetState(review,critic,state)).length,0):0),0);
+            return {loaded:loadedMatchingReviewCount(),total,
+                wanted:facetRevealCount};
+        }''')
+        assert completeness['loaded'] >= min(completeness['total'], completeness['wanted']), completeness
+        assert completeness['total'] > 0
+
         page.close()
-        # Query before JSON arrives must be re-evaluated after it is available.
-        page = browser.new_page(viewport={'width': 1200, 'height': 900})
-        page.add_init_script('''const originalFetch=window.fetch;window.fetch=(url,...args)=>String(url).includes('reviews.json')?new Promise(resolve=>{window.releaseReviews=()=>resolve(originalFetch(url,...args));}):originalFetch(url,...args);''')
-        page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='domcontentloaded')
-        page.locator('.film-search').fill('Anna minun rakastaa enemmän')
-        page.wait_for_timeout(200)
-        page.evaluate('window.releaseReviews()')
-        page.wait_for_function('window._cachedReviewsData && [...document.querySelectorAll(".movie-card")].some(n=>n.dataset.movie==="Anna minun rakastaa enemmän" && n.style.display!=="none")')
-        page.close()
+        # Both a settled second query and a cleared query must invalidate all
+        # pre-catalog windows, not just the currently active key.
+        for clear_before_release in (False, True):
+            page = browser.new_page(viewport={'width': 1200, 'height': 900})
+            page.add_init_script('''const originalFetch=window.fetch;window.fetch=(url,...args)=>String(url).includes('reviews.json')?new Promise(resolve=>{window.releaseReviews=()=>resolve(originalFetch(url,...args));}):originalFetch(url,...args);''')
+            page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='domcontentloaded')
+            page.locator('.film-search').fill('Anna minun rakastaa enemmän')
+            page.wait_for_timeout(200)
+            page.locator('.film-search').fill('Paper Tiger')
+            page.wait_for_timeout(200)
+            if clear_before_release:
+                page.locator('.film-search').fill('')
+                page.wait_for_timeout(200)
+            page.evaluate('window.releaseReviews()')
+            page.wait_for_function('window._cachedReviewsData')
+            page.locator('.film-search').fill('Anna minun rakastaa enemmän')
+
+            page.wait_for_function('window._cachedReviewsData && [...document.querySelectorAll(".movie-card")].some(n=>n.dataset.movie==="Anna minun rakastaa enemmän" && n.style.display!=="none")')
+            page.close()
         print('delayed catalog query passed')
         browser.close()
 finally:

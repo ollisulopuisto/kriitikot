@@ -58,7 +58,7 @@ function initFilmSearch() {
         clearTimeout(timer);
         timer = setTimeout(() => {
             window.reviewWindow?.prepare();
-            document.querySelectorAll('tbody tr[data-filtered="true"], .movie-card[data-filtered="true"]').forEach(node=>{
+            document.querySelectorAll('#review-container-desktop tbody tr, .movie-card[data-filtered="true"]').forEach(node=>{
                 delete node.dataset.filtered;
                 node.classList.remove('selected', 'dimmed');
                 node.querySelectorAll('.selected, .dimmed').forEach(n=>n.classList.remove('selected', 'dimmed'));
@@ -1436,13 +1436,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) {}
         allGroupedReviews = data;
         movieTitles = Object.keys(allGroupedReviews);
+        // Invalidate every pre-catalog window, even if the query was cleared
+        // before data arrived. Returning to any early query must top up again.
+        sliderWindows?.clear();
+        sliderWindowKey = null;
         loadMoreMovies();
-        if (filmSearchQuery) {
-            // A pending search may have cached an empty result before JSON arrived.
-            sliderWindows?.delete(sliderResultsKey());
-            sliderWindowKey = null;
-            window.topUpSliderResults?.();
-        }
+        if (filmSearchQuery) window.topUpSliderResults?.();
     };
 
     const fetchReviewsJson = () => {
