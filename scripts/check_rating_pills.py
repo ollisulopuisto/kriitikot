@@ -377,7 +377,14 @@ try:
                 verify_fallback_pixels(pill)
                 page.screenshot(path=str(OUT / f'{mode}-{width}.png'))
                 if 'print' in mode and width == 900:
+                    current = pill.evaluate('n=>n.outerHTML')
+                    host.evaluate('''(h,html)=>{
+                        h.querySelector('.rating-pill').outerHTML=html;
+                    }''', original)
                     verify_printed_ink(page, mode)
+                    host.evaluate('''(h,html)=>{
+                        h.querySelector('.rating-pill').outerHTML=html;
+                    }''', current)
             page.emulate_media(forced_colors='none', media='screen',
                                color_scheme='light')
             host.evaluate('''(h,html)=>{

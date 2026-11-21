@@ -53,3 +53,5 @@ Final review follow-up: both smoke scripts now use private, unique temporary out
 Last verification review: PDF assertions now use five isolated, labeled-by-order 1–5 specimens and require rasterized ink difference in each specimen's own bounds, so one visible rating cannot satisfy another. Hover script documents Pillow and Chrome prerequisites. This is test-only; no further product change.
 
 The print verification keeps both complementary checks: the untouched published page printed with backgrounds disabled, and each isolated rating's raster bounds. Source CSS reads declare UTF-8 rather than relying on locale. Rechecked both modes and per-rating ink before pushing this verification-only follow-up.
+
+Published print verification now restores the untouched original rating before creating the real-page PDFs, so no injected specimen can satisfy that check. The isolated 1–5 PDF check stays separate. This last fixture-lifecycle issue was fixed and browser-tested before pushing.
