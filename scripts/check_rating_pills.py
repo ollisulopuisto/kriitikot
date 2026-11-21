@@ -61,9 +61,14 @@ try:
                         const ink = {left:x-m.actualBoundingBoxLeft,right:x+m.actualBoundingBoxRight,top:baseline-m.actualBoundingBoxAscent,bottom:baseline+m.actualBoundingBoxDescent};
                         // Check actual clipping ancestors, including page cards,
                         // cells and scroll containers, not only the isolated face.
-                        let ancestor=c.parentElement;
+                        let ancestor=c;
                         while(ancestor && ancestor!==document.body){
-                            const cs=getComputedStyle(ancestor), clip=ancestor.getBoundingClientRect();
+                            const cs=getComputedStyle(ancestor), bounds=ancestor.getBoundingClientRect();
+                            // The scrollport is the padding box, excluding borders
+                            // and scrollbars. Border ink is not visible content.
+                            const clip={left:bounds.left+ancestor.clientLeft,top:bounds.top+ancestor.clientTop};
+                            clip.right=clip.left+ancestor.clientWidth;
+                            clip.bottom=clip.top+ancestor.clientHeight;
                             if(['hidden','clip','scroll','auto'].includes(cs.overflowX) && (ink.left<clip.left-.5 || ink.right>clip.right+.5)) return false;
                             if(['hidden','clip','scroll','auto'].includes(cs.overflowY) && (ink.top<clip.top-.5 || ink.bottom>clip.bottom+.5)) return false;
                             ancestor=ancestor.parentElement;
@@ -97,6 +102,18 @@ try:
             clipping = page.add_style_tag(content='#rating-fixture .rating-stars { overflow:hidden!important }')
             assert not all(p['inTarget'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
             clipping.evaluate('n=>n.remove()')
+            slot_clip = page.add_style_tag(content='#rating-fixture .rating-star { overflow:hidden!important }')
+            assert not all(p['inTarget'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
+            slot_clip.evaluate('n=>n.remove()')
+            # Paint fits the border box but escapes the inner scrollport.
+            border_pill = page.locator('#rating-fixture .stars-5').first
+            border_pill.evaluate('''p=>{
+                const wrapper=document.createElement('div');wrapper.id='border-clip-control';
+                wrapper.style='border:20px solid black;width:96px;height:44px;overflow:hidden';
+                p.before(wrapper);wrapper.append(p);p.style.transform='translateX(-10px)';
+            }''')
+            assert not border_pill.evaluate('(p,code)=>eval(code)([p])[0].inTarget', measure)
+            border_pill.evaluate('p=>{const wrapper=p.parentElement;wrapper.before(p);p.style.transform="";wrapper.remove()}')
             page.screenshot(path=str(output / f'scale-{width}.png'))
             page.locator('#rating-fixture').evaluate('e=>e.remove()')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
