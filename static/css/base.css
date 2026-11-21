@@ -197,3 +197,12 @@ a:hover {
 button, .movie-link, .rating-pill, .heart-icon { transition-property: background-color, color, border-color, opacity, transform; transition-duration: var(--motion-fast); transition-timing-function: var(--motion-ease); }
 :focus-visible { outline: 3px solid #7c3aed; outline-offset: 3px; }
 @keyframes selectionReveal { from { opacity: .6; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+/* The full-view switch is also the explicit assistive-technology/find fallback. */
+.windowing-controls { display: flex; flex-wrap: wrap; gap: .4rem .75rem; align-items: center; margin: .5rem 0 1rem; font-size: .8rem; color: var(--text-muted); }
+.windowing-controls button { font: inherit; color: var(--primary-dark); background: white; border: 1px solid var(--border-color); border-radius: .35rem; padding: .35rem .6rem; cursor: pointer; }
+.windowing-controls button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.window-spacer { pointer-events: none; overflow-anchor: none; }
+.window-spacer td, td.window-column-spacer { padding: 0; border: 0; }
+.window-skeleton, div.window-spacer { background: repeating-linear-gradient(0deg, #fafafa 0, #fafafa 15px, #f0f1f3 16px, #f0f1f3 24px, #fafafa 25px, #fafafa 48px); }
+@media print { .windowing-controls { display: none; } }

@@ -92,6 +92,7 @@ function isDesktopWidth() {
  * Turvallinen kutsua monta kertaa.
  */
 function ensureDesktopTable() {
+    window.reviewWindow?.prepare();
     if (desktopTableReady || !isDesktopWidth()) return false;
 
     const tbody = document.querySelector('#review-container-desktop tbody');
@@ -244,6 +245,7 @@ function resetMovieCell(movieCell) {
  * Lisää täytesarake joka venyy täyttämään tyhjän tilan
  */
 function addFillerColumns() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     const tableWrapper = document.querySelector('.table-wrapper');
     if (!table || !tableWrapper) return;
@@ -285,6 +287,7 @@ function addFillerColumns() {
  * hyppää taulukon oikeaan reunaan.
  */
 function syncFillerCells() {
+    window.reviewWindow?.prepare();
     const thead = document.querySelector('table thead tr');
     if (!thead || !thead.querySelector('.filler-column')) return;
     removeFillerColumns();
@@ -295,6 +298,7 @@ function syncFillerCells() {
  * Poista täytesarakkeet
  */
 function removeFillerColumns() {
+    window.reviewWindow?.prepare();
     const fillers = document.querySelectorAll('.filler-column');
     fillers.forEach(filler => filler.remove());
     if (fillers.length && window.refreshStickyHeader) window.refreshStickyHeader();
@@ -307,6 +311,7 @@ function removeFillerColumns() {
  * Järjestä kriitikkosarakkeet arvioiden mukaan
  */
 function sortCriticColumnsByReviews() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -394,6 +399,7 @@ function sortCriticColumnsByReviews() {
  * Päivitä kriitikkosarakkeiden näkyvyys
  */
 function updateCriticColumnVisibility() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -610,6 +616,7 @@ function updateCriticColumnVisibility() {
  * Piilottaa rivit, joilla ei ole yhtään näkyvää arvostelua aktiivisissa sarakkeissa
  */
 function updateRowVisibility() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -881,6 +888,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
  * osuvat väärien otsikoiden alle ja sarakkeiden näkyvyyslogiikka menee sekaisin.
  */
 function syncCriticOrderFromDom() {
+    window.reviewWindow?.prepare();
     const headers = document.querySelectorAll('thead th.rating-cell');
     if (!headers.length) return;
 
@@ -893,6 +901,7 @@ function syncCriticOrderFromDom() {
 }
 
 function loadMoreMovies(batchSize = movieLimit) {
+    window.reviewWindow?.prepare();
     if (typeof batchSize !== 'number') batchSize = movieLimit;
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
@@ -968,6 +977,7 @@ function loadMoreMovies(batchSize = movieLimit) {
 // Aktiivisten fasettien tila, luettuna DOM:sta samoin perustein kuin
 // filters.js:n reconcileFacetVisibility ne tulkitsee.
 function currentFacetState() {
+    window.reviewWindow?.prepare();
     const selectedHeader = document.querySelector('thead th.rating-cell[data-filtered="true"]');
     const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')]
         .map(b => (b.dataset.publication || '').toUpperCase()))];
@@ -1024,6 +1034,7 @@ function tailHasFacetMatches() {
 // Ladattujen elokuvien fasetteja vastaavien arvostelujen määrä (puhdas
 // datalaskenta, riippumaton siitä mikä on parhaillaan näkyvissä).
 function loadedMatchingReviewCount() {
+    window.reviewWindow?.prepare();
     const st = currentFacetState();
     let n = 0;
     movieTitles.slice(0, currentMovieOffset).forEach(title => {
@@ -1039,6 +1050,7 @@ function loadedMatchingReviewCount() {
 // Näkyvissä olevien fasetteja vastaavien arvostelujen määrä. Mobiilikortit
 // renderöidään aina (myös desktopilla), joten ne ovat luotettava lähde.
 function matchingVisibleReviewCount() {
+    window.reviewWindow?.prepare();
     let n = 0;
     document.querySelectorAll('.movie-card').forEach(card => {
         if (card.style.display === 'none') return;
@@ -1074,6 +1086,7 @@ let facetRevealCount = FACET_REVIEW_BATCH;
 // ylittää tavoitteen viimeisen elokuvan ylimääräisillä osumilla). Ajetaan
 // aina reconcileFacetVisibilityn jälkeen, joka on näkyvyyden lopullinen lähde.
 function applyFacetBatchVisibility() {
+    window.reviewWindow?.prepare();
     const cards = [...document.querySelectorAll('.movie-card')];
     if (facetFiltersActive()) {
         let acc = 0;
@@ -1181,6 +1194,7 @@ window.showSkeletonPlaceholders = showSkeletonPlaceholders;
 // Fasettien ollessa päällä "Lataa lisää" paljastaa seuraavan FACET_REVIEW_BATCH
 // osuvan arvostelun erän, lataen tarvittaessa lisää elokuvia taustalla.
 function loadMoreFacetAware() {
+    window.reviewWindow?.prepare();
     facetRevealCount += FACET_REVIEW_BATCH;
     const st = currentFacetState();
     const needed = facetRevealCount - loadedMatchingReviewCount();
@@ -1217,6 +1231,7 @@ function sliderResultsKey() {
     ]);
 }
 function rememberSliderWindow() {
+    window.reviewWindow?.prepare();
     if (sliderWindows) return;
     sliderWindows = new Map();
     sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
@@ -1225,6 +1240,7 @@ function rememberSliderWindow() {
     sliderWindows.set(sliderWindowKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
 }
 function topUpSliderResults() {
+    window.reviewWindow?.prepare();
     // Initialization and pagination reapplication never enter this function.
     if (!sliderWindows) return;
     sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });

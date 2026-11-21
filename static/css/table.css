@@ -770,3 +770,9 @@ tr.skeleton-row td.movie-col {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* A colspan window spacer must not change the logical zebra-striping parity. */
+tbody tr td.window-even-column { background-color: #f8faff; }
+tbody tr td.window-odd-column { background-color: white; }
+tbody tr:nth-child(even) td.window-even-column { background-color: #f0f4ff; }
+tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }

@@ -20,6 +20,7 @@ function initSorting() {
 
     // Elokuvanimi sort
     function sortMovies() {
+        window.reviewWindow?.prepare();
         // Remove open poster rows before sorting to prevent orphans and crashes
         tbody.querySelectorAll('.poster-row').forEach(row => row.remove());
 
@@ -60,6 +61,7 @@ function initSorting() {
 
     // Kriitikonimi sort
     function sortCritics() {
+        window.reviewWindow?.prepare();
         const theadRow = table.querySelector('thead tr:last-child');
         const criticHeaders = Array.from(theadRow.querySelectorAll('th.rating-cell'));
 

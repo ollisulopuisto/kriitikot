@@ -70,6 +70,7 @@ function initReviewCountFilter() {
     const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
 
     function filterByReviewCount(mappedMinCount) {
+        window.reviewWindow?.prepare();
         let hiddenCount = 0;
 
         // Desktop: Piilota rivit
@@ -242,6 +243,7 @@ function initStarFilter() {
     }
 
     function filterByStars(starsParam) {
+        window.reviewWindow?.prepare();
         const stars = parseInt(starsParam);
 
         const table = document.querySelector('table');
@@ -435,6 +437,7 @@ function initResetButton() {
     }
 
     function resetAllFilters() {
+        window.reviewWindow?.prepare();
         // Nollaa suodattimet
         const slider = document.getElementById('min-reviews-slider');
         const starSlider = document.getElementById('star-filter-slider');
@@ -639,6 +642,7 @@ function initFavoriteFilter() {
 
     // 2. Setup Toggle Functionality
     window.toggleFavorite = function (criticId, event) {
+        window.reviewWindow?.prepare();
         if (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -732,6 +736,7 @@ function initFavoriteFilter() {
 
     // 4. Filtering Logic
     window.filterByFavorites = function (enabled) {
+        window.reviewWindow?.prepare();
         // Desktop
         const table = document.querySelector('table');
         if (table) {
@@ -812,7 +817,9 @@ function initFavoriteFilter() {
     };
 }
 
+let fillerRefreshTimer;
 function applyPublicationFilter(publications) {
+    window.reviewWindow?.prepare();
     const allCards = document.querySelectorAll('.movie-card');
     const table = document.querySelector('table');
     const noFilter = !publications || publications.length === 0;
@@ -928,7 +935,9 @@ function applyPublicationFilter(publications) {
         }
 
         if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
-        setTimeout(() => {
+        clearTimeout(fillerRefreshTimer);
+        fillerRefreshTimer = setTimeout(() => {
+            window.reviewWindow?.prepare();
             if (window.removeFillerColumns) window.removeFillerColumns();
             if (window.addFillerColumns) window.addFillerColumns();
         }, 50);
@@ -937,6 +946,7 @@ function applyPublicationFilter(publications) {
 
 // One final intersection after legacy facet helpers. Never clear another facet.
 function reconcileFacetVisibility() {
+    window.reviewWindow?.prepare();
     const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
     const criticId = selected?.dataset.criticId;
 
@@ -1025,6 +1035,7 @@ function reconcileFacetVisibility() {
 window.reconcileFacetVisibility = reconcileFacetVisibility;
 
 function reapplyAllFacets() {
+    window.reviewWindow?.prepare();
     // 1. Minimum number of reviews
     const reviewSlider = document.getElementById('min-reviews-slider');
     if (reviewSlider) {

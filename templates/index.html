@@ -63,6 +63,7 @@
     <script src="static/filters.js" defer></script>
     <script src="static/interactions.js" defer></script>
     <script src="static/ui.js" defer></script>
+    <script src="static/windowing.js" defer></script>
 </head>
 
 <body>
@@ -82,6 +83,11 @@
                 </div>
             </div>
         </header>
+
+        <div class="windowing-controls">
+            <button id="windowing-toggle" type="button" aria-pressed="false" aria-describedby="windowing-help">Näytä koko näkymä</button>
+            <span id="windowing-help">Kevyt näkymä näyttää vieritysalueen. Koko näkymä sopii myös ruudunlukijalle ja sivun tekstihakuun.</span>
+        </div>
 
         <script id="movie-meta-data" type="application/json">
             {{ {
