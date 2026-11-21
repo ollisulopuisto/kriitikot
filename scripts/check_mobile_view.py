@@ -29,9 +29,9 @@ try:
             page.evaluate('document.fonts.ready')
             def full_phone():
                 page.wait_for_function('!window.reviewWindow.enabled && window.reviewWindow.retainedCount===0')
-                assert not page.locator('.windowing-controls').is_visible()
+                assert page.locator('.windowing-controls').count()==0
                 assert not page.locator('#windowing-toggle').is_visible()
-                assert not page.locator('#windowing-help').is_visible()
+                assert page.locator('#windowing-help').count()==0
                 assert page.locator('.window-spacer, .window-column-spacer').count() == 0
                 assert page.locator('.movie-card').count() == page.evaluate('window.currentMovieOffset')
                 assert page.locator('[aria-rowcount], [aria-colcount], [aria-rowindex], [aria-colindex]').count() == 0
@@ -62,6 +62,7 @@ try:
             page.evaluate('''() => {window.phoneOriginals=[...document.querySelectorAll('.movie-card')];window.phoneOriginals.forEach((n,i)=>n.testState={index:i});}''')
             # Phone -> desktop default -> phone -> desktop user full view.
             page.set_viewport_size({'width': 1200, 'height': 900})
+            page.locator('#windowing-toggle').uncheck()
             page.wait_for_function('window.reviewWindow.enabled')
             assert page.locator('#windowing-toggle').is_visible()
             assert page.locator('.window-spacer').count()>0
@@ -81,7 +82,7 @@ try:
             page.set_viewport_size({'width': 1200, 'height': 900})
             page.wait_for_timeout(120)
             assert not page.evaluate('window.reviewWindow.enabled')
-            assert page.locator('#windowing-toggle').get_attribute('aria-pressed') == 'true'
+            assert page.locator('#windowing-toggle').is_checked()
             assert not errors, errors
             print(width, 'phone controls hidden, loaded cards present, pagination/filter/reset and desktop preference passed')
             page.close()

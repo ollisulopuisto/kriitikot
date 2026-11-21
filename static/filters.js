@@ -437,6 +437,7 @@ function initResetButton() {
     }
 
     function resetAllFilters() {
+        window.clearFilmSearch?.();
         window.reviewWindow?.prepare();
         // Nollaa suodattimet
         const slider = document.getElementById('min-reviews-slider');
@@ -989,7 +990,7 @@ function reconcileFacetVisibility() {
             item.style.display = ok ? '' : 'none';
             if (ok) visible = true;
         }
-        card.style.display = visible && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
+        card.style.display = visible && (!window.matchesFilmSearch || window.matchesFilmSearch(card.dataset.movie)) && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
     }
 
     const headers = document.querySelectorAll('thead th.rating-cell');

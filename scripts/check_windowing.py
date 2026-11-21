@@ -68,8 +68,8 @@ with tempfile.TemporaryFile() as log:
                     )
                     page.evaluate("document.fonts.ready")
                     page.wait_for_timeout(150)
-                    if full:
-                        page.locator("#windowing-toggle").click()
+                    if not full:
+                        page.locator("#windowing-toggle").uncheck()
                     pages.append(page)
 
                 def same(label):

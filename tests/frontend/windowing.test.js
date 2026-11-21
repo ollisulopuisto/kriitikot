@@ -4,17 +4,18 @@ import { readFileSync } from 'node:fs';
 let frame;
 let fontDone;
 let proximity;
-function setup({ width = 1200, height = 200 } = {}) {
+function setup({ width = 1200, height = 200, full = false } = {}) {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
+    localStorage.setItem('kriitikot_full_view', String(full));
     frame = null;
     proximity = null;
     vi.stubGlobal('IntersectionObserver', class { constructor(fn) { proximity = fn; } observe() {} });
     Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve(), addEventListener: (event, fn) => { if (event === 'loadingdone') fontDone = fn; } } });
     vi.stubGlobal('requestAnimationFrame', fn => { frame = fn; return 1; });
     const cell = i => `<td class="${i ? 'rating-cell' : 'movie-col'}"><button>${i}</button></td>`;
-    document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button><button id="load-more-button">More</button>
+    document.body.innerHTML = `<div class="container"><input type="checkbox" id="windowing-toggle"><button id="load-more-button">More</button>
       <div id="review-container-desktop"><div class="table-wrapper"><table><thead><tr>
       ${Array.from({ length: 40 }, (_, i) => `<th>${i}</th>`).join('')}</tr></thead><tbody>
       ${Array.from({ length: 40 }, (_, i) => `<tr data-index="${i}">${Array.from({ length: 40 }, (_, j) => cell(j)).join('')}</tr>`).join('')}
@@ -48,6 +49,15 @@ function setup({ width = 1200, height = 200 } = {}) {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('review viewport window', () => {
+    it('starts full view on and persists an explicit desktop choice', () => {
+        const {tick}=setup({full:true});
+        expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.getElementById('windowing-toggle').checked).toBe(true);
+        expect(document.querySelectorAll('tbody td')).toHaveLength(1600);
+        document.getElementById('windowing-toggle').click();tick();
+        expect(window.reviewWindow.enabled).toBe(true);
+        expect(localStorage.getItem('kriitikot_full_view')).toBe('false');
+    });
     it('remeasures after a late font load and parks with the new heights', () => {
         const { tick } = setup();
         const first = document.querySelector('tbody tr:not(.window-spacer)');
@@ -69,7 +79,7 @@ describe('review viewport window', () => {
     });
     it('does not restore the full collection for scrolling keys on toolbar buttons', () => {
         setup();
-        const button = document.getElementById('windowing-toggle');
+        const button = document.getElementById('load-more-button');
         button.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }));
         expect(document.querySelectorAll('.movie-card').length).toBe(0);
     });
@@ -155,7 +165,7 @@ describe('review viewport window', () => {
             expect(window.reviewWindow.enabled).toBe(false);
             expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
         }
-        expect(document.getElementById('windowing-toggle').getAttribute('aria-pressed')).toBe('true');
+        expect(document.getElementById('windowing-toggle').checked).toBe(true);
     });
 
     it('preloads phone batches on downward scroll without windowing cards', () => {

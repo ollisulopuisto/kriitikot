@@ -78,3 +78,19 @@ filters, focus and responsive transitions. The resize check retains original car
 references and per-node state, proves they detach on desktop, then verifies the
 same nodes and state return on phone. Real screen-reader, Safari and
 physical-device checks remain unrun.
+
+## Desktop film search and full-view preference
+
+Movie search lives in the pinned left header and matches the complete fetched
+catalog data, not just connected DOM rows. It shares the facet pagination
+window and intersects stars/outlet/critic/favorites/count. Reset restores the
+previous pagination window. The sticky header input is delegated and synced
+with the original. Koko näkymä is beside favorites, aligned at a shared center
+and starts on. Explicit user choice persists in localStorage, with a safe
+default if storage is unavailable. Full view means currently loaded results,
+not eager-load-all. Downward pagination remains available in either mode.
+
+69frontend tests and335Python tests passed,1skip. Real Chromium320/390/768
+phone restoration/pagination checks passed;900/1600desktop checked tail search,
+sticky clone search and saved preference after reload. Physical devices,
+Safari/Firefox, screen readers and fresh full print exercise unrun.

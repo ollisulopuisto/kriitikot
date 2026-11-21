@@ -19,7 +19,9 @@
         if (!toggle || !tbody || !cards || !wrapper || !table) return;
         // Phones keep every loaded card connected for readers and page find.
         // Preserve the desktop choice across responsive breakpoint changes.
-        let desktopEnabled = true;
+        let desktopEnabled = false;
+        try { desktopEnabled = localStorage.getItem('kriitikot_full_view') === 'false'; } catch (_) {}
+        toggle.checked = !desktopEnabled;
         const isWindowed = () => window.innerWidth >= 769 && desktopEnabled;
         let printing = false;
         let suppressPreloadUntil = 0;
@@ -217,7 +219,7 @@
         let preloadY = window.scrollY;
         let pendingDownY = null;
         function attemptPreload() {
-            if ((window.innerWidth < 769 || desktopEnabled) && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
+            if (!printing && !dirty && performance.now() >= suppressPreloadUntil &&
                 pendingDownY === window.scrollY && moreInRange && more.offsetParent !== null && !more.disabled) {
                 pendingDownY = null;
                 more.click();
@@ -240,11 +242,10 @@
             preload.observe(more);
             window.addEventListener('scroll', maybePreload, { passive: true });
         }
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('change', () => {
             if (window.innerWidth < 769) return;
-            desktopEnabled = !desktopEnabled;
-            toggle.setAttribute('aria-pressed', String(!desktopEnabled));
-            toggle.textContent = desktopEnabled ? 'Näytä koko näkymä' : 'Käytä kevyttä näkymää';
+            desktopEnabled = !toggle.checked;
+            try { localStorage.setItem('kriitikot_full_view', String(toggle.checked)); } catch (_) {}
             prepare();
         });
         schedule();
