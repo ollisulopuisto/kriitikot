@@ -69,7 +69,9 @@ try:
 }
 """))
             assert page.locator("#rating-fixture .rating-pill").count() == 10
-            measure = (root / "scripts/rating_pill_geometry.js").read_text()
+            measure = (root / "scripts/rating_pill_geometry.js").read_text(
+                encoding="utf-8"
+            )
             geometry = page.locator(
                 "#rating-fixture .rating-pill"
             ).evaluate_all(measure)
@@ -210,7 +212,9 @@ p => {
                         self.titles.add(attrs["data-movie"])
 
             initial = ServerCards()
-            initial.feed((root / "docs/index.html").read_text())
+            initial.feed(
+                (root / "docs/index.html").read_text(encoding="utf-8")
+            )
             page.evaluate("window.reviewWindow.prepare()")
             # Ensure the lazy batch contains a five-star result too.
             page.evaluate("loadMoreMovies(movieTitles.length)")
@@ -235,6 +239,29 @@ p => {
                 list(initial.titles),
             )
             check_ink = "(p,code)=>eval(code)([p])[0].inTarget"
+
+            def check_page_pill(pill):
+                pill.scroll_into_view_if_needed()
+                assert pill.evaluate(check_ink, measure)
+                saved = pill.evaluate("""p => {
+                    const a=p.closest('.review-item')
+                        || p.closest('.table-wrapper');
+                    const old=a.getAttribute('style');
+                    Object.assign(a.style, {minHeight:'0',height:'1px',
+                        maxHeight:'1px',overflow:'hidden'});
+                    return old;
+                }""")
+                assert not pill.evaluate(check_ink, measure)
+                pill.evaluate(
+                    """(p,old) => {
+                    const a=p.closest('.review-item')
+                        || p.closest('.table-wrapper');
+                    if(old===null)a.removeAttribute('style');
+                    else a.setAttribute('style',old);
+                }""",
+                    saved,
+                )
+
             for origin in ("server", "lazy"):
                 candidates = page.locator(
                     container
@@ -247,52 +274,70 @@ p => {
                 sample = candidates.first
                 sample.scroll_into_view_if_needed()
                 assert sample.evaluate(check_ink, measure), (width, origin)
-                # Catalog currently has no unlinked five-star records. Use
-                # the real unlinked renderer in the same actual page cell.
-                sample.evaluate(("""
-p => {
-    const html = createReviewPill({
-        rating_stars: 5,
-        source_url: '',
-        source_publication: 'hs'
-    });
-    p.insertAdjacentHTML('afterend', html);
-    p.nextElementSibling.dataset.testUnlinked =
-    'true';
-}
-"""))
-                unlinked = page.locator('[data-test-unlinked="true"]')
-                for pill in (sample, unlinked):
-                    pill.scroll_into_view_if_needed()
-                    assert pill.evaluate(check_ink, measure)
-                    # Every origin/link variant must catch crown clipping.
-                    saved = pill.evaluate(("""
-p => {
-    const a = p.closest('.review-item') ||
-        p.closest('.table-wrapper');
-    const old = a.getAttribute('style');
-    Object.assign(a.style, {
-        minHeight: '0',
-        height: '1px',
-        maxHeight: '1px',
-        overflow: 'hidden'
-    });
-    return old;
-}
-"""))
-                    assert not pill.evaluate(check_ink, measure)
-                    pill.evaluate(
-                        ("""
-(p, old) => {
-    const a = p.closest('.review-item') ||
-        p.closest('.table-wrapper');
-    if (old === null) a.removeAttribute('style');
-    else a.setAttribute('style', old);
-}
-"""),
-                        saved,
+                # Exercise each template branch in place, never add a second
+                # pill to a phone lane sized for one review.
+                original_html = sample.evaluate("p=>p.outerHTML")
+                original_count = (
+                    sample.locator("..").locator(".rating-pill").count()
+                )
+                check_page_pill(sample)
+                if origin == "server":
+                    from bs4 import BeautifulSoup
+                    from jinja2 import Environment, FileSystemLoader
+
+                    env = Environment(
+                        loader=FileSystemLoader(root / "templates"),
+                        autoescape=True,
                     )
-                unlinked.evaluate("p=>p.remove()")
+                    env.filters["publication_name"] = str
+                    review = dict(
+                        rating_stars=5,
+                        source_url="",
+                        review_text="",
+                        publication=dict(short_name="hs", name="HS"),
+                    )
+                    template = (
+                        "_movie_card.html"
+                        if width < 769
+                        else "_movie_row.html"
+                    )
+                    html = env.get_template(template).render(
+                        movie_title="Crown test",
+                        critics_reviews={"Test critic": [review]},
+                        all_critics=[dict(name="Test critic", id="test")],
+                        poster_urls={},
+                        letterboxd_urls={},
+                        nytleffaan_urls={},
+                        movie_review_counts={},
+                        movie_rating_distributions={},
+                    )
+                    soup = BeautifulSoup(html, "html.parser")
+                    unlinked_html = str(
+                        soup.select_one("span.rating-pill.stars-5")
+                    )
+                    assert unlinked_html != "None"
+                    sample.evaluate(
+                        "(p, html)=>p.outerHTML=html", unlinked_html
+                    )
+                else:
+                    sample.evaluate("""p => {
+                        p.outerHTML = createReviewPill({rating_stars:5,
+                            source_url:'', source_publication:'hs'});
+                    }""")
+                # Replacement retains the original lane's review count.
+                unlinked = page.locator(
+                    container
+                    + '[data-test-origin="'
+                    + origin
+                    + '"] '
+                    + "span.rating-pill.stars-5"
+                ).first
+                assert (
+                    unlinked.locator("..").locator(".rating-pill").count()
+                    == original_count
+                )
+                check_page_pill(unlinked)
+                unlinked.evaluate("(p, html)=>p.outerHTML=html", original_html)
             page.screenshot(path=str(output / f"context-{width}.png"))
             if width >= 769:
                 page.locator("#windowing-toggle").check()
