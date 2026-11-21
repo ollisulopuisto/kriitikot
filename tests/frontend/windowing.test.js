@@ -8,7 +8,8 @@ function setup({ width = 1200, height = 200, full = false } = {}) {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
-    localStorage.setItem('kriitikot_full_view', String(full));
+    localStorage.removeItem('kriitikot_full_view');
+    if (full !== null) localStorage.setItem('kriitikot_full_view', String(full));
     frame = null;
     proximity = null;
     vi.stubGlobal('IntersectionObserver', class { constructor(fn) { proximity = fn; } observe() {} });
@@ -49,6 +50,17 @@ function setup({ width = 1200, height = 200, full = false } = {}) {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('review viewport window', () => {
+    it('starts full view on for an absent preference',()=>{
+        setup({full:null});
+        expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.getElementById('windowing-toggle').checked).toBe(true);
+    });
+    it('starts full view on when storage access throws',()=>{
+        vi.spyOn(Storage.prototype, 'getItem').mockImplementation(()=>{throw new Error('blocked')});
+        setup({full:null});
+        expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.getElementById('windowing-toggle').checked).toBe(true);
+    });
     it('starts full view on and persists an explicit desktop choice', () => {
         const {tick}=setup({full:true});
         expect(window.reviewWindow.enabled).toBe(false);

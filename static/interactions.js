@@ -182,9 +182,8 @@ function initMovieClickHandlers() {
             }
 
             // Jos jokin muu filtteri on päällä, nollataan se ensin mutta jatketaan korostukseen
-            if (isAnyFilterActive) {
-                if (window.resetAllFilters) window.resetAllFilters();
-            }
+            // Keep search/facets and their loaded result nodes when selecting.
+            // Explicit reset remains the action that clears the query.
 
             // Poista vanhat poster-rivit
             tbody.querySelectorAll('.poster-row').forEach(pr => pr.remove());
