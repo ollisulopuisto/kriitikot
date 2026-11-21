@@ -76,9 +76,9 @@ try:
                     'nodes=>nodes.filter(n=>n.getBoundingClientRect().height>0).map(n=>n.getBoundingClientRect().height)')
                 assert actual_targets and min(actual_targets) >= 44, actual_targets
             assert all(abs(p['w']-88)<.1 and abs(p['h']-17)<.1 for p in geometry),geometry
-            # Negative controls: a blown-up crown and the old face height must
+            # Negative controls: horizontal-only escape and the old face height must
             # fail the same measurements, rather than only passing good CSS.
-            broken = page.add_style_tag(content='#rating-fixture .stars-5 .rating-stars { font-size:80px!important }')
+            broken = page.add_style_tag(content='#rating-fixture .stars-5 .rating-star { position:relative; left:100px!important }')
             assert not all(p['inTarget'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
             broken.evaluate('n=>n.remove()')
             old_face = page.add_style_tag(content='#rating-fixture .rating-stars { height:28.8px!important }')
