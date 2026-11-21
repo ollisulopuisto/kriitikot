@@ -58,16 +58,20 @@ try:
             page.evaluate('window.resetAllFilters()')
             page.wait_for_timeout(160)
             full_phone()
+            # Save identity and state before desktop parks the same cards.
+            page.evaluate('''() => {window.phoneOriginals=[...document.querySelectorAll('.movie-card')];window.phoneOriginals.forEach((n,i)=>n.testState={index:i});}''')
             # Phone -> desktop default -> phone -> desktop user full view.
             page.set_viewport_size({'width': 1200, 'height': 900})
             page.wait_for_function('window.reviewWindow.enabled')
             assert page.locator('#windowing-toggle').is_visible()
             assert page.locator('.window-spacer').count()>0
             assert page.locator('.movie-card').count()==0
+            assert page.evaluate('window.phoneOriginals.every(n=>!n.isConnected)')
             # Desktop actually parked cards. Switching to phone must restore
             # the same original nodes before any full-view toggle can mask it.
             page.set_viewport_size({'width': width, 'height': 844})
             full_phone()
+            assert page.evaluate("window.phoneOriginals.every((n,i)=>n.isConnected&&document.querySelectorAll('.movie-card')[i]===n&&n.testState.index===i)")
             page.set_viewport_size({'width': 1200, 'height': 900})
             page.wait_for_function('window.reviewWindow.enabled && window.reviewWindow.retainedCount>0')
             page.locator('#windowing-toggle').click()

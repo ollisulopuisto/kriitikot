@@ -74,5 +74,7 @@ measurements above; no new physical-device performance claim is made.
 
 The original check_windowing.py now targets the unchanged desktop windowing;
 check_mobile_view.py covers phone controls, full-card availability, pagination,
-filters, focus and responsive transitions. Real screen-reader, Safari and
+filters, focus and responsive transitions. The resize check retains original card
+references and per-node state, proves they detach on desktop, then verifies the
+same nodes and state return on phone. Real screen-reader, Safari and
 physical-device checks remain unrun.
