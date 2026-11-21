@@ -49,10 +49,18 @@ describe('review viewport window', () => {
         const { tick } = setup();
         const first = document.querySelector('tbody tr:not(.window-spacer)');
         expect(first.style.height).toBe('40px');
-        first.getBoundingClientRect = () => ({top:0,bottom:80,left:0,right:1600,width:1600,height:80});
+        first.getBoundingClientRect = () => ({top:-window.scrollY,bottom:80-window.scrollY,left:0,right:1600,width:1600,height:80});
         fontDone();
         tick();
         expect(first.style.height).toBe('80px');
+        Object.defineProperty(window, 'scrollY', { configurable: true, value: 4000 });
+        window.dispatchEvent(new Event('scroll'));
+        tick();
+        expect(first.isConnected).toBe(false);
+        const spacer = document.querySelector('tbody').firstElementChild;
+        expect(spacer.classList.contains('window-spacer')).toBe(true);
+        expect(spacer.style.height).toBe('80px');
+        expect(spacer.firstElementChild.style.height).toBe('80px');
     });
     it('does not restore the full collection for scrolling keys on toolbar buttons', () => {
         setup();
