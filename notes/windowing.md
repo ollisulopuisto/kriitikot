@@ -36,3 +36,7 @@ The supported benefit is a roughly 92% smaller connected DOM after scrolling. Th
 - `python scripts/measure_windowing.py --label after`: repeat the local measurement. Set `SCREENSHOT_DIR` and `CHROME_BIN` as needed. The measurement deliberately loads all existing data; it does not scrape or publish.
 
 Manual inspection covered desktop first view, horizontally and vertically scrolled desktop with pinned headers/names, and phone first/scrolled cards. All retain the light palette. A real screen reader, Safari/Firefox and physical mobile devices are **unmeasured**.
+
+## Review follow-up
+
+Full view and printing remove window-only accessibility counts/indices so native table order cannot become stale after sorting or appending. Automatic pagination follows each actual downward page movement, including scrollbar navigation; proximity changes alone and upward movements cannot trigger it. After filter/layout mutations there is a short preload suppression interval. Programmatic downward navigation is intentionally treated like native scrollbar navigation. Appended batches inherit the selected alphabetical order. The critic registry is read only from the original table, never its pinned-header clone. Ordinary scrolls skip geometry reads for the inactive view. Browser checks derive catalog totals from the loaded JSON instead of assuming a forever-fixed catalog. The Chrome executable override is honored by both scripts.

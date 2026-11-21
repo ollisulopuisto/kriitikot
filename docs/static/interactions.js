@@ -35,6 +35,7 @@ function initSorting() {
             }
         });
         rows.forEach(row => tbody.appendChild(row));
+        window.movieSortDirection = sortAscending ? 1 : -1;
         sortAscending = !sortAscending;
 
         if (typeof sortCriticColumnsByReviews === 'function') {
@@ -126,6 +127,7 @@ function initSorting() {
                 }
             });
             cards.forEach(card => mobileCardsContainer.appendChild(card));
+            window.mobileMovieSortDirection = mobileSortAscending ? 1 : -1;
             mobileSortAscending = !mobileSortAscending;
             mobileSortButton.innerHTML = `<span class="sort-icon">🎬 ${mobileSortAscending ? 'A-Ö' : 'Ö-A'}</span>`;
         });
@@ -660,3 +662,17 @@ window.initCriticClickHandlers = initCriticClickHandlers;
 window.initMobileCriticClickHandlers = initMobileCriticClickHandlers;
 window.initRatingFilterClickHandlers = initRatingFilterClickHandlers;
 window.initPublicationFilterClickHandlers = initPublicationFilterClickHandlers;
+
+// Keep subsequently loaded batches in the selected alphabetical order.
+window.applyMovieSortOrder = function () {
+    const collections = [
+        [document.querySelector('#review-container-desktop tbody'), 'tr:not(.poster-row)', '.movie-title-main', window.movieSortDirection],
+        [document.querySelector('.mobile-cards'), '.movie-card', '.movie-card-title', window.mobileMovieSortDirection]
+    ];
+    collections.forEach(([container, selector, title, direction]) => {
+        if (!container || !direction) return;
+        Array.from(container.querySelectorAll(selector)).sort((a, b) =>
+            (a.querySelector(title)?.textContent.trim() || '').localeCompare(b.querySelector(title)?.textContent.trim() || '', 'fi') * direction
+        ).forEach(node => container.appendChild(node));
+    });
+};

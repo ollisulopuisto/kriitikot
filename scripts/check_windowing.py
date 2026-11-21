@@ -85,6 +85,12 @@ with tempfile.TemporaryFile() as log:
                     ), f"{device}: windowed/full mismatch after {label}"
                     print(device, label, "same logical state", models[0]["offset"])
 
+                expected_films = pages[0].evaluate(
+                    "Object.keys(window._cachedReviewsData).length"
+                )
+                expected_reviews = pages[0].evaluate(
+                    "Object.values(window._cachedReviewsData).flatMap(Object.values).flat().length"
+                )
                 same("initialization")
                 actions = [
                     (
@@ -133,6 +139,21 @@ with tempfile.TemporaryFile() as log:
                         p.wait_for_timeout(60)
                         p.evaluate(js)
                     same(label)
+                for p in pages:
+                    p.evaluate("window.loadMoreMovies(30)")
+                same("sorted pagination")
+                for p in pages:
+                    assert p.evaluate(
+                        """() => {window.reviewWindow.prepare();const mobile=innerWidth<769;const direction=mobile?window.mobileMovieSortDirection:window.movieSortDirection;const titles=[...document.querySelectorAll(mobile?'.movie-card-title':'#review-container-desktop tbody .movie-title-main')].map(n=>n.textContent.trim());return !direction||titles.every((title,i)=>i===0||titles[i-1].localeCompare(title,'fi')*direction<=0);}"""
+                    ), "pagination broke alphabetical order"
+                full_page = pages[1]
+                full_page.wait_for_timeout(100)
+                assert (
+                    full_page.locator(
+                        "[aria-rowcount], [aria-colcount], [aria-rowindex], [aria-colindex]"
+                    ).count()
+                    == 0
+                )
                 page = pages[0]
                 page.evaluate(
                     "window.resetAllFilters();while(window.currentMovieOffset < Object.keys(window._cachedReviewsData).length)window.loadMoreMovies(30)"
@@ -190,13 +211,13 @@ with tempfile.TemporaryFile() as log:
                     page.evaluate(
                         'window.reviewWindow.prepare();document.querySelectorAll(".movie-card").length'
                     )
-                    == 312
+                    == expected_films
                 )
                 assert (
                     page.evaluate(
                         "Object.values(window._cachedReviewsData).flatMap(Object.values).flat().length"
                     )
-                    == 1072
+                    == expected_reviews
                 )
                 assert not errors, errors
                 # A breakpoint change restores the logical collection before remeasuring.
@@ -208,33 +229,43 @@ with tempfile.TemporaryFile() as log:
                     page.evaluate(
                         'window.reviewWindow.prepare();document.querySelectorAll(".movie-card").length'
                     )
-                    == 312
+                    == expected_films
                 )
                 page.evaluate('window.dispatchEvent(new Event("beforeprint"))')
-                assert page.locator(".movie-card").count() == 312
+                assert page.locator(".movie-card").count() == expected_films
                 page.evaluate('window.dispatchEvent(new Event("afterprint"))')
                 print(device, "focus, bounds, print, breakpoint, data intact", count)
                 for p in pages:
                     p.context.close()
-            # Automatic pagination requires actual scrolling intent, not a filter's
-            # layout shrink or a programmatic scroll into the sentinel's preload area.
+            # Both native scrollbar-style scrolls and wheel navigation preload
+            # downward only. A filter mutation alone must not append a batch.
             context = browser.new_context(viewport={"width": 1600, "height": 900})
             page = context.new_page()
             page.goto("http://127.0.0.1:5434")
             page.wait_for_function(
                 "window.reviewWindow && window.currentMovieOffset>=60"
             )
+            page.wait_for_timeout(300)
             page.evaluate(
                 "window.scrollTo(0,document.documentElement.scrollHeight-1800)"
             )
-            page.wait_for_timeout(200)
+            page.wait_for_timeout(150)
+            page.evaluate("window.scrollBy(0,-30)")
+            page.wait_for_timeout(150)
             assert page.evaluate("window.currentMovieOffset") == 60
-            page.mouse.wheel(0, 300)
+            page.evaluate("window.scrollBy(0,60)")
             page.wait_for_function("window.currentMovieOffset>60")
             print(
-                "directional boundary preload",
+                "scrollbar-compatible directional preload",
                 page.evaluate("window.currentMovieOffset"),
             )
+            page.evaluate(
+                "window.scrollTo(0,0);document.querySelector('.desktop-filters [data-publication=HS]').click()"
+            )
+            page.wait_for_timeout(500)
+            stable = page.evaluate("window.currentMovieOffset")
+            page.wait_for_timeout(300)
+            assert page.evaluate("window.currentMovieOffset") == stable
             context.close()
             browser.close()
     finally:

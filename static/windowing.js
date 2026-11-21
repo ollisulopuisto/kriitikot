@@ -19,7 +19,7 @@
         if (!toggle || !tbody || !cards || !wrapper || !table) return;
         let enabled = true;
         let printing = false;
-        let preloadAnchorY = window.scrollY;
+        let suppressPreloadUntil = 0;
         let dirty = true;
         let scheduled = 0;
         let records = [];
@@ -47,8 +47,16 @@
         function schedule() {
             if (!scheduled) scheduled = requestAnimationFrame(render);
         }
+        function clearCoordinates() {
+            table.removeAttribute('aria-rowcount');
+            table.removeAttribute('aria-colcount');
+            table.querySelectorAll('[aria-rowindex], [aria-colindex]').forEach(node => {
+                node.removeAttribute('aria-rowindex');
+                node.removeAttribute('aria-colindex');
+            });
+        }
         function prepare() {
-            preloadAnchorY = window.scrollY;
+            suppressPreloadUntil = performance.now() + 200;
             restore();
             dirty = true;
             schedule();
@@ -129,7 +137,7 @@
         }
         function render() {
             scheduled = 0;
-            if (!enabled || printing) { restore(); return; }
+            if (!enabled || printing) { restore(); clearCoordinates(); return; }
             if (dirty) snapshot();
             const desktop = window.innerWidth >= 769;
             const [before, after] = margins(window.innerHeight, window.scrollY - previousY);
@@ -137,7 +145,7 @@
             const bounds = wrapper.getBoundingClientRect();
             const pinnedWidth = columns[0]?.width || 0;
             const keep = new Set([0]);
-            for (const col of columns) {
+            for (const col of desktop ? columns : []) {
                 const rect = col.node.getBoundingClientRect();
                 if (col.width > 0 && inRange(rect.left, rect.right, bounds.left + pinnedWidth - left, bounds.right + right)) keep.add(col.index);
                 if (col.node.contains(document.activeElement)) keep.add(col.index);
@@ -145,10 +153,11 @@
             const columnKey = Array.from(keep).join(',');
             // Read positions first, then perform all DOM swaps.
             const visible = records.map(rec => {
+                if (rec.node.contains(document.activeElement)) return true;
+                if (rec.desktop !== desktop || !rec.visible) return false;
                 const anchor = rec.spacer.isConnected ? rec.spacer : rec.node;
                 const rect = anchor.getBoundingClientRect();
-                return rec.node.contains(document.activeElement) ||
-                    (rec.desktop === desktop && rec.visible && inRange(rect.top, rect.bottom, -before, window.innerHeight + after));
+                return inRange(rect.top, rect.bottom, -before, window.innerHeight + after);
             });
             records.forEach((rec, i) => {
                 if (visible[i]) {
@@ -176,30 +185,25 @@
         window.addEventListener('resize', prepare);
         document.fonts?.ready.then(prepare);
         document.fonts?.addEventListener('loadingdone', prepare);
-        window.addEventListener('beforeprint', () => { printing = true; restore(); });
+        window.addEventListener('beforeprint', () => { printing = true; restore(); clearCoordinates(); });
         window.addEventListener('afterprint', () => { printing = false; prepare(); });
         // Preload the next logical batch before the user reaches the boundary.
         // The manual button remains the fallback when IntersectionObserver is absent.
         const more = document.getElementById('load-more-button');
         let moreInRange = false;
-        let scrollIntentUntil = 0;
-        for (const event of ['wheel', 'touchmove']) {
-            document.addEventListener(event, () => { scrollIntentUntil = performance.now() + 1200; }, { passive: true });
-        }
-        document.addEventListener('keydown', e => {
-            if (['PageDown', 'ArrowDown', ' ', 'End'].includes(e.key)) scrollIntentUntil = performance.now() + 1200;
-        });
+        let preloadY = window.scrollY;
         function maybePreload() {
-            if (enabled && !printing && performance.now() < scrollIntentUntil && moreInRange && window.scrollY > preloadAnchorY &&
-                more.offsetParent !== null && !more.disabled) {
-                preloadAnchorY = window.scrollY;
-                more.click();
-            }
+            const y = window.scrollY;
+            const down = y > preloadY;
+            preloadY = y;
+            if (enabled && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
+                down && moreInRange && more.offsetParent !== null && !more.disabled) more.click();
         }
         const preload = typeof IntersectionObserver === 'function' && more
             ? new IntersectionObserver(entries => {
                 moreInRange = entries.some(e => e.isIntersecting);
-                maybePreload();
+                // The observer records proximity only. Real downward movement,
+                // including native scrollbar navigation, is handled below.
             }, { rootMargin: '150% 0px' }) : null;
         if (preload) {
             preload.observe(more);

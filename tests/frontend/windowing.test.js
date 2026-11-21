@@ -78,6 +78,7 @@ describe('review viewport window', () => {
         document.getElementById('windowing-toggle').click();
         tick();
         expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.querySelector('[aria-rowcount], [aria-colcount], [aria-rowindex], [aria-colindex]')).toBeNull();
         expect(document.querySelectorAll('.movie-card').length).toBe(20);
         expect(document.querySelectorAll('tbody td').length).toBe(1600);
     });

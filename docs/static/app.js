@@ -889,7 +889,7 @@ function renderMovie(movieTitle, criticsReviewsDict) {
  */
 function syncCriticOrderFromDom() {
     window.reviewWindow?.prepare();
-    const headers = document.querySelectorAll('thead th.rating-cell');
+    const headers = document.querySelectorAll('#review-container-desktop thead th.rating-cell');
     if (!headers.length) return;
 
     allCritics = Array.from(headers).map(th => ({
@@ -949,6 +949,7 @@ function loadMoreMovies(batchSize = movieLimit) {
 
     if (desktopHtml) desktopTbody.insertAdjacentHTML('beforeend', desktopHtml);
     mobileCardsContainer.insertAdjacentHTML('beforeend', mobileHtml);
+    window.applyMovieSortOrder?.();
 
     currentMovieOffset += moviesToRender.length;
     window.currentMovieOffset = currentMovieOffset;
@@ -1228,7 +1229,7 @@ function sliderResultsKey() {
         [...document.querySelectorAll('.media-filter-btn.active, .filter-publication.active')].map(e => e.dataset.publication).sort(),
         document.querySelector('thead th[data-filtered="true"]')?.dataset.criticId,
         !!window.isFavoritesFilterActive?.(),
-        [...document.querySelectorAll('thead th.rating-cell')].filter(h => window.isFavoriteCritic?.(h.dataset.criticId)).map(h => h.dataset.criticId).sort(),
+        [...document.querySelectorAll('#review-container-desktop thead th.rating-cell')].filter(h => window.isFavoriteCritic?.(h.dataset.criticId)).map(h => h.dataset.criticId).sort(),
         document.querySelector('.movie-card[data-filtered="true"]')?.dataset.movie
     ]);
 }
@@ -1306,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sortColumnsOnceRowsExist();
 
     // Haetaan kriitikkojen tiedot taulukon headerista
-    const criticHeaders = document.querySelectorAll('thead th.rating-cell');
+    const criticHeaders = document.querySelectorAll('#review-container-desktop thead th.rating-cell');
     allCritics = Array.from(criticHeaders).map(th => ({
         id: th.dataset.criticId,
         name: th.querySelector('.critic-name').textContent
