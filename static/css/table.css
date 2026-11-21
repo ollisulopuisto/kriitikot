@@ -845,13 +845,18 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     display: block;
 }
 .rating-star-shadow {
+    transform: translate(4px, 6px);
+    filter: blur(1.2px);
+    opacity: 0;
+}
+.rating-star-shadow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     background: #28303a;
     clip-path: polygon(50% 0%, 62.64% 32.6%, 97.55% 34.55%,
         70.46% 56.65%, 79.39% 90.45%, 50% 71.5%,
         20.61% 90.45%, 29.54% 56.65%, 2.45% 34.55%, 37.36% 32.6%);
-    transform: translate(4px, 6px);
-    filter: blur(1.2px);
-    opacity: 0;
 }
 @media (hover: hover) and (pointer: fine) and
        (prefers-reduced-motion: no-preference) {

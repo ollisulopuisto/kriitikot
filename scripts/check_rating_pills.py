@@ -73,12 +73,12 @@ FALLBACK = '''p=>{
         visible:stars.every(n=>{
             const paint=n.querySelector('.rating-star-paint');
             const cs=getComputedStyle(paint),box=paint.getBoundingClientRect();
-            for(let a=n;a;a=a.parentElement){
+            for(let a=paint;a;a=a.parentElement){
                 const ancestor=getComputedStyle(a);
                 if(ancestor.visibility!=='visible' ||
                    Number(ancestor.opacity)===0) return false;
             }
-            return n.checkVisibility({checkVisibilityCSS:true,
+            return paint.checkVisibility({checkVisibilityCSS:true,
                        checkOpacity:true}) &&
                 box.width>0 && box.height>0 &&
                 parseFloat(cs.fontSize)>0 &&
@@ -284,7 +284,8 @@ try:
                             ) == 'rgb(0, 0, 0)'
                         # Hidden descendants or ancestors must fail the oracle.
                         for target in (pill, pill.query_selector(
-                                '.rating-star')):
+                                '.rating-star'), pill.query_selector(
+                                '.rating-star-paint')):
                             target.evaluate("n=>n.style.setProperty("
                                             "'transition','none','important')")
                             for property_, value in (('visibility', 'hidden'),

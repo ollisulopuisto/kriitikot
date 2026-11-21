@@ -8,7 +8,7 @@ import threading
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path('/downloads/kriitikot-h6-build')
+OUT = Path(os.environ.get('SCREENSHOT_DIR', '/tmp/kriitikot-h6-check'))
 OUT.mkdir(parents=True, exist_ok=True)
 
 
