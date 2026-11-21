@@ -70,12 +70,21 @@ describe('review viewport window', () => {
         button.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }));
         expect(document.querySelectorAll('.movie-card').length).toBe(0);
     });
-    it('clears coordinates from the pinned header when printing', () => {
-        setup();
-        const clone=document.querySelector('table').cloneNode(true);
-        clone.id='sticky-thead-clone';document.body.appendChild(clone);
+    it('clears print coordinates then restores the same pinned header indices', () => {
+        const { tick } = setup();
+        const clone = document.createElement('table');
+        clone.id = 'sticky-thead-clone';
+        clone.appendChild(document.querySelector('table thead').cloneNode(true));
+        document.body.appendChild(clone);
+        const indices = () => Array.from(clone.tHead.rows[0].cells, cell => cell.getAttribute('aria-colindex'));
+        const expected = Array.from({ length: 40 }, (_, i) => String(i + 1));
+        expect(indices()).toEqual(expected);
         window.dispatchEvent(new Event('beforeprint'));
         expect(clone.querySelector('[aria-colindex], [aria-rowindex]')).toBeNull();
+        window.dispatchEvent(new Event('afterprint'));
+        tick();
+        expect(document.getElementById('sticky-thead-clone')).toBe(clone);
+        expect(indices()).toEqual(expected);
     });
     it('biases preload toward the direction of travel', () => {
         setup();

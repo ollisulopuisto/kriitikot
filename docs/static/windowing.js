@@ -97,6 +97,12 @@
                 node.setAttribute('aria-colindex', String(index + 1));
                 return { node, index, width: rect.width };
             });
+            // Print clears both headers. A pinned clone can survive afterprint,
+            // so reindex it together with the original on every new snapshot.
+            const pinned = document.getElementById('sticky-thead-clone');
+            Array.from(pinned?.tHead?.rows[0]?.cells || []).forEach((cell, index) => {
+                cell.setAttribute('aria-colindex', String(index + 1));
+            });
             const visibleColumns = Math.max(1, columns.filter(c => c.width > 0).length);
             records.filter(r => r.desktop).forEach(r => { r.spacer.firstElementChild.colSpan = visibleColumns; });
             table.setAttribute('aria-rowcount', String(records.filter(r => r.desktop).length + 1));

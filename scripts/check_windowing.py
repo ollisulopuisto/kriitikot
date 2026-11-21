@@ -82,7 +82,7 @@ with tempfile.TemporaryFile() as log:
                     pages[1].wait_for_timeout(60)
                     # Inspect the actual mounted slice before MODEL restores it.
                     mounted = pages[0].evaluate(
-                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
+                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom,focused:n.contains(document.activeElement)}));}"""
                     )
                     logical = pages[1].evaluate(MODEL)
                     allowed = {
@@ -93,6 +93,20 @@ with tempfile.TemporaryFile() as log:
                     assert all(
                         row["title"] in allowed for row in mounted
                     ), f"{label}: wrong filtered content mounted"
+                    # Bound every filtered/sorted mounted state, before MODEL
+                    # restores the collection. Either direction uses at most
+                    # 1.5 viewports of overscan, plus the retained focused film.
+                    bound = pages[1].evaluate(
+                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>=-innerHeight*1.5&&r.top<=innerHeight*2.5;}).map(n=>mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent);}"""
+                    )
+                    bounded_titles = set(bound)
+                    assert all(
+                        row["focused"] or row["title"] in bounded_titles
+                        for row in mounted
+                    ), f"{label}: filtered/sorted state retained off-window films"
+                    assert len(mounted) <= len(bound) + sum(
+                        row["focused"] for row in mounted
+                    ), f"{label}: filtered/sorted mounting bound exceeded"
                     required = pages[1].evaluate(
                         """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
                     )
@@ -308,6 +322,7 @@ with tempfile.TemporaryFile() as log:
                 page.evaluate("window.refreshStickyHeader()")
                 page.wait_for_selector("#sticky-thead-clone [aria-colindex]")
                 assert page.locator("#sticky-thead-clone").count() == 1
+                page.evaluate("window.printPinned=document.getElementById('sticky-thead-clone')")
                 page.evaluate('window.dispatchEvent(new Event("beforeprint"))')
                 assert (
                     page.locator(
@@ -317,6 +332,9 @@ with tempfile.TemporaryFile() as log:
                 )
                 assert page.locator(".movie-card").count() == expected_films
                 page.evaluate('window.dispatchEvent(new Event("afterprint"))')
+                page.wait_for_function(
+                    """() => {const clone=document.getElementById('sticky-thead-clone');const expected=[...document.querySelector('#review-container-desktop thead tr').cells].map(c=>c.getAttribute('aria-colindex'));return clone===window.printPinned&&expected.every((value,i)=>value!==null&&clone.tHead.rows[0].cells[i].getAttribute('aria-colindex')===value);}"""
+                )
                 full_page.evaluate("window.resetAllFilters()")
                 full_page.wait_for_timeout(100)
                 assert full_page.evaluate("window.reviewWindow.retainedCount") == 0

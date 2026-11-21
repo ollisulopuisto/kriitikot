@@ -50,4 +50,6 @@ The next review round decouples facet reveal membership from presentation sort o
 
 A downward jump retains its direction until the proximity observer catches up, avoiding a missed preload when scroll arrives first. Upward movement cancels that pending direction. Sorted batch insertion restores the same focused node without scrolling, and the Chromium suite checks focus across pagination. It also compares rendered review-item totals against the loaded catalog and takes the filter-pagination baseline synchronously, before any delayed append can be missed.
 
+Printing now reindexes an existing pinned header when windowing resumes, rather than relying on a replacement clone. A red-to-green unit regression and a real Chromium same-clone check cover the print round trip. Every filtered and sorted comparison also checks mounted films against a geometry-derived overscan bound before any full-collection restore; temporarily mounting all filtered matches is rejected by that check.
+
 </details>
