@@ -1,10 +1,8 @@
-"""Real Chromium five-slot pill smoke, served from docs without scraping.
+"""Chromium A1v3c smoke, no scrape or deployment.
 
-Setup: install project requirements plus Playwright, BeautifulSoup4 and Jinja2
-into the Python environment used to run this script. Install system Chrome or
-set CHROME_BIN to its path. No scrape or deployment is performed.
+Install project requirements and Playwright, BeautifulSoup4 and Jinja2.
+System Chrome is required (or set CHROME_BIN).
 """
-
 import functools
 import http.server
 import os
@@ -12,392 +10,192 @@ from pathlib import Path
 import threading
 
 try:
-    from playwright.sync_api import sync_playwright
     from bs4 import BeautifulSoup
     from jinja2 import Environment, FileSystemLoader
+    from playwright.sync_api import sync_playwright
 except ImportError as error:
     raise SystemExit(
-        "Rating smoke-check dependencies missing. Install project "
-        "requirements plus playwright, beautifulsoup4 and jinja2 in this "
-        "Python environment; Chrome is also required. Missing module: "
-        + str(error.name)
+        'Install project requirements, playwright, beautifulsoup4 and jinja2. '
+        f'Missing module: {error.name}'
     ) from error
 
-root = Path(__file__).resolve().parents[1]
-output = Path(os.environ.get("SCREENSHOT_DIR", "/tmp/kriitikot-pill-check"))
-output.mkdir(parents=True, exist_ok=True)
+ROOT = Path(__file__).resolve().parents[1]
+OUT = Path(os.environ.get('SCREENSHOT_DIR', '/tmp/kriitikot-cluster-check'))
+OUT.mkdir(parents=True, exist_ok=True)
+ENV = Environment(loader=FileSystemLoader(ROOT / 'templates'), autoescape=True)
+ENV.filters['publication_name'] = str
+POSITIONS = {
+    1: [(50, 32)], 2: [(38, 32), (62, 32)],
+    3: [(50, 18), (38, 44), (62, 44)],
+    4: [(35, 18), (65, 18), (35, 46), (65, 46)],
+    5: [(37, 20), (63, 20), (24, 43), (50, 43), (76, 43)],
+}
+MEASURE = '''p=>{
+    const face=p.querySelector('.rating-stars'),f=face.getBoundingClientRect();
+    const cell=p.closest('td');
+    const cellBounds=cell?.getBoundingClientRect();
+    const fitsCell=!cellBounds || (f.left>=cellBounds.left &&
+        f.right<=cellBounds.right);
+    const stars=[...face.children].filter(n=>getComputedStyle(n).display!=='none');
+    return {width:f.width,height:f.height,fitsCell,text:face.textContent,
+        label:face.getAttribute('aria-label'),
+        shape:getComputedStyle(stars[0],'::before').clipPath,
+        glow:getComputedStyle(stars[0]).filter,
+        faceShadow:getComputedStyle(face).boxShadow,
+        ink:getComputedStyle(stars[0],'::after').backgroundColor,
+        edge:getComputedStyle(stars[0],'::before').backgroundColor,
+        stars:stars.map(n=>{
+            const b=n.getBoundingClientRect();
+            let clear=b.left>=f.left && b.right<=f.right &&
+                b.top>=f.top && b.bottom<=f.bottom;
+            for(let a=n;a && a!==document.body;a=a.parentElement){
+                const cs=getComputedStyle(a),r=a.getBoundingClientRect();
+                const x=r.left+a.clientLeft,y=r.top+a.clientTop;
+                if(['hidden','clip','auto','scroll'].includes(cs.overflowX))
+                    clear &&= b.left>=x-.5 && b.right<=x+a.clientWidth+.5;
+                if(['hidden','clip','auto','scroll'].includes(cs.overflowY))
+                    clear &&= b.top>=y-.5 && b.bottom<=y+a.clientHeight+.5;
+            }
+            return {x:b.x+b.width/2-f.x,y:b.y+b.height/2-f.y,
+                w:b.width,h:b.height,clear};
+        })};
+}'''
 
 
-class QuietHandler(http.server.SimpleHTTPRequestHandler):
+class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *_args):
         pass
 
 
+def server_pill(rating, linked, phone):
+    review = dict(rating_stars=rating,
+                  source_url='https://example.com/' if linked else '',
+                  review_text='', publication=dict(short_name='hs', name='HS'))
+    html = ENV.get_template(
+        '_movie_card.html' if phone else '_movie_row.html'
+    ).render(movie_title='Test', critics_reviews={'Test': [review]},
+             all_critics=[dict(name='Test', id='test')], poster_urls={},
+             nytleffaan_urls={}, letterboxd_urls={}, movie_review_counts={},
+             movie_rating_distributions={})
+    return str(BeautifulSoup(html, 'html.parser').select_one('.rating-pill'))
+
+
+def verify(pill, rating):
+    data = pill.evaluate(MEASURE)
+    assert data['width'] == 100 and data['height'] == 64, data
+    assert data['text'] == '★' * rating, data
+    assert data['label'] == f'{rating}/5 tähteä', data
+    assert data['shape'].startswith('polygon('), data
+    assert data['fitsCell'], data
+    assert data['faceShadow'] == 'none', data
+    assert data['ink'] == ['rgb(185, 28, 28)', 'rgb(168, 58, 18)',
+                           'rgb(212, 167, 0)', 'rgb(22, 134, 187)',
+                           'rgb(23, 148, 71)'][rating - 1], data
+    if rating == 3:
+        assert data['edge'] == 'rgb(140, 113, 0)', data
+    assert len(data['stars']) == rating, data
+    assert all(s['clear'] for s in data['stars']), data
+    size = [18, 20, 22, 24, 25][rating - 1]
+    for star, (x, y) in zip(data['stars'], POSITIONS[rating]):
+        assert abs(star['x'] - x) < .1 and abs(star['y'] - y) < .1
+        assert star['w'] == size and star['h'] == size
+    assert ('drop-shadow' in data['glow']) == (rating == 5)
+
+
 server = http.server.ThreadingHTTPServer(
-    ("127.0.0.1", 0),
-    functools.partial(QuietHandler, directory=str(root / "docs")),
+    ('127.0.0.1', 0), functools.partial(Quiet, directory=str(ROOT / 'docs'))
 )
 threading.Thread(target=server.serve_forever, daemon=True).start()
 try:
     with sync_playwright() as pw:
         browser = pw.chromium.launch(
             executable_path=os.environ.get(
-                "CHROME_BIN", "/usr/bin/google-chrome-stable"
-            ),
-            args=["--no-sandbox"],
-        )
+                'CHROME_BIN', '/usr/bin/google-chrome-stable'),
+            args=['--no-sandbox'])
         for width in (320, 390, 900, 1600):
-            page = browser.new_page(viewport={"width": width, "height": 900})
+            page = browser.new_page(viewport={'width': width, 'height': 900})
             errors = []
-            page.on("pageerror", lambda error: errors.append(str(error)))
-            page.goto(
-                f"http://127.0.0.1:{server.server_port}/",
-                wait_until="networkidle",
-            )
-            page.wait_for_function(
-                "window.reviewWindow && window.currentMovieOffset >= 60"
-            )
-            page.evaluate("document.fonts.ready")
-            # Lazy renderer, every rating, linked and unlinked. Full width
-            # stars
-            # grow proportionally; five can overflow the face, never its tap
-            # target.
-            page.evaluate(("""
-() => {
-    const fixture = document.createElement('div');
-    fixture.id = 'rating-fixture';
-    fixture.style =
-        'display:flex;flex-wrap:wrap;gap:12px;background:white;padding:20px';
-    for (let n = 1; n <= 5; n++)
-        for (const url of ['https://example.com/', ''])
-            fixture.insertAdjacentHTML('beforeend',
-                '<div class="review-item">' +
-                createReviewPill({
-                    rating_stars: n,
-                    source_url: url,
-                    source_publication: 'hs'
-                }) + '</div>');
-    document.body.prepend(fixture);
-}
-"""))
-            assert page.locator("#rating-fixture .rating-pill").count() == 10
-            measure = (root / "scripts/rating_pill_geometry.js").read_text(
-                encoding="utf-8"
-            )
-            geometry = page.locator(
-                "#rating-fixture .rating-pill"
-            ).evaluate_all(measure)
-            assert all(
-                p["slots"] == 5 and p["empty"] == 5 - p["text"]
-                for p in geometry
-            )
-            assert all(
-                p["proportional"]
-                and p["inTarget"]
-                and p["ink"] == "rgb(255, 255, 255)"
-                for p in geometry
-            ), geometry
-            assert [p["fs"] for p in geometry[::2]] == [
-                12,
-                14,
-                17,
-                22,
-                29,
-            ], geometry
-            assert all(
-                "34, 197, 94" in p["glow"] for p in geometry[-2:]
-            ), geometry
-            assert all(
-                "34, 197, 94" not in p["faceShadow"] for p in geometry
-            ), geometry
-            if width < 769:
-                assert all(p["target"] >= 44 for p in geometry), geometry
-                actual_targets = page.locator(
-                    ".movie-card a.rating-pill"
-                ).evaluate_all(
-                    ("""
-nodes => nodes.filter(n => n.getBoundingClientRect()
-    .height > 0).map(n => n.getBoundingClientRect()
-    .height)
-""")
-                )
-                assert (
-                    actual_targets and min(actual_targets) >= 44
-                ), actual_targets
-            assert all(
-                abs(p["w"] - 88) < 0.1 and abs(p["h"] - 17) < 0.1
-                for p in geometry
-            ), geometry
-            # Negative controls: horizontal-only escape and the old face height
-            # must
-            # fail the same measurements, rather than only passing good CSS.
-            broken = page.add_style_tag(
-                content=(
-                    "#rating-fixture .stars-5 .rating-star { posit"
-                    "ion:relative; left:100px!important }"
-                )
-            )
-            assert not all(
-                p["inTarget"]
-                for p in page.locator(
-                    "#rating-fixture .rating-pill"
-                ).evaluate_all(measure)
-            )
-            broken.evaluate("n=>n.remove()")
-            old_face = page.add_style_tag(
-                content=(
-                    "#rating-fixture .rating-stars { "
-                    "height:28.8px!important }"
-                )
-            )
-            assert not all(
-                abs(p["h"] - 17) < 0.1
-                for p in page.locator(
-                    "#rating-fixture .rating-pill"
-                ).evaluate_all(measure)
-            )
-            old_face.evaluate("n=>n.remove()")
-            clipping = page.add_style_tag(
-                content=(
-                    "#rating-fixture .rating-stars { "
-                    "overflow:hidden!important }"
-                )
-            )
-            assert not all(
-                p["inTarget"]
-                for p in page.locator(
-                    "#rating-fixture .rating-pill"
-                ).evaluate_all(measure)
-            )
-            clipping.evaluate("n=>n.remove()")
-            slot_clip = page.add_style_tag(
-                content=(
-                    "#rating-fixture .rating-star { "
-                    "overflow:hidden!important }"
-                )
-            )
-            assert not all(
-                p["inTarget"]
-                for p in page.locator(
-                    "#rating-fixture .rating-pill"
-                ).evaluate_all(measure)
-            )
-            slot_clip.evaluate("n=>n.remove()")
-            # Paint fits the border box but escapes the inner scrollport.
-            border_pill = page.locator("#rating-fixture .stars-5").first
-            border_pill.evaluate(("""
-p => {
-    const wrapper = document.createElement('div');
-    wrapper.id = 'border-clip-control';
-    wrapper.style =
-        'border:20px solid black;width:96px;height:44px;overflow:hidden';
-    p.before(wrapper);
-    wrapper.append(p);
-    p.style.transform = 'translateX(-10px)';
-}
-"""))
-            assert not border_pill.evaluate(
-                "(p,code)=>eval(code)([p])[0].inTarget", measure
-            )
-            border_pill.evaluate(("""
-p => {
-    const wrapper = p.parentElement;
-    wrapper.before(p);
-    p.style.transform = "";
-    wrapper.remove()
-}
-"""))
-            page.screenshot(path=str(output / f"scale-{width}.png"))
-            page.locator("#rating-fixture").evaluate("e=>e.remove()")
-            assert page.evaluate(
-                "document.documentElement.scrollWidth <= innerWidth"
-            ), width
-            # Mark origin using the actual server markup, not current order.
-            from html.parser import HTMLParser
-
-            class ServerCards(HTMLParser):
-                titles = set()
-
-                def handle_starttag(self, tag, attrs):
-                    attrs = dict(attrs)
-                    if attrs.get("class") == "movie-card":
-                        self.titles.add(attrs["data-movie"])
-
-            initial = ServerCards()
-            initial.feed(
-                (root / "docs/index.html").read_text(encoding="utf-8")
-            )
-            page.evaluate("window.reviewWindow.prepare()")
-            # Ensure the lazy batch contains a five-star result too.
-            page.evaluate("loadMoreMovies(movieTitles.length)")
-            page.evaluate("window.reviewWindow.prepare()")
-            container = (
-                ".movie-card"
-                if width < 769
-                else "#review-container-desktop tbody tr"
-            )
-            page.locator(container).evaluate_all(
-                ("""
-(nodes, titles) => nodes.forEach(node => {
-    const title = node.dataset.movie || node
-        .querySelector(
-            '.movie-title-main')?.textContent
-        .trim();
-    node.dataset.testOrigin = titles.includes(
-            title) ?
-        'server' : 'lazy';
-})
-"""),
-                list(initial.titles),
-            )
-            check_ink = "(p,code)=>eval(code)([p])[0].inTarget"
-
-            def check_page_pill(pill):
-                pill.scroll_into_view_if_needed()
-                assert pill.evaluate(check_ink, measure)
-                saved = pill.evaluate("""p => {
-                    const a=p.closest('.review-item')
-                        || p.closest('.table-wrapper');
-                    const old=a.getAttribute('style');
-                    Object.assign(a.style, {minHeight:'0',height:'1px',
-                        maxHeight:'1px',overflow:'hidden'});
-                    return old;
-                }""")
-                assert not pill.evaluate(check_ink, measure)
-                pill.evaluate(
-                    """(p,old) => {
-                    const a=p.closest('.review-item')
-                        || p.closest('.table-wrapper');
-                    if(old===null)a.removeAttribute('style');
-                    else a.setAttribute('style',old);
-                }""",
-                    saved,
-                )
-
-            for origin in ("server", "lazy"):
-                page.evaluate("window.reviewWindow.prepare()")
-                candidates = page.locator(
-                    container
-                    + '[data-test-origin="'
-                    + origin
-                    + '"] '
-                    + "a.rating-pill.stars-5"
-                )
-                assert candidates.count() > 0, (width, origin)
-                sample = candidates.first
-                sample.scroll_into_view_if_needed()
-                assert sample.evaluate(check_ink, measure), (width, origin)
-                # Exercise each template branch in place, never add a second
-                # pill to a phone lane sized for one review.
-                original_html = sample.evaluate("p=>p.outerHTML")
-                original_count = (
-                    sample.locator("..").locator(".rating-pill").count()
-                )
-                check_page_pill(sample)
-                if origin == "server":
-                    env = Environment(
-                        loader=FileSystemLoader(root / "templates"),
-                        autoescape=True,
-                    )
-                    env.filters["publication_name"] = str
-                    review = dict(
-                        rating_stars=5,
-                        source_url="",
-                        review_text="",
-                        publication=dict(short_name="hs", name="HS"),
-                    )
-                    template = (
-                        "_movie_card.html"
-                        if width < 769
-                        else "_movie_row.html"
-                    )
-                    html = env.get_template(template).render(
-                        movie_title="Crown test",
-                        critics_reviews={"Test critic": [review]},
-                        all_critics=[dict(name="Test critic", id="test")],
-                        poster_urls={},
-                        letterboxd_urls={},
-                        nytleffaan_urls={},
-                        movie_review_counts={},
-                        movie_rating_distributions={},
-                    )
-                    soup = BeautifulSoup(html, "html.parser")
-                    unlinked_html = str(
-                        soup.select_one("span.rating-pill.stars-5")
-                    )
-                    assert unlinked_html != "None"
-                else:
-                    unlinked_html = page.evaluate("""() => createReviewPill({
-                        rating_stars:5, source_url:'', source_publication:'hs'
-                    })""")
-                # Keep the replacement element itself. A matching earlier
-                # catalog record must never receive this check or restoration.
-                unlinked = sample.evaluate_handle(
-                    """(p,html) => {
-                    const template=document.createElement('template');
-                    template.innerHTML=html.trim();
-                    const replacement=template.content.firstElementChild;
-                    p.replaceWith(replacement);
-                    return replacement;
-                }""",
-                    unlinked_html,
-                ).as_element()
-                assert unlinked is not None
-                assert (
-                    unlinked.evaluate(
-                        "p=>p.parentElement.querySelectorAll('.rating-pill').length"
-                    )
-                    == original_count
-                )
-                # An earlier same-origin unlinked crown is a selection decoy.
-                # Keep it outside the lane and ensure restoration ignores it.
-                decoy = unlinked.evaluate_handle("""p => {
-                    const decoy=p.cloneNode(true);
-                    decoy.dataset.identityDecoy='true';
-                    decoy.style.display='none';
-                    p.before(decoy);
-                    return decoy;
-                }""").as_element()
-                assert not unlinked.evaluate("(p,d)=>p===d", decoy)
-                check_page_pill(unlinked)
-                lane = unlinked.evaluate_handle("p=>p.parentElement")
-                unlinked.evaluate("(p, html)=>p.outerHTML=html", original_html)
-                assert lane.evaluate(
-                    "(n,html)=>[...n.children].some(p=>p.outerHTML===html)",
-                    original_html,
-                )
-                assert decoy.evaluate("p=>p.isConnected && p.tagName==='SPAN'")
-                decoy.evaluate("p=>p.remove()")
-            page.screenshot(path=str(output / f"context-{width}.png"))
+            page.on('pageerror', lambda e: errors.append(str(e)))
+            page.goto(f'http://127.0.0.1:{server.server_port}',
+                      wait_until='networkidle')
+            page.wait_for_function('window.currentMovieOffset>=60')
             if width >= 769:
-                page.locator("#windowing-toggle").check()
-            page.evaluate(("""
-() => {
-    const s = document.querySelector(
-        '#star-filter-slider');
-    s.value = '4';
-    window.filterByStars(4);
-    window.reconcileFacetVisibility();
-}
-"""))
-            selector = (
-                ".movie-card .review-item"
-                if width < 769
-                else "tbody .rating-pill"
-            )
-            counts = page.locator(selector).evaluate_all(("""
-nodes => nodes.filter(n => n.checkVisibility({
-    checkVisibilityCSS: true
-}) && n.getBoundingClientRect().height > 0).map(n => n
-    .querySelector('.rating-stars')?.textContent
-    .length).filter(Boolean)
-"""))
-            assert counts and all(n >= 4 for n in counts), (width, counts)
+                page.locator('#windowing-toggle').check()
+            page.evaluate('window.reviewWindow.prepare()')
+            selector = ('.movie-card .rating-pill' if width < 769 else
+                        '#review-container-desktop td .rating-pill')
+            # One known real ancestor; replace, never crowd a narrow lane.
+            slot = page.locator(selector).first
+            host = slot.evaluate_handle('p=>p.parentElement')
+            original = slot.evaluate('p=>p.outerHTML')
+            page.evaluate('''() => {
+                const scale=document.createElement('div');scale.id='scale';
+                scale.style='display:flex;gap:12px;flex-wrap:wrap;padding:20px';
+                for(let n=1;n<=5;n++)scale.insertAdjacentHTML('beforeend',
+                    createReviewPill({rating_stars:n,source_url:'',
+                        source_publication:'hs'}));
+                document.body.prepend(scale);
+            }''')
+            page.screenshot(path=str(OUT / f'scale-{width}.png'))
+            page.locator('#scale').evaluate('n=>n.remove()')
+            for origin in ('server', 'lazy'):
+                for linked in (False, True):
+                    for rating in range(1, 6):
+                        html = server_pill(rating, linked, width < 769)
+                        if origin == 'lazy':
+                            html = page.evaluate('''r=>createReviewPill(r)''', {
+                                'rating_stars': rating,
+                                'source_url': 'https://example.com/'
+                                if linked else '', 'source_publication': 'hs'})
+                        pill = host.evaluate_handle('''(host,html)=>{
+                            host.querySelector('.rating-pill').outerHTML=html;
+                            return host.querySelector('.rating-pill');
+                        }''', html).as_element()
+                        pill.scroll_into_view_if_needed()
+                        assert pill.evaluate('p=>p.tagName') == (
+                            'A' if linked else 'SPAN')
+                        verify(pill, rating)
+                        if linked:
+                            before = pill.evaluate(MEASURE)
+                            pill.hover()
+                            page.wait_for_timeout(180)
+                            assert pill.evaluate(MEASURE) == before
+                            pill.focus()
+                            assert pill.evaluate(
+                                "p=>getComputedStyle(p).outlineStyle") != 'none'
+                        # Negative: horizontal escape and ancestor clipping.
+                        bad = page.add_style_tag(content=(
+                            '.rating-star {left:110px!important}'))
+                        assert not all(s['clear'] for s in
+                                       pill.evaluate(MEASURE)['stars'])
+                        bad.evaluate('n=>n.remove()')
+                        clip_host = pill.evaluate_handle('''p=>
+                            p.closest('.review-item') ||
+                            p.closest('.table-wrapper')''')
+                        saved = clip_host.evaluate('''h=>{
+                            const old=h.getAttribute('style');
+                            Object.assign(h.style,{height:'1px',
+                                maxHeight:'1px',minHeight:'0',overflow:'hidden'});
+                            return old;
+                        }''')
+                        assert not all(s['clear'] for s in
+                                       pill.evaluate(MEASURE)['stars'])
+                        clip_host.evaluate('''(h,old)=>old===null
+                            ?h.removeAttribute('style'):h.setAttribute(
+                                'style',old)''', saved)
+                        verify(pill, rating)
+            host.evaluate('''(h,html)=>{
+                h.querySelector('.rating-pill').outerHTML=html;
+            }''', original)
+            page.evaluate('window.scrollTo(0,0)')
+            page.screenshot(path=str(OUT / f'context-{width}.png'))
+            assert page.evaluate(
+                'document.documentElement.scrollWidth<=innerWidth')
+            page.emulate_media(reduced_motion='reduce')
+            assert page.locator(selector).first.evaluate(
+                "p=>getComputedStyle(p).animationName") == 'none'
             assert not errors, errors
-            print(
-                width,
-                "geometry, renderer-origin coverage and star filter passed",
-            )
+            print(width, 'server/lazy linked/unlinked 1-5 geometry passed')
             page.close()
         browser.close()
 finally:
