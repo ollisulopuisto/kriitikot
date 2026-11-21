@@ -75,6 +75,11 @@ with tempfile.TemporaryFile() as log:
                 def same(label):
                     for p in pages:
                         p.wait_for_timeout(150)
+                    # Use the same viewport offset after browser scroll anchoring
+                    # reacts to filtering; do not restore either collection here.
+                    y = pages[0].evaluate("window.scrollY")
+                    pages[1].evaluate("(y)=>window.scrollTo(0,y)", y)
+                    pages[1].wait_for_timeout(60)
                     # Inspect the actual mounted slice before MODEL restores it.
                     mounted = pages[0].evaluate(
                         """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
@@ -89,11 +94,21 @@ with tempfile.TemporaryFile() as log:
                         row["title"] in allowed for row in mounted
                     ), f"{label}: wrong filtered content mounted"
                     required = pages[1].evaluate(
-                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.top>=250&&r.bottom<=innerHeight;}).map(n=>mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent);}"""
+                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
                     )
-                    assert set(required) <= {
-                        row["title"] for row in mounted
-                    }, f"{label}: viewport result missing from mounted slice"
+                    positions = {row["title"]: row for row in mounted}
+                    for row in required:
+                        assert (
+                            row["title"] in positions
+                        ), f"{label}: partly/fully visible result missing"
+                        actual = positions[row["title"]]
+                        assert (
+                            actual["bottom"] > 0 and actual["top"] < height
+                        ), f"{label}: viewport film mounted only in overscan"
+                        assert (
+                            abs(actual["top"] - row["top"]) < 3
+                            and abs(actual["bottom"] - row["bottom"]) < 3
+                        ), f"{label}: mounted result geometry differs from full view {actual} {row}"
                     models = [p.evaluate(MODEL) for p in pages]
                     if models[0] != models[1]:
                         (output / "mismatch.json").write_text(
@@ -285,6 +300,14 @@ with tempfile.TemporaryFile() as log:
                     )
                     == expected_films
                 )
+                # Create a real indexed pinned header in desktop mode before
+                # printing, proving the assertion cannot pass on an absent clone.
+                page.set_viewport_size({"width": 1600, "height": 900})
+                page.evaluate("window.scrollTo(0,1000)")
+                page.wait_for_timeout(150)
+                page.evaluate("window.refreshStickyHeader()")
+                page.wait_for_selector("#sticky-thead-clone [aria-colindex]")
+                assert page.locator("#sticky-thead-clone").count() == 1
                 page.evaluate('window.dispatchEvent(new Event("beforeprint"))')
                 assert (
                     page.locator(
