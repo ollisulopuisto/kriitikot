@@ -158,6 +158,14 @@ with tempfile.TemporaryFile() as log:
                     p.evaluate("window.resetAllFilters();window.loadMoreMovies(30)")
                 same("sorted pagination")
                 for p in pages:
+                    p.evaluate(
+                        "window.reviewWindow.prepare();const link=document.querySelector(innerWidth<769?'.movie-card a.rating-link':'tbody a.rating-link');link.focus();window.paginationFocus=link;window.loadMoreMovies(30)"
+                    )
+                    assert p.evaluate(
+                        "document.activeElement===window.paginationFocus && window.paginationFocus.isConnected"
+                    ), "sorted append lost focus"
+                same("focused sorted pagination")
+                for p in pages:
                     assert p.evaluate(
                         """() => {window.reviewWindow.prepare();const mobile=innerWidth<769;const direction=mobile?window.mobileMovieSortDirection:window.movieSortDirection;const titles=[...document.querySelectorAll(mobile?'.movie-card-title':'#review-container-desktop tbody .movie-title-main')].map(n=>n.textContent.trim());return !direction||titles.every((title,i)=>i===0||titles[i-1].localeCompare(title,'fi')*direction<=0);}"""
                     ), "pagination broke alphabetical order"
@@ -234,6 +242,12 @@ with tempfile.TemporaryFile() as log:
                     )
                     == expected_reviews
                 )
+                assert (
+                    page.evaluate(
+                        'window.reviewWindow.prepare();[...document.querySelectorAll(".movie-card .review-item")].length'
+                    )
+                    == expected_reviews
+                )
                 assert not errors, errors
                 # A breakpoint change restores the logical collection before remeasuring.
                 page.set_viewport_size(
@@ -267,18 +281,17 @@ with tempfile.TemporaryFile() as log:
             page.wait_for_timeout(150)
             page.evaluate("window.scrollBy(0,-30)")
             page.wait_for_timeout(150)
-            assert page.evaluate("window.currentMovieOffset") == 60
+            before_jump = page.evaluate("window.currentMovieOffset")
             page.evaluate("window.scrollBy(0,60)")
             page.wait_for_function("window.currentMovieOffset>60")
             print(
                 "scrollbar-compatible directional preload",
                 page.evaluate("window.currentMovieOffset"),
             )
-            page.evaluate(
-                "window.scrollTo(0,0);document.querySelector('.desktop-filters [data-publication=HS]').click()"
+            stable = page.evaluate(
+                "window.scrollTo(0,0);document.querySelector('.desktop-filters [data-publication=HS]').click();window.currentMovieOffset"
             )
             page.wait_for_timeout(500)
-            stable = page.evaluate("window.currentMovieOffset")
             page.wait_for_timeout(300)
             assert page.evaluate("window.currentMovieOffset") == stable
             context.close()

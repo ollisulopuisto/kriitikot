@@ -83,6 +83,7 @@
                     cell.className = 'window-skeleton';
                     cell.style.height = rect.height + 'px';
                     node.setAttribute('aria-rowindex', String(index + 2));
+                    Array.from(node.cells).forEach((cell, column) => cell.setAttribute('aria-colindex', String(column + 1)));
                 }
                 return { node, spacer, desktop, height: rect.height, visible: style.display !== 'none' };
             });
@@ -196,18 +197,26 @@
         const more = document.getElementById('load-more-button');
         let moreInRange = false;
         let preloadY = window.scrollY;
+        let pendingDownY = null;
+        function attemptPreload() {
+            if (enabled && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
+                pendingDownY === window.scrollY && moreInRange && more.offsetParent !== null && !more.disabled) {
+                pendingDownY = null;
+                more.click();
+            }
+        }
         function maybePreload() {
             const y = window.scrollY;
-            const down = y > preloadY;
+            pendingDownY = y > preloadY && !dirty && performance.now() >= suppressPreloadUntil ? y : null;
             preloadY = y;
-            if (enabled && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
-                down && moreInRange && more.offsetParent !== null && !more.disabled) more.click();
+            attemptPreload();
         }
         const preload = typeof IntersectionObserver === 'function' && more
             ? new IntersectionObserver(entries => {
                 moreInRange = entries.some(e => e.isIntersecting);
-                // The observer records proximity only. Real downward movement,
-                // including native scrollbar navigation, is handled below.
+                // A jump can emit scroll before proximity is delivered. Retain
+                // only the latest downward movement, never an old/upward intent.
+                attemptPreload();
             }, { rootMargin: '150% 0px' }) : null;
         if (preload) {
             preload.observe(more);

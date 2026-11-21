@@ -665,6 +665,7 @@ window.initPublicationFilterClickHandlers = initPublicationFilterClickHandlers;
 
 // Keep subsequently loaded batches in the selected alphabetical order.
 window.applyMovieSortOrder = function () {
+    const focused = document.activeElement;
     const collections = [
         [document.querySelector('#review-container-desktop tbody'), 'tr:not(.poster-row)', '.movie-title-main', window.movieSortDirection],
         [document.querySelector('.mobile-cards'), '.movie-card', '.movie-card-title', window.mobileMovieSortDirection]
@@ -675,4 +676,5 @@ window.applyMovieSortOrder = function () {
             (a.querySelector(title)?.textContent.trim() || '').localeCompare(b.querySelector(title)?.textContent.trim() || '', 'fi') * direction
         ).forEach(node => container.appendChild(node));
     });
+    if (focused && focused !== document.body && focused.isConnected && document.activeElement !== focused) focused.focus({ preventScroll: true });
 };
