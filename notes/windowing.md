@@ -56,4 +56,6 @@ The comparison now approaches each filtered/sorted state in both scroll directio
 
 Exact overscan membership is now required in both directions, not merely bounded from above. A viewport-only mutation fails the missing-overscan assertion. Print media checks verify every review pill has positive geometry and visible styles, and each logical cell is visible unless both it and its empty critic column are intentionally hidden. A print-only CSS mutation hiding critic cells fails the check.
 
+Print visibility uses Chromium's ancestor-aware checkVisibility with opacity and visibility checks enabled. A transparent table-body mutation now fails even though each child retains geometry and computed opacity.
+
 </details>

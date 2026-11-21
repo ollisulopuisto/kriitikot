@@ -361,11 +361,11 @@ with tempfile.TemporaryFile() as log:
                 assert all(row["height"] > 0 and row["cells"] == header_count and row["spacers"] == 0 for row in print_geometry), "print media did not lay out the complete review rows"
                 assert page.locator("#review-container-desktop").evaluate("n=>getComputedStyle(n).display") != "none"
                 print_cells = page.locator("#review-container-desktop tbody td:not(.filler-column)").evaluate_all(
-                    "nodes=>nodes.map(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n),h=document.querySelector('#review-container-desktop thead tr').cells[n.cellIndex];return (r.width>0&&r.height>0&&s.display!=='none'&&s.visibility==='visible'&&Number(s.opacity)>0)||(!n.querySelector('.rating-pill')&&getComputedStyle(h).display==='none')})"
+                    "nodes=>nodes.map(n=>{const r=n.getBoundingClientRect(),h=document.querySelector('#review-container-desktop thead tr').cells[n.cellIndex];return (r.width>0&&r.height>0&&n.checkVisibility({checkOpacity:true,checkVisibilityCSS:true,contentVisibilityAuto:true}))||(!n.querySelector('.rating-pill')&&getComputedStyle(h).display==='none')})"
                 )
                 assert print_cells and all(print_cells), "print media hid logical review cells"
                 print_ratings = page.locator("#review-container-desktop tbody .rating-pill").evaluate_all(
-                    "nodes=>nodes.map(n=>{const r=n.getBoundingClientRect(),s=getComputedStyle(n);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility==='visible'&&Number(s.opacity)>0})"
+                    "nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.height>0&&n.checkVisibility({checkOpacity:true,checkVisibilityCSS:true,contentVisibilityAuto:true})})"
                 )
                 assert len(print_ratings) == expected_reviews and all(print_ratings), "print media hid ratings"
                 page.screenshot(path=str(output / f"{device}-print-media.png"))
