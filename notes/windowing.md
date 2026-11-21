@@ -94,3 +94,13 @@ not eager-load-all. Downward pagination remains available in either mode.
 phone restoration/pagination checks passed;900/1600desktop checked tail search,
 sticky clone search and saved preference after reload. Physical devices,
 Safari/Firefox, screen readers and fresh full print exercise unrun.
+## Proportional rating stars, selected B
+
+Five equal slots and the red/orange/yellow/blue/green palette remain. The owner
+selected the proportional redraw B, with a thinner17px face and12/14/17/22/29px
+glyph sizes. No horizontal scaling. Five-star tips may overlap and break out of
+the face; static green glow belongs to the white glyphs, not the face.40px
+desktop and44px phone tap targets remain. Numeric accessible labels and text
+counts stay unchanged. Chromium checks320/390/900/1600cover proportional
+transforms, intended size progression, glow target, touch targets, page width
+and star filters. Physical devices, Safari/Firefox and screen readers unrun.

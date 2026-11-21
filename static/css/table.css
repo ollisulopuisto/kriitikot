@@ -764,7 +764,8 @@ tbody tr td.window-odd-column { background-color: white; }
 tbody tr:nth-child(even) td.window-even-column { background-color: #f0f4ff; }
 tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
 
-/* 10E C: fixed five slots, larger stars inside the existing pill height.
+/* Proportional size curve and star-only glow, selected sketch B.
+   Fixed five slots with a thinner face and a higher five-star crown.
    Only awarded stars are text; empty CSS stars do not change facet counts. */
 .rating-pill,
 .review-item .rating-pill {
@@ -780,13 +781,13 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     align-items: center;
     width: 5.5rem;
     min-width: 5.5rem;
-    height: 1.8rem;
+    height: 1.0625rem;
     padding: 0 .15rem;
     box-sizing: border-box;
     border-radius: inherit;
     box-shadow: 0 1px 2px rgba(24, 16, 4, .14);
     font-family: Arial, sans-serif;
-    font-size: 1.65rem;
+    font-size: var(--rating-star-size, .75rem);
     line-height: 1;
     letter-spacing: 0;
 }
@@ -795,11 +796,19 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     justify-content: center;
     flex: 1 0 0;
     min-width: 0;
-    transform: scaleX(.82);
+    transform: none;
+    overflow: visible;
 }
 .rating-star-empty { opacity: .24; }
 .rating-star-empty::before { content: "★"; }
 
 .rating-pill:hover .rating-stars { box-shadow: 0 3px 8px rgba(24, 16, 4, .24); }
-.rating-pill.stars-5 .rating-stars { box-shadow: 0 1px 3px rgba(24,16,4,.2), 0 0 10px rgba(34,197,94,.4); }
-.rating-pill.stars-5:hover .rating-stars { box-shadow: 0 4px 12px rgba(24,16,4,.28), 0 0 16px rgba(34,197,94,.55); }
+.rating-pill.stars-1 { --rating-star-size: .75rem; }
+.rating-pill.stars-2 { --rating-star-size: .875rem; }
+.rating-pill.stars-3 { --rating-star-size: 1.0625rem; }
+.rating-pill.stars-4 { --rating-star-size: 1.375rem; }
+.rating-pill.stars-5 { --rating-star-size: 1.8125rem; }
+.rating-pill.stars-5 .rating-star {
+    text-shadow: 0 0 .5px #451a03, 0 .5px .5px #451a03,
+        0 0 2px #bbf7d0, 0 0 5px #22c55e, 0 0 7px rgba(34,197,94,.8);
+}

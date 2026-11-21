@@ -6,6 +6,15 @@ const helpers = app.slice(app.indexOf('function escapeHtml('), app.indexOf('// D
 const create = app.slice(app.indexOf('function createReviewPill('), app.indexOf('/**\n * Renderöi elokuvarivin', app.indexOf('function createReviewPill(')));
 const render = new Function('review', `const allPublicationMap={};${helpers}${create};return createReviewPill(review);`);
 describe('five fixed rating slots',()=>{
+ it('keeps proportional sizes and glow on the glyphs in both published stylesheets',()=>{
+  const css=readFileSync('static/css/table.css','utf8');
+  expect(css).toBe(readFileSync('docs/static/css/table.css','utf8'));
+  expect(css).not.toMatch(/scaleX\(/);
+  for(const [rating,size] of [[1,'.75'],[2,'.875'],[3,'1.0625'],[4,'1.375'],[5,'1.8125']])
+   expect(css).toContain(`.rating-pill.stars-${rating} { --rating-star-size: ${size}rem; }`);
+  expect(css).toContain('.rating-pill.stars-5 .rating-star {');
+  expect(css).not.toMatch(/stars-5[^{}]*\.rating-stars\s*\{[^}]*box-shadow/);
+ });
  for(let rating=1;rating<=5;rating++) for(const url of ['https://example.com/review','']) {
   it(`renders ${rating}/5 with ${url?'a link':'no link'} without changing the numeric text`,()=>{
    document.body.innerHTML=render({rating_stars:rating,source_url:url,source_publication:'hs'});

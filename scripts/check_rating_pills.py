@@ -30,7 +30,7 @@ try:
             page.wait_for_function('window.reviewWindow && window.currentMovieOffset >= 60')
             page.evaluate('document.fonts.ready')
             # Lazy renderer, every rating, linked and unlinked. Full width stars
-            # must stay within both the colored face and the link target.
+            # grow proportionally; five can overflow the face, never its tap target.
             page.evaluate('''() => {
                 const fixture=document.createElement('div');fixture.id='rating-fixture';
                 fixture.style='display:flex;flex-wrap:wrap;gap:12px;background:white;padding:20px';
@@ -44,11 +44,18 @@ try:
                 return {w:r.width,h:r.height,target:target.height,text:s.textContent.length,
                     slots:s.children.length,empty:s.querySelectorAll('.rating-star-empty').length,
                     ink:getComputedStyle(s).color,bg:getComputedStyle(s).backgroundImage,
+                    fs:parseFloat(getComputedStyle(s).fontSize),
+                    proportional:[...s.children].every(c=>getComputedStyle(c).transform==='none'),
+                    glow:getComputedStyle(s.firstElementChild).textShadow,
+                    faceShadow:getComputedStyle(s).boxShadow,
                     fits:[...s.children].every(c=>{const b=c.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right&&b.top>=r.top&&b.bottom<=r.bottom}),
-                    inTarget:r.top>=target.top&&r.bottom<=target.bottom};
+                    inTarget:[...s.children].every(c=>{const b=c.getBoundingClientRect();return b.top>=target.top&&b.bottom<=target.bottom})};
             })''')
             assert all(p['slots'] == 5 and p['empty'] == 5-p['text'] for p in geometry)
-            assert all(p['fits'] and p['inTarget'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry)
+            assert all(p['proportional'] and p['inTarget'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry),geometry
+            assert [p['fs'] for p in geometry[::2]] == [12,14,17,22,29],geometry
+            assert all('34, 197, 94' in p['glow'] for p in geometry[-2:]),geometry
+            assert all('34, 197, 94' not in p['faceShadow'] for p in geometry),geometry
             if width < 769:
                 assert all(p['target'] >= 44 for p in geometry), geometry
                 actual_targets = page.locator('.movie-card a.rating-pill').evaluate_all(
