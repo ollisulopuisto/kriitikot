@@ -198,7 +198,15 @@ function initStickyTableHeader() {
         if (theadClone) {
             // Preserve the focused search node across table-sort refreshes.
             const focused = theadClone.contains(document.activeElement) && document.activeElement.matches('.film-search') ? document.activeElement : null;
-            if (focused) { syncColumnWidths(); handleScroll(); return; }
+            if (focused) {
+                const original = [...thead.querySelectorAll('th')];
+                const clonedRow = theadClone.tHead.rows[0];
+                // Keep only the live search cell; refresh critic identity/order,
+                // visibility and controls from their current originals.
+                [...clonedRow.cells].slice(1).forEach(cell=>cell.remove());
+                original.slice(1).forEach(cell=>clonedRow.appendChild(cell.cloneNode(true)));
+                syncColumnWidths(); handleScroll(); return;
+            }
             if (theadClone.wrapperElement) {
                 theadClone.wrapperElement.remove();
             } else {

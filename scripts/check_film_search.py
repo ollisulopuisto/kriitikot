@@ -36,6 +36,10 @@ try:
             page.locator('#review-container-desktop tbody .movie-title-main', has_text=title).click()
             assert visible() == [title]
             assert page.locator('.film-search').first.input_value() == title
+            # Editing the query clears movie-only selection without dropping facets.
+            page.locator('.film-search').first.fill('')
+            page.wait_for_timeout(250)
+            assert page.locator('tbody tr[data-filtered="true"]').count() == 0
             page.evaluate('window.resetAllFilters()')
             assert page.evaluate('window.currentMovieOffset') == 60
             assert page.locator('.movie-card').count() == 60
@@ -53,6 +57,20 @@ try:
             assert pinned.evaluate('n=>n===document.activeElement')
             page.wait_for_timeout(80)
             assert pinned.evaluate('n=>{const r=n.getBoundingClientRect(),f=document.querySelector(".desktop-filters").getBoundingClientRect();return r.top>=f.bottom && document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===n}')
+            pinned.fill('go')
+            page.wait_for_timeout(250)
+            def header_parity():
+                return page.evaluate('''() => {
+                    const cells=selector=>[...document.querySelectorAll(selector)].map(n=>[n.dataset.criticId,n.style.display,n.classList.contains('filter-hidden')]);
+                    return JSON.stringify(cells('#review-container-desktop thead th.rating-cell'))===JSON.stringify(cells('#sticky-thead-clone th.rating-cell'));
+                }''')
+            assert header_parity()
+            pinned.press('Tab')
+            page.wait_for_timeout(100)
+            if page.locator('#sticky-thead-clone').count():
+                assert header_parity()
+            else:
+                assert page.locator('#review-container-desktop thead').evaluate('n=>n.style.visibility') == 'visible'
             page.screenshot(path=str(out / f'pinned-{width}.png'))
             page.set_viewport_size({'width': 390, 'height': 844})
             assert page.locator('#sticky-thead-wrapper').count() == 0
@@ -60,6 +78,13 @@ try:
             assert not errors, errors
             page.close()
             print(width, 'sparse tail, sort, selection, reset, pinned focus, phone cleanup passed')
+        page = browser.new_page(viewport={'width':1200,'height':900})
+        page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='networkidle')
+        page.locator('.film-search').fill('a')
+        page.wait_for_timeout(220)
+        page.evaluate('''() => {window.rememberSliderWindow();const s=document.querySelector('#star-filter-slider');s.value=5;window.filterByStars(5);window.topUpSliderResults();}''')
+        assert page.locator('.movie-card').count() < 100
+        page.close()
         # Query before JSON arrives must be re-evaluated after it is available.
         page = browser.new_page(viewport={'width': 1200, 'height': 900})
         page.add_init_script('''const originalFetch=window.fetch;window.fetch=(url,...args)=>String(url).includes('reviews.json')?new Promise(resolve=>{window.releaseReviews=()=>resolve(originalFetch(url,...args));}):originalFetch(url,...args);''')

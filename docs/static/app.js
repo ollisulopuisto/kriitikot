@@ -57,10 +57,17 @@ function initFilmSearch() {
         document.querySelectorAll('.film-search').forEach(input => { if (input !== event.target) input.value = value; });
         clearTimeout(timer);
         timer = setTimeout(() => {
+            window.reviewWindow?.prepare();
+            document.querySelectorAll('tbody tr[data-filtered="true"], .movie-card[data-filtered="true"]').forEach(node=>{
+                delete node.dataset.filtered;
+                node.classList.remove('selected', 'dimmed');
+                node.querySelectorAll('.selected, .dimmed').forEach(n=>n.classList.remove('selected', 'dimmed'));
+            });
             window.rememberSliderWindow?.();
             filmSearchQuery = value.trim().normalize('NFC').toLocaleLowerCase('fi');
             window.topUpSliderResults?.();
             window.reconcileFacetVisibility?.();
+            window.refreshStickyHeader?.();
             if (filmSearchQuery) window.showResetButton?.();
         }, 120);
     });
@@ -961,7 +968,8 @@ function loadMoreMovies(batchSize = movieLimit, missingTitles = null) {
     }
 
     const scannedTitles = missingTitles || movieTitles.slice(currentMovieOffset, currentMovieOffset + batchSize);
-    const moviesToRender = scannedTitles.filter(matchesFilmSearch);
+    const searchState = filmSearchQuery ? currentFacetState() : null;
+    const moviesToRender = scannedTitles.filter(title => matchesFilmSearch(title) && (!searchState || movieHasFacetMatch(title, searchState)));
 
     if (scannedTitles.length === 0) {
         loadMoreButton.parentElement.style.display = 'none';
@@ -1312,7 +1320,21 @@ function topUpSliderResults() {
         // Varmista että ladattujen joukossa riittää osumia erätavoitteeseen
         while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
             const before = currentMovieOffset;
-            loadMoreMovies(filmSearchQuery ? movieTitles.length - currentMovieOffset : movieLimit);
+            let scanCount = movieLimit;
+            if (filmSearchQuery) {
+                const state = currentFacetState();
+                let reviews = loadedMatchingReviewCount();
+                scanCount = 0;
+                for (const title of movieTitles.slice(currentMovieOffset)) {
+                    scanCount++;
+                    if (movieHasFacetMatch(title, state)) {
+                        for (const [critic, items] of Object.entries(allGroupedReviews[title]))
+                            reviews += items.filter(review => reviewMatchesFacetState(review, critic, state)).length;
+                    }
+                    if (reviews >= facetRevealCount) break;
+                }
+            }
+            loadMoreMovies(scanCount);
             if (currentMovieOffset <= before) break;
         }
     } else if (!restoring && !facetsActive) {
