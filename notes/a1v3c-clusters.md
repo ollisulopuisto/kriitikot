@@ -27,3 +27,9 @@ No scraping, database changes, site regeneration, deployment or merge is part of
 The first Devin analysis completed on 8e8bdbb with a real forced-colors/print defect and a request to also check untouched published/lazy placement. Independently reproduced the first defect in Chrome and inspected the missing ratings. Print and forced-colors now use the already-present awarded-star text, monochrome system ink and no glow, so background suppression cannot erase the rating. Normal screen drawing is unchanged.
 
 The second pre-push adversarial pass covered entry/exit of both background-free modes, linked and unlinked counts 1–5 at all four widths, source/published parity and restoration to screen styles. Added untouched published and lazy row/card samples alongside the catalog-independent exhaustive matrix, plus a background-disabled PDF capture. Re-ran frontend, Python and both browser suites; all remain green. Inspected forced-colors, print and normal-screen pixels before pushing.
+
+## Second review follow-up
+
+Strengthened the fallback oracle to reject hidden or zero-opacity stars and ancestors, and require positive glyph bounds. Negative controls exercise both visibility and opacity on a star and its rating ancestor, with transitions disabled during the control. Added pixel-difference checks between real fallback ink and the same rating with only its stars hidden. Existing PDF and full-page captures are also visually inspected. Wrapped all browser script lines to 79 characters and fixed set spacing.
+
+The third pre-push pass covered fallback success, deliberately hidden failure, restoration, both media modes and source/published parity. Frontend 72, Python 321 plus 1 skip, rating/browser matrices and search regressions passed again. This follow-up changes tests and notes only, not the screen design or hover behavior.

@@ -1,16 +1,18 @@
 """Chromium A1v3c smoke, no scrape or deployment.
 
-Install project requirements and Playwright, BeautifulSoup4 and Jinja2.
+Install project requirements, Playwright, BeautifulSoup4, Pillow and Jinja2.
 System Chrome is required (or set CHROME_BIN).
 """
 import functools
 import http.server
+import io
 import os
 from pathlib import Path
 import threading
 
 try:
     from bs4 import BeautifulSoup
+    from PIL import Image, ImageChops
     from jinja2 import Environment, FileSystemLoader
     from playwright.sync_api import sync_playwright
 except ImportError as error:
@@ -36,7 +38,8 @@ MEASURE = '''p=>{
     const cellBounds=cell?.getBoundingClientRect();
     const fitsCell=!cellBounds || (f.left>=cellBounds.left &&
         f.right<=cellBounds.right);
-    const stars=[...face.children].filter(n=>getComputedStyle(n).display!=='none');
+    const stars=[...face.children]
+        .filter(n=>getComputedStyle(n).display!=='none');
     return {width:f.width,height:f.height,fitsCell,text:face.textContent,
         label:face.getAttribute('aria-label'),
         shape:getComputedStyle(stars[0],'::before').clipPath,
@@ -60,6 +63,47 @@ MEASURE = '''p=>{
                 w:b.width,h:b.height,clear};
         })};
 }'''
+
+FALLBACK = '''p=>{
+    const face=p.querySelector('.rating-stars');
+    const stars=[...face.querySelectorAll('.rating-star')]
+        .filter(n=>getComputedStyle(n).display!=='none');
+    return {text:face.textContent, count:stars.length,
+        visible:stars.every(n=>{
+            const cs=getComputedStyle(n),box=n.getBoundingClientRect();
+            for(let a=n;a;a=a.parentElement){
+                const ancestor=getComputedStyle(a);
+                if(ancestor.visibility!=='visible' ||
+                   Number(ancestor.opacity)===0) return false;
+            }
+            return n.checkVisibility({checkVisibilityCSS:true,
+                       checkOpacity:true}) &&
+                box.width>0 && box.height>0 &&
+                parseFloat(cs.fontSize)>0 &&
+                getComputedStyle(n,'::before').content==='none' &&
+                getComputedStyle(n,'::after').content==='none' &&
+                cs.filter==='none';
+        })};
+}'''
+
+
+def verify_fallback(pill, rating):
+    result = pill.evaluate(FALLBACK)
+    assert result == dict(text='★'*rating, count=rating, visible=True), result
+
+
+def verify_fallback_pixels(pill):
+    """Compare visible ink with the identical frame with only stars hidden."""
+    visible = Image.open(io.BytesIO(pill.screenshot())).convert('RGB')
+    stars = pill.query_selector_all('.rating-star')
+    for star in stars:
+        star.evaluate("n=>n.style.visibility='hidden'")
+    hidden = Image.open(io.BytesIO(pill.screenshot())).convert('RGB')
+    for star in stars:
+        star.evaluate("n=>n.style.removeProperty('visibility')")
+    difference = ImageChops.difference(visible, hidden)
+    histogram = difference.convert('L').histogram()
+    assert sum(histogram[31:]) > 50
 
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
@@ -133,7 +177,8 @@ try:
                 const seen=new Set(),out=[];
                 nodes.forEach((row,i)=>row.querySelectorAll('.rating-pill')
                     .forEach((pill,j)=>{
-                        const rating=Number(pill.className.match(/stars-([1-5])/)[1]);
+                        const match=pill.className.match(/stars-([1-5])/);
+                        const rating=Number(match[1]);
                         const origin=i<30?'published':'lazy';
                         const key=origin+rating;
                         if(!seen.has(key)){
@@ -142,7 +187,8 @@ try:
                     }));
                 return out;
             }''')
-            assert {item['origin'] for item in untouched} == {'published','lazy'}
+            assert {item['origin'] for item in untouched} == {
+                'published', 'lazy'}
             for item in untouched:
                 pill = page.locator(container).nth(item['i']).locator(
                     '.rating-pill').nth(item['j'])
@@ -156,7 +202,8 @@ try:
             original = slot.evaluate('p=>p.outerHTML')
             page.evaluate('''() => {
                 const scale=document.createElement('div');scale.id='scale';
-                scale.style='display:flex;gap:12px;flex-wrap:wrap;padding:20px';
+                scale.style='display:flex;gap:12px;flex-wrap:wrap;'+
+                    'padding:20px';
                 for(let n=1;n<=5;n++)scale.insertAdjacentHTML('beforeend',
                     createReviewPill({rating_stars:n,source_url:'',
                         source_publication:'hs'}));
@@ -169,7 +216,8 @@ try:
                     for rating in range(1, 6):
                         html = server_pill(rating, linked, width < 769)
                         if origin == 'lazy':
-                            html = page.evaluate('''r=>createReviewPill(r)''', {
+                            html = page.evaluate('''r=>createReviewPill(r)''',
+                                                 {
                                 'rating_stars': rating,
                                 'source_url': 'https://example.com/'
                                 if linked else '', 'source_publication': 'hs'})
@@ -188,7 +236,8 @@ try:
                             assert pill.evaluate(MEASURE) == before
                             pill.focus()
                             assert pill.evaluate(
-                                "p=>getComputedStyle(p).outlineStyle") != 'none'
+                                "p=>getComputedStyle(p).outlineStyle"
+                            ) != 'none'
                         # Negative: horizontal escape and ancestor clipping.
                         bad = page.add_style_tag(content=(
                             '.rating-star {left:110px!important}'))
@@ -201,7 +250,8 @@ try:
                         saved = clip_host.evaluate('''h=>{
                             const old=h.getAttribute('style');
                             Object.assign(h.style,{height:'1px',
-                                maxHeight:'1px',minHeight:'0',overflow:'hidden'});
+                                maxHeight:'1px',minHeight:'0',
+                                overflow:'hidden'});
                             return old;
                         }''')
                         assert not all(s['clear'] for s in
@@ -213,7 +263,8 @@ try:
             # Background-free modes must retain real, visible awarded text.
             for mode in ('forced-colors', 'print'):
                 page.emulate_media(
-                    forced_colors='active' if mode == 'forced-colors' else 'none',
+                    forced_colors=('active' if mode == 'forced-colors'
+                                   else 'none'),
                     media='print' if mode == 'print' else 'screen')
                 for linked in (False, True):
                     for rating in range(1, 6):
@@ -222,20 +273,29 @@ try:
                             h.querySelector('.rating-pill').outerHTML=html;
                             return h.querySelector('.rating-pill');
                         }''', html).as_element()
-                        fallback = pill.evaluate('''p=>{
-                            const stars=[...p.querySelectorAll('.rating-star')]
-                                .filter(n=>getComputedStyle(n).display!=='none');
-                            return {text:p.querySelector('.rating-stars').textContent,
-                                count:stars.length,
-                                visible:stars.every(n=>
-                                    parseFloat(getComputedStyle(n).fontSize)>0 &&
-                                    getComputedStyle(n,'::before').content==='none' &&
-                                    getComputedStyle(n,'::after').content==='none' &&
-                                    getComputedStyle(n).filter==='none')};
-                        }''')
-                        assert fallback == dict(text='★'*rating, count=rating,
-                                                visible=True), fallback
+                        verify_fallback(pill, rating)
+                        # Hidden descendants or ancestors must fail the oracle.
+                        for target in (pill, pill.query_selector(
+                                '.rating-star')):
+                            target.evaluate("n=>n.style.setProperty("
+                                            "'transition','none','important')")
+                            for property_, value in (('visibility', 'hidden'),
+                                                     ('opacity', '0')):
+                                target.evaluate('''(n,pair)=>
+                                    n.style.setProperty(
+                                    pair[0],pair[1],'important')''',
+                                                [property_, value])
+                                result = pill.evaluate(FALLBACK)
+                                assert not result['visible'], (
+                                    property_, value, target.evaluate(
+                                        'n=>n.outerHTML'))
+                                target.evaluate('''(n,key)=>
+                                    n.style.removeProperty(key)''', property_)
+                                verify_fallback(pill, rating)
+                            target.evaluate("n=>n.style.removeProperty("
+                                            "'transition')")
                 pill.scroll_into_view_if_needed()
+                verify_fallback_pixels(pill)
                 page.screenshot(path=str(OUT / f'{mode}-{width}.png'))
                 if mode == 'print' and width == 900:
                     page.pdf(path=str(OUT / 'background-free.pdf'),
@@ -246,7 +306,8 @@ try:
                 h.querySelector('.rating-pill').outerHTML=html;
             }''', original)
             restored = page.locator(selector).first
-            restored_rating = int(restored.get_attribute('class').split('stars-')[1][0])
+            restored_class = restored.get_attribute('class')
+            restored_rating = int(restored_class.split('stars-')[1][0])
             restored.scroll_into_view_if_needed()
             verify(restored, restored_rating)
             page.evaluate('window.scrollTo(0,0)')
