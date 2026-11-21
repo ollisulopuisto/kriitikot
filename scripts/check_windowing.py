@@ -140,7 +140,22 @@ with tempfile.TemporaryFile() as log:
                         p.evaluate(js)
                     same(label)
                 for p in pages:
-                    p.evaluate("window.loadMoreMovies(30)")
+                    p.evaluate(
+                        "window.resetAllFilters();document.getElementById('mobile-sort').click();document.querySelector('.mobile-filters-container [data-publication=DEMOKRAATTI]').click()"
+                    )
+                    p.wait_for_timeout(150)
+                    before = p.evaluate(
+                        "window.reviewWindow.prepare();[...document.querySelectorAll('.movie-card')].filter(c=>c.style.display!=='none').map(c=>c.dataset.movie)"
+                    )
+                    p.evaluate("window.loadMoreFacetAware()")
+                    p.wait_for_timeout(150)
+                    after = p.evaluate(
+                        "window.reviewWindow.prepare();[...document.querySelectorAll('.movie-card')].filter(c=>c.style.display!=='none').map(c=>c.dataset.movie)"
+                    )
+                    assert set(before) <= set(
+                        after
+                    ), "sorted facet pagination hid revealed films"
+                    p.evaluate("window.resetAllFilters();window.loadMoreMovies(30)")
                 same("sorted pagination")
                 for p in pages:
                     assert p.evaluate(
@@ -266,6 +281,24 @@ with tempfile.TemporaryFile() as log:
             stable = page.evaluate("window.currentMovieOffset")
             page.wait_for_timeout(300)
             assert page.evaluate("window.currentMovieOffset") == stable
+            context.close()
+            context = browser.new_context(viewport={"width": 1600, "height": 900})
+            page = context.new_page()
+            page.goto("http://127.0.0.1:5434")
+            page.wait_for_function(
+                "window.reviewWindow && window.currentMovieOffset>=60"
+            )
+            page.locator("#sort-movies-btn").focus()
+            page.evaluate(
+                "window.scrollTo(0,document.documentElement.scrollHeight-1800)"
+            )
+            page.wait_for_timeout(300)
+            page.keyboard.press("PageDown")
+            page.wait_for_function("window.currentMovieOffset>60")
+            print(
+                "keyboard pagination from focused toolbar",
+                page.evaluate("window.currentMovieOffset"),
+            )
             context.close()
             browser.close()
     finally:

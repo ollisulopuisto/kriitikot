@@ -174,7 +174,11 @@
         // Capture before the legacy handlers read a complete DOM collection.
         for (const event of ['click', 'input', 'change', 'keydown']) {
             document.addEventListener(event, e => {
-                if (e.target.closest?.('.container, #sticky-thead-wrapper')) prepare();
+                if (!e.target.closest?.('.container, #sticky-thead-wrapper')) return;
+                const scrollingKey = event === 'keydown' && ['PageDown', 'PageUp', 'Home', 'End', 'ArrowDown', 'ArrowUp'].includes(e.key);
+                const editable = e.target.closest?.('input, select, textarea, [contenteditable="true"], [role="slider"]');
+                if (scrollingKey && !editable) return;
+                prepare();
             }, true);
         }
         document.addEventListener('focusin', schedule);

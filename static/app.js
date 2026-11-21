@@ -1089,9 +1089,12 @@ let facetRevealCount = FACET_REVIEW_BATCH;
 function applyFacetBatchVisibility() {
     window.reviewWindow?.prepare();
     const cards = [...document.querySelectorAll('.movie-card')];
+    // Reveal membership follows catalog order, independently of visual sorting.
+    const catalogOrder = new Map(movieTitles.map((title, index) => [title, index]));
+    const revealCards = [...cards].sort((a, b) => (catalogOrder.get(a.dataset.movie) ?? Infinity) - (catalogOrder.get(b.dataset.movie) ?? Infinity));
     if (facetFiltersActive()) {
         let acc = 0;
-        cards.forEach(card => {
+        revealCards.forEach(card => {
             delete card.dataset.batchFiltered;
             if (card.style.display === 'none') return;
             const items = [...card.querySelectorAll('.review-item')].filter(i => i.style.display !== 'none');

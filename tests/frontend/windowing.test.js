@@ -2,11 +2,13 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 let frame;
+let fontDone;
 function setup({ width = 1200, height = 200 } = {}) {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
     frame = null;
+    Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve(), addEventListener: (event, fn) => { if (event === 'loadingdone') fontDone = fn; } } });
     vi.stubGlobal('requestAnimationFrame', fn => { frame = fn; return 1; });
     const cell = i => `<td class="${i ? 'rating-cell' : 'movie-col'}"><button>${i}</button></td>`;
     document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button>
@@ -43,6 +45,21 @@ function setup({ width = 1200, height = 200 } = {}) {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('review viewport window', () => {
+    it('remeasures after a late font load and parks with the new heights', () => {
+        const { tick } = setup();
+        window.reviewWindow.prepare();
+        const first = document.querySelector('tbody tr');
+        first.getBoundingClientRect = () => ({top:0,bottom:80,left:0,right:1600,width:1600,height:80});
+        fontDone();
+        tick();
+        expect(first.style.height).toBe('80px');
+    });
+    it('does not restore the full collection for scrolling keys on toolbar buttons', () => {
+        setup();
+        const button = document.getElementById('windowing-toggle');
+        button.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }));
+        expect(document.querySelectorAll('.movie-card').length).toBe(0);
+    });
     it('biases preload toward the direction of travel', () => {
         setup();
         expect(window.reviewWindowMath.margins(200, 1)).toEqual([100, 300]);
