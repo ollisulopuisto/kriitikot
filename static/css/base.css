@@ -206,3 +206,6 @@ button, .movie-link, .rating-pill, .heart-icon { transition-property: background
 .window-spacer td, td.window-column-spacer { padding: 0; border: 0; }
 .window-skeleton, div.window-spacer { background: repeating-linear-gradient(0deg, #fafafa 0, #fafafa 15px, #f0f1f3 16px, #f0f1f3 24px, #fafafa 25px, #fafafa 48px); }
 @media print { .windowing-controls { display: none; } }
+
+/* Phone uses the complete loaded card view; no technical mode choice. */
+@media (max-width: 768px) { .windowing-controls { display: none; } }

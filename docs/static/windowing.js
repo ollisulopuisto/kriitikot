@@ -17,7 +17,10 @@
         const wrapper = document.querySelector('.table-wrapper');
         const table = tbody?.closest('table');
         if (!toggle || !tbody || !cards || !wrapper || !table) return;
-        let enabled = true;
+        // Phones keep every loaded card connected for readers and page find.
+        // Preserve the desktop choice across responsive breakpoint changes.
+        let desktopEnabled = true;
+        const isWindowed = () => window.innerWidth >= 769 && desktopEnabled;
         let printing = false;
         let suppressPreloadUntil = 0;
         let dirty = true;
@@ -148,7 +151,7 @@
         }
         function render() {
             scheduled = 0;
-            if (!enabled || printing) {
+            if (!isWindowed() || printing) {
                 restore(); clearCoordinates();
                 records = []; columns = []; parkedCells.clear();
                 return;
@@ -185,7 +188,7 @@
             previousY = window.scrollY;
             previousX = wrapper.scrollLeft;
         }
-        window.reviewWindow = { prepare, schedule, restore, get enabled() { return enabled; }, get retainedCount() { return records.length + parkedCells.size; } };
+        window.reviewWindow = { prepare, schedule, restore, get enabled() { return isWindowed(); }, get retainedCount() { return records.length + parkedCells.size; } };
         // Capture before the legacy handlers read a complete DOM collection.
         for (const event of ['click', 'input', 'change', 'keydown']) {
             document.addEventListener(event, e => {
@@ -213,7 +216,7 @@
         let preloadY = window.scrollY;
         let pendingDownY = null;
         function attemptPreload() {
-            if (enabled && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
+            if (isWindowed() && !printing && !dirty && performance.now() >= suppressPreloadUntil &&
                 pendingDownY === window.scrollY && moreInRange && more.offsetParent !== null && !more.disabled) {
                 pendingDownY = null;
                 more.click();
@@ -237,9 +240,10 @@
             window.addEventListener('scroll', maybePreload, { passive: true });
         }
         toggle.addEventListener('click', () => {
-            enabled = !enabled;
-            toggle.setAttribute('aria-pressed', String(!enabled));
-            toggle.textContent = enabled ? 'Näytä koko näkymä' : 'Käytä kevyttä näkymää';
+            if (window.innerWidth < 769) return;
+            desktopEnabled = !desktopEnabled;
+            toggle.setAttribute('aria-pressed', String(!desktopEnabled));
+            toggle.textContent = desktopEnabled ? 'Näytä koko näkymä' : 'Käytä kevyttä näkymää';
             prepare();
         });
         schedule();

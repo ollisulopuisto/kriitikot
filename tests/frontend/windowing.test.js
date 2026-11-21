@@ -114,10 +114,11 @@ describe('review viewport window', () => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
         expect(document.activeElement).toBe(button);
     });
-    it('only windows vertically on phones and offers a complete-view fallback', () => {
+    it('keeps every loaded phone card connected without a toggle', () => {
         const { tick } = setup({ width: 390 });
-        expect(document.querySelectorAll('tbody tr:not(.window-spacer)').length).toBe(0);
-        expect(document.querySelectorAll('.movie-card').length).toBeLessThan(20);
+        expect(document.querySelectorAll('tbody tr:not(.window-spacer)').length).toBe(40);
+        expect(document.querySelectorAll('.movie-card').length).toBe(20);
+        expect(document.querySelector('.window-spacer, .window-column-spacer')).toBeNull();
         document.getElementById('windowing-toggle').click();
         tick();
         expect(window.reviewWindow.enabled).toBe(false);
@@ -130,4 +131,28 @@ describe('review viewport window', () => {
         expect(document.querySelectorAll('.movie-card').length).toBe(19);
         expect(document.querySelectorAll('tbody td').length).toBe(1600);
     });
+    it('restores phone cards on resize and preserves the desktop choice', () => {
+        const { tick } = setup();
+        expect(window.reviewWindow.enabled).toBe(true);
+        Object.defineProperty(window, 'innerWidth', {configurable:true,value:768});
+        window.dispatchEvent(new Event('resize'));tick();
+        expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        expect(window.reviewWindow.retainedCount).toBe(0);
+        expect(document.querySelector('.window-spacer, .window-column-spacer')).toBeNull();
+        Object.defineProperty(window, 'innerWidth', {configurable:true,value:769});
+        window.dispatchEvent(new Event('resize'));tick();
+        expect(window.reviewWindow.enabled).toBe(true);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(0);
+        document.getElementById('windowing-toggle').click();tick();
+        expect(window.reviewWindow.enabled).toBe(false);
+        for(const width of [390,1200]) {
+            Object.defineProperty(window, 'innerWidth', {configurable:true,value:width});
+            window.dispatchEvent(new Event('resize'));tick();
+            expect(window.reviewWindow.enabled).toBe(false);
+            expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        }
+        expect(document.getElementById('windowing-toggle').getAttribute('aria-pressed')).toBe('true');
+    });
+
 });
