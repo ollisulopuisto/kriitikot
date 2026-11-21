@@ -39,7 +39,7 @@ try:
                 document.body.prepend(fixture);
             }''')
             assert page.locator('#rating-fixture .rating-pill').count() == 10
-            geometry = page.locator('#rating-fixture .rating-pill').evaluate_all('''pills=>pills.map(p=>{
+            measure = '''pills=>pills.map(p=>{
                 const s=p.querySelector('.rating-stars'),r=s.getBoundingClientRect(),target=p.getBoundingClientRect();
                 return {w:r.width,h:r.height,target:target.height,text:s.textContent.length,
                     slots:s.children.length,empty:s.querySelectorAll('.rating-star-empty').length,
@@ -48,9 +48,23 @@ try:
                     proportional:[...s.children].every(c=>getComputedStyle(c).transform==='none'),
                     glow:getComputedStyle(s.firstElementChild).textShadow,
                     faceShadow:getComputedStyle(s).boxShadow,
-                    fits:[...s.children].every(c=>{const b=c.getBoundingClientRect();return b.left>=r.left&&b.right<=r.right&&b.top>=r.top&&b.bottom<=r.bottom}),
-                    inTarget:[...s.children].every(c=>{const b=c.getBoundingClientRect();return b.top>=target.top&&b.bottom<=target.bottom})};
-            })''')
+                    // Measure painted glyph ink, not flex slots. Empty slots use
+                    // the same glyph via ::before. Overlap between adjacent stars
+                    // is intended; escaping the link target is not.
+                    inTarget:[...s.children].every(c=>{
+                        const b=c.getBoundingClientRect(),style=getComputedStyle(c);
+                        const ctx=document.createElement('canvas').getContext('2d');
+                        ctx.font=`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+                        const m=ctx.measureText('★');
+                        const x=b.left+(b.width-m.width)/2;
+                        const baseline=b.top+(b.height-(m.fontBoundingBoxAscent+m.fontBoundingBoxDescent))/2+m.fontBoundingBoxAscent;
+                        return x-m.actualBoundingBoxLeft>=target.left-.5 &&
+                            x+m.actualBoundingBoxRight<=target.right+.5 &&
+                            baseline-m.actualBoundingBoxAscent>=target.top-.5 &&
+                            baseline+m.actualBoundingBoxDescent<=target.bottom+.5;
+                    })};
+            })'''
+            geometry = page.locator('#rating-fixture .rating-pill').evaluate_all(measure)
             assert all(p['slots'] == 5 and p['empty'] == 5-p['text'] for p in geometry)
             assert all(p['proportional'] and p['inTarget'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry),geometry
             assert [p['fs'] for p in geometry[::2]] == [12,14,17,22,29],geometry
@@ -61,7 +75,15 @@ try:
                 actual_targets = page.locator('.movie-card a.rating-pill').evaluate_all(
                     'nodes=>nodes.filter(n=>n.getBoundingClientRect().height>0).map(n=>n.getBoundingClientRect().height)')
                 assert actual_targets and min(actual_targets) >= 44, actual_targets
-            assert len({p['w'] for p in geometry}) == len({p['h'] for p in geometry}) == 1
+            assert all(abs(p['w']-88)<.1 and abs(p['h']-17)<.1 for p in geometry),geometry
+            # Negative controls: a blown-up crown and the old face height must
+            # fail the same measurements, rather than only passing good CSS.
+            broken = page.add_style_tag(content='#rating-fixture .stars-5 .rating-stars { font-size:80px!important }')
+            assert not all(p['inTarget'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
+            broken.evaluate('n=>n.remove()')
+            old_face = page.add_style_tag(content='#rating-fixture .rating-stars { height:28.8px!important }')
+            assert not all(abs(p['h']-17)<.1 for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
+            old_face.evaluate('n=>n.remove()')
             page.screenshot(path=str(output / f'scale-{width}.png'))
             page.locator('#rating-fixture').evaluate('e=>e.remove()')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width

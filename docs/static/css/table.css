@@ -769,8 +769,8 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
    Only awarded stars are text; empty CSS stars do not change facet counts. */
 .rating-pill,
 .review-item .rating-pill {
-    width: 5.5rem;
-    min-width: 5.5rem;
+    width: 6rem;
+    min-width: 6rem;
     min-height: 2.5rem;
     padding: 0;
     border-radius: .7rem;
