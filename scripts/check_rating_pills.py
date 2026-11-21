@@ -1,15 +1,27 @@
-(
-    "Real Chromium five-slot pill smoke, served fr"
-    "om docs without scraping.\nRun with Playwright"
-    " installed and system Chrome available.\n"
-)
+"""Real Chromium five-slot pill smoke, served from docs without scraping.
+
+Setup: install project requirements plus Playwright, BeautifulSoup4 and Jinja2
+into the Python environment used to run this script. Install system Chrome or
+set CHROME_BIN to its path. No scrape or deployment is performed.
+"""
 
 import functools
 import http.server
 import os
 from pathlib import Path
 import threading
-from playwright.sync_api import sync_playwright
+
+try:
+    from playwright.sync_api import sync_playwright
+    from bs4 import BeautifulSoup
+    from jinja2 import Environment, FileSystemLoader
+except ImportError as error:
+    raise SystemExit(
+        "Rating smoke-check dependencies missing. Install project "
+        "requirements plus playwright, beautifulsoup4 and jinja2 in this "
+        "Python environment; Chrome is also required. Missing module: "
+        + str(error.name)
+    ) from error
 
 root = Path(__file__).resolve().parents[1]
 output = Path(os.environ.get("SCREENSHOT_DIR", "/tmp/kriitikot-pill-check"))
@@ -263,6 +275,7 @@ p => {
                 )
 
             for origin in ("server", "lazy"):
+                page.evaluate("window.reviewWindow.prepare()")
                 candidates = page.locator(
                     container
                     + '[data-test-origin="'
@@ -282,9 +295,6 @@ p => {
                 )
                 check_page_pill(sample)
                 if origin == "server":
-                    from bs4 import BeautifulSoup
-                    from jinja2 import Environment, FileSystemLoader
-
                     env = Environment(
                         loader=FileSystemLoader(root / "templates"),
                         autoescape=True,
@@ -316,28 +326,48 @@ p => {
                         soup.select_one("span.rating-pill.stars-5")
                     )
                     assert unlinked_html != "None"
-                    sample.evaluate(
-                        "(p, html)=>p.outerHTML=html", unlinked_html
-                    )
                 else:
-                    sample.evaluate("""p => {
-                        p.outerHTML = createReviewPill({rating_stars:5,
-                            source_url:'', source_publication:'hs'});
-                    }""")
-                # Replacement retains the original lane's review count.
-                unlinked = page.locator(
-                    container
-                    + '[data-test-origin="'
-                    + origin
-                    + '"] '
-                    + "span.rating-pill.stars-5"
-                ).first
+                    unlinked_html = page.evaluate("""() => createReviewPill({
+                        rating_stars:5, source_url:'', source_publication:'hs'
+                    })""")
+                # Keep the replacement element itself. A matching earlier
+                # catalog record must never receive this check or restoration.
+                unlinked = sample.evaluate_handle(
+                    """(p,html) => {
+                    const template=document.createElement('template');
+                    template.innerHTML=html.trim();
+                    const replacement=template.content.firstElementChild;
+                    p.replaceWith(replacement);
+                    return replacement;
+                }""",
+                    unlinked_html,
+                ).as_element()
+                assert unlinked is not None
                 assert (
-                    unlinked.locator("..").locator(".rating-pill").count()
+                    unlinked.evaluate(
+                        "p=>p.parentElement.querySelectorAll('.rating-pill').length"
+                    )
                     == original_count
                 )
+                # An earlier same-origin unlinked crown is a selection decoy.
+                # Keep it outside the lane and ensure restoration ignores it.
+                decoy = unlinked.evaluate_handle("""p => {
+                    const decoy=p.cloneNode(true);
+                    decoy.dataset.identityDecoy='true';
+                    decoy.style.display='none';
+                    p.before(decoy);
+                    return decoy;
+                }""").as_element()
+                assert not unlinked.evaluate("(p,d)=>p===d", decoy)
                 check_page_pill(unlinked)
+                lane = unlinked.evaluate_handle("p=>p.parentElement")
                 unlinked.evaluate("(p, html)=>p.outerHTML=html", original_html)
+                assert lane.evaluate(
+                    "(n,html)=>[...n.children].some(p=>p.outerHTML===html)",
+                    original_html,
+                )
+                assert decoy.evaluate("p=>p.isConnected && p.tagName==='SPAN'")
+                decoy.evaluate("p=>p.remove()")
             page.screenshot(path=str(output / f"context-{width}.png"))
             if width >= 769:
                 page.locator("#windowing-toggle").check()
