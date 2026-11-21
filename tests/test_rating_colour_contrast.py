@@ -233,3 +233,15 @@ def test_sparkline_track_stays_recessive(tokens):
     """Lokero ei saa olla niin tumma että se kilpailee palkin kanssa."""
     track = composite(tokens['--spark-track'], '#ffffff')
     assert contrast(track, '#ffffff') <= 1.8, f'lokero liian vahva: {track}'
+
+
+def test_five_star_glyph_owns_contrasting_outline(tokens):
+    """The child shadow overrides inherited shadow, so check the actual owner."""
+    table = _read('table.css')
+    block = re.search(r'\.rating-pill\.stars-5 \.rating-star\s*\{([^}]*)\}', table, re.S)
+    assert block
+    shadow = block.group(1)
+    assert '0 0 1px var(--star-outline)' in shadow
+    assert '0 0 2px var(--star-outline)' in shadow
+    for stop in _gradient_stops(tokens, 5):
+        assert contrast(tokens['--star-outline'], stop) >= WCAG_AA_SMALL_TEXT
