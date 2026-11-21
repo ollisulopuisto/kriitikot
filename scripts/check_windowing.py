@@ -75,54 +75,69 @@ with tempfile.TemporaryFile() as log:
                 def same(label):
                     for p in pages:
                         p.wait_for_timeout(150)
-                    # Use the same viewport offset after browser scroll anchoring
-                    # reacts to filtering; do not restore either collection here.
-                    y = pages[0].evaluate("window.scrollY")
-                    pages[1].evaluate("(y)=>window.scrollTo(0,y)", y)
-                    pages[1].wait_for_timeout(60)
-                    # Inspect the actual mounted slice before MODEL restores it.
-                    mounted = pages[0].evaluate(
-                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom,focused:n.contains(document.activeElement)}));}"""
-                    )
-                    logical = pages[1].evaluate(MODEL)
-                    allowed = {
-                        row[0]
-                        for row in logical["cards" if width < 769 else "rows"]
-                        if row[1] != "none"
-                    }
-                    assert all(
-                        row["title"] in allowed for row in mounted
-                    ), f"{label}: wrong filtered content mounted"
-                    # Bound every filtered/sorted mounted state, before MODEL
-                    # restores the collection. Either direction uses at most
-                    # 1.5 viewports of overscan, plus the retained focused film.
-                    bound = pages[1].evaluate(
-                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>=-innerHeight*1.5&&r.top<=innerHeight*2.5;}).map(n=>mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent);}"""
-                    )
-                    bounded_titles = set(bound)
-                    assert all(
-                        row["focused"] or row["title"] in bounded_titles
-                        for row in mounted
-                    ), f"{label}: filtered/sorted state retained off-window films"
-                    assert len(mounted) <= len(bound) + sum(
-                        row["focused"] for row in mounted
-                    ), f"{label}: filtered/sorted mounting bound exceeded"
-                    required = pages[1].evaluate(
-                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
-                    )
-                    positions = {row["title"]: row for row in mounted}
-                    for row in required:
-                        assert (
-                            row["title"] in positions
-                        ), f"{label}: partly/fully visible result missing"
-                        actual = positions[row["title"]]
-                        assert (
-                            actual["bottom"] > 0 and actual["top"] < height
-                        ), f"{label}: viewport film mounted only in overscan"
-                        assert (
-                            abs(actual["top"] - row["top"]) < 3
-                            and abs(actual["bottom"] - row["bottom"]) < 3
-                        ), f"{label}: mounted result geometry differs from full view {actual} {row}"
+                    initial_y = pages[0].evaluate("window.scrollY")
+                    max_y = min(p.evaluate("Math.max(0,document.documentElement.scrollHeight-innerHeight)") for p in pages)
+                    for direction in [1, -1]:
+                        if max_y > 0:
+                            target = min(max(1, initial_y), max_y) if direction > 0 else min(initial_y, max_y - 1)
+                            approach = max(0, target - height) if direction > 0 else min(max_y, target + height)
+                            for p in pages:
+                                p.evaluate("y=>window.scrollTo(0,y)", approach)
+                            for p in pages:
+                                p.wait_for_timeout(80)
+                            for p in pages:
+                                p.evaluate("y=>window.scrollTo(0,y)", target)
+                            for p in pages:
+                                p.wait_for_timeout(80)
+                            before_margin, after_margin = (0.5, 1.5) if direction > 0 else (1.5, 0.5)
+                        else:
+                            # No scroll range. A delta-zero render is forward-biased.
+                            pages[0].evaluate("window.reviewWindow.schedule()")
+                            pages[0].wait_for_timeout(80)
+                            before_margin, after_margin = 0.5, 1.5
+                        # Inspect the actual mounted slice before MODEL restores it.
+                        mounted = pages[0].evaluate(
+                            """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom,focused:n.contains(document.activeElement)}));}"""
+                        )
+                        logical = pages[1].evaluate(MODEL)
+                        allowed = {
+                            row[0]
+                            for row in logical["cards" if width < 769 else "rows"]
+                            if row[1] != "none"
+                        }
+                        assert all(
+                            row["title"] in allowed for row in mounted
+                        ), f"{label}: wrong filtered content mounted"
+                        # Exact direction-specific overscan, independent of
+                        # production margins(), in every filtered/sorted state.
+                        bound = pages[1].evaluate(
+                            """([before,after]) => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>=-innerHeight*before&&r.top<=innerHeight*(1+after);}).map(n=>mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent);}""",
+                            [before_margin, after_margin],
+                        )
+                        bounded_titles = set(bound)
+                        assert all(
+                            row["focused"] or row["title"] in bounded_titles
+                            for row in mounted
+                        ), f"{label}: filtered/sorted state retained off-window films"
+                        assert len(mounted) <= len(bound) + sum(
+                            row["focused"] for row in mounted
+                        ), f"{label}: filtered/sorted mounting bound exceeded"
+                        required = pages[1].evaluate(
+                            """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<innerHeight;}).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
+                        )
+                        positions = {row["title"]: row for row in mounted}
+                        for row in required:
+                            assert (
+                                row["title"] in positions
+                            ), f"{label}: partly/fully visible result missing"
+                            actual = positions[row["title"]]
+                            assert (
+                                actual["bottom"] > 0 and actual["top"] < height
+                            ), f"{label}: viewport film mounted only in overscan"
+                            assert (
+                                abs(actual["top"] - row["top"]) < 3
+                                and abs(actual["bottom"] - row["bottom"]) < 3
+                            ), f"{label}: mounted result geometry differs from full view {actual} {row}"
                     models = [p.evaluate(MODEL) for p in pages]
                     if models[0] != models[1]:
                         (output / "mismatch.json").write_text(
@@ -331,6 +346,20 @@ with tempfile.TemporaryFile() as log:
                     == 0
                 )
                 assert page.locator(".movie-card").count() == expected_films
+                page.emulate_media(media="print")
+                assert page.evaluate("matchMedia('print').matches")
+                assert page.locator(".window-spacer, .window-column-spacer").count() == 0
+                assert page.locator(".windowing-controls").evaluate("n=>getComputedStyle(n).display") == "none"
+                print_geometry = page.locator("#review-container-desktop tbody tr").evaluate_all(
+                    "nodes=>nodes.map(n=>({height:n.getBoundingClientRect().height,cells:[...n.cells].filter(c=>!c.classList.contains('filler-column')).length,spacers:n.querySelectorAll('.window-column-spacer').length}))"
+                )
+                header_count = page.locator("#review-container-desktop thead th:not(.filler-column)").count()
+                assert len(print_geometry) == expected_films
+                assert all(row["height"] > 0 and row["cells"] == header_count and row["spacers"] == 0 for row in print_geometry), "print media did not lay out the complete review rows"
+                assert page.locator("#review-container-desktop").evaluate("n=>getComputedStyle(n).display") != "none"
+                page.screenshot(path=str(output / f"{device}-print-media.png"))
+                page.emulate_media(media="screen")
+                assert not page.evaluate("matchMedia('print').matches")
                 page.evaluate('window.dispatchEvent(new Event("afterprint"))')
                 page.wait_for_function(
                     """() => {const clone=document.getElementById('sticky-thead-clone');const expected=[...document.querySelector('#review-container-desktop thead tr').cells].map(c=>c.getAttribute('aria-colindex'));return clone===window.printPinned&&expected.every((value,i)=>value!==null&&clone.tHead.rows[0].cells[i].getAttribute('aria-colindex')===value);}"""

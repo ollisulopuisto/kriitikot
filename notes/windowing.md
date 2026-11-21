@@ -52,4 +52,6 @@ A downward jump retains its direction until the proximity observer catches up, a
 
 Printing now reindexes an existing pinned header when windowing resumes, rather than relying on a replacement clone. A red-to-green unit regression and a real Chromium same-clone check cover the print round trip. Every filtered and sorted comparison also checks mounted films against a geometry-derived overscan bound before any full-collection restore; temporarily mounting all filtered matches is rejected by that check.
 
+The comparison now approaches each filtered/sorted state in both scroll directions and enforces half a viewport behind versus 1.5 ahead (reversed going up), independently of the implementation helper. A temporary symmetric 1.5/1.5 mutation fails this browser check. Print validation enters Chromium print media, verifies every logical review row and critic cell is restored and laid out without window spacers, checks print-only control hiding, and inspects captures before returning to screen mode. This covers print-media layout, not a PDF pagination or physical-printer guarantee.
+
 </details>
