@@ -60,7 +60,7 @@ try:
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
             page.screenshot(path=str(output / f'context-{width}.png'))
             if width >= 769:
-                page.locator('#windowing-toggle').click()
+                page.locator('#windowing-toggle').check()
             page.evaluate('''() => {const s=document.querySelector('#star-filter-slider');s.value='4';window.filterByStars(4);window.reconcileFacetVisibility();}''')
             selector = '.movie-card .review-item' if width < 769 else 'tbody .rating-pill'
             counts = page.locator(selector).evaluate_all('''nodes=>nodes.filter(n=>n.checkVisibility({checkVisibilityCSS:true})&&n.getBoundingClientRect().height>0).map(n=>n.querySelector('.rating-stars')?.textContent.length).filter(Boolean)''')

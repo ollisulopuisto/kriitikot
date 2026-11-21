@@ -44,6 +44,33 @@ function pubShortOf(value) {
 }
 let allGroupedReviews = window.allGroupedReviews || {}; // Tähän ladataan kaikki arvostelut JSONista
 let movieTitles = Object.keys(allGroupedReviews);
+let filmSearchQuery = '';
+function matchesFilmSearch(title) {
+    return !filmSearchQuery || String(title || '').normalize('NFC').toLocaleLowerCase('fi').includes(filmSearchQuery);
+}
+window.matchesFilmSearch = matchesFilmSearch;
+function initFilmSearch() {
+    let timer;
+    document.addEventListener('input', event => {
+        if (!event.target.matches('.film-search')) return;
+        const value = event.target.value;
+        document.querySelectorAll('.film-search').forEach(input => { if (input !== event.target) input.value = value; });
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            window.rememberSliderWindow?.();
+            filmSearchQuery = value.trim().normalize('NFC').toLocaleLowerCase('fi');
+            window.topUpSliderResults?.();
+            window.reconcileFacetVisibility?.();
+            if (filmSearchQuery) window.showResetButton?.();
+        }, 120);
+    });
+    window.clearFilmSearch = () => {
+        clearTimeout(timer);
+        filmSearchQuery = '';
+        document.querySelectorAll('.film-search').forEach(input => { input.value = ''; });
+    };
+}
+initFilmSearch();
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
 let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
 let allPublicationMap = {}; // Map julkaisuista {short_name: publication_object}
@@ -994,13 +1021,13 @@ function currentFacetState() {
     const chosenMovie = chosenCard?.dataset.movie
         || chosenRow?.querySelector('.movie-title-main')?.textContent.trim()
         || null;
-    return { criticId: selectedHeader?.dataset.criticId || null, pubs, minStars, minReviews, favoritesOn, chosenMovie };
+    return { query: filmSearchQuery, criticId: selectedHeader?.dataset.criticId || null, pubs, minStars, minReviews, favoritesOn, chosenMovie };
 }
 
 // Onko jokin hakufasetti päällä? (Yksittäisen elokuvan valinta ei ole fasetti.)
 function facetFiltersActive() {
     const st = currentFacetState();
-    return !!(st.criticId || st.pubs.length || st.minStars > 1 || st.minReviews > 1 || st.favoritesOn);
+    return !!(st.query || st.criticId || st.pubs.length || st.minStars > 1 || st.minReviews > 1 || st.favoritesOn);
 }
 
 // Täsmääkö yksittäinen arvostelu aktiivisiin fasetteihin? Peilaa
@@ -1017,6 +1044,7 @@ function reviewMatchesFacetState(review, criticName, st) {
 }
 
 function movieHasFacetMatch(movieTitle, st) {
+    if (!matchesFilmSearch(movieTitle)) return false;
     if (st.chosenMovie && movieTitle !== st.chosenMovie) return false;
     const dict = allGroupedReviews[movieTitle];
     if (!dict) return false;
@@ -1230,6 +1258,7 @@ let sliderBaseOffset = null;
 let sliderBaseKey = null;
 function sliderResultsKey() {
     return JSON.stringify([
+        filmSearchQuery,
         document.getElementById('min-reviews-slider')?.value,
         document.getElementById('star-filter-slider')?.value,
         [...document.querySelectorAll('.media-filter-btn.active, .filter-publication.active')].map(e => e.dataset.publication).sort(),
@@ -1380,6 +1409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allGroupedReviews = data;
         movieTitles = Object.keys(allGroupedReviews);
         loadMoreMovies();
+        if (filmSearchQuery) window.topUpSliderResults?.();
     };
 
     const fetchReviewsJson = () => {

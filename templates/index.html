@@ -84,11 +84,6 @@
             </div>
         </header>
 
-        <div class="windowing-controls">
-            <button id="windowing-toggle" type="button" aria-pressed="false" aria-describedby="windowing-help">Näytä koko näkymä</button>
-            <span id="windowing-help">Kevyt näkymä näyttää vieritysalueen. Koko näkymä sopii myös ruudunlukijalle ja sivun tekstihakuun.</span>
-        </div>
-
         <script id="movie-meta-data" type="application/json">
             {{ {
                 'nytleffaan_urls': nytleffaan_urls,
@@ -172,6 +167,13 @@
                         </span>
                         <span class="toggle-label">Suosikkikriitikot</span>
                     </label>
+                    <label class="toggle-container full-view-control" title="Näytä kaikki ladatut tulokset, myös ruudunlukijalle ja sivun tekstihakuun">
+                        <span class="toggle-switch">
+                            <input type="checkbox" id="windowing-toggle" checked>
+                            <span class="toggle-slider round" aria-hidden="true"></span>
+                        </span>
+                        <span class="toggle-label">Koko näkymä</span>
+                    </label>
                     <button id="reset-filters-desktop" class="reset-button" style="display: none;" title="Näytä kaikki">Kaikki</button>
                 </div>
             </div>
@@ -189,7 +191,9 @@
                     <tr class="critic-row">
                         <th class="movie-col corner-cell">
                             <div class="corner-content">
-                                <span class="corner-label">Kriitikot</span>
+                                <label class="film-search-label">ELOKUVA
+                                    <input type="search" class="film-search" placeholder="Hae elokuvaa..." aria-label="Hae elokuvaa koko luettelosta" autocomplete="off">
+                                </label>
                             </div>
                         </th>
                         {% for critic in all_critics %}

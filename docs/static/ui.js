@@ -114,6 +114,7 @@ function initStickyTableHeader() {
                 
                 // Event delegation
                 theadClone.addEventListener('click', function(e) {
+                    if (e.target.closest('.film-search-label')) return;
                     const clickedElement = e.target.closest('th');
                     if (!clickedElement) return;
                     
