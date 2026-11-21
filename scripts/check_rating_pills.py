@@ -113,6 +113,23 @@ def verify_fallback_pixels(pill):
 
 def verify_printed_ink(page, mode):
     """Rasterize actual PDFs with/without glyphs, not just screen CSS."""
+    fixture = page.context.browser.new_page()
+    fixture.set_viewport_size({'width': 900, 'height': 1100})
+    fixture.set_content('<style>' +
+                        (ROOT / 'static/css/base.css').read_text() +
+                        (ROOT / 'static/css/table.css').read_text() +
+                        'body {margin:0!important}</style>' + ''.join(
+                            '<div style="height:80px">' +
+                            server_pill(n, True, False) + '</div>'
+                            for n in range(1, 6)))
+    fixture.emulate_media(media='print',
+                          forced_colors=('active' if 'dark' in mode else
+                                         'none'),
+                          color_scheme='dark' if 'dark' in mode else 'light')
+    boxes = fixture.locator('.rating-pill').evaluate_all(
+        'ns=>ns.map(n=>{const r=n.getBoundingClientRect();return '
+        '{x:r.x,y:r.y,w:r.width,h:r.height}})')
+    page = fixture
     with tempfile.TemporaryDirectory(prefix='kriitikot-print-') as temp:
         folder = Path(temp)
         page.pdf(path=str(folder / 'visible.pdf'), print_background=False,
@@ -129,10 +146,16 @@ def verify_printed_ink(page, mode):
                             str(folder / name)], check=True)
             images.append(Image.open(folder / f'{name}.png').convert('RGB'))
         diff = ImageChops.difference(*images)
-        assert sum(diff.convert('L').histogram()[31:]) > 100
+        factor = images[0].width / 900
+        for rating, box in enumerate(boxes, 1):
+            crop = diff.crop(tuple(round(v * factor) for v in (
+                box['x'], box['y'], box['x'] + box['w'],
+                box['y'] + box['h'])))
+            assert sum(crop.convert('L').histogram()[31:]) > 30, rating
         (OUT / f'{mode}-background-free.pdf').write_bytes(
             (folder / 'visible.pdf').read_bytes())
         images[0].save(OUT / f'{mode}-background-free.png')
+    fixture.close()
 
 
 class Quiet(http.server.SimpleHTTPRequestHandler):

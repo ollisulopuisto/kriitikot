@@ -1,4 +1,8 @@
-"""H6 real-Chrome hover transitions, touch and accessibility regression."""
+"""H6 real-Chrome hover transitions, touch and accessibility regression.
+
+Requires project requirements, Playwright, Pillow and system Google Chrome.
+Set WIDTH and TOUCH=1 for a viewport/input case; SCREENSHOT_DIR is optional.
+"""
 import functools
 import http.server
 import os
