@@ -70,6 +70,13 @@ describe('review viewport window', () => {
         button.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }));
         expect(document.querySelectorAll('.movie-card').length).toBe(0);
     });
+    it('clears coordinates from the pinned header when printing', () => {
+        setup();
+        const clone=document.querySelector('table').cloneNode(true);
+        clone.id='sticky-thead-clone';document.body.appendChild(clone);
+        window.dispatchEvent(new Event('beforeprint'));
+        expect(clone.querySelector('[aria-colindex], [aria-rowindex]')).toBeNull();
+    });
     it('biases preload toward the direction of travel', () => {
         setup();
         expect(window.reviewWindowMath.margins(200, 1)).toEqual([100, 300]);
@@ -105,8 +112,13 @@ describe('review viewport window', () => {
         document.getElementById('windowing-toggle').click();
         tick();
         expect(window.reviewWindow.enabled).toBe(false);
+        expect(window.reviewWindow.retainedCount).toBe(0);
+        const removed=document.querySelector('.movie-card');removed.remove();
+        window.reviewWindow.prepare();tick();
+        expect(removed.isConnected).toBe(false);
+        expect(window.reviewWindow.retainedCount).toBe(0);
         expect(document.querySelector('[aria-rowcount], [aria-colcount], [aria-rowindex], [aria-colindex]')).toBeNull();
-        expect(document.querySelectorAll('.movie-card').length).toBe(20);
+        expect(document.querySelectorAll('.movie-card').length).toBe(19);
         expect(document.querySelectorAll('tbody td').length).toBe(1600);
     });
 });

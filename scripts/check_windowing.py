@@ -75,6 +75,25 @@ with tempfile.TemporaryFile() as log:
                 def same(label):
                     for p in pages:
                         p.wait_for_timeout(150)
+                    # Inspect the actual mounted slice before MODEL restores it.
+                    mounted = pages[0].evaluate(
+                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr:not(.window-spacer)')].filter(n=>n.getBoundingClientRect().height>0).map(n=>({title:mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent,top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}));}"""
+                    )
+                    logical = pages[1].evaluate(MODEL)
+                    allowed = {
+                        row[0]
+                        for row in logical["cards" if width < 769 else "rows"]
+                        if row[1] != "none"
+                    }
+                    assert all(
+                        row["title"] in allowed for row in mounted
+                    ), f"{label}: wrong filtered content mounted"
+                    required = pages[1].evaluate(
+                        """() => {const mobile=innerWidth<769;return [...document.querySelectorAll(mobile?'.movie-card':'#review-container-desktop tbody tr')].filter(n=>{const r=n.getBoundingClientRect();return r.height>0&&r.top>=250&&r.bottom<=innerHeight;}).map(n=>mobile?n.dataset.movie:n.querySelector('.movie-title-main')?.textContent);}"""
+                    )
+                    assert set(required) <= {
+                        row["title"] for row in mounted
+                    }, f"{label}: viewport result missing from mounted slice"
                     models = [p.evaluate(MODEL) for p in pages]
                     if models[0] != models[1]:
                         (output / "mismatch.json").write_text(
@@ -155,9 +174,12 @@ with tempfile.TemporaryFile() as log:
                     assert set(before) <= set(
                         after
                     ), "sorted facet pagination hid revealed films"
-                    assert len(after) > len(
-                        before
-                    ), "sorted facet pagination revealed no new films"
+                    assert len(after) == len(
+                        set(after)
+                    ), "pagination duplicated a visible film"
+                    assert len(set(after)) > len(
+                        set(before)
+                    ), "sorted facet pagination revealed no distinct new films"
                     p.evaluate("window.resetAllFilters();window.loadMoreMovies(30)")
                 same("sorted pagination")
                 for p in pages:
@@ -264,8 +286,17 @@ with tempfile.TemporaryFile() as log:
                     == expected_films
                 )
                 page.evaluate('window.dispatchEvent(new Event("beforeprint"))')
+                assert (
+                    page.locator(
+                        "#sticky-thead-clone [aria-colindex], #sticky-thead-clone [aria-rowindex]"
+                    ).count()
+                    == 0
+                )
                 assert page.locator(".movie-card").count() == expected_films
                 page.evaluate('window.dispatchEvent(new Event("afterprint"))')
+                full_page.evaluate("window.resetAllFilters()")
+                full_page.wait_for_timeout(100)
+                assert full_page.evaluate("window.reviewWindow.retainedCount") == 0
                 print(device, "focus, bounds, print, breakpoint, data intact", count)
                 for p in pages:
                     p.context.close()

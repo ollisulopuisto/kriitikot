@@ -1,5 +1,10 @@
 # Review view windowing
 
+This change windows the desktop review grid and phone cards while preserving existing interactions. It reduces the connected DOM, but the local measurements do not demonstrate a speed or heap improvement.
+
+<details>
+<summary>Implementation and validation</summary>
+
 The desktop body windows both movie rows and critic cells. Movie names and critic headers keep the existing pinned behavior. Phones window whole cards vertically, never their review columns. Overscan extends 1.5 viewports in the direction of travel and 0.5 behind it. Same-height row/card skeletons preserve the page geometry during a jump.
 
 Original interactive nodes are parked off-document, not cloned or destroyed. A focused row/card remains mounted. Before filter, sort or pagination code reads its logical collection, `reviewWindow.prepare()` restores it synchronously. The next animation frame snapshots the new result and parks offscreen content again. Delayed filler-column refreshes are coalesced and use the same boundary. This keeps the current filter semantics and favorites storage without creating a second competing filter model.
@@ -44,3 +49,5 @@ Full view and printing remove window-only accessibility counts/indices so native
 The next review round decouples facet reveal membership from presentation sort order, so loading another matching batch can only extend the revealed movie set. Keyboard-only scrolling from a focused toolbar control no longer starts the filter-mutation cooldown. Regression checks cover both cases, plus a simulated late font load that changes row height.
 
 A downward jump retains its direction until the proximity observer catches up, avoiding a missed preload when scroll arrives first. Upward movement cancels that pending direction. Sorted batch insertion restores the same focused node without scrolling, and the Chromium suite checks focus across pagination. It also compares rendered review-item totals against the loaded catalog and takes the filter-pagination baseline synchronously, before any delayed append can be missed.
+
+</details>

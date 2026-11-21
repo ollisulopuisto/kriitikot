@@ -48,6 +48,10 @@
             if (!scheduled) scheduled = requestAnimationFrame(render);
         }
         function clearCoordinates() {
+            const clone = document.getElementById('sticky-thead-clone');
+            clone?.removeAttribute('aria-rowcount');
+            clone?.removeAttribute('aria-colcount');
+            clone?.querySelectorAll('[aria-rowindex], [aria-colindex]').forEach(node => { node.removeAttribute('aria-rowindex'); node.removeAttribute('aria-colindex'); });
             table.removeAttribute('aria-rowcount');
             table.removeAttribute('aria-colcount');
             table.querySelectorAll('[aria-rowindex], [aria-colindex]').forEach(node => {
@@ -138,7 +142,11 @@
         }
         function render() {
             scheduled = 0;
-            if (!enabled || printing) { restore(); clearCoordinates(); return; }
+            if (!enabled || printing) {
+                restore(); clearCoordinates();
+                records = []; columns = []; parkedCells.clear();
+                return;
+            }
             if (dirty) snapshot();
             const desktop = window.innerWidth >= 769;
             const [before, after] = margins(window.innerHeight, window.scrollY - previousY);
@@ -171,7 +179,7 @@
             previousY = window.scrollY;
             previousX = wrapper.scrollLeft;
         }
-        window.reviewWindow = { prepare, schedule, restore, get enabled() { return enabled; } };
+        window.reviewWindow = { prepare, schedule, restore, get enabled() { return enabled; }, get retainedCount() { return records.length + parkedCells.size; } };
         // Capture before the legacy handlers read a complete DOM collection.
         for (const event of ['click', 'input', 'change', 'keydown']) {
             document.addEventListener(event, e => {
