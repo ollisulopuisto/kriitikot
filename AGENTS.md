@@ -1,5 +1,18 @@
 # Kriitikot — Agent Reference
 
+## Bare rating clusters and hover values, 2026-11-21
+
+Remove the cluster wash, not the star colors, five-slot accessible text or H6
+paint/shadow layers. Four-star positions are now (37,21), (63,21), (37,43),
+(63,43), producing a smaller footprint than five stars. Shared lazy rendering
+and both server templates include the rating in review-link titles.
+
+Regression: pytest, npm test, scripts/check_rating_pills.py and
+scripts/check_rating_hover.py. The Chrome checks cover transparent faces,
+all rating footprints, server/lazy links, pointer/touch/reduced motion and
+forced-color/print fallback. Generate docs with scripts/generate_static.py;
+no scraping or production DB edits are needed.
+
 Finnish movie review aggregator: scrapes reviews from media sites, stores in SQLite via SQLAlchemy, serves via Flask.
 
 ## Stack

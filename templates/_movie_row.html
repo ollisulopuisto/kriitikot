@@ -58,7 +58,7 @@
         <a href="{{ review.source_url }}"
             class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
             data-publication="{{ pub_short }}"
-            title="{{ review.publication.name }}: {{ tooltip_text }}...">
+            title="{{ review.publication.name }}: {{ review.rating_stars }}/5 tähteä. {{ tooltip_text }}...">
             {% include '_rating_stars.html' %}
         </a>
         {% else %}

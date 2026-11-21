@@ -77,6 +77,7 @@ try:
                         pill.scroll_into_view_if_needed()
                         page.wait_for_timeout(550)
                         rest = pill.evaluate(STATE)
+                        assert rest['face'][-1] == 'rgba(0, 0, 0, 0)', rest
                         assert all(s['opacity'] == 0 for s in rest['stars'])
                         pill.hover()
                         page.wait_for_timeout(300)

@@ -32,8 +32,15 @@ describe('five fixed rating slots',()=>{
    expect(stars.getAttribute('role')).toBe('img');
    expect([...stars.children].every(s=>s.getAttribute('aria-hidden')==='true')).toBe(true);
    expect(pill.tagName).toBe(url?'A':'SPAN');
+   if (url) expect(pill.title).toBe(`hs: ${rating}/5 tähteä. Lue arvostelu...`);
   });
  }
+ it('escapes publication and excerpt text without losing the numeric hover rating',()=>{
+  document.body.innerHTML=render({rating_stars:4,source_url:'https://example.com/',source_publication:'A "publication"',review_text:'A <film> & "review"'});
+  const pill=document.querySelector('a.rating-pill');
+  expect(pill.title).toBe('A "publication": 4/5 tähteä. A <film> & "review"...');
+  expect(pill.querySelector('film')).toBeNull();
+ });
  it('empty slots do not turn low reviews into five-star matches',()=>{
   window.innerWidth=1400;window.currentMovieOffset=0;
   const data={Low:{Critic:[{rating_stars:2,source_publication:'hs'}]},High:{Critic:[{rating_stars:5,source_publication:'hs'}]}};

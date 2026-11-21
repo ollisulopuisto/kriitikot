@@ -152,9 +152,9 @@ def test_cluster_ink_separates_from_light_surfaces():
         edge = re.search(r'--cluster-edge: (#[0-9a-f]+)', block)
         if edge:
             color = edge.group(1)
-        wash = re.search(r'--cluster-wash: (rgba\([^)]*\))', block).group(1)
         for surface in ('#ffffff', '#f0f4ff', '#fcfcfc', '#f8f9fa', '#ede9fe'):
-            assert contrast(color, composite(wash, surface)) >= 3
+            assert contrast(color, surface) >= 3
+    assert '--cluster-wash' not in table
 
 
 def test_five_star_cluster_glows_without_a_face_shadow():

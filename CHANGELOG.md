@@ -1,3 +1,11 @@
+## 2026-11-21
+
+- Remove tinted backgrounds behind star clusters on desktop and phone. Keep the
+  colored stars and H6 hover lift/shadow, and tighten four-star spacing so its
+  footprint is smaller than five stars.
+- Include the numeric star rating in review-link hover text, both initially
+  rendered and lazy-loaded, while keeping publication and excerpt text.
+
 ## 2026-11-20
 
 - Match HS preview subjects to an existing film repeated in independent metadata fields. Read explicit headline star verdicts when body stars are absent; omit unrated HS reviews. Remove the per-article preview allowlist.
