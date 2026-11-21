@@ -54,4 +54,6 @@ Printing now reindexes an existing pinned header when windowing resumes, rather 
 
 The comparison now approaches each filtered/sorted state in both scroll directions and enforces half a viewport behind versus 1.5 ahead (reversed going up), independently of the implementation helper. A temporary symmetric 1.5/1.5 mutation fails this browser check. Print validation enters Chromium print media, verifies every logical review row and critic cell is restored and laid out without window spacers, checks print-only control hiding, and inspects captures before returning to screen mode. This covers print-media layout, not a PDF pagination or physical-printer guarantee.
 
+Exact overscan membership is now required in both directions, not merely bounded from above. A viewport-only mutation fails the missing-overscan assertion. Print media checks verify every review pill has positive geometry and visible styles, and each logical cell is visible unless both it and its empty critic column are intentionally hidden. A print-only CSS mutation hiding critic cells fails the check.
+
 </details>
