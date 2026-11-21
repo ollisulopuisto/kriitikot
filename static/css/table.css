@@ -743,7 +743,8 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     height: 64px;
     padding: 0;
     border-radius: 6px;
-    background: var(--cluster-wash);
+    /* Stars sit directly on the table/card surface, with no tinted slab. */
+    background: transparent;
     box-shadow: none;
     font-size: 0;
     line-height: 0;
@@ -783,38 +784,33 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
 .rating-pill.stars-1 {
     --cluster-size: 18px;
     --cluster-color: #b91c1c;
-    --cluster-wash: rgba(185, 28, 28, .055);
 }
 .rating-pill.stars-2 {
     --cluster-size: 20px;
     --cluster-color: #a83a12;
-    --cluster-wash: rgba(168, 58, 18, .055);
 }
 .rating-pill.stars-3 {
     --cluster-size: 22px;
     --cluster-color: #d4a700;
     --cluster-edge: #8c7100;
-    --cluster-wash: rgba(212, 167, 0, .055);
 }
 .rating-pill.stars-4 {
     --cluster-size: 24px;
     --cluster-color: #1686bb;
-    --cluster-wash: rgba(22, 134, 187, .055);
 }
 .rating-pill.stars-5 {
     --cluster-size: 25px;
     --cluster-color: #179447;
-    --cluster-wash: rgba(23, 148, 71, .055);
 }
 .stars-2 .rating-star:nth-child(1) { --star-x: 38px; }
 .stars-2 .rating-star:nth-child(2) { --star-x: 62px; }
 .stars-3 .rating-star:nth-child(1) { --star-y: 18px; }
 .stars-3 .rating-star:nth-child(2) { --star-x: 38px; --star-y: 44px; }
 .stars-3 .rating-star:nth-child(3) { --star-x: 62px; --star-y: 44px; }
-.stars-4 .rating-star:nth-child(1) { --star-x: 35px; --star-y: 18px; }
-.stars-4 .rating-star:nth-child(2) { --star-x: 65px; --star-y: 18px; }
-.stars-4 .rating-star:nth-child(3) { --star-x: 35px; --star-y: 46px; }
-.stars-4 .rating-star:nth-child(4) { --star-x: 65px; --star-y: 46px; }
+.stars-4 .rating-star:nth-child(1) { --star-x: 37px; --star-y: 21px; }
+.stars-4 .rating-star:nth-child(2) { --star-x: 63px; --star-y: 21px; }
+.stars-4 .rating-star:nth-child(3) { --star-x: 37px; --star-y: 43px; }
+.stars-4 .rating-star:nth-child(4) { --star-x: 63px; --star-y: 43px; }
 .stars-5 .rating-star:nth-child(1) { --star-x: 37px; --star-y: 20px; }
 .stars-5 .rating-star:nth-child(2) { --star-x: 63px; --star-y: 20px; }
 .stars-5 .rating-star:nth-child(3) { --star-x: 24px; --star-y: 43px; }

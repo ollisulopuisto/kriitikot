@@ -32,7 +32,7 @@ ENV.filters['publication_name'] = str
 POSITIONS = {
     1: [(50, 32)], 2: [(38, 32), (62, 32)],
     3: [(50, 18), (38, 44), (62, 44)],
-    4: [(35, 18), (65, 18), (35, 46), (65, 46)],
+    4: [(37, 21), (63, 21), (37, 43), (63, 43)],
     5: [(37, 20), (63, 20), (24, 43), (50, 43), (76, 43)],
 }
 MEASURE = '''p=>{
@@ -49,6 +49,7 @@ MEASURE = '''p=>{
         shape:getComputedStyle(paint,'::before').clipPath,
         glow:getComputedStyle(paint).filter,
         faceShadow:getComputedStyle(face).boxShadow,
+        faceBackground:getComputedStyle(face).backgroundColor,
         ink:getComputedStyle(paint,'::after').backgroundColor,
         edge:getComputedStyle(paint,'::before').backgroundColor,
         stars:stars.map(n=>{
@@ -204,6 +205,7 @@ def verify(pill, rating):
     assert data['shape'].startswith('polygon('), data
     assert data['fitsCell'], data
     assert data['faceShadow'] == 'none', data
+    assert data['faceBackground'] == 'rgba(0, 0, 0, 0)', data
     assert data['ink'] == ['rgb(185, 28, 28)', 'rgb(168, 58, 18)',
                            'rgb(212, 167, 0)', 'rgb(22, 134, 187)',
                            'rgb(23, 148, 71)'][rating - 1], data
@@ -281,6 +283,19 @@ try:
                         source_publication:'hs'}));
                 document.body.prepend(scale);
             }''')
+            areas = page.locator('#scale .rating-pill').evaluate_all('''pills=>
+                pills.map(pill=>{
+                    const boxes=[...pill.querySelectorAll('.rating-star')]
+                        .filter(n=>getComputedStyle(n).display!=='none')
+                        .map(n=>n.getBoundingClientRect());
+                    const width=Math.max(...boxes.map(b=>b.right))-
+                        Math.min(...boxes.map(b=>b.left));
+                    const height=Math.max(...boxes.map(b=>b.bottom))-
+                        Math.min(...boxes.map(b=>b.top));
+                    return width*height;
+                })''')
+            assert areas == sorted(set(areas)), areas
+            print(width, 'rating cluster areas increase from 1 to 5:', areas)
             page.screenshot(path=str(OUT / f'scale-{width}.png'))
             page.locator('#scale').evaluate('n=>n.remove()')
             for origin in ('server', 'lazy'):
@@ -302,6 +317,7 @@ try:
                             'A' if linked else 'SPAN')
                         verify(pill, rating)
                         if linked:
+                            assert f'{rating}/5 tähteä.' in pill.get_attribute('title')
                             before = pill.evaluate(MEASURE)
                             pill.hover()
                             page.wait_for_timeout(300)

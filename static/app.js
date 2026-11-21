@@ -764,7 +764,7 @@ function createReviewPill(review) {
         return `
             <a href="${safeReviewUrl}"
                 class="rating-link rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr} target="_blank"
-                title="${publicationName}: ${tooltipText}...">
+                title="${publicationName}: ${escapeHtml(review.rating_stars)}/5 tähteä. ${tooltipText}...">
                 <span class="rating-stars" role="img" aria-label="${escapeHtml(review.rating_stars)}/5 tähteä">${starsHtml}</span>
             </a>
         `;

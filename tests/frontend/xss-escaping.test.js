@@ -66,7 +66,7 @@ describe('XSS-escaappaus renderöitäessä', () => {
     expect(pill).toBeTruthy();
     // Attribuutti ei katkea: payload pysyy title-arvon sisällä merkkijonona
     expect(pill.getAttribute('onmouseover')).toBeNull();
-    expect(pill.getAttribute('title')).toBe('hs: ' + reviewText + '...');
+    expect(pill.getAttribute('title')).toBe('hs: 4/5 tähteä. ' + reviewText + '...');
     // Lähde-HTML:ssä lainausmerkki on escaapattu
     expect(document.querySelector('.mobile-cards').innerHTML).toContain('x&quot; onmouseover=&quot;');
   });

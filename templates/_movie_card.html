@@ -49,7 +49,7 @@
                 {% if review.source_url %}
                 {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
                 <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}"
-                    target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
+                    target="_blank" title="{{ review.publication.name }}: {{ review.rating_stars }}/5 tähteä. {{ tooltip_text }}...">
                     {% include '_rating_stars.html' %}
                 </a>
                 {% else %}
