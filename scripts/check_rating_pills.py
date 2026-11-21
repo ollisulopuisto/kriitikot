@@ -124,6 +124,32 @@ try:
             page.evaluate('window.reviewWindow.prepare()')
             selector = ('.movie-card .rating-pill' if width < 769 else
                         '#review-container-desktop td .rating-pill')
+            # Check untouched published and lazy row/card placement as well as
+            # the full deterministic matrix below. Missing catalog ratings do
+            # not reduce that matrix's coverage.
+            container = ('.movie-card' if width < 769 else
+                         '#review-container-desktop tbody tr')
+            untouched = page.locator(container).evaluate_all('''nodes=>{
+                const seen=new Set(),out=[];
+                nodes.forEach((row,i)=>row.querySelectorAll('.rating-pill')
+                    .forEach((pill,j)=>{
+                        const rating=Number(pill.className.match(/stars-([1-5])/)[1]);
+                        const origin=i<30?'published':'lazy';
+                        const key=origin+rating;
+                        if(!seen.has(key)){
+                            seen.add(key);out.push({i,j,rating,origin});
+                        }
+                    }));
+                return out;
+            }''')
+            assert {item['origin'] for item in untouched} == {'published','lazy'}
+            for item in untouched:
+                pill = page.locator(container).nth(item['i']).locator(
+                    '.rating-pill').nth(item['j'])
+                pill.scroll_into_view_if_needed()
+                verify(pill, item['rating'])
+            print(width, 'untouched published/lazy placement passed:',
+                  [(n['origin'], n['rating']) for n in untouched])
             # One known real ancestor; replace, never crowd a narrow lane.
             slot = page.locator(selector).first
             host = slot.evaluate_handle('p=>p.parentElement')
@@ -184,9 +210,45 @@ try:
                             ?h.removeAttribute('style'):h.setAttribute(
                                 'style',old)''', saved)
                         verify(pill, rating)
+            # Background-free modes must retain real, visible awarded text.
+            for mode in ('forced-colors', 'print'):
+                page.emulate_media(
+                    forced_colors='active' if mode == 'forced-colors' else 'none',
+                    media='print' if mode == 'print' else 'screen')
+                for linked in (False, True):
+                    for rating in range(1, 6):
+                        html = server_pill(rating, linked, width < 769)
+                        pill = host.evaluate_handle('''(h,html)=>{
+                            h.querySelector('.rating-pill').outerHTML=html;
+                            return h.querySelector('.rating-pill');
+                        }''', html).as_element()
+                        fallback = pill.evaluate('''p=>{
+                            const stars=[...p.querySelectorAll('.rating-star')]
+                                .filter(n=>getComputedStyle(n).display!=='none');
+                            return {text:p.querySelector('.rating-stars').textContent,
+                                count:stars.length,
+                                visible:stars.every(n=>
+                                    parseFloat(getComputedStyle(n).fontSize)>0 &&
+                                    getComputedStyle(n,'::before').content==='none' &&
+                                    getComputedStyle(n,'::after').content==='none' &&
+                                    getComputedStyle(n).filter==='none')};
+                        }''')
+                        assert fallback == dict(text='★'*rating, count=rating,
+                                                visible=True), fallback
+                pill.scroll_into_view_if_needed()
+                page.screenshot(path=str(OUT / f'{mode}-{width}.png'))
+                if mode == 'print' and width == 900:
+                    page.pdf(path=str(OUT / 'background-free.pdf'),
+                             print_background=False, page_ranges='1',
+                             width='900px', height='1100px')
+            page.emulate_media(forced_colors='none', media='screen')
             host.evaluate('''(h,html)=>{
                 h.querySelector('.rating-pill').outerHTML=html;
             }''', original)
+            restored = page.locator(selector).first
+            restored_rating = int(restored.get_attribute('class').split('stars-')[1][0])
+            restored.scroll_into_view_if_needed()
+            verify(restored, restored_rating)
             page.evaluate('window.scrollTo(0,0)')
             page.screenshot(path=str(OUT / f'context-{width}.png'))
             assert page.evaluate(

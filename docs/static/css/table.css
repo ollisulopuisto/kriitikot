@@ -836,3 +836,21 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
         min-width: 116px;
     }
 }
+
+/* Background graphics can be suppressed in print and forced-colors modes.
+   Fall back to the existing awarded-star text, not invisible CSS paint. */
+@media print, (forced-colors: active) {
+    .rating-pill .rating-stars { background: transparent; }
+    .rating-star {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: CanvasText;
+        font-family: Arial, sans-serif;
+        font-size: var(--cluster-size);
+        line-height: 1;
+        filter: none !important;
+    }
+    .rating-star-empty { display: none; }
+    .rating-star::before, .rating-star::after { content: none; }
+}
