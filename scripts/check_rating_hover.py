@@ -2,13 +2,18 @@
 import functools
 import http.server
 import os
+import io
+import tempfile
+
+from PIL import Image, ImageChops
 from pathlib import Path
 import threading
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path(os.environ.get('SCREENSHOT_DIR', '/tmp/kriitikot-h6-check'))
+OUT = Path(os.environ.get('SCREENSHOT_DIR') or
+           tempfile.mkdtemp(prefix='kriitikot-h6-'))
 OUT.mkdir(parents=True, exist_ok=True)
 
 
@@ -81,6 +86,21 @@ try:
                                 1 if touch else 1.3)) < .01
                             assert abs(after['opacity'] - (
                                 0 if touch else .28)) < .001
+                        if not touch:
+                            visible = Image.open(io.BytesIO(
+                                pill.screenshot())).convert('RGB')
+                            shadows = pill.query_selector_all(
+                                '.rating-star-shadow')
+                            for shadow in shadows:
+                                shadow.evaluate("n=>n.style.visibility="
+                                                "'hidden'")
+                            hidden = Image.open(io.BytesIO(
+                                pill.screenshot())).convert('RGB')
+                            for shadow in shadows:
+                                shadow.evaluate("n=>n.style.removeProperty("
+                                                "'visibility')")
+                            diff = ImageChops.difference(visible, hidden)
+                            assert sum(diff.convert('L').histogram()[4:]) > 5
                         if not touch and width in (390, 1600) and linked:
                             page.screenshot(path=str(
                                 OUT / f'h6-raised-{rating}-{width}.png'))

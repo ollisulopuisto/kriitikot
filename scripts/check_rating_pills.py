@@ -1,11 +1,13 @@
 """Chromium A1v3c smoke, no scrape or deployment.
 
 Install project requirements, Playwright, BeautifulSoup4, Pillow and Jinja2.
-System Chrome is required (or set CHROME_BIN).
+System Chrome and pdftoppm are required (or set CHROME_BIN).
 """
 import functools
 import http.server
 import io
+import subprocess
+import tempfile
 import os
 from pathlib import Path
 import threading
@@ -17,12 +19,13 @@ try:
     from playwright.sync_api import sync_playwright
 except ImportError as error:
     raise SystemExit(
-        'Install project requirements, playwright, beautifulsoup4 and jinja2. '
+        'Install project requirements, playwright, beautifulsoup4, pillow, jinja2. '
         f'Missing module: {error.name}'
     ) from error
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path(os.environ.get('SCREENSHOT_DIR', '/tmp/kriitikot-cluster-check'))
+OUT = Path(os.environ.get('SCREENSHOT_DIR') or
+           tempfile.mkdtemp(prefix='kriitikot-cluster-'))
 OUT.mkdir(parents=True, exist_ok=True)
 ENV = Environment(loader=FileSystemLoader(ROOT / 'templates'), autoescape=True)
 ENV.filters['publication_name'] = str
@@ -106,6 +109,30 @@ def verify_fallback_pixels(pill):
     difference = ImageChops.difference(visible, hidden)
     histogram = difference.convert('L').histogram()
     assert sum(histogram[31:]) > 50
+
+
+def verify_printed_ink(page, mode):
+    """Rasterize actual PDFs with/without glyphs, not just screen CSS."""
+    with tempfile.TemporaryDirectory(prefix='kriitikot-print-') as temp:
+        folder = Path(temp)
+        page.pdf(path=str(folder / 'visible.pdf'), print_background=False,
+                 page_ranges='1', width='900px', height='1100px')
+        hidden = page.add_style_tag(content=(
+            '.rating-star-paint {visibility:hidden!important}'))
+        page.pdf(path=str(folder / 'hidden.pdf'), print_background=False,
+                 page_ranges='1', width='900px', height='1100px')
+        hidden.evaluate('n=>n.remove()')
+        images = []
+        for name in ('visible', 'hidden'):
+            subprocess.run(['pdftoppm', '-f', '1', '-singlefile', '-scale-to',
+                            '1200', '-png', str(folder / f'{name}.pdf'),
+                            str(folder / name)], check=True)
+            images.append(Image.open(folder / f'{name}.png').convert('RGB'))
+        diff = ImageChops.difference(*images)
+        assert sum(diff.convert('L').histogram()[31:]) > 100
+        (OUT / f'{mode}-background-free.pdf').write_bytes(
+            (folder / 'visible.pdf').read_bytes())
+        images[0].save(OUT / f'{mode}-background-free.png')
 
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
@@ -307,9 +334,7 @@ try:
                 verify_fallback_pixels(pill)
                 page.screenshot(path=str(OUT / f'{mode}-{width}.png'))
                 if 'print' in mode and width == 900:
-                    page.pdf(path=str(OUT / f'{mode}-background-free.pdf'),
-                             print_background=False, page_ranges='1',
-                             width='900px', height='1100px')
+                    verify_printed_ink(page, mode)
             page.emulate_media(forced_colors='none', media='screen',
                                color_scheme='light')
             host.evaluate('''(h,html)=>{
