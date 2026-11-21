@@ -48,6 +48,16 @@ try:
                     proportional:[...s.children].every(c=>getComputedStyle(c).transform==='none'),
                     glow:getComputedStyle(s.firstElementChild).textShadow,
                     faceShadow:getComputedStyle(s).boxShadow,
+                    crownUnclipped:[...s.children].every(c=>{
+                        let node=c;
+                        while(node && node!==document.body){
+                            const style=getComputedStyle(node);
+                            if(['hidden','clip','scroll','auto'].includes(style.overflowX) ||
+                               ['hidden','clip','scroll','auto'].includes(style.overflowY)) return false;
+                            node=node.parentElement;
+                        }
+                        return true;
+                    }),
                     // Measure painted glyph ink, not flex slots. Empty slots use
                     // the same glyph via ::before. Overlap between adjacent stars
                     // is intended; escaping the link target is not.
@@ -66,24 +76,27 @@ try:
             })'''
             geometry = page.locator('#rating-fixture .rating-pill').evaluate_all(measure)
             assert all(p['slots'] == 5 and p['empty'] == 5-p['text'] for p in geometry)
-            assert all(p['proportional'] and p['inTarget'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry),geometry
-            assert [p['fs'] for p in geometry[::2]] == [12,14,17,22,29],geometry
-            assert all('34, 197, 94' in p['glow'] for p in geometry[-2:]),geometry
-            assert all('34, 197, 94' not in p['faceShadow'] for p in geometry),geometry
+            assert all(p['proportional'] and p['inTarget'] and p['crownUnclipped'] and p['ink'] == 'rgb(255, 255, 255)' for p in geometry), geometry
+            assert [p['fs'] for p in geometry[::2]] == [12, 14, 17, 22, 29], geometry
+            assert all('34, 197, 94' in p['glow'] for p in geometry[-2:]), geometry
+            assert all('34, 197, 94' not in p['faceShadow'] for p in geometry), geometry
             if width < 769:
                 assert all(p['target'] >= 44 for p in geometry), geometry
                 actual_targets = page.locator('.movie-card a.rating-pill').evaluate_all(
                     'nodes=>nodes.filter(n=>n.getBoundingClientRect().height>0).map(n=>n.getBoundingClientRect().height)')
                 assert actual_targets and min(actual_targets) >= 44, actual_targets
-            assert all(abs(p['w']-88)<.1 and abs(p['h']-17)<.1 for p in geometry),geometry
+            assert all(abs(p['w'] - 88) < .1 and abs(p['h'] - 17) < .1 for p in geometry), geometry
             # Negative controls: horizontal-only escape and the old face height must
             # fail the same measurements, rather than only passing good CSS.
             broken = page.add_style_tag(content='#rating-fixture .stars-5 .rating-star { position:relative; left:100px!important }')
             assert not all(p['inTarget'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
             broken.evaluate('n=>n.remove()')
             old_face = page.add_style_tag(content='#rating-fixture .rating-stars { height:28.8px!important }')
-            assert not all(abs(p['h']-17)<.1 for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
+            assert not all(abs(p['h'] - 17) < .1 for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
             old_face.evaluate('n=>n.remove()')
+            clipping = page.add_style_tag(content='#rating-fixture .rating-stars { overflow:hidden!important }')
+            assert not all(p['crownUnclipped'] for p in page.locator('#rating-fixture .rating-pill').evaluate_all(measure))
+            clipping.evaluate('n=>n.remove()')
             page.screenshot(path=str(output / f'scale-{width}.png'))
             page.locator('#rating-fixture').evaluate('e=>e.remove()')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width

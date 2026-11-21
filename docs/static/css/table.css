@@ -809,6 +809,6 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
 .rating-pill.stars-4 { --rating-star-size: 1.375rem; }
 .rating-pill.stars-5 { --rating-star-size: 1.8125rem; }
 .rating-pill.stars-5 .rating-star {
-    text-shadow: 0 0 .5px #451a03, 0 .5px .5px #451a03,
+    text-shadow: 0 0 1px var(--star-outline), 0 0 2px var(--star-outline), 0 1px 1px rgba(69,26,3,.55),
         0 0 2px #bbf7d0, 0 0 5px #22c55e, 0 0 7px rgba(34,197,94,.8);
 }
