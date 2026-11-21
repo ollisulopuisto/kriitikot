@@ -3,15 +3,18 @@ import { readFileSync } from 'node:fs';
 
 let frame;
 let fontDone;
+let proximity;
 function setup({ width = 1200, height = 200 } = {}) {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
     frame = null;
+    proximity = null;
+    vi.stubGlobal('IntersectionObserver', class { constructor(fn) { proximity = fn; } observe() {} });
     Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve(), addEventListener: (event, fn) => { if (event === 'loadingdone') fontDone = fn; } } });
     vi.stubGlobal('requestAnimationFrame', fn => { frame = fn; return 1; });
     const cell = i => `<td class="${i ? 'rating-cell' : 'movie-col'}"><button>${i}</button></td>`;
-    document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button>
+    document.body.innerHTML = `<div class="container"><button id="windowing-toggle"></button><button id="load-more-button">More</button>
       <div id="review-container-desktop"><div class="table-wrapper"><table><thead><tr>
       ${Array.from({ length: 40 }, (_, i) => `<th>${i}</th>`).join('')}</tr></thead><tbody>
       ${Array.from({ length: 40 }, (_, i) => `<tr data-index="${i}">${Array.from({ length: 40 }, (_, j) => cell(j)).join('')}</tr>`).join('')}
@@ -114,10 +117,11 @@ describe('review viewport window', () => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
         expect(document.activeElement).toBe(button);
     });
-    it('only windows vertically on phones and offers a complete-view fallback', () => {
+    it('keeps every loaded phone card connected without a toggle', () => {
         const { tick } = setup({ width: 390 });
-        expect(document.querySelectorAll('tbody tr:not(.window-spacer)').length).toBe(0);
-        expect(document.querySelectorAll('.movie-card').length).toBeLessThan(20);
+        expect(document.querySelectorAll('tbody tr:not(.window-spacer)').length).toBe(40);
+        expect(document.querySelectorAll('.movie-card').length).toBe(20);
+        expect(document.querySelector('.window-spacer, .window-column-spacer')).toBeNull();
         document.getElementById('windowing-toggle').click();
         tick();
         expect(window.reviewWindow.enabled).toBe(false);
@@ -130,4 +134,45 @@ describe('review viewport window', () => {
         expect(document.querySelectorAll('.movie-card').length).toBe(19);
         expect(document.querySelectorAll('tbody td').length).toBe(1600);
     });
+    it('restores phone cards on resize and preserves the desktop choice', () => {
+        const { tick } = setup();
+        expect(window.reviewWindow.enabled).toBe(true);
+        Object.defineProperty(window, 'innerWidth', {configurable:true,value:768});
+        window.dispatchEvent(new Event('resize'));tick();
+        expect(window.reviewWindow.enabled).toBe(false);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        expect(window.reviewWindow.retainedCount).toBe(0);
+        expect(document.querySelector('.window-spacer, .window-column-spacer')).toBeNull();
+        Object.defineProperty(window, 'innerWidth', {configurable:true,value:769});
+        window.dispatchEvent(new Event('resize'));tick();
+        expect(window.reviewWindow.enabled).toBe(true);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(0);
+        document.getElementById('windowing-toggle').click();tick();
+        expect(window.reviewWindow.enabled).toBe(false);
+        for(const width of [390,1200]) {
+            Object.defineProperty(window, 'innerWidth', {configurable:true,value:width});
+            window.dispatchEvent(new Event('resize'));tick();
+            expect(window.reviewWindow.enabled).toBe(false);
+            expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        }
+        expect(document.getElementById('windowing-toggle').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('preloads phone batches on downward scroll without windowing cards', () => {
+        const { tick } = setup({width:390});
+        const more=document.getElementById('load-more-button');
+        Object.defineProperty(more,'offsetParent',{configurable:true,value:document.body});
+        const click=vi.spyOn(more,'click');
+        proximity([{isIntersecting:true}]);
+        expect(click).not.toHaveBeenCalled();
+        Object.defineProperty(window,'scrollY',{configurable:true,value:40});
+        window.dispatchEvent(new Event('scroll'));tick();
+        expect(click).toHaveBeenCalledTimes(1);
+        expect(document.querySelectorAll('.movie-card')).toHaveLength(20);
+        expect(window.reviewWindow.enabled).toBe(false);
+        Object.defineProperty(window,'scrollY',{configurable:true,value:20});
+        window.dispatchEvent(new Event('scroll'));tick();
+        expect(click).toHaveBeenCalledTimes(1);
+    });
+
 });

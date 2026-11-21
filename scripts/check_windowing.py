@@ -52,7 +52,7 @@ with tempfile.TemporaryFile() as log:
                 headless=True,
                 args=["--no-sandbox"],
             )
-            for device, width, height in [("desktop", 1600, 900), ("phone", 390, 844)]:
+            for device, width, height in [("desktop", 1600, 900)]:
                 pages = []
                 errors = []
                 for full in [False, True]:
