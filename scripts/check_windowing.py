@@ -19,7 +19,7 @@ MODEL = """() => {
  window.reviewWindow.prepare();
  return {
   offset: window.currentMovieOffset,
-  headers: [...document.querySelectorAll('thead th.rating-cell')].map(n=>[n.dataset.criticId,n.style.display,n.dataset.filtered||'']),
+  headers: [...document.querySelectorAll('#review-container-desktop thead th.rating-cell')].map(n=>[n.dataset.criticId,n.style.display,n.dataset.filtered||'']),
   rows: [...document.querySelectorAll('#review-container-desktop tbody tr')].map(n=>[n.querySelector('.movie-title-main')?.textContent,n.style.display,[...n.querySelectorAll('.rating-pill')].map(p=>[p.textContent.trim(),p.style.display])]),
   cards: [...document.querySelectorAll('.movie-card')].map(n=>[n.dataset.movie,n.style.display,[...n.querySelectorAll('.review-item')].map(r=>[r.dataset.critic,r.style.display])])
  };

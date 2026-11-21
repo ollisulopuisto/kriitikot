@@ -53,10 +53,12 @@ describe('review viewport window', () => {
         fontDone();
         tick();
         expect(first.style.height).toBe('80px');
-        Object.defineProperty(window, 'scrollY', { configurable: true, value: 4000 });
+        Object.defineProperty(window, 'scrollY', { configurable: true, value: 800 });
         window.dispatchEvent(new Event('scroll'));
         tick();
         expect(first.isConnected).toBe(false);
+        expect(document.querySelector('tbody tr[data-index="20"]')).toBeTruthy();
+        expect(document.querySelectorAll('tbody tr:not(.window-spacer)').length).toBeGreaterThan(0);
         const spacer = document.querySelector('tbody').firstElementChild;
         expect(spacer.classList.contains('window-spacer')).toBe(true);
         expect(spacer.style.height).toBe('80px');
