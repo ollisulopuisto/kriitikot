@@ -40,13 +40,14 @@ MEASURE = '''p=>{
         f.right<=cellBounds.right);
     const stars=[...face.children]
         .filter(n=>getComputedStyle(n).display!=='none');
+    const paint=stars[0].querySelector('.rating-star-paint');
     return {width:f.width,height:f.height,fitsCell,text:face.textContent,
         label:face.getAttribute('aria-label'),
-        shape:getComputedStyle(stars[0],'::before').clipPath,
-        glow:getComputedStyle(stars[0]).filter,
+        shape:getComputedStyle(paint,'::before').clipPath,
+        glow:getComputedStyle(paint).filter,
         faceShadow:getComputedStyle(face).boxShadow,
-        ink:getComputedStyle(stars[0],'::after').backgroundColor,
-        edge:getComputedStyle(stars[0],'::before').backgroundColor,
+        ink:getComputedStyle(paint,'::after').backgroundColor,
+        edge:getComputedStyle(paint,'::before').backgroundColor,
         stars:stars.map(n=>{
             const b=n.getBoundingClientRect();
             let clear=b.left>=f.left && b.right<=f.right &&
@@ -70,7 +71,8 @@ FALLBACK = '''p=>{
         .filter(n=>getComputedStyle(n).display!=='none');
     return {text:face.textContent, count:stars.length,
         visible:stars.every(n=>{
-            const cs=getComputedStyle(n),box=n.getBoundingClientRect();
+            const paint=n.querySelector('.rating-star-paint');
+            const cs=getComputedStyle(paint),box=paint.getBoundingClientRect();
             for(let a=n;a;a=a.parentElement){
                 const ancestor=getComputedStyle(a);
                 if(ancestor.visibility!=='visible' ||
@@ -80,8 +82,8 @@ FALLBACK = '''p=>{
                        checkOpacity:true}) &&
                 box.width>0 && box.height>0 &&
                 parseFloat(cs.fontSize)>0 &&
-                getComputedStyle(n,'::before').content==='none' &&
-                getComputedStyle(n,'::after').content==='none' &&
+                getComputedStyle(paint,'::before').content==='none' &&
+                getComputedStyle(paint,'::after').content==='none' &&
                 cs.filter==='none';
         })};
 }'''
@@ -232,7 +234,7 @@ try:
                         if linked:
                             before = pill.evaluate(MEASURE)
                             pill.hover()
-                            page.wait_for_timeout(180)
+                            page.wait_for_timeout(300)
                             assert pill.evaluate(MEASURE) == before
                             pill.focus()
                             assert pill.evaluate(

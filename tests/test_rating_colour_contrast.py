@@ -160,7 +160,7 @@ def test_cluster_ink_separates_from_light_surfaces():
 def test_five_star_cluster_glows_without_a_face_shadow():
     table = _read('table.css')
     block = re.search(
-        r'\.rating-pill\.stars-5 \.rating-star\s*\{([^}]*)\}', table, re.S)
+        r'\.rating-pill\.stars-5 \.rating-star-paint\s*\{([^}]*)\}', table, re.S)
     assert block and 'drop-shadow' in block.group(1)
     assert '#bbf7d0' in block.group(1)
     assert 'box-shadow' not in block.group(1)

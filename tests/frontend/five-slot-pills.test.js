@@ -14,7 +14,7 @@ describe('five fixed rating slots',()=>{
    expect(css).toContain(`--cluster-size: ${size}px;`);
   expect(css).toContain('.rating-star-empty { display: none; }');
   expect(css).toContain('.rating-pill:hover { transform: none; }');
-  expect(css).toContain('.rating-pill.stars-5 .rating-star {');
+  expect(css).toContain('.rating-pill.stars-5 .rating-star-paint {');
   expect(css).toContain('--cluster-color: #179447;');
  });
  for(let rating=1;rating<=5;rating++) for(const url of ['https://example.com/review','']) {
@@ -24,6 +24,10 @@ describe('five fixed rating slots',()=>{
    expect(stars.querySelectorAll('.rating-star')).toHaveLength(5);
    expect(stars.querySelectorAll('.rating-star-empty')).toHaveLength(5-rating);
    expect(stars.textContent).toBe('★'.repeat(rating));
+   expect(stars.querySelectorAll('.rating-star-shadow')).toHaveLength(5);
+   expect(stars.querySelectorAll('.rating-star-paint')).toHaveLength(5);
+   expect([...stars.querySelectorAll('.rating-star-shadow')]
+    .every(n=>n.textContent==='')).toBe(true);
    expect(stars.getAttribute('aria-label')).toBe(`${rating}/5 tähteä`);
    expect(stars.getAttribute('role')).toBe('img');
    expect([...stars.children].every(s=>s.getAttribute('aria-hidden')==='true')).toBe(true);

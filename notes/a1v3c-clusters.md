@@ -33,3 +33,13 @@ The second pre-push adversarial pass covered entry/exit of both background-free 
 Strengthened the fallback oracle to reject hidden or zero-opacity stars and ancestors, and require positive glyph bounds. Negative controls exercise both visibility and opacity on a star and its rating ancestor, with transitions disabled during the control. Added pixel-difference checks between real fallback ink and the same rating with only its stars hidden. Existing PDF and full-page captures are also visually inspected. Wrapped all browser script lines to 79 characters and fixed set spacing.
 
 The third pre-push pass covered fallback success, deliberately hidden failure, restoration, both media modes and source/published parity. Frontend 72, Python 321 plus 1 skip, rating/browser matrices and search regressions passed again. This follow-up changes tests and notes only, not the screen design or hover behavior.
+
+## H6 implementation, owner approved
+
+The owner approved building H6 and merging #112 on November 21. This supersedes the earlier no-merge restriction for this PR only, subject to tests and review.
+
+Only the star paint scales 100% to 130% in 250ms on a fine hover pointer. The star-shaped ground shadow stays at +4/+6px with 1.2px blur, fading from zero to 28% opacity. Background, hit area and star anchors stay fixed. It holds while actually hovered and settles in 420ms on exit. The five-second hold and three-second row stagger were video demonstration timing, not a UI timer. Touch, reduced motion, print and forced colors stay static; print/forced colors omit the shadow.
+
+Fourth pre-push adversarial pass: reviewed source/published template and lazy renderer parity, preserved exact awarded text, linked and unlinked hit areas, quick enter/exit/re-entry, hold beyond five seconds, clipping at 130%, source/published CSS and text fallback modes. Added separate paint/shadow structure assertions and real-Chrome H6 checks at 320/390/900/1600 with pointer and touch, reduced motion and interrupted transitions. Existing select/edit/clear/order/restore and delayed-result checks still pass. No filter or loader logic changed. Inspected actual raised 3/5 phone and 5/5 desktop pixels.
+
+Tests: frontend 72 passed, Python 321 passed/1 skipped, rating geometry and search browser suites green. Run `WIDTH=390 python scripts/check_rating_hover.py`, repeat at 320/900/1600; set `TOUCH=1` for touch contexts. This H6 follow-up adds no scrape, data generation or deployment path.
