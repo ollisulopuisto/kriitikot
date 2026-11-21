@@ -132,16 +132,28 @@ try:
             page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='domcontentloaded')
             page.locator('.film-search').fill('Anna minun rakastaa enemmän')
             page.wait_for_timeout(200)
-            page.locator('.film-search').fill('Paper Tiger')
+            page.locator('.film-search').fill('One Battle After Another')
             page.wait_for_timeout(200)
             if clear_before_release:
                 page.locator('.film-search').fill('')
                 page.wait_for_timeout(200)
             page.evaluate('window.releaseReviews()')
             page.wait_for_function('window._cachedReviewsData')
+            if clear_before_release:
+                page.wait_for_function('window.currentMovieOffset===60')
+            else:
+                # One Battle After Another is outside the server batch and must appear without edits.
+                page.wait_for_function('''[...document.querySelectorAll(
+                    '.movie-card')].some(n=>n.dataset.movie==='One Battle After Another' &&
+                        n.style.display!=='none')''')
             page.locator('.film-search').fill('Anna minun rakastaa enemmän')
 
             page.wait_for_function('window._cachedReviewsData && [...document.querySelectorAll(".movie-card")].some(n=>n.dataset.movie==="Anna minun rakastaa enemmän" && n.style.display!=="none")')
+            page.locator('.film-search').fill('')
+            page.wait_for_timeout(250)
+            expected = 60 if clear_before_release else 30
+            assert page.evaluate('window.currentMovieOffset') == expected
+            assert page.locator('.movie-card').count() == expected
             page.close()
         print('delayed catalog query passed')
         browser.close()

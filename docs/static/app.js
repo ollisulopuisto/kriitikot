@@ -1442,6 +1442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sliderWindowKey = null;
         loadMoreMovies();
         if (filmSearchQuery) window.topUpSliderResults?.();
+        else sliderWindowKey = sliderResultsKey();
     };
 
     const fetchReviewsJson = () => {
