@@ -1441,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sliderWindows?.clear();
         sliderWindowKey = null;
         loadMoreMovies();
-        if (filmSearchQuery) window.topUpSliderResults?.();
+        if (facetFiltersActive()) window.topUpSliderResults?.();
         else sliderWindowKey = sliderResultsKey();
     };
 

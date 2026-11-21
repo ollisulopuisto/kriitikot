@@ -155,6 +155,33 @@ try:
             assert page.evaluate('window.currentMovieOffset') == expected
             assert page.locator('.movie-card').count() == expected
             page.close()
+        # Sparse publication selected before catalog arrival must fill its
+        # review batch and retain it after a search/clear round trip.
+        page = browser.new_page(viewport={'width':1200,'height':900})
+        page.add_init_script('''const fetchOriginal=window.fetch;
+            window.fetch=(url,...args)=>String(url).includes('reviews.json')
+            ?new Promise(resolve=>{window.releaseReviews=()=>resolve(
+                fetchOriginal(url,...args));}):fetchOriginal(url,...args);''')
+        page.goto(f'http://127.0.0.1:{server.server_port}',
+                  wait_until='domcontentloaded')
+        hs = page.locator('.media-filter-btn[data-publication="HS"]').first
+        hs.click()
+        page.evaluate('window.releaseReviews()')
+        page.wait_for_function('window._cachedReviewsData')
+        page.wait_for_timeout(200)
+        def filled_batch():
+            return page.evaluate('''() => loadedMatchingReviewCount()
+                >= Math.min(FACET_REVIEW_BATCH, facetRevealCount)''')
+        assert filled_batch()
+        baseline=page.evaluate('loadedMatchingReviewCount()')
+        page.locator('.film-search').first.fill('Dry Leaf')
+        page.wait_for_timeout(250)
+        page.locator('.film-search').first.fill('')
+        page.wait_for_timeout(250)
+        assert hs.evaluate('n=>n.classList.contains("active")')
+        assert filled_batch()
+        assert page.evaluate('loadedMatchingReviewCount()') == baseline
+        page.close()
         print('delayed catalog query passed')
         browser.close()
 finally:
