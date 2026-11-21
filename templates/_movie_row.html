@@ -59,11 +59,11 @@
             class="rating-link rating-pill stars-{{ review.rating_stars }}" target="_blank"
             data-publication="{{ pub_short }}"
             title="{{ review.publication.name }}: {{ tooltip_text }}...">
-            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+            {% include '_rating_stars.html' %}
         </a>
         {% else %}
         <span class="rating-pill stars-{{ review.rating_stars }}" data-publication="{{ pub_short }}">
-            <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+            {% include '_rating_stars.html' %}
         </span>
         {% endif %}
         {% else %}

@@ -713,7 +713,10 @@ function updateRowVisibility() {
 
 function createReviewPill(review) {
     const tooltipText = escapeHtml(review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu');
-    let starsHtml = '★'.repeat(review.rating_stars);
+    const rating = Number(review.rating_stars);
+    const starsHtml = Array.from({length: 5}, (_, slot) =>
+        `<span class="rating-star${slot >= rating ? ' rating-star-empty' : ''}" aria-hidden="true">${slot < rating ? '★' : ''}</span>`
+    ).join('');
     const publicationName = escapeHtml(allPublicationMap[review.source_publication]?.name || review.source_publication); // Get full name
     const pubId = review.publication_short || review.source_publication;
     const pubAttr = pubId ? `data-publication="${escapeHtml(pubId)}"` : '';
@@ -724,13 +727,13 @@ function createReviewPill(review) {
             <a href="${safeReviewUrl}"
                 class="rating-link rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr} target="_blank"
                 title="${publicationName}: ${tooltipText}...">
-                <span class="rating-stars">${starsHtml}</span>
+                <span class="rating-stars" role="img" aria-label="${escapeHtml(review.rating_stars)}/5 tähteä">${starsHtml}</span>
             </a>
         `;
     } else {
         return `
             <span class="rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr}>
-                <span class="rating-stars">${starsHtml}</span>
+                <span class="rating-stars" role="img" aria-label="${escapeHtml(review.rating_stars)}/5 tähteä">${starsHtml}</span>
             </span>
         `;
     }

@@ -1,0 +1,1 @@
+<span class="rating-stars" role="img" aria-label="{{ review.rating_stars }}/5 tähteä">{%- for slot in range(5) -%}<span class="rating-star{% if slot >= review.rating_stars %} rating-star-empty{% endif %}" aria-hidden="true">{% if slot < review.rating_stars %}★{% endif %}</span>{%- endfor -%}</span>

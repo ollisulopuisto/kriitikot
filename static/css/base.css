@@ -12,22 +12,22 @@
     --transition: all 0.3s ease;
 
     /* Arvosana-asteikko: selkeä, intuitiivinen väriasteikko heti hahmotettavaan luettavuuteen:
-       1★ Crimson Red (huono), 2★ Burnt Orange (vaatimaton), 3★ Cool Sky Blue (tyydyttävä),
-       4★ Fresh Emerald Green (hyvä), 5★ Radiant Gold (erinomainen). */
+       1★ Crimson Red (huono), 2★ Burnt Orange (vaatimaton), 3★ Gold (tyydyttävä),
+       4★ Sky Blue (hyvä), 5★ Emerald Green (erinomainen). */
     --star-1: #b91c1c;
     --star-2: #a83a12;
-    --star-3: #38bdf8;
-    --star-4: #22c55e;
-    --star-5: #ffd60a;
+    --star-3: #ffd60a;
+    --star-4: #38bdf8;
+    --star-5: #22c55e;
 
     --star-1-top: #d42020;  --star-1-bot: #9a1717;
     --star-2-top: #c2410c;  --star-2-bot: #8d2b09;
-    --star-3-top: #7dd3fc;  --star-3-bot: #0ea5e9;
-    --star-4-top: #4ade80;  --star-4-bot: #16a34a;
-    --star-5-top: #ffea00;  --star-5-bot: #e5b800;
+    --star-3-top: #ffea00;  --star-3-bot: #e5b800;
+    --star-4-top: #7dd3fc;  --star-4-bot: #0ea5e9;
+    --star-5-top: #4ade80;  --star-5-bot: #16a34a;
 
     /* Tähdet ovat aina valkoisia. Kolme ylintä porrasta ovat kuitenkin liian
-       vaaleita kantamaan valkoista tekstiä (5★ olisi 1,41:1), joten niillä on
+       vaaleita kantamaan valkoista tekstiä (3★ olisi 1,41:1), joten niillä on
        tumma ääriviiva joka antaa tähdelle reunan.
 
        HUOM: tämä ei täytä WCAG:n kirjainta — mittaus vertaa tekstin täyttöä

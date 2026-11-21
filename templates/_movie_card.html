@@ -50,11 +50,11 @@
                 {% set tooltip_text = review.review_text[:200] if review.review_text else 'Lue arvostelu' %}
                 <a href="{{ review.source_url }}" class="rating-pill stars-{{ review.rating_stars }}"
                     target="_blank" title="{{ review.publication.name }}: {{ tooltip_text }}...">
-                    <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                    {% include '_rating_stars.html' %}
                 </a>
                 {% else %}
                 <span class="rating-pill stars-{{ review.rating_stars }}">
-                    <span class="rating-stars">{{ '★' * review.rating_stars }}</span>
+                    {% include '_rating_stars.html' %}
                 </span>
                 {% endif %}
                 {% endif %}
