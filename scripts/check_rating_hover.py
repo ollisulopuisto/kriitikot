@@ -16,6 +16,10 @@ import threading
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# Hover lift in CSS pixels per rating: 1 and 2 barely rise, 3 and 4 match
+# the old three-star lift, 5 rises farthest and also scales to 1.05.
+LIFT = {1: .5, 2: .5, 3: 3, 4: 3, 5: 6}
 OUT = Path(os.environ.get('SCREENSHOT_DIR') or
            tempfile.mkdtemp(prefix='kriitikot-h6-'))
 OUT.mkdir(parents=True, exist_ok=True)
@@ -81,6 +85,9 @@ try:
                         rest = pill.evaluate(STATE)
                         assert rest['face'][-1] == 'rgba(0, 0, 0, 0)', rest
                         assert all(s['opacity'] == 0 for s in rest['stars'])
+                        rest_filter = pill.evaluate(
+                            "p=>getComputedStyle(p.querySelector("
+                            "'.rating-star-paint')).filter")
                         pill.hover()
                         page.wait_for_timeout(300)
                         raised = pill.evaluate(STATE)
@@ -90,7 +97,7 @@ try:
                             assert after['shadow'] == before['shadow']
                             assert after['inside']
                             assert abs(after['lift'] - (
-                                0 if touch else rating)) < .02
+                                0 if touch else LIFT[rating])) < .02
                             assert before['scale'] == 1
                             assert before['lift'] == 0
                             assert abs(after['scale'] - (
@@ -98,6 +105,11 @@ try:
                             assert abs(after['opacity'] - (
                                 0 if touch else .28)) < .001
                         if not touch:
+                            anim = pill.evaluate(
+                                "p=>getComputedStyle(p.querySelector("
+                                "'.rating-star-paint')).animationName")
+                            assert anim == (
+                                'fiveStarGlint' if rating == 5 else 'none')
                             visible = Image.open(io.BytesIO(
                                 pill.screenshot())).convert('RGB')
                             shadows = pill.query_selector_all(
@@ -119,6 +131,12 @@ try:
                         if rating == 5 and not touch:
                             page.wait_for_timeout(5100)
                             assert pill.evaluate(STATE) == raised
+                            # The one-shot glint has ended; the resting
+                            # glow remains, unchanged.
+                            assert pill.evaluate(
+                                "p=>getComputedStyle(p.querySelector("
+                                "'.rating-star-paint')).filter"
+                            ) == rest_filter
                         page.mouse.move(0, 0)
                         page.wait_for_timeout(550)
                         assert pill.evaluate(STATE) == rest, (

@@ -782,12 +782,12 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
 .rating-star-empty { display: none; }
 .rating-star-empty .rating-star-paint::before { content: none; }
 .rating-pill.stars-1 {
-    --hover-lift: -1px;
+    --hover-lift: -0.5px;
     --cluster-size: 18px;
     --cluster-color: #b91c1c;
 }
 .rating-pill.stars-2 {
-    --hover-lift: -2px;
+    --hover-lift: -0.5px;
     --cluster-size: 20px;
     --cluster-color: #a83a12;
 }
@@ -798,12 +798,12 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     --cluster-edge: #8c7100;
 }
 .rating-pill.stars-4 {
-    --hover-lift: -4px;
+    --hover-lift: -3px;
     --cluster-size: 24px;
     --cluster-color: #1686bb;
 }
 .rating-pill.stars-5 {
-    --hover-lift: -5px;
+    --hover-lift: -6px;
     --hover-scale: 1.05;
     --cluster-size: 25px;
     --cluster-color: #179447;
@@ -860,6 +860,19 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
         70.46% 56.65%, 79.39% 90.45%, 50% 71.5%,
         20.61% 90.45%, 29.54% 56.65%, 2.45% 34.55%, 37.36% 32.6%);
 }
+/* One bright pass left to right across the five-star constellation on
+   hover entry. One shot per hover, never a loop; the keyframes carry the
+   resting glow so it never drops out mid-sweep. */
+@keyframes fiveStarGlint {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px #bbf7d0)
+            drop-shadow(0 0 5px rgba(34, 197, 94, .55)) brightness(1);
+    }
+    45% {
+        filter: drop-shadow(0 0 2px #d1fae5)
+            drop-shadow(0 0 6px rgba(34, 197, 94, .7)) brightness(1.5);
+    }
+}
 @media (hover: hover) and (pointer: fine) and
        (prefers-reduced-motion: no-preference) {
     .rating-star-paint { transition: transform 420ms ease; }
@@ -872,6 +885,25 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     .rating-pill:hover .rating-star-shadow {
         opacity: .28;
         transition-duration: 250ms;
+    }
+    .rating-pill.stars-5:hover .rating-star-paint {
+        animation: fiveStarGlint 550ms ease-in-out 1;
+    }
+    /* Sweep in star x order: 24, 37, 50, 63, 76. */
+    .rating-pill.stars-5:hover .rating-star:nth-child(3) .rating-star-paint {
+        animation-delay: 0ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(1) .rating-star-paint {
+        animation-delay: 70ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(4) .rating-star-paint {
+        animation-delay: 140ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(2) .rating-star-paint {
+        animation-delay: 210ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(5) .rating-star-paint {
+        animation-delay: 280ms;
     }
 }
 /* Background graphics can be suppressed in print and forced-colors modes.
@@ -889,6 +921,7 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
         filter: none !important;
         transform: none !important;
         transition: none !important;
+        animation: none !important;
     }
     .rating-star-shadow { display: none; }
     .rating-star-paint::before, .rating-star-paint::after { content: none; }

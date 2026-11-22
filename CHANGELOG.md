@@ -1,5 +1,12 @@
 ## 2026-11-21
 
+## 2026.11.22.2
+
+- Retiered star hover lift: one and two stars barely rise (0.5px), three and
+  four rise 3px, five rises 6px and still grows to 105%. Five-star ratings
+  add a one-shot left-to-right glint across the constellation on hover entry.
+  Touch and reduced-motion settings stay still.
+
 ## 2026.11.22.1
 
 - Star hover lift now grows from 1px at one star to 5px at five stars. Five-star ratings also grow to 105%, with fixed shadows and no motion on touch or reduced-motion settings.

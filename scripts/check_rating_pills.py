@@ -321,7 +321,28 @@ try:
                             before = pill.evaluate(MEASURE)
                             pill.hover()
                             page.wait_for_timeout(300)
-                            assert pill.evaluate(MEASURE) == before
+                            after = pill.evaluate(MEASURE)
+                            if rating == 5:
+                                # The one-shot glint animates the five-star
+                                # glow mid-sweep; everything else stays put.
+                                assert 'brightness' in after['glow'], after
+                                assert 'brightness' not in before['glow']
+                                assert pill.evaluate(
+                                    "p=>getComputedStyle(p.querySelector("
+                                    "'.rating-star-paint')).animationName"
+                                ) == 'fiveStarGlint'
+                                after = {k: v for k, v in after.items()
+                                         if k != 'glow'}
+                                before_still = {k: v for k, v in before.items()
+                                                if k != 'glow'}
+                            else:
+                                before_still = before
+                            assert after == before_still
+                            if rating == 5:
+                                # The glint is one-shot: the resting glow
+                                # returns once the sweep has ended.
+                                page.wait_for_timeout(800)
+                                assert pill.evaluate(MEASURE) == before
                             pill.focus()
                             assert pill.evaluate(
                                 "p=>getComputedStyle(p).outlineStyle"
