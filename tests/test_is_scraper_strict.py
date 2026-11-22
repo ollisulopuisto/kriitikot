@@ -1,6 +1,5 @@
 
 import pytest
-import re
 import sys
 import os
 

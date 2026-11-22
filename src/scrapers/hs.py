@@ -2,7 +2,6 @@
 Helsingin Sanomat (HS.fi) movie review scraper.
 """
 
-import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
@@ -66,7 +65,7 @@ class HSScraper(BaseScraper):
         except (KeyError, TypeError):
             return None
     
-    def _extract_movie_title(self, asset_data: dict) -> str:
+    def _extract_movie_title(self, asset_data: dict, allow_headline: bool = True) -> Optional[str]:
         """
         Poimii elokuvan nimen splitBody-rakenteesta.
         HS:ssä elokuvan tiedot ovat kappaleen muodossa:
@@ -124,6 +123,9 @@ class HSScraper(BaseScraper):
                     if title and len(title) > 2:
                         return title
         
+        if not allow_headline:
+            return None
+
         # Fallback: Käytä otsikkoa ja poista "Elokuva-arvio |" -prefix
         title = asset_data.get('title', 'Unknown Movie')
         if '|' in title:
@@ -159,6 +161,37 @@ class HSScraper(BaseScraper):
                 if 1 <= stars <= 5:
                     return stars
         
+        # Current public previews may omit the film-facts block. An explicit
+        # star verdict in the review headline is still source rating evidence.
+        if asset_data.get('storyLogo') == 'Elokuva-arvio':
+            title = self.clean_text(asset_data.get('title', '')) or ''
+            pattern = r'(?<![\w.,/])([1-5]|yksi|kaksi|kolme|neljä|viisi|yhden|kahden|kolmen|neljän|viiden)\s+täh(?:teä|ti|den)(?!\w)'
+            # Fractions and rating ranges need their own semantics; never read
+            # only the denominator or range endpoint as the verdict.
+            if re.search(r'\d\s*[/–—-]\s*\d\s+täh', title, re.IGNORECASE):
+                return None
+            matches = list(re.finditer(pattern, title, re.IGNORECASE))
+            ratings = set()
+            for match in matches:
+                # Genitive star classifications need a film noun, not a hotel.
+                phrase = match.group(0).casefold()
+                if phrase.endswith('tähden'):
+                    following = title[match.end():].lstrip().casefold()
+                    # Explicit Finnish case endings, not arbitrary compounds.
+                    cases = r'(?:n|a|ä|ssa|ssä|sta|stä|lla|llä|lta|ltä|lle|ksi|na|nä|tta|ttä|t)?'
+                    film_noun = (r'(?:[\w-]*elokuva' + cases + r'|[\w-]*elokuvaan'
+                                 r'|(?:draama|komedia|animaatio)' + cases +
+                                 r'|(?:draamaan|komediaan|animaatioon)'
+                                 r'|dokument(?:ti(?:a|in|na|ksi)?|i' + cases + r')'
+                                 r'|(?:trilleri|musikaali)' + cases +
+                                 r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
+                    if not re.match(film_noun, following):
+                        continue
+                ratings.add(self.parse_rating(match.group(0)))
+            ratings.discard(None)
+            if len(ratings) == 1:
+                return ratings.pop()
+
         return None
     
     def _extract_review_text(self, asset_data: dict) -> Optional[str]:

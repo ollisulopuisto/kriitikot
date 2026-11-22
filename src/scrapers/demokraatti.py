@@ -1,5 +1,4 @@
 
-import json
 import re
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
@@ -35,6 +34,8 @@ class DemokraattiScraper(BaseScraper):
             
         # 4. Extract fields
         movie_title = self._extract_title(post_data)
+        if not movie_title:
+            return None
         critic_name = self._extract_author(post_data)
         review_text = self._extract_review_text(post_data)
         rating = self._extract_rating(post_data, review_text)
@@ -108,12 +109,7 @@ class DemokraattiScraper(BaseScraper):
                     if title_em:
                          return title_em.get_text().strip()
         
-        # 2. Fallback to main title
-        title = data.get('title', '')
-        # Remove "Arvio: " prefix if present
-        cleaned = re.sub(r'^Arvio:\s*', '', title, flags=re.IGNORECASE)
-        
-        return cleaned.strip()
+        return None
 
     def _extract_author(self, data: Dict[str, Any]) -> str:
         """Extract author name."""

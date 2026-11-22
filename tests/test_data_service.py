@@ -53,43 +53,73 @@ def test_get_grouped_reviews_logic():
     assert grouped["Movie A"]["Critic 1"][0] == mock_review
     assert critics[0].name == "Critic 1"
 
-def test_get_index_data_json_structure(data_service):
-    # This test verifies that the JSON blob passed to the frontend is correctly formatted
-    # and contains the expected keys for filters.js
-    
-    mock_review_dict = {
-        'movie_title': 'Movie A',
-        'critic_name': 'Critic 1',
-        'rating_stars': 5,
-        'source_publication': 'HS'
-    }
-    
+def test_get_reviews_json_structure(data_service):
+    # This test verifies that get_reviews_json returns correctly formatted JSON
+    # containing the expected structure for frontend consumption via /reviews.json
+    # using the optimized column-querying path.
+    mock_row = (
+        'Movie A',                      # Movie.title
+        'Critic 1',                     # Critic.name
+        42,                             # DBReview.id
+        'Helsingin Sanomat',            # Publication.name
+        'hs',                           # Publication.short_name
+        5,                              # DBReview.rating_stars
+        'Loistava elokuva',             # DBReview.review_text
+        'https://example.com/review',   # DBReview.source_url
+        1,                              # DBReview.is_published
+        datetime(2024, 1, 1),           # DBReview.published_date
+        datetime(2024, 1, 1, 12, 0)     # DBReview.scraped_at
+    )
+
+    with patch('services.data_service.get_session') as mock_sess_ctx:
+        mock_session = mock_sess_ctx.return_value
+        query_mock = mock_session.query.return_value
+        query_mock.select_from.return_value.join.return_value.join.return_value.outerjoin.return_value.filter.return_value.all.return_value = [mock_row]
+
+        reviews_json = data_service.get_reviews_json()
+        all_reviews = json.loads(reviews_json)
+
+        assert "Movie A" in all_reviews
+        assert "Critic 1" in all_reviews["Movie A"]
+        review = all_reviews["Movie A"]["Critic 1"][0]
+        assert review['id'] == 42
+        assert review['movie_title'] == 'Movie A'
+        assert review['critic_name'] == 'Critic 1'
+        assert review['source_publication'] == 'Helsingin Sanomat'
+        assert review['publication_short'] == 'hs'
+        assert review['rating_stars'] == 5
+        assert review['review_text'] == 'Loistava elokuva'
+        assert review['source_url'] == 'https://example.com/review'
+        assert review['is_published'] is True
+        assert review['published_date'] == '2024-01-01T00:00:00'
+        assert review['scraped_at'] == '2024-01-01T12:00:00'
+
+
+def test_get_index_data_does_not_serialize_redundant_reviews_json(data_service):
     mock_review = MagicMock()
-    mock_review.to_dict.return_value = mock_review_dict
     mock_review.rating_stars = 5
     mock_review.is_published = 1
     mock_review.published_date = datetime(2024, 1, 1)
-    
-    # Setup the service to return predictable data
+    mock_review.critic_id = 1
+    mock_review.publication.short_name = 'hs'
+
     with patch.object(DataService, 'get_grouped_reviews') as mock_grouped:
         mock_grouped.return_value = (
             OrderedDict({"Movie A": {"Critic 1": [mock_review]}}),
             [MagicMock(id=1, name="Critic 1")],
             1
         )
-        
+
         with patch('services.data_service.get_session') as mock_sess_ctx:
             mock_session = mock_sess_ctx.return_value
-            # Minimal mocks for other DB calls in get_index_data
             mock_session.query.return_value.filter.return_value.options.return_value.all.return_value = [mock_review]
-            mock_session.query.return_value.all.return_value = [] # for movies, publications
+            mock_session.query.return_value.all.return_value = []
             mock_session.query.return_value.filter_by.return_value.order_by.return_value.first.return_value = None
-            
+
             data = data_service.get_index_data()
-            
-            assert 'all_reviews_json' in data
-            all_reviews = json.loads(data['all_reviews_json'])
-            
-            assert "Movie A" in all_reviews
-            assert "Critic 1" in all_reviews["Movie A"]
-            assert all_reviews["Movie A"]["Critic 1"][0]['rating_stars'] == 5
+
+            # Ensure all_reviews_json was removed to save memory and serialization time
+            assert 'all_reviews_json' not in data
+            assert 'grouped_reviews' in data
+            assert 'rating_distribution' in data
+            assert 'pub_stats' in data

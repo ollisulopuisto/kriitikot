@@ -67,31 +67,44 @@ function initReviewCountFilter() {
         card.dataset.reviewCount = reviewCount;
     });
 
-    const reviewValueMapping = {
-        1: 1,
-        2: 2,
-        3: 4,
-        4: 6,
-        5: 8
-    };
+    const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
 
     function filterByReviewCount(mappedMinCount) {
+        window.reviewWindow?.prepare();
         let hiddenCount = 0;
 
         // Desktop: Piilota rivit
-        if (table) {
-            const tbody = table.querySelector('tbody');
-            const rows = tbody.querySelectorAll('tr');
+        const tableEl = document.querySelector('table');
+        if (tableEl) {
+            const tbody = tableEl.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr:not(.poster-row)');
 
             rows.forEach(row => {
-                const count = parseInt(row.dataset.reviewCount || 0);
+                let count = row.dataset.reviewCount;
+                if (count === undefined || count === null || count === '') {
+                    let c = 0;
+                    row.querySelectorAll('.rating-cell').forEach(cell => {
+                        const hasLink = cell.querySelector('a.rating-link');
+                        const hasStars = cell.querySelector('.rating-stars');
+                        const noRating = cell.querySelector('.no-rating');
+
+                        if (hasLink || hasStars || (noRating && !noRating.textContent.includes('–'))) {
+                            c++;
+                        }
+                    });
+                    count = c;
+                    row.dataset.reviewCount = count;
+                } else {
+                    count = parseInt(count, 10);
+                }
+
                 if (count < mappedMinCount) {
                     row.style.display = 'none';
                     row.dataset.reviewCountFiltered = 'true';
                     hiddenCount++;
                 } else {
                     delete row.dataset.reviewCountFiltered;
-                    if (!row.dataset.starFiltered) {
+                    if (row.dataset.starFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
                         row.style.display = '';
                     }
                 }
@@ -99,15 +112,23 @@ function initReviewCountFilter() {
         }
 
         // Mobile: Piilota kortit
-        mobileCards.forEach(card => {
-            const count = parseInt(card.dataset.reviewCount || 0);
+        const allMobileCards = document.querySelectorAll('.movie-card');
+        allMobileCards.forEach(card => {
+            let count = card.dataset.reviewCount;
+            if (count === undefined || count === null || count === '') {
+                count = card.querySelectorAll('.review-item').length;
+                card.dataset.reviewCount = count;
+            } else {
+                count = parseInt(count, 10);
+            }
+
             if (count < mappedMinCount) {
                 card.style.display = 'none';
                 card.dataset.reviewCountFiltered = 'true';
                 hiddenCount++;
             } else {
                 delete card.dataset.reviewCountFiltered;
-                if (!card.dataset.starFiltered) {
+                if (card.dataset.starFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
                     card.style.display = '';
                 }
             }
@@ -121,17 +142,23 @@ function initReviewCountFilter() {
             updateCriticColumnVisibility();
         }
 
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
         return hiddenCount;
     }
+    window.filterByReviewCount = filterByReviewCount;
 
     function updateReviewWord(actualCountValue) {
         const reviewWord = document.getElementById('review-word');
         const word = actualCountValue === 1 ? 'arvostelu' : 'arvostelua';
         if (reviewWord) reviewWord.textContent = word;
+        slider.title = `Vähintään ${actualCountValue} ${word}`;
+        slider.setAttribute('aria-valuetext', slider.title);
     }
 
     // Desktop slider
-    const debouncedFilterByReviewCount = debounceFilter(filterByReviewCount);
+    const debouncedFilterByReviewCount = debounceFilter(value => { filterByReviewCount(value); window.topUpSliderResults?.(); });
+    slider.addEventListener('pointerdown', () => window.rememberSliderWindow?.());
+    slider.addEventListener('keydown', () => window.rememberSliderWindow?.());
     slider.addEventListener('input', function () {
         const sliderPos = parseInt(this.value);
         const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
@@ -155,6 +182,7 @@ function initReviewCountFilter() {
         let currentSliderPos = 1;
 
         const updateReviewStepper = (newSliderPos, shouldFilter = true) => {
+            if (shouldFilter) window.rememberSliderWindow?.();
             currentSliderPos = Math.max(1, Math.min(5, newSliderPos));
             const mappedValue = reviewValueMapping[currentSliderPos] || currentSliderPos;
             
@@ -165,6 +193,7 @@ function initReviewCountFilter() {
 
             if (shouldFilter) {
                 filterByReviewCount(mappedValue);
+                window.topUpSliderResults?.();
             }
 
             reviewsMinusBtn.disabled = currentSliderPos <= 1;
@@ -208,10 +237,13 @@ function initStarFilter() {
         const label = labels[value] || 'Vähintään ★';
         const mobileLabel = mobileLabels[value] || '★';
         if (starValueDisplay) starValueDisplay.innerHTML = label;
+        starSlider.title = `Arvosanat: ${label}`;
+        starSlider.setAttribute('aria-valuetext', starSlider.title);
         if (starValueDisplayMobile) starValueDisplayMobile.innerHTML = mobileLabel;
     }
 
     function filterByStars(starsParam) {
+        window.reviewWindow?.prepare();
         const stars = parseInt(starsParam);
 
         const table = document.querySelector('table');
@@ -223,13 +255,17 @@ function initStarFilter() {
                 const rows = table.querySelectorAll('tbody tr:not(.poster-row)');
                 rows.forEach(row => {
                     row.dataset.starFiltered = 'false';
-                    row.style.display = '';
+                    if (row.dataset.reviewCountFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
+                        row.style.display = '';
+                    }
                     row.querySelectorAll('.rating-cell, .rating-pill').forEach(el => el.classList.remove('dimmed'));
                 });
             }
             allCards.forEach(card => {
                 card.dataset.starFiltered = 'false';
-                card.style.display = '';
+                if (card.dataset.reviewCountFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
+                    card.style.display = '';
+                }
                 card.querySelectorAll('.review-item, .rating-pill').forEach(el => el.classList.remove('dimmed'));
             });
             
@@ -275,7 +311,9 @@ function initStarFilter() {
 
                 if (hasMatchingReviewInRow) {
                     row.dataset.starFiltered = 'false';
-                    row.style.display = '';
+                    if (row.dataset.reviewCountFiltered !== 'true' && row.dataset.publicationFiltered !== 'true') {
+                        row.style.display = '';
+                    }
                 } else {
                     row.dataset.starFiltered = 'true';
                     row.style.display = 'none';
@@ -305,7 +343,9 @@ function initStarFilter() {
 
             if (hasMatchingReviewInCard) {
                 card.dataset.starFiltered = 'false';
-                card.style.display = '';
+                if (card.dataset.reviewCountFiltered !== 'true' && card.dataset.publicationFiltered !== 'true') {
+                    card.style.display = '';
+                }
             } else {
                 card.dataset.starFiltered = 'true';
                 card.style.display = 'none';
@@ -315,10 +355,13 @@ function initStarFilter() {
         if (typeof updateCriticColumnVisibility === 'function') {
             updateCriticColumnVisibility();
         }
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
     }
 
     // Desktop slider
-    const debouncedFilterByStars = debounceFilter(filterByStars);
+    const debouncedFilterByStars = debounceFilter(value => { filterByStars(value); window.topUpSliderResults?.(); });
+    starSlider.addEventListener('pointerdown', () => window.rememberSliderWindow?.());
+    starSlider.addEventListener('keydown', () => window.rememberSliderWindow?.());
     starSlider.addEventListener('input', function () {
         const value = parseInt(this.value);
         updateStarLabel(value);
@@ -334,6 +377,7 @@ function initStarFilter() {
         let currentValue = 1;
 
         const updateStarStepper = (newValue, shouldFilter = true) => {
+            if (shouldFilter) window.rememberSliderWindow?.();
             currentValue = Math.max(1, Math.min(5, newValue));
 
             updateStarLabel(currentValue);
@@ -341,6 +385,7 @@ function initStarFilter() {
 
             if (shouldFilter) {
                 filterByStars(currentValue);
+                window.topUpSliderResults?.();
             }
 
             starsMinusBtn.disabled = (currentValue <= 1);
@@ -392,6 +437,8 @@ function initResetButton() {
     }
 
     function resetAllFilters() {
+        window.clearFilmSearch?.();
+        window.reviewWindow?.prepare();
         // Nollaa suodattimet
         const slider = document.getElementById('min-reviews-slider');
         const starSlider = document.getElementById('star-filter-slider');
@@ -549,6 +596,10 @@ function initResetButton() {
             updateCriticColumnVisibility();
         }
 
+        // Palauta perusikkuna (fasettien aikana ladatut erät poistuvat)
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+        if (window.topUpSliderResults) window.topUpSliderResults();
+
         hideResetButton();
     }
 
@@ -592,10 +643,13 @@ function initFavoriteFilter() {
 
     // 2. Setup Toggle Functionality
     window.toggleFavorite = function (criticId, event) {
+        window.reviewWindow?.prepare();
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
+
+        if (window.rememberSliderWindow) window.rememberSliderWindow();
 
         const index = favorites.indexOf(criticId);
         if (index === -1) {
@@ -628,28 +682,27 @@ function initFavoriteFilter() {
             let heart = th.querySelector('.heart-icon');
 
             if (!heart) {
-                heart = document.createElement('span');
+                heart = document.createElement('button');
+                heart.type = 'button';
                 heart.className = 'heart-icon';
-                heart.innerHTML = '♥';
-                heart.title = 'Merkitse suosikkikriitikoksi';
                 heart.onclick = (e) => window.toggleFavorite(criticId, e);
-
-                // Insert into critic-bottom-row
-                const bottomRow = th.querySelector('.critic-bottom-row');
-                if (bottomRow) {
-                    bottomRow.appendChild(heart);
-                } else {
-                    th.appendChild(heart);
+                let bottomRow = th.querySelector('.critic-bottom-row');
+                if (!bottomRow) {
+                    bottomRow = document.createElement('div');
+                    bottomRow.className = 'critic-bottom-row';
+                    th.appendChild(bottomRow);
                 }
+                bottomRow.appendChild(heart);
             }
 
-            if (favorites.includes(criticId)) {
-                heart.classList.add('active');
-                heart.innerHTML = '❤️';
-            } else {
-                heart.classList.remove('active');
-                heart.innerHTML = '♡';
-            }
+            const criticName = th.querySelector('.critic-name')?.textContent.trim() || '';
+            const isFavorite = favorites.includes(criticId);
+            const action = isFavorite ? 'Poista suosikkikriitikoista' : 'Merkitse suosikkikriitikoksi';
+            heart.setAttribute('aria-label', `${action}: ${criticName}`);
+            heart.setAttribute('aria-pressed', String(isFavorite));
+            heart.title = `${action}: ${criticName}`;
+            heart.classList.toggle('active', isFavorite);
+            heart.textContent = isFavorite ? '♥' : '♡';
         });
 
         // Mobile Reviews
@@ -662,16 +715,20 @@ function initFavoriteFilter() {
                 if (!heart) {
                     heart = document.createElement('span');
                     heart.className = 'heart-icon mobile-heart';
+                    heart.tabIndex = 0; heart.setAttribute('role', 'button');
+                    heart.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') window.toggleFavorite(criticId, e); };
                     heart.innerHTML = '♥';
                     heart.onclick = (e) => window.toggleFavorite(criticId, e);
                     criticNameSpan.parentNode.insertBefore(heart, criticNameSpan.nextSibling);
                 }
 
                 if (favorites.includes(criticId)) {
-                    heart.classList.add('active');
+                    heart.setAttribute('aria-label', 'Poista suosikkikriitikoista'); heart.setAttribute('aria-pressed', 'true');
+                heart.classList.add('active');
                     heart.innerHTML = '❤️';
                 } else {
-                    heart.classList.remove('active');
+                    heart.setAttribute('aria-label', 'Merkitse suosikkikriitikoksi'); heart.setAttribute('aria-pressed', 'false');
+                heart.classList.remove('active');
                     heart.innerHTML = '♡';
                 }
             }
@@ -680,6 +737,7 @@ function initFavoriteFilter() {
 
     // 4. Filtering Logic
     window.filterByFavorites = function (enabled) {
+        window.reviewWindow?.prepare();
         // Desktop
         const table = document.querySelector('table');
         if (table) {
@@ -721,6 +779,8 @@ function initFavoriteFilter() {
         if (enabled) {
             if (window.showResetButton) window.showResetButton();
         }
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+        if (window.topUpSliderResults) window.topUpSliderResults();
     };
 
     // Toggle Event Listeners
@@ -729,6 +789,7 @@ function initFavoriteFilter() {
 
     if (favToggleDesktop && !favToggleDesktop.dataset.initialized) {
         function handleToggleChange(e) {
+            if (window.rememberSliderWindow) window.rememberSliderWindow();
             const checked = e.target.checked;
             if (favToggleDesktop) favToggleDesktop.checked = checked;
             if (favToggleMobile) favToggleMobile.checked = checked;
@@ -756,6 +817,257 @@ function initFavoriteFilter() {
             (favToggleMobile && favToggleMobile.checked);
     };
 }
+
+let fillerRefreshTimer;
+function applyPublicationFilter(publications) {
+    window.reviewWindow?.prepare();
+    const allCards = document.querySelectorAll('.movie-card');
+    const table = document.querySelector('table');
+    const noFilter = !publications || publications.length === 0;
+
+    // Mobile cards
+    allCards.forEach(card => {
+        const cardReviews = card.querySelectorAll('.review-item');
+        let hasMatchingReview = false;
+
+        cardReviews.forEach(item => {
+            if (noFilter) {
+                item.style.display = '';
+                hasMatchingReview = true;
+            } else {
+                const mediaElement = item.querySelector('.review-media');
+                const mediaText = mediaElement ? mediaElement.textContent.trim().toUpperCase() : '';
+
+                const matches = publications.some(pub =>
+                    (window.pubShortOf ? window.pubShortOf(mediaText) : mediaText) === pub.toUpperCase());
+
+                if (matches) {
+                    item.style.display = '';
+                    hasMatchingReview = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        });
+
+        if (noFilter) {
+            delete card.dataset.publicationFiltered;
+            if (card.dataset.starFiltered !== 'true' && card.dataset.reviewCountFiltered !== 'true') {
+                card.style.display = '';
+            }
+        } else {
+            if (hasMatchingReview) {
+                delete card.dataset.publicationFiltered;
+                if (card.dataset.starFiltered !== 'true' && card.dataset.reviewCountFiltered !== 'true') {
+                    card.style.display = '';
+                }
+            } else {
+                card.dataset.publicationFiltered = 'true';
+                card.style.display = 'none';
+            }
+        }
+    });
+
+    // Desktop table
+    if (table) {
+        const tbody = table.querySelector('tbody');
+        const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
+        const thead = table.querySelector('thead');
+        const criticHeaders = Array.from(thead.querySelectorAll('th.rating-cell'));
+
+        allRows.forEach(row => {
+            const ratingCells = row.querySelectorAll('.rating-cell');
+            let hasVisibleRating = false;
+
+            ratingCells.forEach(cell => {
+                const cellIndex = cell.cellIndex;
+                const header = criticHeaders.find(h => h.cellIndex === cellIndex);
+
+                if (header) {
+                    const mediaSpan = header.querySelector('.critic-media');
+                    const criticPublications = mediaSpan ? mediaSpan.textContent.trim().toUpperCase().split(', ') : [];
+                    const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub.toUpperCase()));
+
+                    const cellReviews = cell.querySelectorAll('[data-publication]');
+                    let cellHasVisibleReview = false;
+
+                    cellReviews.forEach(rev => {
+                        const revPub = window.pubShortOf ? window.pubShortOf(rev.dataset.publication) : (rev.dataset.publication || '').toUpperCase();
+                        const matchesRev = noFilter || publications.some(pub => revPub === pub.toUpperCase());
+
+                        if (matchesRev) {
+                            rev.style.display = '';
+                            if (rev.tagName !== 'BR') cellHasVisibleReview = true;
+                        } else {
+                            rev.style.display = 'none';
+                        }
+                    });
+
+                    if (criticMatches && (noFilter || cellHasVisibleReview)) {
+                        hasVisibleRating = true;
+                    }
+                }
+            });
+
+            if (noFilter) {
+                delete row.dataset.publicationFiltered;
+                const isStarFiltered = row.dataset.starFiltered === 'true';
+                const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
+                if (!isStarFiltered && !isCountFiltered) {
+                    row.style.display = '';
+                }
+            } else {
+                if (hasVisibleRating) {
+                    delete row.dataset.publicationFiltered;
+                    const isStarFiltered = row.dataset.starFiltered === 'true';
+                    const isCountFiltered = row.dataset.reviewCountFiltered === 'true';
+                    if (!isStarFiltered && !isCountFiltered) {
+                        row.style.display = '';
+                    }
+                } else {
+                    row.dataset.publicationFiltered = 'true';
+                    row.style.display = 'none';
+                }
+            }
+        });
+
+        if (typeof updateCriticColumnVisibility === 'function') {
+            updateCriticColumnVisibility();
+        }
+
+        if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+        clearTimeout(fillerRefreshTimer);
+        fillerRefreshTimer = setTimeout(() => {
+            window.reviewWindow?.prepare();
+            if (window.removeFillerColumns) window.removeFillerColumns();
+            if (window.addFillerColumns) window.addFillerColumns();
+        }, 50);
+    }
+}
+
+// One final intersection after legacy facet helpers. Never clear another facet.
+function reconcileFacetVisibility() {
+    window.reviewWindow?.prepare();
+    const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
+    const criticId = selected?.dataset.criticId;
+
+    // Performance optimization: collect active publications into a Set once.
+    // Set.has() is O(1) compared to repeated Array.includes() lookups across every review element.
+    const pubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
+    let pubsSet = null;
+    if (pubButtons.length > 0) {
+        pubsSet = new Set();
+        for (let i = 0; i < pubButtons.length; i++) {
+            const pubName = (pubButtons[i].dataset.publication || '').toUpperCase();
+            if (pubName) pubsSet.add(pubName);
+        }
+    }
+
+    const minStars = Number(document.getElementById('star-filter-slider')?.value || 1);
+    const hasMinStars = minStars > 1;
+    const favorites = window.isFavoritesFilterActive?.();
+    const isFavCritic = window.isFavoriteCritic;
+    const pubShort = window.pubShortOf;
+
+    // Fast-path match predicate with hoisted functions and pre-evaluated branch conditions
+    const matches = (id, pub, stars) => (!criticId || id === criticId) &&
+        (!favorites || (isFavCritic && isFavCritic(id))) &&
+        (!pubsSet || pubsSet.has(pubShort ? pubShort(pub) : (pub || '').toUpperCase())) &&
+        (!hasMinStars || stars >= minStars);
+
+    const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
+    const cards = document.querySelectorAll('.movie-card');
+    for (let c = 0; c < cards.length; c++) {
+        const card = cards[c];
+        let visible = false;
+        const items = card.querySelectorAll('.review-item');
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const starSpan = item.querySelector('.rating-stars');
+            const stars = starSpan ? starSpan.textContent.trim().length : 0;
+            const pub = item.dataset.publication || (item.querySelector('.review-media')?.textContent.trim());
+            const ok = matches(item.dataset.critic, pub, stars);
+            item.style.display = ok ? '' : 'none';
+            if (ok) visible = true;
+        }
+        card.style.display = visible && (!window.matchesFilmSearch || window.matchesFilmSearch(card.dataset.movie)) && card.dataset.reviewCountFiltered !== 'true' && (!chosenCard || card === chosenCard) ? '' : 'none';
+    }
+
+    const headers = document.querySelectorAll('thead th.rating-cell');
+    // Pre-cache critic metadata by cellIndex once per reconcile pass instead of
+    // querying each header's .critic-media across all rows x columns.
+    // Also update aria-pressed in the same pass to avoid a second loop over headers.
+    const headerInfoByCellIndex = new Map();
+    for (let h = 0; h < headers.length; h++) {
+        const head = headers[h];
+        const mediaEl = head.querySelector('.critic-media');
+        headerInfoByCellIndex.set(head.cellIndex, {
+            criticId: head.dataset.criticId,
+            media: mediaEl ? (mediaEl.dataset.publications || mediaEl.textContent.trim()) : ''
+        });
+        head.querySelector('.critic-name')?.setAttribute('aria-pressed', String(head === selected));
+    }
+
+    const chosenMovie = document.querySelector('tbody tr[data-filtered="true"]');
+    const rows = document.querySelectorAll('tbody tr:not(.poster-row)');
+    for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        let visible = false;
+        // Query reviews directly on the row rather than iterating through 89 empty cells.
+        // Movies have ~3.5 reviews on average, cutting inner checks from ~26,500 down to ~1,000.
+        const reviewElements = row.querySelectorAll('.rating-pill, .no-rating');
+        for (let j = 0; j < reviewElements.length; j++) {
+            const review = reviewElements[j];
+            const cell = review.closest('td');
+            const headerInfo = cell ? headerInfoByCellIndex.get(cell.cellIndex) : null;
+            const pub = review.dataset.publication || headerInfo?.media;
+            const starSpan = review.querySelector('.rating-stars');
+            const stars = starSpan ? starSpan.textContent.trim().length : 0;
+            const ok = matches(headerInfo?.criticId, pub, stars);
+            review.style.display = ok ? '' : 'none';
+            if (ok) visible = true;
+        }
+        row.style.display = visible && row.dataset.reviewCountFiltered !== 'true' && (!chosenMovie || row === chosenMovie) ? '' : 'none';
+    }
+
+    // Sovella eränäkyvyys (fasettien osumat FACET_REVIEW_BATCH-erissä)
+    if (window.applyFacetBatchVisibility) window.applyFacetBatchVisibility();
+}
+window.reconcileFacetVisibility = reconcileFacetVisibility;
+
+function reapplyAllFacets() {
+    window.reviewWindow?.prepare();
+    // 1. Minimum number of reviews
+    const reviewSlider = document.getElementById('min-reviews-slider');
+    if (reviewSlider) {
+        const sliderPos = parseInt(reviewSlider.value, 10);
+        const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+        const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
+        if (typeof window.filterByReviewCount === 'function') {
+            window.filterByReviewCount(mappedValue);
+        }
+    }
+
+    // 2. Minimum stars
+    const starSlider = document.getElementById('star-filter-slider');
+    if (starSlider) {
+        const starValue = parseInt(starSlider.value, 10);
+        if (typeof window.filterByStars === 'function') {
+            window.filterByStars(starValue);
+        }
+    }
+
+    // 3. Outlet / publication
+    const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
+    const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
+    if (typeof window.applyPublicationFilter === 'function') {
+        window.applyPublicationFilter(activePubs);
+    }
+    reconcileFacetVisibility();
+}
+
+window.applyPublicationFilter = applyPublicationFilter;
+window.reapplyAllFacets = reapplyAllFacets;
 
 // Initialize all filters
 document.addEventListener('DOMContentLoaded', function () {

@@ -24,6 +24,9 @@ class DiscoveryImporter:
     """
     
     def __init__(self):
+        self.source_failures = {}
+        from pathlib import Path
+        self.is_cache_path = Path(__file__).resolve().parents[1] / 'data' / 'is-discovery.json'
         self.meta_scraper = MetaScraper()
         self.engine = get_engine()
         self.session = get_session(self.engine)
@@ -32,6 +35,41 @@ class DiscoveryImporter:
         # Scrapers per source — sama rekisteri kuin scrapers/__init__.py:ssä
         self.scrapers = SCRAPERS
     
+    def resolve_hs_preview_title(self, asset: dict, source_url: str = None):
+        """Match an existing film in two independent preview fields, never an h1.
+
+        Reject overlapping DB titles and sequel continuations rather than choosing
+        a short title or fuzzy match. Unresolved previews remain source failures.
+        """
+        if asset.get('storyLogo') != 'Elokuva-arvio':
+            return None
+        import unicodedata
+
+        def normalize(text):
+            text = unicodedata.normalize('NFKC', str(text or '')).casefold()
+            text = re.sub(r'[\u00ad\u200b\u200c\u200d\u2060\ufeff]', '', text)
+            return re.sub(r'[^\w]+', ' ', text).strip()
+
+        picture = asset.get('mainPicture') or {}
+        fields = [asset.get('metaTitle'), asset.get('ingress'),
+                  picture.get('caption') if isinstance(picture, dict) else None]
+        normalized = [normalize(text) for text in fields]
+        candidates = []
+        for movie in self.session.query(Movie).all():
+            title = normalize(movie.title)
+            if not title:
+                continue
+            pattern = r'(?<!\w)' + re.escape(title) + r'(?!\w)'
+            hits = [i for i, text in enumerate(normalized) if re.search(pattern, text)]
+            if len(hits) < 2:
+                continue
+            # A known original must not absorb an unknown numbered/subtitled sequel.
+            raw_pattern = r'(?<!\w)' + r'[\W_]+'.join(re.escape(t) for t in title.split()) + r'(?!\w)\s*(?::|[-–—](?!(?:elokuva|dokumentti|draama|komedia|trilleri|animaatio)\w*\b)|[0-9]|[IVX]+\b)'
+            if any(re.search(raw_pattern, unicodedata.normalize('NFKC', str(fields[i])), re.IGNORECASE) for i in hits):
+                continue
+            candidates.append(movie.title)
+        return candidates[0] if len(candidates) == 1 else None
+
     def normalize_movie_title(self, title: str) -> str:
         """
         Normalisoi elokuvan nimen.
@@ -144,7 +182,7 @@ class DiscoveryImporter:
         """Hakee julkaisun."""
         return self.session.query(Publication).filter_by(short_name=short_name).first()
     
-    def import_discovered_reviews(self, source: str, limit: int = 20) -> int:
+    def import_discovered_reviews(self, source: str, limit: int = 20, request_budget: int = 40) -> int:
         """
         Löytää ja importoi uudet arvostelut lähteestä.
         
@@ -159,23 +197,42 @@ class DiscoveryImporter:
         print(f"🔍 IMPORT: {source.upper()}")
         print(f"{'='*60}\n")
         
+        self.source_failures[source] = 0
+
         # 1. Löydä uudet arvostelut
-        discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        try:
+            discovered = self.meta_scraper.discover_new_reviews(source, limit)
+        except Exception as exc:
+            self.source_failures[source] = 1
+            print(f'Discovery failed for {source}: {exc}')
+            return 0
         print(f"✅ Löydettiin {len(discovered)} arvostelua\n")
         
         if not discovered:
             print("⚠️  Ei uusia arvosteluja\n")
             return 0
         
+        queue = None
+        stats = {'discovered':len(discovered), 'requested':0, 'admitted':0,
+                 'excluded':0, 'failed':0, 'queued':0}
+        if source == 'is':
+            from is_discovery_queue import ISDiscoveryQueue
+            queue = ISDiscoveryQueue(self.session, path=getattr(self, 'is_cache_path', None))
+            queue.enqueue(discovered)
+            discovered = queue.due(min(40,max(0,request_budget)))
+            self.is_stats = stats
+
         # 2. Scrape ja tallenna
         scraper = self.scrapers.get(source)
         if not scraper:
             print(f"❌ Ei scraperia lähteelle: {source}")
+            self.source_failures[source] = 1
             return 0
         
         publication = self.get_publication(source)
         if not publication:
             print(f"❌ Julkaisua ei löydy tietokannasta: {source}")
+            self.source_failures[source] = 1
             return 0
         
         imported = 0
@@ -183,6 +240,8 @@ class DiscoveryImporter:
         failed = 0
         
         for i, discovery in enumerate(discovered, 1):
+            if queue and stats['admitted'] >= max(0,limit):
+                break
             url = discovery['url']
             title_preview = discovery['title'][:60]
             
@@ -197,6 +256,8 @@ class DiscoveryImporter:
             if existing_by_url:
                 print("   ⏭️  Jo tietokannassa (URL-duplikaatti)")
                 skipped += 1
+                if queue:
+                    queue.finish(url, 'imported')
                 continue
             
             # Scrape arvostelu
@@ -205,24 +266,76 @@ class DiscoveryImporter:
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                 }
-                response = requests.get(url, headers=headers, timeout=10)
+                if queue:
+                    if stats['requested']:
+                        import time
+                        time.sleep(1)
+                    stats['requested'] += 1
+                response = requests.get(url, headers=headers, timeout=10, **({'allow_redirects':False} if queue else {}))
                 response.raise_for_status()
+                if queue and 300 <= response.status_code < 400:
+                    raise ValueError('IS article redirect needs review')
                 html = response.text
+
+                if source == 'is':
+                    reason = scraper.exclusion_reason(html)
+                    if reason:
+                        print(f"   ⏭️  IS exclusion: {reason}")
+                        skipped += 1
+                        if queue:
+                            stats['excluded'] += 1
+                            queue.finish(url, 'excluded')
+                        continue
 
                 review = scraper.parse_html(html, url)
                 if not review:
                     print("   ❌ Scraping epäonnistui")
                     failed += 1
+                    if queue:
+                        stats['failed'] += 1
+                        queue.finish(url, 'failed')
                     continue
 
-                # Skip articles without ratings - they are not movie reviews
-                if review.rating_stars is None:
-                    print("   ⏭️  Ei tähtiä - ohitetaan (ei arvostelu)")
+                # Discovery alone cannot prove an article is a complete review.
+                # Missing metadata is unresolved, not evidence of a non-review.
+                if source == 'hs' and review.rating_stars is None:
+                    print('   ⏭️  HS review has no star rating; not imported')
                     skipped += 1
                     continue
 
+                title = review.movie_title
+                author = review.critic_name
+                placeholders = {'unknown', 'tuntematon', source.casefold(), publication.name.casefold()}
+                valid_title = isinstance(title,str) and bool(title.strip())
+                valid_author = (isinstance(author,str) and bool(author.strip()) and
+                                author.strip().casefold() not in placeholders and
+                                not re.match(r'https?://',author.strip(),re.IGNORECASE))
+                valid_rating = type(review.rating_stars) is int and 1 <= review.rating_stars <= 5
+                if not (valid_title and valid_author and valid_rating):
+                    print('   ❌ Incomplete review identity, author or rating; needs source review')
+                    failed += 1
+                    if queue:
+                        stats['failed'] += 1
+                        queue.finish(url, 'failed')
+                    continue
+
+                # If HS returned its article headline, the film facts were
+                # absent from the public preview. Require repeated existing-film evidence.
+                resolved_movie = None
+                if source == 'hs' and not scraper._extract_movie_title(review.raw_data, allow_headline=False):
+                    resolved = self.resolve_hs_preview_title(review.raw_data, url)
+                    if not resolved:
+                        print("   ❌ HS preview: film title needs manual review")
+                        failed += 1
+                        continue
+                    resolved_movie = self.session.query(Movie).filter_by(title=resolved).one()
+                    review.movie_title = resolved_movie.title
+
+                if queue:
+                    stats['admitted'] += 1
+
                 # Luo relaatiot
-                movie = self.get_or_create_movie(review.movie_title)
+                movie = resolved_movie if resolved_movie is not None else self.get_or_create_movie(review.movie_title)
                 critic = self.get_or_create_critic(review.critic_name, media=source.upper())
 
                 # Tarkista uusi duplikaatti: onko samalta kriitikolta jo arvostelu tälle elokuvalle?
@@ -235,6 +348,9 @@ class DiscoveryImporter:
                     print(f"   ⏭️  Ohitettu: Kriitikolla {critic.name} on jo arvostelu elokuvasta {movie.title}")
                     skipped += 1
                     self.session.rollback() # Varmuuden vuoksi, jos flush on tapahtunut
+                    if queue:
+                        stats['excluded'] += 1
+                        queue.finish(url, 'excluded')
                     continue
                 
                 # Tallenna arvostelu (AUTOMAATTISESTI JULKAISTU - pending pois päältä)
@@ -251,6 +367,8 @@ class DiscoveryImporter:
                 self.session.add(db_review)
                 self.session.commit()
                 
+                if queue:
+                    queue.finish(url, 'imported')
                 imported += 1
                 print(f"   ✅ Tallennettu (julkaistu): {movie.title} - {critic.name} - {review.rating_stars}★")
                 
@@ -258,8 +376,16 @@ class DiscoveryImporter:
                 print(f"   ❌ Virhe: {e}")
                 failed += 1
                 self.session.rollback()
+                if queue:
+                    stats['failed'] += 1
+                    queue.finish(url, 'failed')
                 continue
         
+        if queue:
+            stats['queued'] = queue.queued()
+            print(f'IS discovery outcomes: {stats}')
+        self.source_failures[source] = max(failed, queue.failed() if queue else 0)
+
         # Yhteenveto
         print(f"\n{'='*60}")
         print(f"📊 YHTEENVETO: {source.upper()}")
@@ -295,6 +421,7 @@ class DiscoveryImporter:
             except Exception as e:
                 print(f"❌ Virhe lähteessä {source}: {e}")
                 results[source] = 0
+                self.source_failures[source] = max(1, self.source_failures.get(source, 0))
         
         # Lopullinen yhteenveto
         total = sum(results.values())
@@ -334,3 +461,5 @@ if __name__ == '__main__':
     else:
         # Default: importoi kaikista lähteistä 10 arvostelua
         importer.import_all_sources(limit_per_source=10)
+
+    sys.exit(1 if any(importer.source_failures.values()) else 0)

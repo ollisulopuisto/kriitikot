@@ -157,17 +157,16 @@ class CategoryCrawler:
         # Etsi __NEXT_DATA__ script tag
         next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
         if not next_data_script:
-            return reviews
+            raise ValueError("Missing discovery payload")
         
         try:
             # Parsitaan JSON
             data = json.loads(next_data_script.string)
             
             # Navigoidaan: props.pageProps.page.data.data[].lanes[].items[]
-            page_props = data.get('props', {}).get('pageProps', {})
-            page = page_props.get('page', {})
-            page_data_wrapper = page.get('data', {})
-            page_data = page_data_wrapper.get('data', [])
+            page_data = data['props']['pageProps']['page']['data']['data']
+            if not isinstance(page_data, list):
+                raise ValueError('Expected category discovery lanes')
             
             # Käy läpi kaikki lanes ja items
             for data_item in page_data:
@@ -198,7 +197,7 @@ class CategoryCrawler:
         
         except (json.JSONDecodeError, KeyError, TypeError) as e:
             print(f"  [HS] JSON parsing error: {e}")
-            return reviews
+            raise
         
         return reviews
     
@@ -262,112 +261,43 @@ class CategoryCrawler:
                                 break
                 except Exception as e:
                     print(f"  [IL] JSON parsing error: {e}")
-                    continue
+                    raise
         
         return reviews
     
     def _find_is_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
+        """Discover every same-origin article, never guess review status from cards.
+
+        IS cards have no review tags. The importer classifies article payloads
+        under a separate request budget; limit applies only after admission.
         """
-        Löytää Ilta-Sanomien arvostelut Next.js JSON:sta.
-        IS.fi käyttää Next.js:ää, artikkeli-data on <script id="__NEXT_DATA__"> tagissa.
-        Elokuva-arviot tunnistetaan byLine-kentästä (kriitikot kuten "Taneli Topelius").
-        
-        HUOM: Hylkää TV-arvostelut ("Tänään tv:ssä") ja suoratoistoarvostelut.
-        """
-        reviews = []
-        
-        # Etsi __NEXT_DATA__ script tag
-        next_data_script = soup.find('script', {'id': '__NEXT_DATA__'})
-        if not next_data_script:
-            return reviews
-        
-        try:
-            # Parsitaan JSON
-            data = json.loads(next_data_script.string)
-            
-            # IS.fi:n rakenne: props.pageProps.page.data.data[].lanes[].items[]
-            page_props = data.get('props', {}).get('pageProps', {})
-            page = page_props.get('page', {})
-            page_data_wrapper = page.get('data', {})
-            page_data = page_data_wrapper.get('data', [])
-            
-            # Tunnetut IS.fi:n elokuvakriitikot
-            known_critics = ['Taneli Topelius', 'Pekka Eronen', 'Pauliina Leinonen', 'Jouko Juutilainen', 'Tarmo Poussu']
-            
-            # Hylättävät otsikkopatternit (TV-arvostelut)
-            excluded_patterns = [
-                'tänään tv:ssä',
-                'tänään tv',
-                'katso ilmaiseksi',
-                'katsomo+',
-                'netflix',
-                'viaplay',
-                'hbo',
-                'suoratoistossa',
-                'illalla tv:ssä',
-                'tv-vinkki',
-                'valitse katsottavaksi'
-            ]
-            
-            # Arvosteluun viittaavat avainsanat
-            review_keywords = [
-                'tähden arvoinen', 'elokuva', 'arvio', 'arvostelu', 
-                'leffassa', 'leffa', 'ensi-ilta', 'ensi-illassa', 
-                'valkokanka', 'teattereissa', 'komedia', 'traileri'
-            ]
-            
-            # Käy läpi kaikki lanes ja items. IS on usein satoja artikkeleita JSONissa.
-            for data_item in page_data:
-                lanes = data_item.get('lanes', [])
-                for lane in lanes:
-                    items = lane.get('items', [])
-                    for item in items:
-                        # Tarkista onko byLine (kriitikko) tiedossa
-                        byline = item.get('byLine', '').strip()
-                        title = item.get('title', '').strip()
-                        url_path = item.get('url', '').strip()
-                        ingress = item.get('ingress', '').strip().lower()
-                        
-                        if not title or not url_path:
-                            continue
-                            
-                        # Jos kriitikko on tunnettu JA otsikossa tai ingressissä viitteitä arvioon
-                        if byline in known_critics:
-                            title_lower = title.lower()
-                            
-                            # Hylkää selkeät TV-vinkit
-                            if any(pattern in title_lower for pattern in excluded_patterns):
-                                continue
-                            
-                            # Tarkistetaan sekä otsikko että ingress
-                            found_keyword = False
-                            if any(kw in title_lower for kw in review_keywords):
-                                found_keyword = True
-                            elif any(kw in ingress for kw in review_keywords):
-                                found_keyword = True
-                            
-                            if found_keyword:
-                                # Muodosta absoluuttinen URL
-                                if url_path.startswith('/'):
-                                    url = 'https://www.is.fi' + url_path
-                                else:
-                                    url = 'https://www.is.fi/' + url_path
-                                
-                                reviews.append({
-                                    'title': title,
-                                    'url': url
-                                })
-                                
-                                if len(reviews) >= limit:
-                                    return reviews
-        
-        except json.JSONDecodeError as e:
-            print(f"Virhe JSON parsinnassa: {e}")
-        except Exception as e:
-            print(f"Virhe IS.fi arvostelujen etsinnässä: {e}")
-        
-        return reviews
-    
+        from urllib.parse import urljoin, urlsplit
+        import re
+        script = soup.find('script', {'id': '__NEXT_DATA__'})
+        if not script:
+            raise ValueError('Missing IS discovery payload')
+        data = json.loads(script.string)
+        sections = data['props']['pageProps']['page']['data']['data']
+        if not isinstance(sections, list):
+            raise ValueError('Invalid IS discovery sections')
+        found = {}
+        for section in sections:
+            for lane in section['lanes']:
+                for item in lane['items']:
+                    raw = item.get('url')
+                    if not isinstance(raw, str):
+                        continue
+                    url = urljoin('https://www.is.fi/', raw)
+                    parsed = urlsplit(url)
+                    if (parsed.scheme != 'https' or parsed.netloc != 'www.is.fi' or
+                        not re.fullmatch(r'/tv-ja-elokuvat/art-\d+\.html', parsed.path)):
+                        continue
+                    url = 'https://www.is.fi' + parsed.path
+                    found.setdefault(url, {'url':url, 'title':str(item.get('title') or '')})
+        if not found:
+            raise ValueError('IS category contains no article URLs; verify source schema')
+        return list(found.values())
+
     def _find_ksml_reviews(self, soup: BeautifulSoup, limit: int) -> List[Dict[str, str]]:
         """Löytää Keskisuomalaisen arvostelut hakusivulta."""
         reviews = []
@@ -503,6 +433,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 # Title on rendered HTML, puhdistetaan
@@ -529,6 +461,7 @@ class CategoryCrawler:
         
         except Exception as e:
             print(f"  [Kulttuuritoimitus] JSON API virhe: {e}")
+            raise
         
         return reviews
     
@@ -547,6 +480,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 title = item.get('title', {}).get('rendered', '').strip()
@@ -563,6 +498,7 @@ class CategoryCrawler:
         
         except Exception as e:
             print(f"  [Episodi] JSON API virhe: {e}")
+            raise
         
         return reviews
     
@@ -583,6 +519,8 @@ class CategoryCrawler:
             )
             response.raise_for_status()
             data = response.json()
+            if not isinstance(data, list):
+                raise ValueError('Expected article list from discovery API')
             
             for item in data:
                 # Title on rendered HTML, puhdistetaan
@@ -609,6 +547,7 @@ class CategoryCrawler:
                         
         except Exception as e:
             print(f"  [Demokraatti] JSON API virhe: {e}")
+            raise
             
         return reviews
 

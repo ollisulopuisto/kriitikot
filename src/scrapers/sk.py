@@ -100,39 +100,8 @@ class SKScraper(BaseScraper):
                 if len(title) < 100:
                     return title
         
-        # 2. FALLBACK: Käytä og:title metatagia
-        # SK:ssa meta og:title sisältää muodon "Arvio: [Arvosana] – [Elokuva] ..."
-        # Esim: "Arvio: Neljä tähteä – Sisu 2 tarjoaa kaikkien aikojen..."
-        # Esim: "Arvio: The Materialists nojaa perinteiseen hollywood-romantiikkaan"
-        meta_title = soup.find('meta', property='og:title')
-        if meta_title and meta_title.get('content'):
-            title = self.clean_text(meta_title['content'])
-            
-            # Poista "Arvio:" prefix
-            title = re.sub(r'^Arvio:\s*', '', title, flags=re.I)
-            
-            # Tarkista onko arvosana alussa (muoto: "Neljä tähteä – Elokuva")
-            rating_pattern = r'^(Yksi|Kaksi|Kolme|Neljä|Viisi)\s+tähteä\s*[–-]\s*'
-            title = re.sub(rating_pattern, '', title, flags=re.I)
-            
-            # Poista "The " prefix jos se on väärin (esim. "The Materialists" -> "Materialists")
-            # MUTTA VAIN jos URL sisältää ilman "the":tä
-            # Esim. URL: "/arvio-materialists-..." -> title: "The Materialists" -> poista "The "
-            # Tämä on heuristiikka, ei aina oikein
-            
-            # Ota ensimmäinen osa ennen " on ", " – ", " ei " tai " tarjoaa " jne.
-            for separator in [' nojaa ', ' tarjoaa ', ' on ', ' – ', ' ei ', ' kannatti ', ' osaa ']:
-                if separator in title:
-                    title = title.split(separator)[0].strip()
-                    break
-            
-            # Poista mahdollinen "-elokuva" suffixi
-            title = re.sub(r'\s*-elokuva$', '', title, flags=re.I)
-            
-            return title
-        
         return None
-    
+
     def _extract_author(self, html_content: str, soup: BeautifulSoup) -> Optional[str]:
         """Poimii kriitikon nimen."""
         # SK käyttää muotoa "[Nimi] kirjoittaa" tekstissä

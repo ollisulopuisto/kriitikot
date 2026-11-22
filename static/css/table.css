@@ -232,6 +232,101 @@ td.movie-col:hover {
     overflow: visible !important;
 }
 
+/* Movie Filtering Animations & Selection Styles */
+@keyframes movieSelectGlow {
+    0% {
+        box-shadow: inset 6px 0 0 #8b5cf6, 0 0 0 rgba(139, 92, 246, 0.4);
+    }
+    50% {
+        box-shadow: inset 6px 0 0 #7c3aed, 0 0 15px rgba(139, 92, 246, 0.35);
+    }
+    100% {
+        box-shadow: inset 6px 0 0 #8b5cf6, 0 0 0 rgba(139, 92, 246, 0);
+    }
+}
+
+@keyframes movieRowFadeIn {
+    from {
+        opacity: 0.4;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+td.movie-col.selected {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
+    border-left: 5px solid #8b5cf6;
+    animation: movieSelectGlow 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+}
+
+tr[data-filtered="true"] {
+    animation: movieRowFadeIn 0.35s ease-out;
+}
+
+tr[data-filtered="true"] .rating-pill {
+    animation: moviePillPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes moviePillPop {
+    0% {
+        transform: scale(0.85);
+        opacity: 0.7;
+    }
+    60% {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Critic Filtering Animations & Selection Styles */
+@keyframes criticHeaderPop {
+    0% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-3px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes criticColumnPulse {
+    0% {
+        background-color: rgba(139, 92, 246, 0.15);
+    }
+    50% {
+        background-color: rgba(139, 92, 246, 0.08);
+    }
+    100% {
+        background-color: rgba(139, 92, 246, 0.04);
+    }
+}
+
+th.rating-cell.selected {
+    background: linear-gradient(180deg, #ede9fe 0%, #f3e8ff 100%) !important;
+    border-top: 4px solid #8b5cf6;
+    animation: criticHeaderPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+td.rating-cell:has(.rating-pill) {
+    transition: background-color 0.3s ease;
+}
+
+/* When a critic is filtered on desktop, highlight cell content */
+th.rating-cell.selected ~ td.rating-cell,
+td.rating-cell.selected-critic-cell {
+    animation: criticColumnPulse 1.5s ease-out forwards;
+}
+
 /* Ensure poster full-size appears above the hovered cell and row doesn't clip */
 tbody tr:hover {
     z-index: 70;
@@ -327,17 +422,18 @@ th .review-count {
 
 /* Rating Cells */
 .rating-cell {
-    text-align: center;
+    text-align: left;
     width: 7.5em;
     min-width: 7.5em;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    padding: 0.5rem 0.2rem;
+    padding: 0.5rem 0.5rem;
     vertical-align: middle;
 }
 
 th.rating-cell {
     vertical-align: bottom;
+    text-align: center;
 }
 
 th.rating-cell:hover {
@@ -348,7 +444,7 @@ th.rating-cell:hover {
 .rating-link {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-decoration: none;
     color: inherit;
     min-height: 2.5rem;
@@ -361,59 +457,15 @@ th.rating-cell:hover {
     font-style: italic;
 }
 
-/* Pilli rajautuu gradientilla eikä reunuksella: sävy syvenee alaspäin, joten
-   alareuna piirtyy portaan omasta väristä. Kullalla tämä lukee metallina. */
+/* Shared link layout. The A1v3c drawing is defined below. */
 .rating-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35em 0.5em;
-    border-radius: 1em;
     font-weight: 500;
     line-height: 1;
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 1px 2px rgba(24, 16, 4, 0.14);
 }
-
-/* Ei brightness-suodinta: se pesisi kirkkaan kullan lähes valkoiseksi */
-.rating-pill:hover {
-    transform: scale(1.08);
-    box-shadow: 0 3px 8px rgba(24, 16, 4, 0.24);
-}
-
-.rating-pill .rating-stars {
-    color: inherit;
-    font-size: 0.9em;
-    letter-spacing: 0.05rem;
-    display: inline-block;
-}
-
-/* Tähdet ovat aina valkoisia. Väri toistetaan :hover/:focus-tiloissa, koska
-   pilli on <a> ja base.css:n yleinen a:hover (0,1,1) voittaisi muuten
-   .rating-pillin (0,1,0) ja värjäisi tähdet violetiksi. */
-.rating-pill,
-.rating-pill:hover,
-.rating-pill:focus,
-.rating-pill:visited { color: var(--star-ink); }
-
-/* Kolme vaaleinta porrasta: ääriviiva antaa valkoiselle tähdelle reunan.
-   Kahdella tummalla portaalla sitä ei tarvita — tumma ääriviiva tummalla
-   pohjalla ei näkyisi, ja se vain paksuntaisi merkkiä. */
-.stars-3 .rating-stars,
-.stars-4 .rating-stars,
-.stars-5 .rating-stars {
-    text-shadow:
-        0 0 1px var(--star-outline),
-        0 0 2px var(--star-outline),
-        0 1px 1px rgba(69, 26, 3, 0.55);
-}
-
-.stars-1 { background: linear-gradient(180deg, var(--star-1-top), var(--star-1) 55%, var(--star-1-bot)); }
-.stars-2 { background: linear-gradient(180deg, var(--star-2-top), var(--star-2) 55%, var(--star-2-bot)); }
-.stars-3 { background: linear-gradient(180deg, var(--star-3-top), var(--star-3) 55%, var(--star-3-bot)); }
-.stars-4 { background: linear-gradient(180deg, var(--star-4-top), var(--star-4) 55%, var(--star-4-bot)); }
-.stars-5 { background: linear-gradient(180deg, var(--star-5-top), var(--star-5) 55%, var(--star-5-bot)); }
 
 .movie-review-count {
     font-size: 0.75em;
@@ -551,5 +603,338 @@ th.rating-cell:hover {
 
     .sticky-scrollbar-container {
         display: none !important;
+    }
+}
+
+/* Keep each review under its critic, including multi-review cells. */
+tbody td.rating-cell { text-align: center; vertical-align: middle; }
+.movie-content-wrapper { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; }
+.movie-info { grid-column: 2; min-width: 0; }
+.movie-poster-container { grid-column: 1; grid-row: 1; }
+td.movie-col.selected, tr[data-filtered="true"], tr[data-filtered="true"] .rating-pill, th.rating-cell.selected, td.rating-cell.selected-critic-cell { animation: selectionReveal 180ms var(--motion-ease); }
+.movie-review-count, th .review-count { font-size: .9rem; color: #495057; opacity: 1; font-weight: 600; }
+/* Do not squeeze larger star glyphs into overlapping tablet columns. */
+@media (min-width: 769px) and (max-width: 1100px) {
+    table { table-layout: auto; }
+    th.rating-cell, td.rating-cell { min-width: 7.5rem; }
+}
+/* Titles lead; ratings and counts remain readable supporting information. */
+.movie-title-main { font-size: 1.125rem; line-height: 1.35; }
+
+.movie-review-count, th .review-count { font-size: .8125rem; font-weight: 500; }
+@media (max-width: 768px) {
+    .movie-card-title { font-size: 1.25rem; }
+    .movie-card-summary .movie-card-review-count { font-size: .8125rem; }
+}
+/* Favourite uses the existing count line, not a separate name/header row. */
+@media (min-width: 769px) {
+    th.rating-cell .critic-name { display: flex; flex-direction: column; justify-content: flex-end; min-height: 3.6em; line-height: 1.2; }
+    .critic-given-name, .critic-family-name { display: block; }
+    .critic-media { min-height: 1.2em; }
+    .critic-bottom-row { gap: .375rem; }
+    .critic-bottom-row .review-count { margin: 0; }
+    .critic-bottom-row .heart-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 32px;
+        min-height: 32px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: #6c757d;
+        font: 1.25rem/1 system-ui, sans-serif;
+    }
+    .critic-bottom-row .heart-icon:hover { background: #ede9fe; color: #c02247; }
+    .critic-bottom-row .heart-icon.active { color: #c02247; }
+}
+@media (min-width: 769px) and (pointer: coarse) {
+    .critic-bottom-row .heart-icon { flex-basis: 44px; min-height: 44px; }
+}
+@media (min-width: 769px) and (max-width: 1100px) {
+    td.movie-col .movie-meta-row { flex-wrap: wrap; gap: .25rem .375rem; }
+    td.movie-col .movie-meta-row > * { flex-shrink: 0; }
+    td.movie-col .movie-info { max-width: 100%; }
+}
+
+/* Skeleton placeholder rows & spinner */
+tr.skeleton-row {
+    background-color: #fafbfc;
+}
+tr.skeleton-row td.movie-col {
+    padding: 12px 16px;
+}
+.skeleton-box {
+    background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: 4px;
+    display: inline-block;
+}
+.skeleton-thumb {
+    width: 48px;
+    height: 72px;
+    flex-shrink: 0;
+}
+.skeleton-title {
+    width: 180px;
+    height: 20px;
+    margin-bottom: 8px;
+}
+.skeleton-meta {
+    width: 110px;
+    height: 14px;
+}
+.skeleton-spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 48px;
+}
+.skeleton-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid #dee2e6;
+    border-top: 3px solid #6c757d;
+    border-radius: 50%;
+    animation: skeleton-spin 0.8s linear infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes skeleton-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* A colspan window spacer must not change the logical zebra-striping parity. */
+tbody tr td.window-even-column { background-color: #f8faff; }
+tbody tr td.window-odd-column { background-color: white; }
+tbody tr:nth-child(even) td.window-even-column { background-color: #f0f4ff; }
+tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
+
+/* A1v3c: fixed rating area, colored proportional star constellations.
+   Keep five DOM slots and awarded-star text for existing facet logic.
+   Empty slots are hidden, not painted as extra stars. */
+.rating-pill,
+.review-item .rating-pill {
+    width: 100px;
+    min-width: 100px;
+    height: 64px;
+    min-height: 64px;
+    padding: 0;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transform: none;
+}
+.rating-pill:hover { transform: none; }
+.rating-pill .rating-stars {
+    display: block;
+    position: relative;
+    width: 100px;
+    min-width: 100px;
+    height: 64px;
+    padding: 0;
+    border-radius: 6px;
+    /* Stars sit directly on the table/card surface, with no tinted slab. */
+    background: transparent;
+    box-shadow: none;
+    font-size: 0;
+    line-height: 0;
+    text-shadow: none;
+}
+.rating-pill:hover .rating-stars { box-shadow: none; }
+.rating-star {
+    position: absolute;
+    display: block;
+    flex: none;
+    width: var(--cluster-size);
+    height: var(--cluster-size);
+    left: calc(var(--star-x, 50px) - var(--cluster-size) / 2);
+    top: calc(var(--star-y, 32px) - var(--cluster-size) / 2);
+    min-width: 0;
+    transform: none;
+    overflow: visible;
+    font-size: 0;
+    text-shadow: none;
+}
+.rating-star-paint::before,
+.rating-star-paint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--cluster-edge, var(--cluster-color));
+    clip-path: polygon(50% 0%, 62.64% 32.6%, 97.55% 34.55%,
+        70.46% 56.65%, 79.39% 90.45%, 50% 71.5%,
+        20.61% 90.45%, 29.54% 56.65%, 2.45% 34.55%, 37.36% 32.6%);
+}
+.rating-star-paint::after {
+    inset: .5px;
+    background: var(--cluster-color);
+}
+.rating-star-empty { display: none; }
+.rating-star-empty .rating-star-paint::before { content: none; }
+.rating-pill.stars-1 {
+    --hover-lift: -0.5px;
+    --cluster-size: 18px;
+    --cluster-color: #b91c1c;
+}
+.rating-pill.stars-2 {
+    --hover-lift: -0.5px;
+    --cluster-size: 20px;
+    --cluster-color: #a83a12;
+}
+.rating-pill.stars-3 {
+    --hover-lift: -3px;
+    --cluster-size: 22px;
+    --cluster-color: #d4a700;
+    --cluster-edge: #8c7100;
+}
+.rating-pill.stars-4 {
+    --hover-lift: -3px;
+    --cluster-size: 24px;
+    --cluster-color: #1686bb;
+}
+.rating-pill.stars-5 {
+    --hover-lift: -6px;
+    --hover-scale: 1.05;
+    --cluster-size: 25px;
+    --cluster-color: #179447;
+}
+.stars-2 .rating-star:nth-child(1) { --star-x: 38px; }
+.stars-2 .rating-star:nth-child(2) { --star-x: 62px; }
+.stars-3 .rating-star:nth-child(1) { --star-y: 18px; }
+.stars-3 .rating-star:nth-child(2) { --star-x: 38px; --star-y: 44px; }
+.stars-3 .rating-star:nth-child(3) { --star-x: 62px; --star-y: 44px; }
+.stars-4 .rating-star:nth-child(1) { --star-x: 37px; --star-y: 21px; }
+.stars-4 .rating-star:nth-child(2) { --star-x: 63px; --star-y: 21px; }
+.stars-4 .rating-star:nth-child(3) { --star-x: 37px; --star-y: 43px; }
+.stars-4 .rating-star:nth-child(4) { --star-x: 63px; --star-y: 43px; }
+.stars-5 .rating-star:nth-child(1) { --star-x: 37px; --star-y: 20px; }
+.stars-5 .rating-star:nth-child(2) { --star-x: 63px; --star-y: 20px; }
+.stars-5 .rating-star:nth-child(3) { --star-x: 24px; --star-y: 43px; }
+.stars-5 .rating-star:nth-child(4) { --star-x: 50px; --star-y: 43px; }
+.stars-5 .rating-star:nth-child(5) { --star-x: 76px; --star-y: 43px; }
+.rating-pill.stars-5 .rating-star-paint {
+    /* Soft glyph-only glow; the fixed rating face stays shadow-free. */
+    filter: drop-shadow(0 0 2px #bbf7d0)
+        drop-shadow(0 0 5px rgba(34, 197, 94, .55));
+}
+@media (prefers-reduced-motion: reduce) {
+    .rating-pill, .rating-star { animation: none; transition: none; }
+}
+
+/* A 100px constellation plus cell padding must not invade its neighbor. */
+@media (min-width: 769px) {
+    th.rating-cell, td.rating-cell {
+        width: 116px;
+        min-width: 116px;
+    }
+}
+
+
+/* H6 keeps the ground shadow independent of the rising star paint. */
+.rating-star-paint, .rating-star-shadow {
+    position: absolute;
+    inset: 0;
+    display: block;
+}
+.rating-star-shadow {
+    transform: translate(4px, 6px);
+    filter: blur(1.2px);
+    opacity: 0;
+}
+.rating-star-shadow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #28303a;
+    clip-path: polygon(50% 0%, 62.64% 32.6%, 97.55% 34.55%,
+        70.46% 56.65%, 79.39% 90.45%, 50% 71.5%,
+        20.61% 90.45%, 29.54% 56.65%, 2.45% 34.55%, 37.36% 32.6%);
+}
+/* One bright pass left to right across the five-star constellation on
+   hover entry. One shot per hover, never a loop; the keyframes carry the
+   resting glow so it never drops out mid-sweep. */
+@keyframes fiveStarGlint {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px #bbf7d0)
+            drop-shadow(0 0 5px rgba(34, 197, 94, .55)) brightness(1);
+    }
+    45% {
+        filter: drop-shadow(0 0 2px #d1fae5)
+            drop-shadow(0 0 6px rgba(34, 197, 94, .7)) brightness(1.5);
+    }
+}
+@media (hover: hover) and (pointer: fine) and
+       (prefers-reduced-motion: no-preference) {
+    .rating-star-paint { transition: transform 420ms ease; }
+    .rating-star-shadow { transition: opacity 420ms ease; }
+    .rating-pill:hover .rating-star-paint {
+        /* Higher ratings rise farther; only five stars grow, uniformly. */
+        transform: translateY(var(--hover-lift)) scale(var(--hover-scale, 1));
+        transition-duration: 250ms;
+    }
+    .rating-pill:hover .rating-star-shadow {
+        opacity: .28;
+        transition-duration: 250ms;
+    }
+    .rating-pill.stars-5:hover .rating-star-paint {
+        animation: fiveStarGlint 550ms ease-in-out 1;
+    }
+    /* Sweep in star x order: 24, 37, 50, 63, 76. */
+    .rating-pill.stars-5:hover .rating-star:nth-child(3) .rating-star-paint {
+        animation-delay: 0ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(1) .rating-star-paint {
+        animation-delay: 70ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(4) .rating-star-paint {
+        animation-delay: 140ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(2) .rating-star-paint {
+        animation-delay: 210ms;
+    }
+    .rating-pill.stars-5:hover .rating-star:nth-child(5) .rating-star-paint {
+        animation-delay: 280ms;
+    }
+}
+/* Background graphics can be suppressed in print and forced-colors modes.
+   Fall back to awarded-star text, with no decorative shadow or motion. */
+@media print, (forced-colors: active) {
+    .rating-pill .rating-stars { background: transparent; }
+    .rating-star-paint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: CanvasText;
+        font-family: Arial, sans-serif;
+        font-size: var(--cluster-size);
+        line-height: 1;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+    }
+    .rating-star-shadow { display: none; }
+    .rating-star-paint::before, .rating-star-paint::after { content: none; }
+}
+
+/* Paper stays white even when the screen uses a dark forced-color scheme. */
+@media print {
+    .rating-pill .rating-stars {
+        background: #ffffff;
+        forced-color-adjust: none;
+    }
+    .rating-star-paint {
+        color: #000000;
+        forced-color-adjust: none;
     }
 }

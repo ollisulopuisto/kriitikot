@@ -203,6 +203,11 @@
     background: #d1d5db;
 }
 
+.slider:focus-visible {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+}
+
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -496,3 +501,201 @@ input:checked + .toggle-slider:before {
 tr.dimmed {
     display: none !important;
 }
+
+/* Compact header: sorting/favourites, minimum filters, publications.
+   One layout definition replaces the accumulated desktop overrides. */
+.desktop-filters,
+.mobile-filters-container {
+    --toolbar-bg: var(--card-bg);
+    --toolbar-button: #f3f4f6;
+    --toolbar-ink: var(--text-color);
+    --toolbar-muted: #4b5563;
+    --toolbar-border: var(--border-color);
+    --toolbar-accent: var(--primary-color);
+    background: var(--toolbar-bg);
+    color: var(--toolbar-ink);
+    font-family: 'Afacad', system-ui, sans-serif;
+}
+
+:is(.desktop-filters, .mobile-filters-container) button {
+    font-family: inherit;
+}
+
+:is(.desktop-filters, .mobile-filters-container) .media-filter-btn,
+.desktop-filters :is(.facet-btn, .reset-button),
+.mobile-filters-container :is(.mobile-sort-button, .stepper-btn) {
+    background: var(--toolbar-button);
+    color: var(--toolbar-ink);
+    border: 1px solid var(--toolbar-border);
+    box-shadow: none;
+}
+
+:is(.desktop-filters, .mobile-filters-container) button:hover {
+    background: #ede9fe;
+    border-color: var(--toolbar-accent);
+    transform: none;
+}
+
+:is(.desktop-filters, .mobile-filters-container) button.active,
+:is(.desktop-filters, .mobile-filters-container) button.active:hover {
+    background: var(--primary-color);
+    border-color: var(--toolbar-accent);
+    color: white;
+}
+
+:is(.desktop-filters, .mobile-filters-container) :focus-visible {
+    outline-color: var(--toolbar-accent);
+}
+
+/* Keep the input focusable and expose focus on the visible switch. */
+.toggle-switch { flex-shrink: 0; }
+.toggle-switch input { position: absolute; inset: 0; width: 100%; height: 100%; }
+.toggle-switch:focus-within { outline: 3px solid var(--primary-color); outline-offset: 3px; border-radius: 22px; }
+.toggle-slider { background: #9ca3af; }
+.toggle-switch input:checked + .toggle-slider { background: #8b5cf6; }
+:is(.desktop-filters, .mobile-filters-container) label.toggle-container {
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+}
+:is(.desktop-filters, .mobile-filters-container) .toggle-label { color: var(--toolbar-ink); font-size: 1rem; }
+
+@media (min-width: 769px) {
+    .desktop-filters {
+        display: grid;
+        grid-template-columns: minmax(15rem, 1fr) minmax(14rem, 1fr) minmax(18rem, 1.35fr);
+        grid-template-rows: auto auto;
+        align-items: start;
+        gap: .75rem 1.25rem;
+        padding: 1rem;
+        border: 1px solid var(--toolbar-border);
+    }
+    .desktop-filters > .filters-container { display: contents; }
+    .desktop-filters > .sorting-group {
+        grid-column: 1;
+        grid-row: 1;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+    .toolbar-heading,
+    .desktop-filters .filter-group > label:not(.toggle-container) {
+        font-size: .875rem;
+        line-height: 1.25;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--toolbar-muted);
+    }
+    .sort-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .desktop-filters :is(.facet-btn, .reset-button) {
+        width: auto;
+        height: auto;
+        min-height: 36px;
+        padding: .25rem .625rem;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.25;
+        text-transform: none;
+        white-space: nowrap;
+    }
+    .desktop-filters .filter-group { min-width: 0; max-width: none; gap: .25rem; }
+    .desktop-filters .group-favorites {
+        grid-column: 1;
+        grid-row: 2;
+        margin: 0;
+        align-self: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+    }
+    .desktop-filters .group-reviews { grid-column: 2; grid-row: 1; }
+    .desktop-filters .group-stars { grid-column: 2; grid-row: 2; }
+    .desktop-filters .filter-icon { display: none; }
+    .desktop-filters .slider { background: #d1d5db; margin: .45rem 0 .25rem; }
+    .desktop-filters .slider::-webkit-slider-thumb { background: var(--toolbar-accent); }
+    .desktop-filters .slider::-moz-range-thumb { background: var(--toolbar-accent); border: 0; }
+    .desktop-filters .slider-labels { color: var(--toolbar-muted); font-family: system-ui, sans-serif; font-size: .75rem; }
+    .desktop-filters .media-group {
+        grid-column: 3;
+        grid-row: 1 / 3;
+        flex-direction: column;
+        align-items: stretch;
+        gap: .4rem;
+    }
+    .desktop-filters .media-group > label { margin: 0; }
+    .desktop-filters .media-filter-buttons { gap: .375rem; }
+    .desktop-filters .media-filter-btn { min-height: 32px; padding: .2rem .5rem; font-size: .9375rem; line-height: 1.2; }
+}
+
+/* At tablet widths, keep full-sized controls rather than squeezing 3 columns. */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .desktop-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .desktop-filters .media-group { grid-column: 1 / -1; grid-row: 3; }
+}
+
+@media (max-width: 768px) {
+    .mobile-filters-container {
+        padding: .75rem;
+        gap: .75rem;
+        /* A short phone must still be able to reach the last filter. */
+        max-height: 65vh;
+        max-height: 65dvh;
+        overflow-y: auto;
+    }
+    .mobile-filters-container .mobile-filter-group > label,
+    .mobile-filters-container .stepper-value { color: var(--toolbar-ink); }
+    .mobile-filters-container .media-filter-btn { min-height: 44px; font-size: 1rem; padding: .25rem .625rem; }
+    .mobile-filters-container label.toggle-container { min-height: 44px; }
+    .mobile-filters-container .mobile-sort-button { min-height: 44px; font-size: 1rem; }
+    .mobile-filter-group.mobile-filter-inline { gap: .5rem; }
+    .mobile-stepper { gap: .25rem; }
+    .mobile-stepper .stepper-value { min-width: 3rem; }
+}
+/* The native input receives clicks on the visual switch, including automation. */
+.toggle-slider { pointer-events: none; }
+
+/* Inline desktop headings: two control rows, not two heading/track/tick stacks. */
+@media (min-width: 1101px) {
+    .desktop-filters {
+        grid-template-rows: minmax(43px, auto) minmax(43px, auto);
+        row-gap: 8px;
+    }
+    .desktop-filters > .sorting-group {
+        flex-direction: row;
+        align-items: center;
+        min-height: 43px;
+        gap: 12px;
+    }
+    .desktop-filters .sorting-group .toolbar-heading {
+        font-size: .875rem;
+        text-transform: none;
+    }
+    .desktop-filters :is(.group-reviews, .group-stars) {
+        display: grid;
+        grid-template-columns: minmax(0, 145px) minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        min-height: 43px;
+    }
+    .desktop-filters :is(.group-reviews, .group-stars) > label {
+        display: block;
+        text-transform: none;
+    }
+    .desktop-filters .group-favorites { min-height: 43px; }
+}
+
+/* Desktop search and matched switches. Phones keep their existing panel. */
+.desktop-filters .group-favorites { display:flex; flex-direction:row; flex-wrap:wrap; gap:16px; align-items:center; justify-content:flex-start; }
+.desktop-filters .group-favorites .toggle-container { display:inline-flex; align-items:center; gap:8px; margin:0; padding:0; min-height:28px; white-space:nowrap; }
+.desktop-filters .group-favorites .toggle-label { margin:0; font-size:14px; line-height:20px; }
+.desktop-filters .group-favorites .toggle-switch { flex:0 0 40px; width:40px; margin:0; }
+.film-search-label { width:100%; padding-right:.625rem; box-sizing:border-box; display:block; text-align:left; font:600 12px Arial,sans-serif; color:var(--text-muted); }
+.film-search { display:block; box-sizing:border-box; width:100%; min-width:0; height:36px; margin-top:8px; border:1px solid #c9c1dc; border-radius:6px; background:white; padding:7px 10px; font:15px Arial,sans-serif; color:var(--text-color); }
+.film-search:focus-visible { outline:2px solid var(--primary-color); outline-offset:2px; }
+@media print { .full-view-control, .film-search { display:none; } }

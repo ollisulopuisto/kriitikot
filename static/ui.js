@@ -52,6 +52,14 @@ function initStickyTableHeader() {
         sizes.forEach((size, index) => {
             const clone = clonedCells[index];
             if (!clone) return;
+            // Täytesarake saa venyä jäljellä olevan tilan: sen mitattu leveys voi
+            // olla hetkellinen, ja kiinteä leveys työntäisi kriitikon oikeaan reunaan
+            if (clone.classList.contains('filler-column')) {
+                clone.style.width = 'auto';
+                clone.style.minWidth = '0';
+                clone.style.maxWidth = 'none';
+                return;
+            }
             clone.style.width = size.width + 'px';
             clone.style.minWidth = size.width + 'px';
             clone.style.maxWidth = size.width + 'px';
@@ -64,14 +72,22 @@ function initStickyTableHeader() {
     }
     
     function handleScroll() {
-        if (window.innerWidth <= 768) return; // Mobiilissa taulukko on piilossa
+        if (window.innerWidth <= 768) {
+            if (theadClone) {
+                theadClone.wrapperElement?.remove();
+                theadClone = null;
+                thead.style.visibility = 'visible';
+            }
+            return;
+        }
 
         const filtersHeight = updateFiltersHeight();
-        const filterBottom = filtersHeight; // Otsikkoheader kiinnittyy fasetin alle
+        const filterBottom = Math.max(0, desktopFilters.getBoundingClientRect().bottom); // Keep the focused search below the actual toolbar edge.
         const tableRect = tableWrapper.getBoundingClientRect();
         
-        const shouldBeSticky = tableRect.top < filterBottom && 
-                              tableRect.bottom > filterBottom + thead.offsetHeight;
+        const searchFocused = theadClone?.contains(document.activeElement) && document.activeElement.matches('.film-search');
+        const shouldBeSticky = searchFocused || (tableRect.top < filterBottom &&
+                              tableRect.bottom > filterBottom + thead.offsetHeight);
         
         if (shouldBeSticky) {
             if (!theadClone) {
@@ -90,6 +106,8 @@ function initStickyTableHeader() {
                 theadClone = document.createElement('table');
                 theadClone.id = 'sticky-thead-clone';
                 theadClone.style.borderCollapse = 'collapse';
+                theadClone.style.tableLayout = 'fixed';
+                theadClone.style.width = tableRect.width + 'px';
                 theadClone.style.margin = '0';
                 theadClone.style.padding = '0';
                 theadClone.style.background = '#f8f9fa';
@@ -104,6 +122,7 @@ function initStickyTableHeader() {
                 
                 // Event delegation
                 theadClone.addEventListener('click', function(e) {
+                    if (e.target.closest('.film-search-label')) return;
                     const clickedElement = e.target.closest('th');
                     if (!clickedElement) return;
                     
@@ -177,6 +196,17 @@ function initStickyTableHeader() {
      */
     function refreshStickyHeader() {
         if (theadClone) {
+            // Preserve the focused search node across table-sort refreshes.
+            const focused = theadClone.contains(document.activeElement) && document.activeElement.matches('.film-search') ? document.activeElement : null;
+            if (focused) {
+                const original = [...thead.querySelectorAll('th')];
+                const clonedRow = theadClone.tHead.rows[0];
+                // Keep only the live search cell; refresh critic identity/order,
+                // visibility and controls from their current originals.
+                [...clonedRow.cells].slice(1).forEach(cell=>cell.remove());
+                original.slice(1).forEach(cell=>clonedRow.appendChild(cell.cloneNode(true)));
+                syncColumnWidths(); handleScroll(); return;
+            }
             if (theadClone.wrapperElement) {
                 theadClone.wrapperElement.remove();
             } else {
@@ -199,6 +229,7 @@ function initStickyTableHeader() {
         });
     }
 
+    document.addEventListener('focusout', () => requestAnimationFrame(handleScroll));
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => {
         updateFiltersHeight();

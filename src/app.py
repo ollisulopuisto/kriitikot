@@ -28,7 +28,13 @@ def rfc2822(dt):
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
-APP_VERSION = "2026.10.05.2"
+from publication_names import PUBLICATION_NAMES, publication_name, publication_names
+
+app.jinja_env.filters['publication_name'] = publication_name
+app.jinja_env.filters['publication_names'] = publication_names
+app.jinja_env.globals['publication_names_map'] = PUBLICATION_NAMES
+
+APP_VERSION = "2026.11.22.2"
 
 # Tietokantayhteys
 engine = get_engine()

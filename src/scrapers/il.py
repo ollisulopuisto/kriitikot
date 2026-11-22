@@ -74,16 +74,8 @@ class ILScraper(BaseScraper):
                 if title and 'IL-arvio' not in title:
                     return title
         
-        # Fallback: käytä h1-otsikkoa ja poista "IL-arvio: " etuliite
-        h1 = soup.find('h1')
-        if h1:
-            title = h1.get_text(strip=True)
-            if title.startswith('IL-arvio: '):
-                title = title[len('IL-arvio: '):]
-            return title
-        
         return None
-    
+
     def _extract_author(self, soup: BeautifulSoup) -> Optional[str]:
         """Poimii kirjoittajan nimen."""
         # Etsi author/byline elementit

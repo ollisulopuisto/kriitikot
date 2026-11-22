@@ -17,17 +17,17 @@ jobs:
   scrape_and_deploy:
     runs-on: ubuntu-latest
     env:
-      NODE_VERSION: '20'
+      NODE_VERSION: '24'
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: true
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -59,13 +59,13 @@ jobs:
 
       - name: Set up Node.js
         if: steps.frontend.outputs.enabled == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           version: "latest"
@@ -105,7 +105,7 @@ jobs:
 
       - name: Create issue on test failures
         if: env.TESTS_FAILED == '1'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -126,6 +126,10 @@ jobs:
               }
             }
 
+      - name: Stop publication after failed tests
+        if: env.TESTS_FAILED == '1'
+        run: exit 1
+
       - name: Get pre-scrape review count
         id: pre_count
         run: |
@@ -143,7 +147,37 @@ jobs:
           DISPLAY_TIMEZONE: 'Europe/Helsinki'
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
-          uv run python src/batch_update.py
+          if uv run python src/batch_update.py; then
+            status=0
+          else
+            status=$?
+          fi
+          if [ "$status" -eq 2 ]; then
+            echo "PARTIAL_SCRAPE=1" >> "$GITHUB_ENV"
+            echo "::warning::Some sources failed. Publishing validated successful imports; final job status will report failure."
+            echo "### Partial scraper result" >> "$GITHUB_STEP_SUMMARY"
+            echo "Some sources failed. Validated successful imports proceed to publication. Source failures are listed in the batch log." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
+
+      # Persist discovery progress even when article errors stop publication.
+      # This commits only public category metadata/outcomes, never partial reviews.
+      - name: Save IS discovery queue
+        if: always()
+        env:
+          GIT_COMMITTER_NAME: 'github-actions[bot]'
+          GIT_COMMITTER_EMAIL: '41898282+github-actions[bot]@users.noreply.github.com'
+        run: |
+          if [ -f data/is-discovery.json ]; then
+            git config user.name "${GIT_COMMITTER_NAME}"
+            git config user.email "${GIT_COMMITTER_EMAIL}"
+            git add data/is-discovery.json
+            if ! git diff --staged --quiet; then
+              git commit -m "Save IS discovery queue [skip ci]"
+              git push origin HEAD:main
+            fi
+          fi
 
       - name: Backfill movie metadata links and posters
         env:
@@ -164,6 +198,7 @@ jobs:
           echo "after=$after" >> $GITHUB_OUTPUT
           added=$((after - ${{ steps.pre_count.outputs.before }}))
           echo "added=$added" >> $GITHUB_OUTPUT
+          echo "Validated reviews added: $added" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Generate static site
         run: |
@@ -176,7 +211,7 @@ jobs:
         run: |
           git config user.name "${GIT_COMMITTER_NAME}"
           git config user.email "${GIT_COMMITTER_EMAIL}"
-          git add docs reviews.db || true
+          git add docs reviews.db
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
@@ -185,9 +220,16 @@ jobs:
             git push origin HEAD:main
           fi
 
+      # A partial result is published, but never presented as a healthy scrape.
+      - name: Report source failures after publication
+        if: env.PARTIAL_SCRAPE == '1'
+        run: |
+          echo "::error::Valid imports published, but source errors remain. See batch log and job summary."
+          exit 1
+
       - name: Create issue on job failure
         if: ${{ failure() }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

@@ -8,8 +8,76 @@ let originalTableWidth = 0;
 let originalVisibleColumns = 0;
 let currentMovieOffset = window.currentMovieOffset || 30; // Aloitetaan 30:stä, koska ensimmäiset 30 on jo ladattu Jinjalla
 const movieLimit = 30;
+// Fasettien ollessa päällä automaattinen täydennys ja "Lataa lisää" tähtäävät
+// tähän määrään aktiivisia fasetteja vastaavia arvosteluja kerrallaan.
+const FACET_REVIEW_BATCH = 10;
+
+// Arviomääräliukusäätimen asento -> vähimmäisarviomäärä (myös filters.js käyttää)
+const REVIEW_VALUE_MAPPING = { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+
+// Julkaisujen kokonimet -> suodatin nappien lyhenteet. reviews.jsonin
+// source_publication on koko nimi ("Helsingin Sanomat"), kun taas nappien
+// data-publication on lyhenne ("HS"). Uudet versiot reviews.jsonista
+// sisältävät publication_short-kentän, jolloin kartoitusta ei tarvita.
+const PUB_FULL_NAME_TO_SHORT = {
+    'HELSINGIN SANOMAT': 'HS',
+    'KESKISUOMALAINEN': 'KSML',
+    'ILTALEHTI': 'IL',
+    'TURUN SANOMAT': 'TS',
+    'SUOMEN KUVALEHTI': 'SK',
+    'ILTA-SANOMAT': 'IS',
+    'FILM-O-HOLIC': 'FILMOHOLIC'
+};
+
+// Shared with server-rendered chips and labels. Unknown names stay unchanged.
+const publicationNamesData = document.getElementById('publication-names-data');
+const publicationNames = publicationNamesData ? JSON.parse(publicationNamesData.textContent) : {};
+function publicationFullName(value) {
+    const key = pubShortOf(value);
+    return publicationNames[key] || value || '';
+}
+
+// Palauta julkaisun lyhenne (isot kirjaimet) koko nimestä tai lyhenteestä.
+function pubShortOf(value) {
+    const v = String(value || '').trim().toUpperCase();
+    return PUB_FULL_NAME_TO_SHORT[v] || v;
+}
 let allGroupedReviews = window.allGroupedReviews || {}; // Tähän ladataan kaikki arvostelut JSONista
 let movieTitles = Object.keys(allGroupedReviews);
+let filmSearchQuery = '';
+function matchesFilmSearch(title) {
+    return !filmSearchQuery || String(title || '').normalize('NFC').toLocaleLowerCase('fi').includes(filmSearchQuery);
+}
+window.matchesFilmSearch = matchesFilmSearch;
+function initFilmSearch() {
+    let timer;
+    document.addEventListener('input', event => {
+        if (!event.target.matches('.film-search')) return;
+        const value = event.target.value;
+        document.querySelectorAll('.film-search').forEach(input => { if (input !== event.target) input.value = value; });
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            window.reviewWindow?.prepare();
+            document.querySelectorAll('#review-container-desktop tbody tr, .movie-card[data-filtered="true"]').forEach(node=>{
+                delete node.dataset.filtered;
+                node.classList.remove('selected', 'dimmed');
+                node.querySelectorAll('.selected, .dimmed').forEach(n=>n.classList.remove('selected', 'dimmed'));
+            });
+            window.rememberSliderWindow?.();
+            filmSearchQuery = value.trim().normalize('NFC').toLocaleLowerCase('fi');
+            window.topUpSliderResults?.();
+            window.reconcileFacetVisibility?.();
+            window.refreshStickyHeader?.();
+            if (filmSearchQuery) window.showResetButton?.();
+        }, 120);
+    });
+    window.clearFilmSearch = () => {
+        clearTimeout(timer);
+        filmSearchQuery = '';
+        document.querySelectorAll('.film-search').forEach(input => { input.value = ''; });
+    };
+}
+initFilmSearch();
 let allCritics = []; // Kaikki kriitikot, tarvitaan renderöintiin (id ja name)
 let allCriticsMap = {}; // Map kriitikoista {id: critic_object}
 let allPublicationMap = {}; // Map julkaisuista {short_name: publication_object}
@@ -19,6 +87,22 @@ window.letterboxd_urls = window.letterboxd_urls || {};
 window.movie_review_counts = window.movie_review_counts || {};
 window.movie_rating_distributions = window.movie_rating_distributions || {};
 
+
+
+// HTML-suojaus skreipatulle datalle
+// =================================
+// Arvosteludata (otsikot, tekstit, URL:t) tulee ulkoisilta sivuilta ja
+// interpoloidaan HTML-merkkijonoihin. Pako estää tallennetun XSS:n.
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+// Vain http(s)-URL:t sallitaan href/src-attribuutteihin (estää javascript:-URL:t)
+function safeHttpUrl(url) {
+    const u = String(url ?? '').trim();
+    return /^https?:\/\//i.test(u) ? escapeHtml(u) : '';
+}
 
 // Desktop-taulukon laiska rakentaminen
 // ====================================
@@ -41,7 +125,11 @@ function isDesktopWidth() {
  * Rakenna desktop-taulukon rivit jos ollaan työpöytäleveydellä.
  * Turvallinen kutsua monta kertaa.
  */
+function cardsForDesktop() {
+    return [...document.querySelectorAll('.movie-card')].map(card => card.dataset.movie);
+}
 function ensureDesktopTable() {
+    window.reviewWindow?.prepare();
     if (desktopTableReady || !isDesktopWidth()) return false;
 
     const tbody = document.querySelector('#review-container-desktop tbody');
@@ -56,10 +144,11 @@ function ensureDesktopTable() {
     // Täydennä rivit elokuville jotka on jo ladattu mobiilikortteihin
     const serverRendered = template ? tbody.rows.length : 0;
     if (currentMovieOffset > serverRendered) {
-        const pending = movieTitles.slice(serverRendered, currentMovieOffset);
+        const existing = new Set([...tbody.querySelectorAll('.movie-title-main')].map(n => n.textContent.trim()));
+        const pending = [...new Set([...movieTitles.slice(0, currentMovieOffset).filter(matchesFilmSearch), ...cardsForDesktop()])];
         let html = '';
         pending.forEach(title => {
-            if (allGroupedReviews[title]) {
+            if (allGroupedReviews[title] && !existing.has(title)) {
                 html += renderMovie(title, allGroupedReviews[title]).desktop;
             }
         });
@@ -194,6 +283,7 @@ function resetMovieCell(movieCell) {
  * Lisää täytesarake joka venyy täyttämään tyhjän tilan
  */
 function addFillerColumns() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     const tableWrapper = document.querySelector('.table-wrapper');
     if (!table || !tableWrapper) return;
@@ -211,9 +301,10 @@ function addFillerColumns() {
     fillerTh.innerHTML = '&nbsp;';
     thead.appendChild(fillerTh);
 
-    // Lisää täytesarake jokaiselle näkyvissä olevalle riville
+    // Lisää täytesarake jokaiselle riville, myös piilotetuille: rivi voi
+    // tulla näkyviin myöhemmin, ja sarakkeiden solumäärien on täsmättävä
     tbody.querySelectorAll('tr').forEach(row => {
-        if (row.style.display === 'none') return;
+        if (row.querySelector(':scope > td.filler-column')) return;
 
         const fillerTd = document.createElement('td');
         fillerTd.className = 'filler-column';
@@ -221,14 +312,34 @@ function addFillerColumns() {
         fillerTd.innerHTML = '&nbsp;';
         row.appendChild(fillerTd);
     });
+
+    // Kiinteä sticky-otsikko on otsikon klooni: rakenna se uudelleen, jotta
+    // täytesarake on mukana, muuten klooni venyy ja valittu kriitikko hyppää oikealle
+    if (window.refreshStickyHeader) window.refreshStickyHeader();
+}
+
+/**
+ * Synkronoi täytesolut rivien kanssa, jos täytesarake on käytössä.
+ * "Lataa lisää" lisää rivejä ilman täytesolua; ilman tätä otsikon täytesarake
+ * ja uudet rivit eivät ole samassa sarakeruudukossa ja valittu kriitikko
+ * hyppää taulukon oikeaan reunaan.
+ */
+function syncFillerCells() {
+    window.reviewWindow?.prepare();
+    const thead = document.querySelector('table thead tr');
+    if (!thead || !thead.querySelector('.filler-column')) return;
+    removeFillerColumns();
+    addFillerColumns();
 }
 
 /**
  * Poista täytesarakkeet
  */
 function removeFillerColumns() {
+    window.reviewWindow?.prepare();
     const fillers = document.querySelectorAll('.filler-column');
     fillers.forEach(filler => filler.remove());
+    if (fillers.length && window.refreshStickyHeader) window.refreshStickyHeader();
 }
 
 // Column Management
@@ -238,6 +349,7 @@ function removeFillerColumns() {
  * Järjestä kriitikkosarakkeet arvioiden mukaan
  */
 function sortCriticColumnsByReviews() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -325,6 +437,7 @@ function sortCriticColumnsByReviews() {
  * Päivitä kriitikkosarakkeiden näkyvyys
  */
 function updateCriticColumnVisibility() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -491,7 +604,7 @@ function updateCriticColumnVisibility() {
                 
                 // Tarkista julkaisu-match
                 if (hasActivePubFilter) {
-                    const revPub = (el.dataset.publication || '').toUpperCase();
+                    const revPub = pubShortOf(el.dataset.publication);
                     if (!activePubs.some(pub => revPub === pub.toUpperCase())) return;
                 }
                 
@@ -541,6 +654,7 @@ function updateCriticColumnVisibility() {
  * Piilottaa rivit, joilla ei ole yhtään näkyvää arvostelua aktiivisissa sarakkeissa
  */
 function updateRowVisibility() {
+    window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
 
@@ -580,8 +694,8 @@ function updateRowVisibility() {
         // Mutta meidän pitää erottaa "ei arvosteluja" -piilotus "filtteri"-piilotuksesta logic chainissa.
         // Tässä oletamme, että tämä ajetaan viimeisenä.
 
-        // Emme koske riveihin, jotka on piilotettu review-count tai star filtterillä
-        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true') {
+        // Emme koske riveihin, jotka on piilotettu filtterillä tai erärajauksella
+        if (row.dataset.reviewCountFiltered === 'true' || row.dataset.starFiltered === 'true' || row.dataset.publicationFiltered === 'true' || row.dataset.batchFiltered === 'true' || !matchesFilmSearch(row.querySelector('.movie-title-main')?.textContent.trim())) {
             return;
         }
 
@@ -627,12 +741,7 @@ function updateRowVisibility() {
             // Piilota nappi jos olemme yksittäisen elokuvan näkymässä (desktop)
             loadMoreButton.parentElement.style.display = 'none';
         } else {
-            // Palauta napin näkyvyys jos dataa on vielä lataamatta
-            if (currentMovieOffset < movieTitles.length) {
-                loadMoreButton.parentElement.style.display = 'block';
-            } else {
-                loadMoreButton.parentElement.style.display = 'none';
-            }
+            updateLoadMoreVisibility();
         }
     }
 }
@@ -641,22 +750,28 @@ function updateRowVisibility() {
 // ============
 
 function createReviewPill(review) {
-    let tooltipText = review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu';
-    let starsHtml = '★'.repeat(review.rating_stars);
-    let publicationName = allPublicationMap[review.source_publication]?.name || review.source_publication; // Get full name
+    const tooltipText = escapeHtml(review.review_text ? review.review_text.substring(0, 200) : 'Lue arvostelu');
+    const rating = Number(review.rating_stars);
+    const starsHtml = Array.from({length: 5}, (_, slot) =>
+        `<span class="rating-star${slot >= rating ? ' rating-star-empty' : ''}" aria-hidden="true"><span class="rating-star-shadow"></span><span class="rating-star-paint">${slot < rating ? '★' : ''}</span></span>`
+    ).join('');
+    const publicationName = escapeHtml(allPublicationMap[review.source_publication]?.name || review.source_publication); // Get full name
+    const pubId = review.publication_short || review.source_publication;
+    const pubAttr = pubId ? `data-publication="${escapeHtml(pubId)}"` : '';
     
-    if (review.source_url) {
+    const safeReviewUrl = safeHttpUrl(review.source_url);
+    if (safeReviewUrl) {
         return `
-            <a href="${review.source_url}"
-                class="rating-link rating-pill stars-${review.rating_stars}" target="_blank"
-                title="${publicationName}: ${tooltipText}...">
-                <span class="rating-stars">${starsHtml}</span>
+            <a href="${safeReviewUrl}"
+                class="rating-link rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr} target="_blank"
+                title="${publicationName}: ${escapeHtml(review.rating_stars)}/5 tähteä. ${tooltipText}...">
+                <span class="rating-stars" role="img" aria-label="${escapeHtml(review.rating_stars)}/5 tähteä">${starsHtml}</span>
             </a>
         `;
     } else {
         return `
-            <span class="rating-pill stars-${review.rating_stars}">
-                <span class="rating-stars">${starsHtml}</span>
+            <span class="rating-pill stars-${escapeHtml(review.rating_stars)}" ${pubAttr}>
+                <span class="rating-stars" role="img" aria-label="${escapeHtml(review.rating_stars)}/5 tähteä">${starsHtml}</span>
             </span>
         `;
     }
@@ -668,10 +783,21 @@ function createReviewPill(review) {
  */
 function renderMovie(movieTitle, criticsReviewsDict) {
     // Collect movie meta info (poster, letterboxd, nytleffaan, review counts) from the global data structures
-    const posterUrl = window.poster_urls[movieTitle] || '';
-    const letterboxdUrl = window.letterboxd_urls[movieTitle] || '';
-    const nytleffaanUrl = window.nytleffaan_urls[movieTitle] || '';
+    const posterUrl = safeHttpUrl(window.poster_urls[movieTitle]);
+    const letterboxdUrl = safeHttpUrl(window.letterboxd_urls[movieTitle]);
+    const nytleffaanUrl = safeHttpUrl(window.nytleffaan_urls[movieTitle]);
+    const safeMovieTitle = escapeHtml(movieTitle);
     const movieReviewCount = window.movie_review_counts[movieTitle];
+
+    let calculatedReviewCount = 0;
+    if (criticsReviewsDict) {
+        Object.values(criticsReviewsDict).forEach(reviews => {
+            if (reviews && reviews.length > 0) {
+                calculatedReviewCount += reviews.length;
+            }
+        });
+    }
+
     const dist = window.movie_rating_distributions[movieTitle] || [];
     const buildSparklineHtml = (distribution, extraClasses = '') => {
         const hasDistribution = distribution.length === 5 && distribution.some(count => count > 0);
@@ -697,19 +823,19 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Desktop row
     let desktopHtml = `
-        <tr>
+        <tr data-review-count="${calculatedReviewCount}">
             <td class="movie-col" data-poster="${posterUrl}"
                 data-letterboxd="${letterboxdUrl}"
                 data-nytleffaan="${nytleffaanUrl}">
                 <div class="movie-content-wrapper">
                     ${posterUrl ? `
                     <div class="movie-poster-container">
-                        <img src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-thumb" loading="lazy" decoding="async" width="48" height="72">
-                        <img data-src="${posterUrl}" alt="${movieTitle} juliste" class="movie-poster-full" loading="lazy" decoding="async">
+                        <img src="${posterUrl}" alt="${safeMovieTitle} juliste" class="movie-poster-thumb" loading="lazy" decoding="async" width="48" height="72">
+                        <img data-src="${posterUrl}" alt="${safeMovieTitle} juliste" class="movie-poster-full" loading="lazy" decoding="async">
                     </div>
                     ` : ''}
                     <div class="movie-info">
-                        <div class="movie-title-main">${movieTitle}</div>
+                        <div class="movie-title-main">${safeMovieTitle}</div>
                         <div class="movie-meta-row">
                             ${movieReviewCount ? `<div class="movie-review-count">🎬 ${movieReviewCount}</div>` : ''}
                             ${sparklineHtml}
@@ -739,15 +865,17 @@ function renderMovie(movieTitle, criticsReviewsDict) {
 
     // Mobile card
     let mobileHtml = `
-        <div class="movie-card" data-movie="${movieTitle}" data-poster="${posterUrl}">
+        <div class="movie-card" data-movie="${safeMovieTitle}" data-poster="${posterUrl}" data-review-count="${calculatedReviewCount}">
             <div class="movie-card-header">
                     <div class="movie-card-title-row">
-                        <div class="movie-card-title">${movieTitle}</div>
+                        <div class="movie-card-title">${safeMovieTitle}</div>
+                        <div class="movie-card-summary">
                         ${movieReviewCount ? `<div class="movie-card-review-count">🎬 ${movieReviewCount}</div>` : ''}
                         ${mobileSparklineHtml}
+                        </div>
                         ${posterUrl ? `
                             <div class="movie-card-poster-container">
-                                <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${movieTitle} poster" loading="lazy" decoding="async" width="100" height="150" />
+                                <img class="movie-card-poster-thumb" src="${posterUrl}" alt="${safeMovieTitle} poster" loading="lazy" decoding="async" width="100" height="150" />
                             </div>
                         ` : ''}
                     </div>
@@ -759,13 +887,13 @@ function renderMovie(movieTitle, criticsReviewsDict) {
         if (criticsReviewsDict[critic.name]) {
             criticsReviewsDict[critic.name].forEach(review => {
                 mobileHtml += `
-                    <div class="review-item" data-critic="${critic.id}"
-                        data-publication="${review.source_publication}">
+                    <div class="review-item" data-critic="${escapeHtml(critic.id)}"
+                        data-publication="${escapeHtml(review.publication_short || review.source_publication)}">
                         <div class="review-critic">
                             <div class="review-critic-top">
-                                <span class="review-critic-name">${critic.name}</span>
+                                <span class="review-critic-name">${escapeHtml(critic.name)}</span>
                             </div>
-                            <div class="review-media">${review.source_publication.toUpperCase()}</div>
+                            <div class="review-media" role="group" title="${escapeHtml(publicationFullName(review.publication_short || review.source_publication))}" aria-label="${escapeHtml(publicationFullName(review.publication_short || review.source_publication))}">${escapeHtml((review.source_publication || '').toUpperCase())}</div>
                         </div>
                         <div class="review-rating">
                             ${review.rating_stars ? createReviewPill(review) : ''}
@@ -801,7 +929,8 @@ function renderMovie(movieTitle, criticsReviewsDict) {
  * osuvat väärien otsikoiden alle ja sarakkeiden näkyvyyslogiikka menee sekaisin.
  */
 function syncCriticOrderFromDom() {
-    const headers = document.querySelectorAll('thead th.rating-cell');
+    window.reviewWindow?.prepare();
+    const headers = document.querySelectorAll('#review-container-desktop thead th.rating-cell');
     if (!headers.length) return;
 
     allCritics = Array.from(headers).map(th => ({
@@ -812,9 +941,15 @@ function syncCriticOrderFromDom() {
     allCritics.forEach(c => { allCriticsMap[c.id] = c; });
 }
 
-function loadMoreMovies() {
+function loadMoreMovies(batchSize = movieLimit, missingTitles = null) {
+    window.reviewWindow?.prepare();
+    if (typeof batchSize !== 'number') batchSize = movieLimit;
     const loadMoreButton = document.getElementById('load-more-button');
     if (!loadMoreButton) return;
+
+    if (typeof window.currentMovieOffset === 'number') {
+        currentMovieOffset = window.currentMovieOffset;
+    }
 
     // Varmista että solut renderöidään otsikoiden nykyisessä järjestyksessä
     syncCriticOrderFromDom();
@@ -832,9 +967,11 @@ function loadMoreMovies() {
         return;
     }
 
-    const moviesToRender = movieTitles.slice(currentMovieOffset, currentMovieOffset + movieLimit);
+    const scannedTitles = missingTitles || movieTitles.slice(currentMovieOffset, currentMovieOffset + batchSize);
+    const searchState = filmSearchQuery ? currentFacetState() : null;
+    const moviesToRender = scannedTitles.filter(title => matchesFilmSearch(title) && (!searchState || movieHasFacetMatch(title, searchState)));
 
-    if (moviesToRender.length === 0) {
+    if (scannedTitles.length === 0) {
         loadMoreButton.parentElement.style.display = 'none';
         loadMoreButton.disabled = false;
         loadMoreButton.textContent = originalText;
@@ -855,15 +992,12 @@ function loadMoreMovies() {
 
     if (desktopHtml) desktopTbody.insertAdjacentHTML('beforeend', desktopHtml);
     mobileCardsContainer.insertAdjacentHTML('beforeend', mobileHtml);
+    window.applyMovieSortOrder?.();
 
-    currentMovieOffset += moviesToRender.length;
+    if (!missingTitles) currentMovieOffset += scannedTitles.length;
     window.currentMovieOffset = currentMovieOffset;
 
-    if (currentMovieOffset >= movieTitles.length) {
-        loadMoreButton.parentElement.style.display = 'none';
-    } else {
-        loadMoreButton.parentElement.style.display = 'block';
-    }
+    updateLoadMoreVisibility();
 
     // Re-initialize event handlers for newly added elements
     if (typeof initMovieClickHandlers === 'function') initMovieClickHandlers();
@@ -874,11 +1008,353 @@ function loadMoreMovies() {
     if (typeof initResetButton === 'function') initResetButton();
     if (typeof initFavoriteFilter === 'function') initFavoriteFilter();
     
+    if (typeof window.reapplyAllFacets === 'function') window.reapplyAllFacets();
     if (typeof updateCriticColumnVisibility === 'function') updateCriticColumnVisibility();
+    if (window.reconcileFacetVisibility) window.reconcileFacetVisibility();
+    syncFillerCells();
     
     loadMoreButton.disabled = false;
     loadMoreButton.textContent = originalText;
 }
+
+
+// Aktiivisten fasettien tila, luettuna DOM:sta samoin perustein kuin
+// filters.js:n reconcileFacetVisibility ne tulkitsee.
+function currentFacetState() {
+    window.reviewWindow?.prepare();
+    const selectedHeader = document.querySelector('thead th.rating-cell[data-filtered="true"]');
+    const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')]
+        .map(b => (b.dataset.publication || '').toUpperCase()))];
+    const minStars = Number(document.getElementById('star-filter-slider')?.value || 1);
+    const rcPos = Number(document.getElementById('min-reviews-slider')?.value || 1);
+    const minReviews = REVIEW_VALUE_MAPPING[rcPos] || rcPos;
+    const favoritesOn = !!window.isFavoritesFilterActive?.();
+    const chosenCard = document.querySelector('.movie-card[data-filtered="true"]');
+    const chosenRow = document.querySelector('tbody tr[data-filtered="true"]');
+    const chosenMovie = chosenCard?.dataset.movie
+        || chosenRow?.querySelector('.movie-title-main')?.textContent.trim()
+        || null;
+    return { query: filmSearchQuery, criticId: selectedHeader?.dataset.criticId || null, pubs, minStars, minReviews, favoritesOn, chosenMovie };
+}
+
+// Onko jokin hakufasetti päällä? (Yksittäisen elokuvan valinta ei ole fasetti.)
+function facetFiltersActive() {
+    const st = currentFacetState();
+    return !!(st.query || st.criticId || st.pubs.length || st.minStars > 1 || st.minReviews > 1 || st.favoritesOn);
+}
+
+// Täsmääkö yksittäinen arvostelu aktiivisiin fasetteihin? Peilaa
+// reconcileFacetVisibilityn matches()-logiikkaa puhtaaseen dataan,
+// jotta lataamattomien elokuvien osumat voidaan laskea renderöimättä.
+function reviewMatchesFacetState(review, criticName, st) {
+    const critic = allCritics.find(c => c.name === criticName);
+    const criticId = critic ? critic.id : null;
+    if (st.criticId && criticId !== st.criticId) return false;
+    if (st.favoritesOn && !(criticId && window.isFavoriteCritic?.(criticId))) return false;
+    if (st.pubs.length && !st.pubs.includes(pubShortOf(review.publication_short || review.source_publication))) return false;
+    if (st.minStars > 1 && !(Number(review.rating_stars) >= st.minStars)) return false;
+    return true;
+}
+
+function movieHasFacetMatch(movieTitle, st) {
+    if (!matchesFilmSearch(movieTitle)) return false;
+    if (st.chosenMovie && movieTitle !== st.chosenMovie) return false;
+    const dict = allGroupedReviews[movieTitle];
+    if (!dict) return false;
+    if (st.minReviews > 1) {
+        let total = 0;
+        Object.values(dict).forEach(rs => { total += rs ? rs.length : 0; });
+        if (total < st.minReviews) return false;
+    }
+    return Object.entries(dict).some(([criticName, rs]) =>
+        (rs || []).some(r => reviewMatchesFacetState(r, criticName, st)));
+}
+
+// Onko lataamattomassa datassa vielä fasetteja vastaavia arvosteluja?
+function tailHasFacetMatches() {
+    const st = currentFacetState();
+    return movieTitles.slice(currentMovieOffset).some(t => movieHasFacetMatch(t, st));
+}
+
+// Ladattujen elokuvien fasetteja vastaavien arvostelujen määrä (puhdas
+// datalaskenta, riippumaton siitä mikä on parhaillaan näkyvissä).
+function loadedMatchingReviewCount() {
+    window.reviewWindow?.prepare();
+    const st = currentFacetState();
+    let n = 0;
+    movieTitles.slice(0, currentMovieOffset).forEach(title => {
+        const dict = allGroupedReviews[title];
+        if (!dict || !movieHasFacetMatch(title, st)) return;
+        Object.entries(dict).forEach(([criticName, rs]) => {
+            (rs || []).forEach(r => { if (reviewMatchesFacetState(r, criticName, st)) n++; });
+        });
+    });
+    return n;
+}
+
+// Näkyvissä olevien fasetteja vastaavien arvostelujen määrä. Mobiilikortit
+// renderöidään aina (myös desktopilla), joten ne ovat luotettava lähde.
+function matchingVisibleReviewCount() {
+    window.reviewWindow?.prepare();
+    let n = 0;
+    document.querySelectorAll('.movie-card').forEach(card => {
+        if (card.style.display === 'none') return;
+        card.querySelectorAll('.review-item').forEach(item => {
+            if (item.style.display !== 'none') n++;
+        });
+    });
+    return n;
+}
+
+// "Lataa lisää" -napin näkyvyys: ilman fasetteja näytetään kun dataa on
+// lataamatta; fasettien kanssa kun paljastamattomia osumia on vielä jäljellä
+// (joko ladattujen joukossa eräpiilotettuna tai lataamattomassa datassa).
+function updateLoadMoreVisibility() {
+    const btn = document.getElementById('load-more-button');
+    if (!btn) return;
+    let show;
+    if (facetFiltersActive()) {
+        show = document.querySelector('.movie-card[data-batch-filtered="true"]') !== null
+            || (currentMovieOffset < movieTitles.length && tailHasFacetMatches());
+    } else {
+        show = currentMovieOffset < movieTitles.length;
+    }
+    btn.parentElement.style.display = show ? 'block' : 'none';
+}
+
+// Kuinka monta fasetteja vastaavaa arvostelua on tällä hetkellä paljastettu.
+// Kasvaa FACET_REVIEW_BATCH-erissä käyttäjän painellessa "Lataa lisää".
+let facetRevealCount = FACET_REVIEW_BATCH;
+
+// Rajaa näkyvissä olevat osumat facetRevealCountiin. Elokuvarajat säilyvät
+// ehjinä: elokuva, jossa eräraja ylittyy, näytetään kokonaan (erä voi siksi
+// ylittää tavoitteen viimeisen elokuvan ylimääräisillä osumilla). Ajetaan
+// aina reconcileFacetVisibilityn jälkeen, joka on näkyvyyden lopullinen lähde.
+function applyFacetBatchVisibility() {
+    window.reviewWindow?.prepare();
+    const cards = [...document.querySelectorAll('.movie-card')];
+    // Reveal membership follows catalog order, independently of visual sorting.
+    const catalogOrder = new Map(movieTitles.map((title, index) => [title, index]));
+    const revealCards = [...cards].sort((a, b) => (catalogOrder.get(a.dataset.movie) ?? Infinity) - (catalogOrder.get(b.dataset.movie) ?? Infinity));
+    if (facetFiltersActive()) {
+        let acc = 0;
+        revealCards.forEach(card => {
+            delete card.dataset.batchFiltered;
+            if (card.style.display === 'none') return;
+            const items = [...card.querySelectorAll('.review-item')].filter(i => i.style.display !== 'none');
+            if (!items.length) return;
+            if (acc >= facetRevealCount) {
+                card.dataset.batchFiltered = 'true';
+                card.style.display = 'none';
+            } else {
+                acc += items.length;
+            }
+        });
+    } else {
+        cards.forEach(card => { delete card.dataset.batchFiltered; });
+    }
+    // Peilaa eräpiilotus desktop-riveihin korttien mukaisesti
+    const cardByTitle = new Map(cards.map(c => [c.dataset.movie, c]));
+    document.querySelectorAll('#review-container-desktop tbody tr:not(.poster-row)').forEach(row => {
+        const title = row.querySelector('.movie-title-main')?.textContent.trim();
+        const card = title ? cardByTitle.get(title) : null;
+        if (!card) return;
+        if (card.dataset.batchFiltered === 'true') {
+            row.dataset.batchFiltered = 'true';
+            row.style.display = 'none';
+        } else {
+            delete row.dataset.batchFiltered;
+            row.style.display = card.style.display === 'none' ? 'none' : '';
+        }
+    });
+    updateLoadMoreVisibility();
+}
+
+// Placeholder / Skeleton helper functions for lazy loading
+function removeSkeletonPlaceholders() {
+    window.reviewWindow?.prepare();
+    window._placeholdersActive = false;
+    document.querySelectorAll('.skeleton-row, .skeleton-card').forEach(el => el.remove());
+}
+
+function showSkeletonPlaceholders(count, criticId) {
+    window.reviewWindow?.prepare();
+    removeSkeletonPlaceholders();
+    if (!count || count <= 0) return;
+    window._placeholdersActive = true;
+
+    // Desktop placeholder rows
+    const desktopTbody = document.querySelector('#review-container-desktop tbody');
+    const table = document.querySelector('table');
+    let targetCellIndex = -1;
+    if (criticId && table) {
+        const header = table.querySelector(`thead th.rating-cell[data-critic-id="${criticId}"]`);
+        if (header) targetCellIndex = header.cellIndex;
+    }
+    const totalHeaders = table ? table.querySelectorAll('thead th').length : 0;
+
+    if (desktopTbody && desktopTableReady && totalHeaders > 0) {
+        let rowsHtml = '';
+        for (let i = 0; i < count; i++) {
+            rowsHtml += `<tr class="skeleton-row"><td class="movie-col">` +
+                `<div class="movie-content-wrapper">` +
+                `<div class="skeleton-box skeleton-thumb"></div>` +
+                `<div class="movie-info">` +
+                `<div class="skeleton-box skeleton-title"></div>` +
+                `<div class="skeleton-box skeleton-meta"></div>` +
+                `</div></div></td>`;
+            for (let c = 1; c < totalHeaders; c++) {
+                if (c === targetCellIndex) {
+                    rowsHtml += `<td class="rating-cell"><div class="skeleton-spinner-container"><div class="skeleton-spinner"></div></div></td>`;
+                } else {
+                    rowsHtml += `<td class="rating-cell" style="display: none;"></td>`;
+                }
+            }
+            rowsHtml += `</tr>`;
+        }
+        desktopTbody.insertAdjacentHTML('beforeend', rowsHtml);
+    }
+
+    // Mobile placeholder cards
+    const mobileContainer = document.querySelector('.mobile-cards');
+    if (mobileContainer) {
+        let cardsHtml = '';
+        for (let i = 0; i < count; i++) {
+            cardsHtml += `<div class="movie-card skeleton-card">` +
+                `<div class="movie-card-header">` +
+                `<div class="movie-card-title-row">` +
+                `<div class="skeleton-box skeleton-card-title"></div>` +
+                `<div class="skeleton-box skeleton-card-summary"></div>` +
+                `<div class="skeleton-box skeleton-card-poster"></div>` +
+                `</div></div>` +
+                `<div class="skeleton-card-body">` +
+                `<div class="skeleton-card-critic">` +
+                `<div class="skeleton-box skeleton-card-critic-name"></div>` +
+                `<div class="skeleton-box skeleton-card-media"></div>` +
+                `</div>` +
+                `<div class="skeleton-spinner"></div>` +
+                `</div></div>`;
+        }
+        mobileContainer.insertAdjacentHTML('beforeend', cardsHtml);
+    }
+}
+window.removeSkeletonPlaceholders = removeSkeletonPlaceholders;
+window.showSkeletonPlaceholders = showSkeletonPlaceholders;
+
+// Fasettien ollessa päällä "Lataa lisää" paljastaa seuraavan FACET_REVIEW_BATCH
+// osuvan arvostelun erän, lataen tarvittaessa lisää elokuvia taustalla.
+function loadMoreFacetAware() {
+    window.reviewWindow?.prepare();
+    facetRevealCount += FACET_REVIEW_BATCH;
+    const st = currentFacetState();
+    const needed = facetRevealCount - loadedMatchingReviewCount();
+    if (needed > 0 && currentMovieOffset < movieTitles.length) {
+        showSkeletonPlaceholders(Math.min(needed, FACET_REVIEW_BATCH), st.criticId);
+    }
+    while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
+        const prev = currentMovieOffset;
+        loadMoreMovies(movieLimit);
+        if (currentMovieOffset <= prev) break;
+    }
+    removeSkeletonPlaceholders();
+    window.reapplyAllFacets?.();
+    if (sliderWindows && sliderWindowKey) {
+        sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });
+    }
+    updateLoadMoreVisibility();
+}
+
+// Facet top-ups are temporary pagination windows, remembered per facet state.
+let sliderWindows = null;
+let sliderWindowKey = null;
+let sliderBaseOffset = null;
+let sliderBaseKey = null;
+function sliderResultsKey() {
+    return JSON.stringify([
+        filmSearchQuery,
+        document.getElementById('min-reviews-slider')?.value,
+        document.getElementById('star-filter-slider')?.value,
+        [...document.querySelectorAll('.media-filter-btn.active, .filter-publication.active')].map(e => e.dataset.publication).sort(),
+        document.querySelector('thead th[data-filtered="true"]')?.dataset.criticId,
+        !!window.isFavoritesFilterActive?.(),
+        [...document.querySelectorAll('#review-container-desktop thead th.rating-cell')].filter(h => window.isFavoriteCritic?.(h.dataset.criticId)).map(h => h.dataset.criticId).sort(),
+        document.querySelector('.movie-card[data-filtered="true"]')?.dataset.movie
+    ]);
+}
+function rememberSliderWindow() {
+    window.reviewWindow?.prepare();
+    if (sliderWindows) return;
+    sliderWindows = new Map();
+    sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
+    sliderWindowKey = sliderResultsKey();
+    sliderBaseKey = sliderWindowKey;
+    sliderWindows.set(sliderWindowKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
+}
+function topUpSliderResults() {
+    window.reviewWindow?.prepare();
+    // Initialization and pagination reapplication never enter this function.
+    if (!sliderWindows) return;
+    sliderWindows.set(sliderWindowKey, { offset: window.currentMovieOffset ?? currentMovieOffset, reveal: facetRevealCount });
+    const key = sliderResultsKey();
+    const restoring = sliderWindows.has(key);
+    const saved = sliderWindows.get(key) || { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH };
+    const offset = saved.offset;
+    const keep = new Set(movieTitles.slice(0, offset));
+    document.querySelectorAll('.movie-card').forEach(card => {
+        if (!keep.has(card.dataset.movie)) card.remove();
+    });
+    document.querySelectorAll('#review-container-desktop tbody tr').forEach(row => {
+        const title = row.querySelector('.movie-title-main')?.textContent.trim();
+        if (title && !keep.has(title)) row.remove();
+    });
+    const mounted = new Set([...document.querySelectorAll('.movie-card')].map(card => card.dataset.movie));
+    currentMovieOffset = offset;
+    window.currentMovieOffset = offset;
+    const missing = movieTitles.slice(0, offset).filter(title => matchesFilmSearch(title) && !mounted.has(title));
+    if (missing.length) loadMoreMovies(0, missing);
+    sliderWindowKey = key;
+    facetRevealCount = saved.reveal;
+    window.reapplyAllFacets?.();
+    const facetsActive = facetFiltersActive();
+    if (!restoring && facetsActive) {
+        // Varmista että ladattujen joukossa riittää osumia erätavoitteeseen
+        while (loadedMatchingReviewCount() < facetRevealCount && currentMovieOffset < movieTitles.length) {
+            const before = currentMovieOffset;
+            let scanCount = movieLimit;
+            if (filmSearchQuery) {
+                const state = currentFacetState();
+                let reviews = loadedMatchingReviewCount();
+                scanCount = 0;
+                for (const title of movieTitles.slice(currentMovieOffset)) {
+                    scanCount++;
+                    if (movieHasFacetMatch(title, state)) {
+                        for (const [critic, items] of Object.entries(allGroupedReviews[title]))
+                            reviews += items.filter(review => reviewMatchesFacetState(review, critic, state)).length;
+                    }
+                    if (reviews >= facetRevealCount) break;
+                }
+            }
+            loadMoreMovies(scanCount);
+            if (currentMovieOffset <= before) break;
+        }
+    } else if (!restoring && !facetsActive) {
+        const visibleCount = () => [...document.querySelectorAll('.movie-card')].filter(card => card.style.display !== 'none').length;
+        while (visibleCount() < movieLimit && currentMovieOffset < movieTitles.length) {
+            const before = currentMovieOffset;
+            loadMoreMovies(movieLimit - visibleCount());
+            if (currentMovieOffset <= before) break;
+        }
+    }
+    // Poistetaan skeleton-paikkamerkit kun oikeat rivit on ladattu
+    removeSkeletonPlaceholders();
+    // reapplyAllFacets ajaa reconcileFacetVisibilityn, joka soveltaa
+    // eränäkyvyyden (applyFacetBatchVisibility) lopuksi
+    window.reapplyAllFacets?.();
+    sliderWindows.set(key, { offset: currentMovieOffset, reveal: facetRevealCount });
+    updateLoadMoreVisibility();
+}
+window.rememberSliderWindow = rememberSliderWindow;
+window.topUpSliderResults = topUpSliderResults;
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -894,7 +1370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sortColumnsOnceRowsExist();
 
     // Haetaan kriitikkojen tiedot taulukon headerista
-    const criticHeaders = document.querySelectorAll('thead th.rating-cell');
+    const criticHeaders = document.querySelectorAll('#review-container-desktop thead th.rating-cell');
     allCritics = Array.from(criticHeaders).map(th => ({
         id: th.dataset.criticId,
         name: th.querySelector('.critic-name').textContent
@@ -904,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Julkaisujen nimet suodatinnapeista (short_name -> koko nimi)
     document.querySelectorAll('.media-filter-btn').forEach(btn => {
         const short_name = btn.dataset.publication.toLowerCase();
-        const name = btn.textContent.trim();
+        const name = btn.getAttribute('aria-label') || btn.textContent.trim();
         allPublicationMap[short_name] = { short_name: short_name, name: name };
     });
 
@@ -944,31 +1420,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Lataa loput arvostelut: inline-data jos sivulla on sellainen (testit,
-    // vanha sivupohja), muuten erillinen JSON-tiedosto joka ei blokkaa ensirenderöintiä
+    // vanha sivupohja), muuten erillinen JSON-tiedosto joka ei blokkaa ensirenderöintiä.
+    // reviews.json välimuistitetaan (window._cachedReviewsData & promise), jotta
+    // toistuvat kutsut tai fasettilataukset saavat datan välittömästi ilman uutta verkkomaksua.
     const hideLoadMore = () => {
         const btn = document.getElementById('load-more-button');
         if (btn) btn.parentElement.style.display = 'none';
     };
     const applyReviewsData = (data) => {
+        window._cachedReviewsData = data;
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('cached_reviews_data', JSON.stringify(data));
+            }
+        } catch (_) {}
         allGroupedReviews = data;
         movieTitles = Object.keys(allGroupedReviews);
+        // Invalidate every pre-catalog window, even if the query was cleared
+        // before data arrived. Returning to any early query must top up again.
+        sliderWindows?.clear();
+        sliderWindowKey = null;
         loadMoreMovies();
+        if (facetFiltersActive()) window.topUpSliderResults?.();
+        else sliderWindowKey = sliderResultsKey();
     };
+
+    const fetchReviewsJson = () => {
+        if (window._reviewsJsonPromise) return window._reviewsJsonPromise;
+        if (window._cachedReviewsData) {
+            return Promise.resolve(window._cachedReviewsData);
+        }
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                const stored = sessionStorage.getItem('cached_reviews_data');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    window._cachedReviewsData = parsed;
+                    return Promise.resolve(parsed);
+                }
+            }
+        } catch (_) {}
+
+        window._reviewsJsonPromise = fetch('reviews.json')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                window._cachedReviewsData = data;
+                return data;
+            });
+        return window._reviewsJsonPromise;
+    };
+    window.fetchReviewsJson = fetchReviewsJson;
 
     const inlineData = document.getElementById('all-reviews-data');
     if (inlineData) {
         try {
-            applyReviewsData(JSON.parse(inlineData.textContent));
+            const parsed = JSON.parse(inlineData.textContent);
+            window._cachedReviewsData = parsed;
+            applyReviewsData(parsed);
         } catch (e) {
             console.error('Error parsing all-reviews-data:', e);
             hideLoadMore();
         }
     } else {
-        fetch('reviews.json')
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
+        fetchReviewsJson()
             .then(applyReviewsData)
             .catch(e => {
                 console.error('Error loading reviews.json:', e);
@@ -976,10 +1493,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Load more button event listener
+    // Load more button event listener: fasettien kanssa ladataan seuraava
+    // erä fasetteja vastaavia arvosteluja, muuten raakaa elokuvaerää.
     const loadMoreButton = document.getElementById('load-more-button');
     if (loadMoreButton) {
-        loadMoreButton.addEventListener('click', loadMoreMovies);
+        loadMoreButton.addEventListener('click', () => {
+            if (facetFiltersActive()) {
+                loadMoreFacetAware();
+            } else {
+                loadMoreMovies();
+                // Suodattamaton manuaalinen lataus kasvattaa perusikkunaa,
+                // jotta fasetin poiston palautus säilyttää käyttäjän lataamat.
+                if (sliderWindows && sliderBaseKey === sliderResultsKey()) {
+                    sliderBaseOffset = window.currentMovieOffset ?? currentMovieOffset;
+                    sliderWindows.set(sliderBaseKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
+                }
+            }
+        });
     }
 
     // Mobile poster toggle functionality
@@ -1082,11 +1612,23 @@ window.showPosterInCell = showPosterInCell;
 window.hidePosterInCell = hidePosterInCell;
 window.resetMovieCell = resetMovieCell;
 window.addFillerColumns = addFillerColumns;
+window.syncFillerCells = syncFillerCells;
 window.removeFillerColumns = removeFillerColumns;
 window.ensureDesktopTable = ensureDesktopTable;
 window.activateDesktopTable = activateDesktopTable;
 window.isDesktopWidth = isDesktopWidth;
 window.syncCriticOrderFromDom = syncCriticOrderFromDom;
+window.loadMoreMovies = loadMoreMovies;
+window.loadMoreFacetAware = loadMoreFacetAware;
+window.applyFacetBatchVisibility = applyFacetBatchVisibility;
+window.loadedMatchingReviewCount = loadedMatchingReviewCount;
+window.updateLoadMoreVisibility = updateLoadMoreVisibility;
+window.pubShortOf = pubShortOf;
+window.facetFiltersActive = facetFiltersActive;
+window.matchingVisibleReviewCount = matchingVisibleReviewCount;
+window.tailHasFacetMatches = tailHasFacetMatches;
+window.REVIEW_VALUE_MAPPING = REVIEW_VALUE_MAPPING;
+window.FACET_REVIEW_BATCH = FACET_REVIEW_BATCH;
 
 // Sarakkeiden uudelleenjärjestys mitätöi talletetun kriitikkojärjestyksen
 document.addEventListener('table-sorted', syncCriticOrderFromDom);

@@ -2,7 +2,6 @@
 Ilta-Sanomat (IS.fi) movie review scraper.
 """
 
-import json
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
@@ -50,8 +49,10 @@ class ISScraper(BaseScraper):
         if not movie_title:
             return None
             
-        critic_name = asset_data.get('byLine', 'Unknown')
+        critic_name = str(asset_data.get('byLine') or '').strip()
         rating_stars = self._extract_rating(asset_data)
+        if not critic_name or rating_stars not in range(1,6):
+            return None
         review_text = self._extract_review_text(asset_data)
         
         # URL joko parametrina tai asset_datasta
@@ -67,6 +68,26 @@ class ISScraper(BaseScraper):
             raw_data=asset_data
         )
     
+    def exclusion_reason(self, html_content: str) -> Optional[str]:
+        """Explain intentional exclusions, never classify a missing payload as one."""
+        soup = self.get_soup(html_content)
+        data = self.extract_next_data(soup)
+        asset = self._extract_asset_data(data) if data else None
+        if not isinstance(asset, dict) or not asset:
+            return None
+        if not isinstance(asset.get('tags'), list):
+            return None
+        keys = {tag.get('key', '').lower() for tag in asset['tags']}
+        if not {'tv-lehti', 'arviot'} <= keys:
+            return 'not_review'
+        # A tagged preview without article paragraphs is a parser failure,
+        # regardless of what a headline suggests about its distribution.
+        body = ' '.join(c.get('content', '') for p in self._paragraph_sections(asset)
+                        for c in p.get('crumbs', []))
+        if body.strip() and self._cinema_status(asset) == 'outside_cinema':
+            return 'outside_cinema'
+        return None
+
     def _extract_asset_data(self, data: dict) -> Optional[dict]:
         """Kaivaa assetData-osion Next.js datasta."""
         try:
@@ -89,6 +110,10 @@ class ISScraper(BaseScraper):
         if not ('tv-lehti' in tag_keys and 'arviot' in tag_keys):
             return False
         
+        return self._cinema_status(asset_data) == 'cinema'
+
+    def _cinema_status(self, asset_data: dict) -> Optional[str]:
+        """One policy for acceptance and explicit exclusions; None is unknown."""
         endnote = self._get_endnote_text(asset_data).lower()
         text_content = self._get_full_text(asset_data).lower()
         
@@ -110,7 +135,15 @@ class ISScraper(BaseScraper):
         ]
         
         # TV-kanava tai kello-viittaukset endnotessa (esim. "Teema & Fem klo 21.00")
-        is_tv_schedule = bool(re.search(r'klo\s+\d{1,2}\.\d{2}', endnote))
+        clock = r'klo\s+\d{1,2}[.:]\d{2}'
+        channel = r'\b(?:tv[1256]|yle|teema|fem|mtv3?|nelonen|sub|frii|hero|jim|kutonen)\b'
+        # A bare clock in a plot synopsis is not broadcast evidence. Outside
+        # the distribution endnote, require a channel in the same paragraph.
+        is_tv_schedule = bool(re.search(clock, endnote)) or any(
+            re.search(clock, text, re.IGNORECASE) and re.search(channel, text, re.IGNORECASE)
+            for text in (''.join(c.get('content', '') for c in section.get('crumbs', []))
+                         for section in self._paragraph_sections(asset_data))
+        )
         has_tv_channels = any(ch in endnote for ch in ['yle', 'teema', 'fem', 'mtv', 'nelonen', 'sub'])
         
         # Ensi-ilta on erikoistapaus: se voi olla myös tv-ensi-ilta
@@ -133,15 +166,15 @@ class ISScraper(BaseScraper):
         has_streaming = any(kw in text_content for kw in streaming_keywords)
         
         if (has_streaming or is_tv_schedule or has_tv_channels) and not has_theater_in_endnote:
-            return False  # Todennäköisesti TV/suoratoistoarvostelu
+            return 'outside_cinema'
             
         # Jos ei ole mitään viittausta teatteriin eikä ole ensi-ilta, hylkää
         has_theater_anywhere = any(kw in text_content for kw in theater_keywords) or has_premiere
         
         if not has_theater_anywhere:
-            return False
-        
-        return True
+            return None
+
+        return 'cinema'
     
     def _get_endnote_text(self, asset_data: dict) -> str:
         """Kaivaa arvostelun lopussa olevan tiivistelmätekstin (endnote)."""
@@ -245,6 +278,8 @@ class ISScraper(BaseScraper):
 
         if not candidate or len(candidate) > 60:
             return None
+        if re.match(r'^(?:ensi-ilta|elokuvateatter|teattereissa|tv[1256]\b|klo\s)', candidate, re.IGNORECASE):
+            return None
         if not re.search(r'[A-Za-zÀ-ÿ0-9]', candidate):
             return None
         if self._looks_like_genre(candidate):
@@ -323,23 +358,6 @@ class ISScraper(BaseScraper):
                     candidate = self._clean_title_candidate(match.group(1))
                     if candidate:
                         return candidate
-
-        # "Tällainen on Sisu 2 – moni olisi kateellinen"
-        match = re.search(r'(?:Tällainen on|on)\s+(.+?)\s+[-–]', title)
-        if match:
-            movie_name = re.sub(r'\s+elokuva$', '', match.group(1).strip(),
-                                flags=re.IGNORECASE)
-            candidate = self._clean_title_candidate(movie_name)
-            if candidate:
-                return candidate
-
-        if '–' in title:
-            candidate = self._clean_title_candidate(title.split('–')[0])
-            if candidate and len(candidate) <= 50:
-                return candidate
-
-        if title and len(title) <= 50:
-            return self._clean_title_candidate(title)
 
         return None
 

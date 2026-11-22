@@ -83,7 +83,12 @@ def main():
         print(f"⏰ Päättyi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*70}\n")
         
-        # Exit code: onnistui
+        failures = {source: count for source, count in importer.source_failures.items() if count}
+        if failures:
+            print(f"❌ Source failures: {failures}")
+            # Distinguish completed partial batches from fatal errors. The
+            # workflow may publish their valid imports, then report failure.
+            sys.exit(2)
         sys.exit(0)
         
     except KeyboardInterrupt:
