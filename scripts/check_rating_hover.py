@@ -35,7 +35,9 @@ STATE = '''p=>{
                 const paint=n.querySelector('.rating-star-paint');
                 const shadow=n.querySelector('.rating-star-shadow');
                 const b=paint.getBoundingClientRect();
-                return {scale:b.width/n.getBoundingClientRect().width,
+                const ground=n.getBoundingClientRect();
+                return {scale:b.width/ground.width,
+                    lift:ground.y+ground.height/2-(b.y+b.height/2),
                     inside:b.left>=box.left && b.right<=box.right &&
                         b.top>=box.top && b.bottom<=box.bottom,
                     shadow:getComputedStyle(shadow).transform,
@@ -87,8 +89,12 @@ try:
                                                  raised['stars']):
                             assert after['shadow'] == before['shadow']
                             assert after['inside']
+                            assert abs(after['lift'] - (
+                                0 if touch else rating)) < .02
+                            assert before['scale'] == 1
+                            assert before['lift'] == 0
                             assert abs(after['scale'] - (
-                                1 if touch else 1.3)) < .01
+                                1.05 if rating == 5 and not touch else 1)) < .01
                             assert abs(after['opacity'] - (
                                 0 if touch else .28)) < .001
                         if not touch:

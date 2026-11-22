@@ -782,23 +782,29 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
 .rating-star-empty { display: none; }
 .rating-star-empty .rating-star-paint::before { content: none; }
 .rating-pill.stars-1 {
+    --hover-lift: -1px;
     --cluster-size: 18px;
     --cluster-color: #b91c1c;
 }
 .rating-pill.stars-2 {
+    --hover-lift: -2px;
     --cluster-size: 20px;
     --cluster-color: #a83a12;
 }
 .rating-pill.stars-3 {
+    --hover-lift: -3px;
     --cluster-size: 22px;
     --cluster-color: #d4a700;
     --cluster-edge: #8c7100;
 }
 .rating-pill.stars-4 {
+    --hover-lift: -4px;
     --cluster-size: 24px;
     --cluster-color: #1686bb;
 }
 .rating-pill.stars-5 {
+    --hover-lift: -5px;
+    --hover-scale: 1.05;
     --cluster-size: 25px;
     --cluster-color: #179447;
 }
@@ -859,7 +865,8 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
     .rating-star-paint { transition: transform 420ms ease; }
     .rating-star-shadow { transition: opacity 420ms ease; }
     .rating-pill:hover .rating-star-paint {
-        transform: scale(1.3);
+        /* Higher ratings rise farther; only five stars grow, uniformly. */
+        transform: translateY(var(--hover-lift)) scale(var(--hover-scale, 1));
         transition-duration: 250ms;
     }
     .rating-pill:hover .rating-star-shadow {

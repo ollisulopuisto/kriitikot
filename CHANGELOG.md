@@ -1,5 +1,9 @@
 ## 2026-11-21
 
+## 2026.11.22.1
+
+- Star hover lift now grows from 1px at one star to 5px at five stars. Five-star ratings also grow to 105%, with fixed shadows and no motion on touch or reduced-motion settings.
+
 - Remove tinted backgrounds behind star clusters on desktop and phone. Keep the
   colored stars and H6 hover lift/shadow, and tighten four-star spacing so its
   footprint is smaller than five stars.
