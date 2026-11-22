@@ -2,9 +2,12 @@
 name = "kriitikot-scraper"
 version = "0.2.0"
 description = "Modulaarinen web scraper elokuva-arvosteluille"
-requires-python = ">=3.10"
+requires-python = ">=3.11.5"
 dependencies = [
     "beautifulsoup4>=4.12.0",
+    # Security floor: soupsieve < 4.0.0 is affected by CVE-2026-126191 and
+    # CVE-2026-126190. 4.0.0 itself requires Python >= 3.11.5.
+    "soupsieve>=4.0.0",
     "requests>=2.31.0",
     "flask>=3.0.0",
     "sqlalchemy>=2.0.0",
