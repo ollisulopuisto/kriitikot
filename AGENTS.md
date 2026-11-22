@@ -1,5 +1,16 @@
 # Kriitikot — Agent Reference
 
+## Retiered hover lift and five-star glint, 2026-11-22
+
+Hover lift no longer grows 1px per star: ratings 1 and 2 lift 0.5px, 3 and
+4 lift 3px, and 5 lifts 6px while keeping the 1.05 scale. Five stars add a
+one-shot 550ms left-to-right glint across the constellation on hover entry
+(fiveStarGlint keyframes carry the resting glow so it never drops out),
+staggered 70ms per star in x order; the animation lives inside the
+hover/pointer/no-preference media query, so touch and reduced motion stay
+still. scripts/check_rating_hover.py pins the LIFT map, the glint
+animation name per rating and the glow's return to rest after it ends.
+
 ## Bare rating clusters and hover values, 2026-11-21
 
 Remove the cluster wash, not the star colors, five-slot accessible text or H6
