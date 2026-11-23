@@ -1144,87 +1144,87 @@
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012359036.html": {
       "title": "Masked Singerin panelistit olivat varmoja, että yksi hahmoista on presidentti Alexander Stubb – ilmeet valahtivat: ”Mitä?”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 163,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012347519.html": {
       "title": "23-vuotias mies soitti kotkalaisperheen ovikelloa järkyttävin seurauksin – taustalta paljastui käsittämätön suunnitelma",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 164,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012364487.html": {
       "title": "Legendaarinen Kauniit ja rohkeat -tähti palasi julkisuuteen – tältä hän näyttää nyt",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 165,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012344141.html": {
       "title": "Tänään tv:ssä hurmaava Teräsleidit-elokuva – Seela Sella joutui myöhemmin tiukan päätöksen eteen",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 166,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012358009.html": {
       "title": "Kiti Kokkosen tv-esiintyminen sai katsojat hurmioon – ”Pissat tulevat pöksyyn”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 167,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012364004.html": {
       "title": "Yksi Vain elämää -esitys nostatti poikkeuksellisen palauteaallon – ”Sanaton”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 168,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012309578.html": {
       "title": "Salattu video lävähti julki – morsian kuuli sulhasensa järkyttävät sanat ulkonäöstään",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 169,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012362240.html": {
       "title": "Anniina Valtonen nolostui lapsensa suorasukaisesta kysymyksestä – \"En kehtaa myöntää itselleni\"",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 170,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012362872.html": {
       "title": "Lapin sota -arviot julki – suurelokuva jakaa kriitikoiden mielipiteet täysin",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 171,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012361616.html": {
       "title": "Riku Rantalan nuoruuskuva sai somen villiksi – ”Habitus kohdallaan”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 172,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012360468.html": {
       "title": "Big Brother paljasti yllätysuutisen – somessa villiinnyttiin heti",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 173,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012355513.html": {
       "title": "Sofia Virta kertoo hetkestä, jolloin mies vähätteli häntä – näin Aki Palsanmäki reagoi",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 174,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012325000.html": {
       "title": "Aku Louhimiehen Lapin sota ei ole sellainen sotaelokuva kuin luulet – neljä tähteä",
@@ -1235,199 +1235,199 @@
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012361217.html": {
       "title": "Uuden James Bondin valinta on loppusuoralla – ainakin nämä miehet tavoittelevat haluttua roolia",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 176,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012361207.html": {
       "title": "Tom Skerritt on kuollut",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 177,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012360899.html": {
       "title": "Kokelas lausuu häkellyttävät sanat kesken ilta­jumpan – Erikoisjoukot-kouluttajalta kylmä reaktio",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 178,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012359861.html": {
       "title": "Denise Richards laittoi ”koko naamansa” uusiksi – tällaiset olivat seuraukset",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 179,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012341113.html": {
       "title": "Nuorella naisella on AI-poikaystävä – tällainen raja petipuuhiin on vedetty",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 180,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012356343.html": {
       "title": "Vain elämää -jakson julkaisussa poikkeuksellinen tilanne – näin kanava perustelee",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 181,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012357439.html": {
       "title": "Peltsi Peltolalta suorat sanat hänen ja Osmon tulevasta elokuvasta – ”Raskas reissu”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 182,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012355246.html": {
       "title": "Joutsalaiseen ravintolaan pamahtaa kymmeniä asiakkaita – Kape Aihinen järkyttyy: ”Sä lähdet saatana häntä koipien välissä”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 183,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012338470.html": {
       "title": "Laura Malmivaaran tähdittämä uusi kotimainen sarja koukuttaa heti – nyt kannattaa pistää televisio päälle",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 184,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012357537.html": {
       "title": "Varattu nainen iskee silmänsä tempparisinkkuun: ”Tää näyttää ihan v***n pahalta”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 185,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012357432.html": {
       "title": "Katsojat varmoina: Hän on tämän Masked Singer -hahmon takana – ”Selkee”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 186,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012313666.html": {
       "title": "Ensitreffit alttarilla Australian kulisseista paljastui hurjaa törkyä – näin pareille kävi kuvausten jälkeen",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 187,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012356443.html": {
       "title": "Näyttelijätähden paita punaisella matolla sai fanit sekaisin – asussa komeili kaikkien tuntema naama",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 188,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012324997.html": {
       "title": "Aku Louhimies vuosi sairauskohtauksensa jälkeen: ”Jokainen elokuvani voi olla viimeinen”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 189,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012346476.html": {
       "title": "Kouvolalainen ravintola sai apua tv:ssä – näin heille lopulta kävi",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 190,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012353617.html": {
       "title": "Pentulive nousi otsikoihin Amerikassa – mukana ”selitys” sille, miksi suomalaiset rakastavat sitä",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 191,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012324232.html": {
       "title": "26-vuotias nainen oli varma, että hänellä on aivoinfarkti – todellinen sairaus oli jotain aivan muuta",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 192,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012354882.html": {
       "title": "Veronica Verhon ja Atte Kilpisen kuvat villitsevät somessa – ”En kestä näitä kahta”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 193,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012352864.html": {
       "title": "Elizabeth Holmes loi miljoona­omaisuuden valheella veri­kokeesta – näin hänelle lopulta kävi",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 194,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012354678.html": {
       "title": "Richard Riehle on kuollut",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 195,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012337272.html": {
       "title": "Vain elämää -pöytä hiljenee Bessin henkilökohtaisesta esityksestä – ”Veret seisauttava versio”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 196,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012353665.html": {
       "title": "Huomenta Suomi: Marko Keräseltä erikoinen ehto jatkolleen TTK:ssa",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 197,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012353658.html": {
       "title": "Nämä naiset tavoittelevat Bachelor Suomea",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 198,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012351855.html": {
       "title": "Podcast: Kiti Kokkonen ei saanut koskaan omia lapsia – sitten puolison 3-vuotias tytär lausui keskellä yötä koskettavat sanat",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 199,
       "discovered_at": "2026-11-21T04:57:26.143901",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012425694.html": {
       "title": "Linna-sarjan Jyri katosi yllättäen kesken kuvausten – tästä on kyse",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 0,
       "discovered_at": "2026-11-21T18:30:45.624144",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012428664.html": {
       "title": "Lapin sodan kuukauden katsojaluvut julki – näin kohutulle suurelokuvalle lopulta kävi",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 1,
       "discovered_at": "2026-11-21T18:30:45.624144",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012407795.html": {
       "title": "Teinityttö joutui anomaan armoa murhaajaltaan – nämä olivat hänen surulliset viimeiset sanansa",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 2,
       "discovered_at": "2026-11-21T18:30:45.624144",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012409332.html": {
       "title": "Riikka Purra vastaa televisiossa, onko hän rasisti: ”En pysty siihen muuta vastaamaan kuin...”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 3,
       "discovered_at": "2026-11-21T18:30:45.624144",
-      "checked_at": null
+      "checked_at": "2026-11-23T04:56:54.887680"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012417667.html": {
       "title": "Tämä pari putosi Amazing Race Suomesta toisena",
@@ -1469,6 +1469,20 @@
       "status": "pending",
       "sequence": 3,
       "discovered_at": "2026-11-22T18:53:26.222380",
+      "checked_at": null
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012425695.html": {
+      "title": "Waltteri hyppi trampoliinilla ja halvaantui – ”Tajusin, että nyt käy pahasti”",
+      "status": "pending",
+      "sequence": 0,
+      "discovered_at": "2026-11-23T04:56:54.887680",
+      "checked_at": null
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012423928.html": {
+      "title": "Yle: 10-vuotiaana Anitha potkaisi adoptioisäänsä jalkoväliin – hyväksikäyttö loppui: ”Hän hiljeni”",
+      "status": "pending",
+      "sequence": 1,
+      "discovered_at": "2026-11-23T04:56:54.887680",
       "checked_at": null
     }
   }
