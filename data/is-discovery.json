@@ -1431,59 +1431,101 @@
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012417667.html": {
       "title": "Tämä pari putosi Amazing Race Suomesta toisena",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 0,
       "discovered_at": "2026-11-22T04:18:27.719614",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012421458.html": {
       "title": "Masked Singerissä koetaan todellinen yllätys – ”Olen niin shokissa”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 1,
       "discovered_at": "2026-11-22T04:18:27.719614",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012428942.html": {
       "title": "Prinsessa Catherinelta koskettava dokumentti parantumisesta – ”Syöpä muuttaa kehoa”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 0,
       "discovered_at": "2026-11-22T18:53:26.222380",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012394159.html": {
       "title": "Tässä elokuvassa ei ole mitään järkeä – ja siksi se kannattaa katsoa",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 1,
       "discovered_at": "2026-11-22T18:53:26.222380",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012401957.html": {
       "title": "Hannu-Pekka Björkmanin ulkonäköä muutettiin kuvauksissa – Tommi Korpelalta meni pokka kokonaan",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 2,
       "discovered_at": "2026-11-22T18:53:26.222380",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012409333.html": {
       "title": "Marie Fredrikssonin viimeisistä vuosista uutta tietoa – aviomies kohtasi hirveän näyn: ”Lattia oli täynnä verta”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 3,
       "discovered_at": "2026-11-22T18:53:26.222380",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012425695.html": {
       "title": "Waltteri hyppi trampoliinilla ja halvaantui – ”Tajusin, että nyt käy pahasti”",
-      "status": "pending",
+      "status": "excluded",
       "sequence": 0,
       "discovered_at": "2026-11-23T04:56:54.887680",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012423928.html": {
-      "title": "Yle: 10-vuotiaana Anitha potkaisi adoptioisäänsä jalkoväliin – hyväksikäyttö loppui: ”Hän hiljeni”",
-      "status": "pending",
+      "title": "Yle: Adoptioisä alkoi ”aikuispussailla” Anithaa – eräänä jouluna tapahtui käänne: ”Silloin mittani täyttyi”",
+      "status": "excluded",
       "sequence": 1,
       "discovered_at": "2026-11-23T04:56:54.887680",
-      "checked_at": null
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012429531.html": {
+      "title": "Väite: Elokuvan kuvauksissa joukkoraiskaus",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012408466.html": {
+      "title": "”Hullu kakkaaja” piinasi pientä asuinaluetta kuukausien ajan – mystinen nainen jätti jälkeensä ulostetta ja lautasliinoja",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012429484.html": {
+      "title": "Bruce Willisin tytär julkaisi vakavasti sairaasta isästään kuvan – katui nopeasti päätöstään",
+      "status": "excluded",
+      "sequence": 2,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012430399.html": {
+      "title": "Kia Lehmuskosken uutinen kesken TTK-äänestyksen sai osan katsojista mietteliäiksi – ”Oliko tarkoituksellinen veto?”",
+      "status": "excluded",
+      "sequence": 3,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012430648.html": {
+      "title": "Remppa vai muutto -ohjelman jättänyt Marko Paananen aloittaa uudessa ohjelmassa",
+      "status": "excluded",
+      "sequence": 4,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012415978.html": {
+      "title": "Ravintolan omistaja osti veneen, vaikka häneltä pyydettiin sähkövatkainta – Kape Aihinen ei ole uskoa korviaan",
+      "status": "excluded",
+      "sequence": 5,
+      "discovered_at": "2026-11-23T23:08:31.205414",
+      "checked_at": "2026-11-23T23:08:31.205414"
     }
   }
 }
