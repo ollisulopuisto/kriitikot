@@ -18,6 +18,27 @@ class KSMLScraper(BaseScraper):
     def __init__(self):
         super().__init__("Keskisuomalainen")
     
+    def exclusion_reason(self, html_content: str) -> str | None:
+        """Only known paywalled previews with film and byline may lack stars."""
+        soup = self.get_soup(html_content)
+        metadata = self._extract_json_ld(soup)
+        if not metadata or metadata.get('isAccessibleForFree') is not False:
+            return None
+        if not self._extract_title(soup, metadata):
+            return None
+        author = self._extract_author(soup, metadata)
+        if (not author or author.casefold() in {'unknown', 'tuntematon', 'ksml', 'keskisuomalainen'}
+                or re.match(r'https?://', author, re.IGNORECASE)):
+            return None
+        # Malformed or unsupported rating markup is a parser problem, not absence.
+        if (metadata.get('reviewRating') is not None
+                or soup.find(attrs={'aria-label': re.compile(r'arvosana|/\s*5', re.IGNORECASE)})
+                or re.search(r'[★☆⭐]|\b\d+\s*/\s*5\b', soup.get_text(' ', strip=True))):
+            return None
+        if self._extract_rating(soup, metadata) is None:
+            return 'paywalled_unrated_preview'
+        return None
+
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """
         Parsii KSML.fi:n HTML-sisällön.

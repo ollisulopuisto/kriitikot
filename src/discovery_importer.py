@@ -198,6 +198,10 @@ class DiscoveryImporter:
         print(f"{'='*60}\n")
         
         self.source_failures[source] = 0
+        if not hasattr(self, 'source_exclusions'):
+            self.source_exclusions = {}
+        exclusions = {}
+        self.source_exclusions[source] = exclusions
 
         # 1. Löydä uudet arvostelut
         try:
@@ -285,6 +289,14 @@ class DiscoveryImporter:
                         if queue:
                             stats['excluded'] += 1
                             queue.finish(url, 'excluded')
+                        continue
+
+                if source in {'demokraatti', 'ksml'}:
+                    reason = scraper.exclusion_reason(html)
+                    if reason:
+                        print(f'   ⏭️  {source.upper()} exclusion: {reason}')
+                        exclusions[reason] = exclusions.get(reason, 0) + 1
+                        skipped += 1
                         continue
 
                 review = scraper.parse_html(html, url)
@@ -393,6 +405,8 @@ class DiscoveryImporter:
         print(f"✅ Importoitu:  {imported}")
         print(f"⏭️  Ohitettu:    {skipped} (jo tietokannassa)")
         print(f"❌ Epäonnistui: {failed}")
+        for reason, count in exclusions.items():
+            print(f'ℹ️  Explicit exclusion {reason}: {count} (not imported)')
         print(f"{'='*60}\n")
         
         return imported

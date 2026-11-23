@@ -348,3 +348,20 @@ reviews. Prefer the structured film subject and shared author helper; retain
 legacy h1/category, reviewer-span and rating-meta support. Missing identity,
 author or valid1–5rating is a parser failure, not a silent rating-less skip.
 Three failing-first regressions plus legacy tests pass. No DB import included.
+
+## Explicit non-review and paywall outcomes, 2026-11-23
+
+KSML previews with an explicit boolean isAccessibleForFree=false, a film-facts
+title and a named byline, but no rating evidence, are now excluded without
+failing the source. Missing access metadata, missing identity/byline, malformed
+rating evidence and other parser failures remain failures. No unrated review is
+imported. The owner approved this status-policy change on 2026-11-23.
+Demokraatti festival-opening features require positive headline and body evidence;
+review headlines, infoboxes and stars prevent exclusion. Unknown layouts still
+fail rather than silently disappearing. Each excluded URL is logged with a reason,
+and per-source reason counts are printed and exposed in source_exclusions.
+
+Consumer trace: discovery importer before parser/admission/DB writes; source failure
+counts consumed by batch_update exit status; unchanged partial-publication workflow.
+Tests cover isolated DB outcomes, positive exclusions and ambiguous/corrupt inputs.
+Regression: uv run pytest; npm test. No schema, workflow or generated-site changes.
