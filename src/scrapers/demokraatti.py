@@ -10,6 +10,29 @@ class DemokraattiScraper(BaseScraper):
     def __init__(self):
         super().__init__("Demokraatti")
     
+    def exclusion_reason(self, html_content: str) -> str | None:
+        """Recognize a festival feature, never infer non-review from missing fields."""
+        soup = self.get_soup(html_content)
+        data = self.extract_next_data(soup)
+        post = self._extract_post_data(data) if data else None
+        if not isinstance(post, dict):
+            return None
+        title = post.get('title')
+        content = post.get('content')
+        if not isinstance(title, str) or not isinstance(content, str):
+            return None
+        body = self.get_soup(content)
+        # Review evidence wins even if a festival is mentioned in the headline.
+        if (re.search(r'\barvio\s*:', title, re.IGNORECASE)
+                or body.find('div', class_='well')
+                or re.search(r'[★☆⭐]|\b[1-5]\s*/\s*5\b', body.get_text(' ', strip=True))):
+            return None
+        headline = self.get_soup(title).get_text(' ', strip=True)
+        if (re.match(r'^Rakkautta\s*(?:&|ja)\s*anarkiaa\s+alkaa\b', headline, re.IGNORECASE)
+                and re.search(r'\bfestivaali\w*\b', body.get_text(' ', strip=True), re.IGNORECASE)):
+            return 'festival_feature'
+        return None
+
     def parse_html(self, html_content: str, source_url: Optional[str] = None) -> Optional[Review]:
         """
         Parses Demokraatti.fi HTML content and returns a Review object.
