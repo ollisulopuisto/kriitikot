@@ -1526,6 +1526,20 @@
       "sequence": 5,
       "discovered_at": "2026-11-23T23:08:31.205414",
       "checked_at": "2026-11-23T23:08:31.205414"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012400428.html": {
+      "title": "Michael Jacksonista tehty uutuus­elokuva on käsittämätöntä katsottavaa – loppu­tekstien aikana mielessä pyörii lähinnä yksi asia",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-24T07:45:29.379075",
+      "checked_at": "2026-11-24T07:45:29.379075"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012431765.html": {
+      "title": "Gogin näyttelemä Romeo palaa Salatut elämät -sarjaan – yllättää tyttärensä poika­ystävän itse teossa",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-24T07:45:29.379075",
+      "checked_at": "2026-11-24T07:45:29.379075"
     }
   }
 }
