@@ -1540,6 +1540,27 @@
       "sequence": 1,
       "discovered_at": "2026-11-24T07:45:29.379075",
       "checked_at": "2026-11-24T07:45:29.379075"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012433654.html": {
+      "title": "Tämä kohtaus oli liikaa – menestyselokuvaa sensuroitiin lähes 40 vuoden jälkeen",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-24T21:47:22.632197",
+      "checked_at": "2026-11-24T21:47:22.632197"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012433523.html": {
+      "title": "Kommentti: Nelonen julkisti uutuus­ohjelman, joka sai parahtamaan epätoivosta – nyt kerron, miksi",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-24T21:47:22.632197",
+      "checked_at": "2026-11-24T21:47:22.632197"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012432844.html": {
+      "title": "Pulmuset-sarja tehdään suomeksi – rooleissa tutut suomalaiskasvot",
+      "status": "excluded",
+      "sequence": 2,
+      "discovered_at": "2026-11-24T21:47:22.632197",
+      "checked_at": "2026-11-24T21:47:22.632197"
     }
   }
 }
