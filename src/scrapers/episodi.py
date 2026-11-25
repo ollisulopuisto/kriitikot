@@ -183,6 +183,32 @@ class EpisodiScraper(BaseScraper):
 
     def _extract_critic(self, soup: BeautifulSoup) -> str:
         """Hae kriitikon nimi."""
+        # Current pages identify the review's author in Review JSON-LD.
+        # Do not take a random /author/ link: the footer names the editor.
+        review = self.extract_jsonld(soup, types=('Review',))
+        author = review.get('author', {}) if review else {}
+        name = author.get('name') if isinstance(author, dict) else None
+        if not isinstance(name, str) or not name.strip():
+            meta = soup.find('meta', {'name': 'parsely-author'})
+            name = meta.get('content') if meta else None
+        if isinstance(name, str) and name.strip() and name.strip() != 'Episodi':
+            name = self.clean_text(name)
+            # WordPress account display names can omit Finnish diacritics.
+            # Prefer an article signature only when it matches that author
+            # after accent folding, not any italic person mentioned in prose.
+            import unicodedata
+            def folded(value):
+                return ''.join(c for c in unicodedata.normalize('NFKD', value.casefold())
+                               if not unicodedata.combining(c))
+            content = soup.select_one('.entry-content')
+            if content:
+                for signature in content.select('p > em:only-child'):
+                    text = self.clean_text(signature.get_text(' ', strip=True))
+                    parent_text = self.clean_text(signature.parent.get_text(' ', strip=True))
+                    if text == parent_text and folded(text) == folded(name):
+                        return text
+            return name
+
         # Yritetään ensin /kirjoittajat/-linkistä
         author_link = soup.find('a', href=lambda x: x and '/kirjoittajat/' in x)
         if author_link:
