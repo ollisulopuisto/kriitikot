@@ -147,14 +147,15 @@ jobs:
           DISPLAY_TIMEZONE: 'Europe/Helsinki'
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: |
-          if uv run python src/batch_update.py; then
+          set -o pipefail
+          if uv run python src/batch_update.py 2>&1 | tee "$RUNNER_TEMP/scrape-batch.log"; then
             status=0
           else
             status=$?
           fi
           if [ "$status" -eq 2 ]; then
             echo "PARTIAL_SCRAPE=1" >> "$GITHUB_ENV"
-            echo "::warning::Some sources failed. Publishing validated successful imports; final job status will report failure."
+            echo "::warning::Some items failed. Publishing validated successful imports; source health is checked after publication."
             echo "### Partial scraper result" >> "$GITHUB_STEP_SUMMARY"
             echo "Some sources failed. Validated successful imports proceed to publication. Source failures are listed in the batch log." >> "$GITHUB_STEP_SUMMARY"
           elif [ "$status" -ne 0 ]; then
@@ -220,12 +221,17 @@ jobs:
             git push origin HEAD:main
           fi
 
-      # A partial result is published, but never presented as a healthy scrape.
+      # This runs only after generation and the publication commit succeeded.
       - name: Report source failures after publication
-        if: env.PARTIAL_SCRAPE == '1'
-        run: |
-          echo "::error::Valid imports published, but source errors remain. See batch log and job summary."
-          exit 1
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const { report } = require(path.resolve('scripts/ci/source-health.cjs'));
+            await report({ github, context, core,
+              log: fs.readFileSync(path.join(process.env.RUNNER_TEMP, 'scrape-batch.log'), 'utf8') });
 
       - name: Create issue on job failure
         if: ${{ failure() }}
