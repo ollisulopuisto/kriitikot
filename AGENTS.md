@@ -1,5 +1,22 @@
 # Kriitikot — Agent Reference
 
+## reviews.json review_text excerpt, 2026-11-25
+
+get_reviews_json now exports review_text as an excerpt (first 500 characters
+plus "..." when longer) instead of the full text. The only client consumer is
+the tooltip in static/app.js, which slices the first 200 characters; the RSS
+feed already cuts at 500 and llms.txt documented the field as an excerpt.
+Baseline on the production reviews.db (1078 reviews, 461 texts over the
+limit): payload 2977 KiB -> 897 KiB (-70%), get_reviews_json median
+12.87 ms -> 9.28 ms (-28%), JSON.parse median 7.12 ms -> 2.96 ms (-58%); the
+sessionStorage copy the client writes on every visit shrinks by the same
+70%. What would disprove the change: a consumer needing more than 500
+characters of review_text from reviews.json — none found (grep over static/,
+templates/, scripts/, tests/; search is by film title only). Regression:
+375 pytest passed 1 skipped incl. two new excerpt tests, 73/73 vitest, ruff
+shows only the pre-existing debt (36 errors, identical before and after).
+reviews.db untouched, no docs/ regeneration committed. Human merge pending.
+
 ## Retiered hover lift and five-star glint, 2026-11-22
 
 Hover lift no longer grows 1px per star: ratings 1 and 2 lift 0.5px, 3 and

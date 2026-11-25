@@ -95,6 +95,41 @@ def test_get_reviews_json_structure(data_service):
         assert review['scraped_at'] == '2024-01-01T12:00:00'
 
 
+def test_get_reviews_json_trims_long_review_text(data_service):
+    # reviews.json is the lazy-loaded payload; review_text must be an excerpt,
+    # not the full text (the client renders only the first 200 characters).
+    long_text = 'x' * 1200
+    mock_row = (
+        'Movie A', 'Critic 1', 42, 'Helsingin Sanomat', 'hs', 5,
+        long_text, 'https://example.com/review', 1,
+        datetime(2024, 1, 1), datetime(2024, 1, 1, 12, 0)
+    )
+
+    with patch('services.data_service.get_session') as mock_sess_ctx:
+        mock_session = mock_sess_ctx.return_value
+        query_mock = mock_session.query.return_value
+        query_mock.select_from.return_value.join.return_value.join.return_value.outerjoin.return_value.filter.return_value.all.return_value = [mock_row]
+
+        review = json.loads(data_service.get_reviews_json())["Movie A"]["Critic 1"][0]
+        assert review['review_text'] == 'x' * 500 + '...'
+
+
+def test_get_reviews_json_keeps_short_review_text(data_service):
+    mock_row = (
+        'Movie A', 'Critic 1', 42, 'Helsingin Sanomat', 'hs', 5,
+        'Lyhyt arvio', 'https://example.com/review', 1,
+        datetime(2024, 1, 1), datetime(2024, 1, 1, 12, 0)
+    )
+
+    with patch('services.data_service.get_session') as mock_sess_ctx:
+        mock_session = mock_sess_ctx.return_value
+        query_mock = mock_session.query.return_value
+        query_mock.select_from.return_value.join.return_value.join.return_value.outerjoin.return_value.filter.return_value.all.return_value = [mock_row]
+
+        review = json.loads(data_service.get_reviews_json())["Movie A"]["Critic 1"][0]
+        assert review['review_text'] == 'Lyhyt arvio'
+
+
 def test_get_index_data_does_not_serialize_redundant_reviews_json(data_service):
     mock_review = MagicMock()
     mock_review.rating_stars = 5
