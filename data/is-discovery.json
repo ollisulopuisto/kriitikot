@@ -352,7 +352,7 @@
       "checked_at": "2026-11-21T18:30:45.624144"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012385646.html": {
-      "title": "Ruotsalaistähti Alexander Skarsgårdin häkellyttää eroottisessa elokuvassa – pajupunospeniskin näkyy",
+      "title": "Ruotsalaistähti Alexander Skarsgårdin häkellyttää eroottisessa elokuvassa",
       "status": "imported",
       "sequence": 50,
       "discovered_at": "2026-11-21T04:57:26.143901",
@@ -1563,7 +1563,7 @@
       "checked_at": "2026-11-24T21:47:22.632197"
     },
     "https://www.is.fi/tv-ja-elokuvat/art-2000012418582.html": {
-      "title": "Kun Teemu Lehtilä astui lavalle, hän kuuli aina saman heiton yleisöstä – ”Se oli vähän sillä rajalla”",
+      "title": "Esko Koveron kännykkä ihmetyttää Teemu Lehtilää",
       "status": "excluded",
       "sequence": 0,
       "discovered_at": "2026-11-25T06:17:22.149454",
@@ -1575,6 +1575,69 @@
       "sequence": 1,
       "discovered_at": "2026-11-25T06:17:22.149454",
       "checked_at": "2026-11-25T06:17:22.149454"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012436699.html": {
+      "title": "35-vuotiaan tv-tähden kuolinsyy julki – luuli kärsivänsä virtsatie­tulehduksesta",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012435257.html": {
+      "title": "Suomalainen uutuusohjelma sai kylmän vastaanoton: ”Ei mitään järkeä”",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012435544.html": {
+      "title": "Mikko Vesanen jäi pois Huvila & huussista – kertoo nyt syyn",
+      "status": "excluded",
+      "sequence": 2,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012436748.html": {
+      "title": "IL: Ares katosi yhtäkkiä Vain elämää -ohjelmasta – käytöksestä kulisseissa uusia väitteitä",
+      "status": "excluded",
+      "sequence": 3,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012436327.html": {
+      "title": "Kohuohjelma palaa 18 vuoden jälkeen – Jukka Hildén muutti kuvausten takia ulkonäköään",
+      "status": "excluded",
+      "sequence": 4,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012432843.html": {
+      "title": "Vain elämää -tähteä syytettiin naisten ahdistelusta ohjelmassa – sai myöhemmin tuomion seksuaalirikoksesta",
+      "status": "excluded",
+      "sequence": 5,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012435454.html": {
+      "title": "The Voice of Finland mullistuu – tästä on kyse",
+      "status": "excluded",
+      "sequence": 6,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012435386.html": {
+      "title": "Huvila & huussi -tähti jättää ohjelman – korvaajalla sama etunimi",
+      "status": "excluded",
+      "sequence": 7,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012434093.html": {
+      "title": "TV1:n ohjelmistoon iso muutos – tässä syy",
+      "status": "excluded",
+      "sequence": 8,
+      "discovered_at": "2026-11-25T20:54:21.689774",
+      "checked_at": "2026-11-25T20:54:21.689774"
     }
   }
 }
