@@ -1561,6 +1561,20 @@
       "sequence": 2,
       "discovered_at": "2026-11-24T21:47:22.632197",
       "checked_at": "2026-11-24T21:47:22.632197"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012418582.html": {
+      "title": "Kun Teemu Lehtilä astui lavalle, hän kuuli aina saman heiton yleisöstä – ”Se oli vähän sillä rajalla”",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-25T06:17:22.149454",
+      "checked_at": "2026-11-25T06:17:22.149454"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012434195.html": {
+      "title": "Toimittajan poikkeuksellisen suora kysymys yllättää Sami Hyypiän: ”Mikä on tämänhetkinen naistilanne” – katso Epätyypillisesti ilmaiseksi",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-25T06:17:22.149454",
+      "checked_at": "2026-11-25T06:17:22.149454"
     }
   }
 }
