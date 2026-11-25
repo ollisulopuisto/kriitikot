@@ -1,4 +1,4 @@
-"""A partial scraper run must not publish as a successful update."""
+"""Publish valid partial results; distinguish source health from publication."""
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -56,6 +56,24 @@ def test_scrape_shell_only_allows_completed_partial_results(tmp_path):
     for status,expected,partial in [(0,0,False),(2,0,True),(1,1,False),(130,130,False)]:
         envfile=tmp_path/f'env{status}';summary=tmp_path/f'summary{status}'
         envfile.touch();summary.touch()
-        result=subprocess.run(['bash','-e','-c',shell],env={**os.environ,'PATH':str(tmp_path)+':'+os.environ['PATH'],'TEST_STATUS':str(status),'GITHUB_ENV':str(envfile),'GITHUB_STEP_SUMMARY':str(summary)},capture_output=True,text=True)
+        result=subprocess.run(['bash','-e','-c',shell],env={**os.environ,'PATH':str(tmp_path)+':'+os.environ['PATH'],'TEST_STATUS':str(status),'GITHUB_ENV':str(envfile),'GITHUB_STEP_SUMMARY':str(summary),'RUNNER_TEMP':str(tmp_path)},capture_output=True,text=True)
         assert result.returncode==expected,result.stderr
         assert ('PARTIAL_SCRAPE=1' in envfile.read_text(encoding='utf-8'))==partial
+
+
+def test_source_health_runs_after_publication_without_unconditional_partial_exit():
+    workflow=(Path(__file__).parents[1]/'.github/workflows/scrape_and_deploy.yml').read_text()
+    report=workflow.split('      - name: Report source failures after publication',1)[1].split('      - name:',1)[0]
+    assert 'exit 1' not in report
+    assert 'if: env.PARTIAL_SCRAPE' not in report  # successes reset streaks
+    assert 'source-health.cjs' in report
+    assert 'tee "$RUNNER_TEMP/scrape-batch.log"' in workflow
+    assert 'set -o pipefail' in workflow
+
+
+def test_source_health_behavior():
+    import shutil, subprocess
+    import pytest
+    if not shutil.which('node'):
+        pytest.skip('Node is required for GitHub-script source-health tests')
+    subprocess.run(['node', '--test', str(Path(__file__).with_name('test_source_health.cjs'))], check=True)
