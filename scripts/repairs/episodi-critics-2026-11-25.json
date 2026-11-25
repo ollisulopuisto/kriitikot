@@ -1,0 +1,30 @@
+[
+  {
+    "id": 928,
+    "title": "The Dog Stars",
+    "critic": "Episodi",
+    "source_url": "https://www.episodi.fi/elokuvat/the-dog-stars/",
+    "new_critic": "Jussi Huhtala"
+  },
+  {
+    "id": 1032,
+    "title": "The Social Reckoning",
+    "critic": "Episodi",
+    "source_url": "https://www.episodi.fi/elokuvat/the-social-reckoning/",
+    "new_critic": "Jouni Vikman"
+  },
+  {
+    "id": 1070,
+    "title": "Dracula",
+    "critic": "Episodi",
+    "source_url": "https://www.episodi.fi/elokuvat/dracula/",
+    "new_critic": "Jouni Vikman"
+  },
+  {
+    "id": 1112,
+    "title": "You Can See Everything",
+    "critic": "Episodi",
+    "source_url": "https://www.episodi.fi/elokuvat/you-can-see-everything/",
+    "new_critic": "Werneri Pihlajamäki"
+  }
+]
