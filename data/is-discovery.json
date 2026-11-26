@@ -1645,6 +1645,27 @@
       "sequence": 0,
       "discovered_at": "2026-11-26T06:09:35.214431",
       "checked_at": "2026-11-26T06:09:35.214431"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012432875.html": {
+      "title": "21-vuotias Laura asui Marbellassa ja soitti huijaus­puheluita suomalaisille vanhuksille: ”Pahinta oli kuunnella”",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-26T20:46:01.431530",
+      "checked_at": "2026-11-26T20:46:01.431530"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012439490.html": {
+      "title": "Alone Suomi -tähti Eetu Kemppasen vastasyntynyt vauva sai aivoinfarktin",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-26T20:46:01.431530",
+      "checked_at": "2026-11-26T20:46:01.431530"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012438087.html": {
+      "title": "Ville Haapasalo passitetaan ruokakilpailusta kotiin – ”Tämä tuote oli moka”",
+      "status": "excluded",
+      "sequence": 2,
+      "discovered_at": "2026-11-26T20:46:01.431530",
+      "checked_at": "2026-11-26T20:46:01.431530"
     }
   }
 }
