@@ -186,7 +186,21 @@ class HSScraper(BaseScraper):
                                  r'|(?:trilleri|musikaali)' + cases +
                                  r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
                     if not re.match(film_noun, following):
-                        continue
+                        # A film can itself be the subject of an explicit
+                        # verdict: "Tarantino-elokuva on neljän tähden
+                        # yhdistelmä ...". Keep this copular construction
+                        # narrow, not any headline mentioning a film/hotel.
+                        before = title[:match.start()]
+                        film_subject = re.search(
+                            r'(?<!\w)[\w-]*elokuva\s+on\s*$',
+                            before, re.IGNORECASE,
+                        )
+                        verdict_noun = re.match(
+                            r'(?:yhdistelmä|nautinto|elämys|kokemus|teos)(?!\w)',
+                            following,
+                        )
+                        if not (film_subject and verdict_noun):
+                            continue
                 ratings.add(self.parse_rating(match.group(0)))
             ratings.discard(None)
             if len(ratings) == 1:

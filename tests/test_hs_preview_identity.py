@@ -145,3 +145,27 @@ def test_incidental_hotel_does_not_hide_explicit_verdict(monkeypatch):
     obj=importer(monkeypatch,a)
     assert obj.import_discovered_reviews('hs') == 1
     assert obj.session.query(Review).one().rating_stars == 5
+
+@pytest.mark.parametrize('title,expected', [
+    ('Tarantino-elokuva on neljän tähden yhdistelmä seksiä ja väkivaltaa', 4),
+    ('Elokuva on viiden tähden nautinto', 5),
+    ('Elokuva sijoittuu viiden tähden hotelliin', None),
+    ('Tarantino-elokuva on kuvattu viiden tähden hotellissa', None),
+    ('Elokuva on neljän tähden hotelliin sijoittuva komedia', None),
+    ('Hotelli on neljän tähden yhdistelmä luksusta ja rauhaa', None),
+])
+def test_film_subject_copula_verdict(title, expected):
+    assert HSScraper()._extract_rating({'storyLogo': 'Elokuva-arvio', 'title': title}) == expected
+
+
+def test_copula_rating_uses_existing_identity_admission(monkeypatch):
+    asset = preview()
+    asset['title'] = 'Tarantino-elokuva on neljän tähden yhdistelmä seksiä ja väkivaltaa'
+    obj = importer(monkeypatch, asset)
+    assert obj.import_discovered_reviews('hs') == 1
+    assert obj.session.query(Review).one().rating_stars == 4
+    assert obj.session.query(Movie).one().title == 'Dry Leaf'
+    # The editorial headline must never become a new film identity.
+    obj = importer(monkeypatch, asset, ('Different film',))
+    assert obj.import_discovered_reviews('hs') == 0
+    assert obj.session.query(Review).count() == 0
