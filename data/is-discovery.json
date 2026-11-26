@@ -1638,6 +1638,13 @@
       "sequence": 8,
       "discovered_at": "2026-11-25T20:54:21.689774",
       "checked_at": "2026-11-25T20:54:21.689774"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012421081.html": {
+      "title": "Salatut elämät -tähti saa palautetta hahmostaan jopa uimahallin saunassa – näin hän reagoi",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-26T06:09:35.214431",
+      "checked_at": "2026-11-26T06:09:35.214431"
     }
   }
 }
