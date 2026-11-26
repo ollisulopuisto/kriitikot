@@ -173,20 +173,6 @@ class HSScraper(BaseScraper):
             matches = list(re.finditer(pattern, title, re.IGNORECASE))
             ratings = set()
             for match in matches:
-                # Genitive star classifications need a film noun, not a hotel.
-                phrase = match.group(0).casefold()
-                if phrase.endswith('tähden'):
-                    following = title[match.end():].lstrip().casefold()
-                    # Explicit Finnish case endings, not arbitrary compounds.
-                    cases = r'(?:n|a|ä|ssa|ssä|sta|stä|lla|llä|lta|ltä|lle|ksi|na|nä|tta|ttä|t)?'
-                    film_noun = (r'(?:[\w-]*elokuva' + cases + r'|[\w-]*elokuvaan'
-                                 r'|(?:draama|komedia|animaatio)' + cases +
-                                 r'|(?:draamaan|komediaan|animaatioon)'
-                                 r'|dokument(?:ti(?:a|in|na|ksi)?|i' + cases + r')'
-                                 r'|(?:trilleri|musikaali)' + cases +
-                                 r'|(?:trilleriin|musikaaliin)|western(?:i' + cases + r'|iin)?)(?!\w)')
-                    if not re.match(film_noun, following):
-                        continue
                 ratings.add(self.parse_rating(match.group(0)))
             ratings.discard(None)
             if len(ratings) == 1:
