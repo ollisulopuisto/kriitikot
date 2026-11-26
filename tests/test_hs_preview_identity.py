@@ -25,7 +25,7 @@ def document(asset):
     ('Elokuva saa 3 tähteä',3),('Yhden tähden elokuva',1),
     ('Kolmen tähden draama',3),('Kahden tähden draama',2),
     ('Neljän tähden draama',4),('Ei arviota',None),
-    ('Neljä tähteä vai viisi tähteä?',None),('Viiden tähden hotellissa tapahtuu murha',None),('Viiden tähden ravintolassa',None),('6 tähteä',None),('3.5 tähteä',None),('13 tähteä',None),
+    ('Neljä tähteä vai viisi tähteä?',None),('Viiden tähden hotellissa tapahtuu murha',5),('Viiden tähden ravintolassa',5),('6 tähteä',None),('3.5 tähteä',None),('13 tähteä',None),
 ])
 def test_headline_star_verdicts(title,rating):
     assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':title}) == rating
@@ -119,12 +119,12 @@ def test_inflected_film_nouns_still_carry_rating(noun):
 
 
 @pytest.mark.parametrize('noun',['elokuvateatterissa','elokuvantekijä'])
-def test_non_film_compound_is_not_a_rating_or_import(monkeypatch,noun):
+def test_movie_review_rating_does_not_depend_on_following_noun(monkeypatch,noun):
     a=preview();a['title']='Viiden tähden '+noun+' tapahtuu murha'
-    assert HSScraper().parse_html(document(a)).rating_stars is None
+    assert HSScraper().parse_html(document(a)).rating_stars == 5
     obj=importer(monkeypatch,a)
-    assert obj.import_discovered_reviews('hs') == 0
-    assert obj.session.query(Review).count() == 0
+    assert obj.import_discovered_reviews('hs') == 1
+    assert obj.session.query(Review).one().rating_stars == 5
 
 
 @pytest.mark.parametrize('noun',['komediaan','dokumenttiin','trillerille','musikaaliin','draamalle','elokuvalle','dokumentista','animaatioon'])
@@ -140,7 +140,7 @@ def test_fraction_and_range_are_not_endpoint_ratings(title):
     assert HSScraper()._extract_rating({'storyLogo':'Elokuva-arvio','title':title}) is None
 
 
-def test_incidental_hotel_does_not_hide_explicit_verdict(monkeypatch):
+def test_repeated_same_headline_rating_imports(monkeypatch):
     a=preview();a['title']='Viiden tähden hotellissa kuvattu elokuva saa viisi tähteä'
     obj=importer(monkeypatch,a)
     assert obj.import_discovered_reviews('hs') == 1
@@ -149,12 +149,12 @@ def test_incidental_hotel_does_not_hide_explicit_verdict(monkeypatch):
 @pytest.mark.parametrize('title,expected', [
     ('Tarantino-elokuva on neljän tähden yhdistelmä seksiä ja väkivaltaa', 4),
     ('Elokuva on viiden tähden nautinto', 5),
-    ('Elokuva sijoittuu viiden tähden hotelliin', None),
-    ('Tarantino-elokuva on kuvattu viiden tähden hotellissa', None),
-    ('Elokuva on neljän tähden hotelliin sijoittuva komedia', None),
-    ('Hotelli on neljän tähden yhdistelmä luksusta ja rauhaa', None),
+    ('Elokuva sijoittuu viiden tähden hotelliin', 5),
+    ('Tarantino-elokuva on kuvattu viiden tähden hotellissa', 5),
+    ('Elokuva on neljän tähden hotelliin sijoittuva komedia', 4),
+    ('Hotelli on neljän tähden yhdistelmä luksusta ja rauhaa', 4),
 ])
-def test_film_subject_copula_verdict(title, expected):
+def test_movie_review_headline_phrase_is_enough(title, expected):
     assert HSScraper()._extract_rating({'storyLogo': 'Elokuva-arvio', 'title': title}) == expected
 
 
@@ -169,3 +169,20 @@ def test_copula_rating_uses_existing_identity_admission(monkeypatch):
     obj = importer(monkeypatch, asset, ('Different film',))
     assert obj.import_discovered_reviews('hs') == 0
     assert obj.session.query(Review).count() == 0
+
+
+@pytest.mark.parametrize('word,rating', [
+    ('yhden', 1), ('kahden', 2), ('kolmen', 3), ('neljän', 4), ('viiden', 5),
+])
+@pytest.mark.parametrize('title', ['{word} tähden', 'Tämä on {word} tähden yllätys'])
+def test_all_written_genitives_without_noun_restrictions(word, rating, title):
+    assert HSScraper()._extract_rating({
+        'storyLogo': 'Elokuva-arvio', 'title': title.format(word=word),
+    }) == rating
+
+
+@pytest.mark.parametrize('logo', [None, '', 'Televisioarvio', 'Ravintola-arvio'])
+def test_written_headline_rating_requires_movie_review(logo):
+    assert HSScraper()._extract_rating({
+        'storyLogo': logo, 'title': 'Neljän tähden yhdistelmä',
+    }) is None
