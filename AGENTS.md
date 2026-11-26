@@ -1,5 +1,22 @@
 # Kriitikot — Agent Reference
 
+## Scalar rows for the index page, 2026-11-26
+
+get_index_data now reads reviews through _scalar_grouped_reviews, a
+scalar-column variant of get_grouped_reviews that builds plain dicts from
+one joined query instead of hydrating 1,000+ ORM Review entities (the same
+pattern that halved get_reviews_json in PR #120). The index template reads
+review fields through Jinja's attribute/getitem fallback, so no template
+change was needed; rendered / HTML is byte-identical before and after
+(759,400 bytes on the production reviews.db) and a parity check compares
+all 1,078 reviews field-by-field across the old and new paths. Baseline on
+the production reviews.db: get_index_data median 17.30 ms -> 9.12 ms
+(-47%). get_grouped_reviews (ORM) is kept for the deprecated
+get_all_reviews_grouped wrapper. Regression: 375 pytest passed 1 skipped,
+matching the pre-change baseline; the pinning test for the
+all_reviews_json removal now patches the new scalar seam. reviews.db
+untouched, no docs/ regeneration committed. Human merge pending.
+
 ## reviews.json review_text excerpt, 2026-11-25
 
 get_reviews_json now exports review_text as an excerpt (first 500 characters

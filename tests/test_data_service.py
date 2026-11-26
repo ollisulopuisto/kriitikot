@@ -131,14 +131,23 @@ def test_get_reviews_json_keeps_short_review_text(data_service):
 
 
 def test_get_index_data_does_not_serialize_redundant_reviews_json(data_service):
-    mock_review = MagicMock()
-    mock_review.rating_stars = 5
-    mock_review.is_published = 1
-    mock_review.published_date = datetime(2024, 1, 1)
-    mock_review.critic_id = 1
-    mock_review.publication.short_name = 'hs'
+    # Index reviews are plain dicts from the scalar-column query
+    # (_scalar_grouped_reviews); Jinja reads them via getitem fallback.
+    mock_review = {
+        'id': 1,
+        'critic_id': 1,
+        'movie_title': 'Movie A',
+        'critic_name': 'Critic 1',
+        'publication': {'name': 'hs', 'short_name': 'hs'},
+        'rating_stars': 5,
+        'review_text': 'teksti',
+        'source_url': 'https://example.com/a',
+        'is_published': True,
+        'published_date': datetime(2024, 1, 1),
+        'scraped_at': None,
+    }
 
-    with patch.object(DataService, 'get_grouped_reviews') as mock_grouped:
+    with patch.object(DataService, '_scalar_grouped_reviews') as mock_grouped:
         mock_grouped.return_value = (
             OrderedDict({"Movie A": {"Critic 1": [mock_review]}}),
             [MagicMock(id=1, name="Critic 1")],
