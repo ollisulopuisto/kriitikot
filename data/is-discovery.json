@@ -1673,6 +1673,48 @@
       "sequence": 0,
       "discovered_at": "2026-11-27T05:59:39.251861",
       "checked_at": "2026-11-27T05:59:39.251861"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012443266.html": {
+      "title": "MTV: Suuri muutos iltauutisiin",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012441803.html": {
+      "title": "Ylen vankilasarja sai katsojien niskakarvat pystyyn – ”Oksettaa”",
+      "status": "excluded",
+      "sequence": 1,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012442290.html": {
+      "title": "Rukan maailmancuplähetykseen ilmestyi ihan muuta – näin Yle selittää",
+      "status": "excluded",
+      "sequence": 2,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012423939.html": {
+      "title": "Joonas maksaa halauksista – kertoo nyt riipaisevasta tilanteestaan",
+      "status": "excluded",
+      "sequence": 3,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012440971.html": {
+      "title": "Tarja Omenainen jätti Salatut elämät ja katosi julkisuudesta – palaa näyttelijäksi vuosien jälkeen",
+      "status": "excluded",
+      "sequence": 4,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012405174.html": {
+      "title": "Roberto Saviano paljasti 26-vuotiaana pahamaineisen mafian – maksaa siitä edelleen kovaa hintaa",
+      "status": "excluded",
+      "sequence": 5,
+      "discovered_at": "2026-11-27T20:30:42.639561",
+      "checked_at": "2026-11-27T20:30:42.639561"
     }
   }
 }
