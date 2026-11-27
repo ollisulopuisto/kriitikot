@@ -1666,6 +1666,13 @@
       "sequence": 2,
       "discovered_at": "2026-11-26T20:46:01.431530",
       "checked_at": "2026-11-26T20:46:01.431530"
+    },
+    "https://www.is.fi/tv-ja-elokuvat/art-2000012438011.html": {
+      "title": "Hollywood-tähden rietas elämä julki: ”Pannut kaikkia tyttäriämme”",
+      "status": "excluded",
+      "sequence": 0,
+      "discovered_at": "2026-11-27T05:59:39.251861",
+      "checked_at": "2026-11-27T05:59:39.251861"
     }
   }
 }
