@@ -45,7 +45,7 @@ try:
             page.wait_for_timeout(100)
             page.locator('#mobile-filter-toggle').click()
             page.wait_for_timeout(350)
-            assert page.locator('.toggle-text').text_content() == 'Haku: paper tiger · +1', page.locator('.toggle-text').text_content()
+            assert page.locator('#mobile-filter-toggle').evaluate('n=>n.querySelector(".toggle-text").textContent+n.querySelector(".toggle-count").textContent') == 'Haku: paper tiger · +1'
             assert page.locator('.mobile-filter').evaluate('n=>n.classList.contains("has-active-filters")')
             assert page.locator('.mobile-filter-clear').is_visible()
             if width == 390:
@@ -59,6 +59,10 @@ try:
             page.wait_for_timeout(350)
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             assert page.locator('.toggle-text').evaluate('n=>n.scrollWidth>n.clientWidth')
+            assert page.locator('.toggle-count').text_content() == ' · +1'
+            assert page.locator('.toggle-count').evaluate('n=>n.scrollWidth<=n.clientWidth')
+            if width in (320,390):
+                page.screenshot(path=f'/downloads/kriitikot-summary-long-{width}.png')
             assert 'pitkä elokuvahaku' in page.locator('#mobile-filter-toggle').get_attribute('aria-label')
             clear=page.locator('.mobile-filter-clear')
             assert clear.evaluate('n=>!n.closest("#mobile-filter-toggle")')
@@ -73,7 +77,7 @@ try:
             page.locator('#stars-plus-mobile').click()
             page.locator('#mobile-filter-toggle').click()
             page.wait_for_timeout(100)
-            assert page.locator('.toggle-text').text_content() == 'Hakuehdot · 1'
+            assert page.locator('#mobile-filter-toggle').evaluate('n=>n.querySelector(".toggle-text").textContent+n.querySelector(".toggle-count").textContent') == 'Hakuehdot · 1'
             page.locator('.mobile-filter-clear').click()
             page.locator('#mobile-filter-toggle').click()
             page.wait_for_timeout(350)

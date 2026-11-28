@@ -265,9 +265,14 @@ function initMobileFilterToggle() {
         const collapsed = mobileFilter.classList.contains('collapsed');
         mobileFilter.classList.toggle('has-active-filters', count > 0);
         if (clearBtn) clearBtn.hidden = count === 0;
-        toggleText.textContent = collapsed ? query ? `Haku: ${query}${other ? ` · +${other}` : ''}` : count ? `Hakuehdot · ${count}` : 'Hakuehdot' : 'Piilota';
+        const label = collapsed ? query ? `Haku: ${query}` : 'Hakuehdot' : 'Piilota';
+        const suffix = collapsed ? query ? (other ? ` · +${other}` : '') : (count ? ` · ${count}` : '') : '';
+        // The count lives in its own element so a long query's ellipsis cannot clip it.
+        const countEl = toggleBtn.querySelector('.toggle-count');
+        toggleText.textContent = countEl ? label : label + suffix;
+        if (countEl) countEl.textContent = suffix;
         toggleBtn.setAttribute('aria-expanded', String(!collapsed));
-        toggleBtn.setAttribute('aria-label', `${collapsed ? 'Avaa' : 'Sulje'} hakuehdot${count ? `, ${count} käytössä${query ? `, haku: ${query}` : ''}` : ''}`);
+        toggleBtn.setAttribute('aria-label', `${label}${suffix}, ${collapsed ? 'avaa' : 'sulje'} hakuehdot${count ? `, ${count} käytössä` : ''}`);
     }
     window.updateMobileFilterSummary = updateSummary;
     toggleBtn.addEventListener('click', () => { mobileFilter.classList.toggle('collapsed'); updateSummary(); });

@@ -25,3 +25,11 @@ inactive/active/expanded. Own adversarial review checked safe textContent,
 accessible full query, separate buttons, all facet/reset consumers and source/
 docs parity. Existing panel can push results below fold; intentionally no
 additional results button. Neither merge nor deployment performed.
+
+Review follow-up FIND-132-1: separate non-shrinking count span preserves +N
+when the query truncates. Reviewer regression failed against the previous head,
+then passed with the patch. Label-in-name fixed by starting aria-label with the
+visible label and suffix, retaining full query and disclosure action. 75 JS tests,
+440 Python pass/1skip, browser320/390/768 passes. Actual320/390 long-query pixels
+inspected: ellipsis only affects query, +1 and clear remain visible. Own review
+checked empty suffix/open state, fallback count and independent clear target.
