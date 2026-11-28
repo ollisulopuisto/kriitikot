@@ -25,10 +25,14 @@ describe('film search intersects catalog facets', () => {
     expect(visible()).toEqual(['Äänekäs ZEBRA']);
     expect(completedColumnPasses).toBeLessThanOrEqual(2);
     expect(window.facetReapplyDepth).toBe(0);
+    const selected = document.querySelector('.movie-card[data-movie="Äänekäs ZEBRA"]');
+    selected.dataset.filtered = 'true';
     const topUp = vi.spyOn(window, 'topUpSliderResults');
     input.value='  ÄÄNEKÄS  ';input.dispatchEvent(new Event('input',{bubbles:true}));
     await new Promise(r=>setTimeout(r,180));
     expect(topUp).not.toHaveBeenCalled();
+    expect(selected.dataset.filtered).toBe('true');
+    delete selected.dataset.filtered;
 
     expect(window.currentMovieOffset).toBe(105);
     expect(document.querySelectorAll('.movie-card')).toHaveLength(61);
