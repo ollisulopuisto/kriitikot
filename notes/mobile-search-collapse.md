@@ -11,3 +11,17 @@ Own review traced delegated handlers, input sync, filter reset, focus and later
 lazy-rendered cards. No new search state. Source/checked-in docs moved together,
 no regeneration or production data changes. Supersedes PR131placement only.
 Open/recentPRoverlap checked, nothing open. No merge/deployment performed.
+
+Approved active-summary option B: collapsed query plus count of other active
+filter groups; count-only fallback without query. Amber active bar, left
+chevron and separate right clear-X. Existing resetAllFilters owns all clearing;
+no second filter state and no results button. Summary reads shared facet state
+without calling reviewWindow.prepare, so opening/updating it cannot unwindow
+rows. Publications count as one group regardless of selected publication count.
+Browser coverage at 320/390/768 includes query+stars, count fallback, keyboard
+clear/focus, long query ellipsis/no overflow, no-result/reset and desktop switch.
+74 JS tests and 440 Python tests pass, 1 skip. Pixel inspection at390 covers
+inactive/active/expanded. Own adversarial review checked safe textContent,
+accessible full query, separate buttons, all facet/reset consumers and source/
+docs parity. Existing panel can push results below fold; intentionally no
+additional results button. Neither merge nor deployment performed.

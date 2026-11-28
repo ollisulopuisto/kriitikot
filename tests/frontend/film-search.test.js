@@ -40,7 +40,15 @@ describe('film search intersects catalog facets', () => {
     expect(visible()).toEqual([]);
     slider.value='1';window.filterByStars(1);window.reconcileFacetVisibility();
     expect(visible()).toEqual(['Äänekäs ZEBRA']);
+    // Summary reads the same live facet state, without unwindowing rows.
+    document.querySelector('th.rating-cell').dataset.filtered='true';
+    selected.dataset.filtered='true';
+    document.querySelector('#star-filter-slider').value='3';
+    document.querySelector('#min-reviews-slider').value='3';
+    document.body.insertAdjacentHTML('beforeend','<button class="media-filter-btn filter-publication active" data-publication="HS"></button>');
+    expect(window.mobileFilterState()).toMatchObject({query:'äänekäs',criticId:'1',pubs:['HS'],minStars:3,minReviews:4,chosenMovie:'Äänekäs ZEBRA'});
     window.resetAllFilters();
+    expect(window.mobileFilterState()).toMatchObject({query:'',criticId:null,pubs:[],minStars:1,minReviews:1,chosenMovie:null});
     expect(input.value).toBe('');
     expect(visible()).toHaveLength(60);
     expect(window.currentMovieOffset).toBe(60);

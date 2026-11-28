@@ -235,10 +235,14 @@
     <!-- Mobile: Suodattimet (ENSIN) -->
     <div class="mobile-filter collapsed">
         <!-- Toggle-nappi -->
-        <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="Avaa/sulje suodattimet">
+        <div class="mobile-filter-bar">
+        <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-controls="mobile-filters-content" aria-expanded="false" aria-label="Avaa hakuehdot">
             <span class="toggle-icon">△</span>
             <span class="toggle-text">Hakuehdot</span>
         </button>
+
+        <button type="button" class="mobile-filter-clear" aria-label="Tyhjennä kaikki hakuehdot" hidden>×</button>
+        </div>
 
         <div class="mobile-filters-container" id="mobile-filters-content">
             <!-- Film search shares the mobile filter disclosure. -->

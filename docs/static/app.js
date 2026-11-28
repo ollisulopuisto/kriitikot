@@ -71,6 +71,7 @@ function initFilmSearch() {
             window.reconcileFacetVisibility?.();
             window.refreshStickyHeader?.();
             if (filmSearchQuery) window.showResetButton?.();
+            window.updateMobileFilterSummary?.();
         }, 120);
     });
     window.clearFilmSearch = () => {
@@ -1023,8 +1024,8 @@ function loadMoreMovies(batchSize = movieLimit, missingTitles = null) {
 
 // Aktiivisten fasettien tila, luettuna DOM:sta samoin perustein kuin
 // filters.js:n reconcileFacetVisibility ne tulkitsee.
-function currentFacetState() {
-    window.reviewWindow?.prepare();
+function currentFacetState(prepare = true) {
+    if (prepare) window.reviewWindow?.prepare();
     const selectedHeader = document.querySelector('thead th.rating-cell[data-filtered="true"]');
     const pubs = [...new Set([...document.querySelectorAll('.filter-publication.active, .media-filter-btn.active')]
         .map(b => (b.dataset.publication || '').toUpperCase()))];
@@ -1039,6 +1040,8 @@ function currentFacetState() {
         || null;
     return { query: filmSearchQuery, criticId: selectedHeader?.dataset.criticId || null, pubs, minStars, minReviews, favoritesOn, chosenMovie };
 }
+
+window.mobileFilterState = () => currentFacetState(false);
 
 // Onko jokin hakufasetti päällä? (Yksittäisen elokuvan valinta ei ole fasetti.)
 function facetFiltersActive() {

@@ -256,14 +256,27 @@ function initMobileFilterToggle() {
     
     if (!toggleBtn || !mobileFilter || toggleBtn.dataset.initialized) return;
 
-    toggleBtn.addEventListener('click', function() {
-        mobileFilter.classList.toggle('collapsed');
-        
-        if (toggleText) {
-            toggleText.textContent = mobileFilter.classList.contains('collapsed') ? 'Hakuehdot' : 'Piilota';
-        }
-    });
-    
+    const clearBtn = mobileFilter.querySelector('.mobile-filter-clear');
+    function updateSummary() {
+        const st = window.mobileFilterState?.() || {};
+        const other = [st.criticId, st.pubs?.length, st.minStars > 1, st.minReviews > 1, st.favoritesOn, st.chosenMovie].filter(Boolean).length;
+        const query = String(st.query || '');
+        const count = other + (query ? 1 : 0);
+        const collapsed = mobileFilter.classList.contains('collapsed');
+        mobileFilter.classList.toggle('has-active-filters', count > 0);
+        if (clearBtn) clearBtn.hidden = count === 0;
+        toggleText.textContent = collapsed ? query ? `Haku: ${query}${other ? ` · +${other}` : ''}` : count ? `Hakuehdot · ${count}` : 'Hakuehdot' : 'Piilota';
+        toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+        toggleBtn.setAttribute('aria-label', `${collapsed ? 'Avaa' : 'Sulje'} hakuehdot${count ? `, ${count} käytössä${query ? `, haku: ${query}` : ''}` : ''}`);
+    }
+    window.updateMobileFilterSummary = updateSummary;
+    toggleBtn.addEventListener('click', () => { mobileFilter.classList.toggle('collapsed'); updateSummary(); });
+    clearBtn?.addEventListener('click', () => { window.resetAllFilters?.(); updateSummary(); toggleBtn.focus(); });
+    // Existing controls own state. Read after their handlers, never infer a second state.
+    const deferSummary = () => setTimeout(updateSummary, 0);
+    document.addEventListener('click', deferSummary);
+    document.addEventListener('change', deferSummary);
+    updateSummary();
     toggleBtn.dataset.initialized = 'true';
 }
 
