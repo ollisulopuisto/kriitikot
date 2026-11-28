@@ -16,7 +16,7 @@
                 const rect = row.getBoundingClientRect();
                 return rect.height > 0 && rect.top >= 0 && rect.bottom <= win.innerHeight &&
                     Math.abs((rect.top + rect.bottom) / 2 - center) <= win.innerHeight * .15 &&
-                    row.checkVisibility({ checkVisibilityCSS: true }) && row.querySelector('.rating-pill');
+                    (typeof row.checkVisibility === 'function' ? row.checkVisibility({ checkVisibilityCSS: true }) : row.getClientRects().length > 0) && row.querySelector('.rating-pill');
             }).sort((a, b) => Math.abs((a.getBoundingClientRect().top + a.getBoundingClientRect().bottom) / 2 - center) - Math.abs((b.getBoundingClientRect().top + b.getBoundingClientRect().bottom) / 2 - center));
             const row = candidates[0];
             if (!row) return;
