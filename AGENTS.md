@@ -427,3 +427,18 @@ against generated docs for comparable local timings, not a user-device promise.
 73JS tests and scripts/check_film_search.py passed at900/1600plusphonecleanup.
 New bounded-column assertion fails on original code (9passes, budget2); same-query
 assertion protects the no-op path. No scrape, DB mutation or deployment.
+
+
+## One-time manual HS Cliff Booth review, 2026-11-28
+
+Owner explicitly requested this single manual addition. Added review1148 to
+existing movie374 (The Further Mis-Adventures of Cliff Booth), HS publication1,
+4 stars, new critic97 Veli-Pekka Lehtonen. No existing rows changed or deleted.
+The author was absent, so this needs one supporting critic insert as well as one
+review insert. Date is 2026-11-26, stored midnight as calendar-date precision;
+no exact publication time claimed. review_text and scraped_at are NULL: this was
+a manual metadata addition, not a full/paywall scrape. Guarded idempotent script
+scripts/add_manual_hs_cliff_booth.py defaults to dry-run and fails on identity
+or duplicate conflicts. See notes/manual-hs-cliff-booth.md for provenance.
+No parser, source-health policy, Episodi code or generated docs changed. Ordinary
+publication still needs to publish the updated DB before the site contains it.
