@@ -29,16 +29,16 @@
         function down() { touching = true; stop(); }
         function up() { touching = false; schedule(); }
         win.addEventListener('scroll', schedule, { passive: true });
-        win.addEventListener('resize', schedule);
+        win.addEventListener('resize', stop);
         win.addEventListener('touchstart', down, { passive: true });
         win.addEventListener('touchend', up, { passive: true });
         win.addEventListener('touchcancel', up, { passive: true });
-        doc.addEventListener('visibilitychange', schedule);
-        mobile.addEventListener('change', schedule); motion.addEventListener('change', schedule);
+        doc.addEventListener('visibilitychange', stop);
+        mobile.addEventListener('change', stop); motion.addEventListener('change', stop);
         return () => {
-            stop(); win.removeEventListener('scroll', schedule); win.removeEventListener('resize', schedule);
+            stop(); win.removeEventListener('scroll', schedule); win.removeEventListener('resize', stop);
             win.removeEventListener('touchstart', down); win.removeEventListener('touchend', up); win.removeEventListener('touchcancel', up);
-            doc.removeEventListener('visibilitychange', schedule); mobile.removeEventListener('change', schedule); motion.removeEventListener('change', schedule);
+            doc.removeEventListener('visibilitychange', stop); mobile.removeEventListener('change', stop); motion.removeEventListener('change', stop);
         };
     }
     window.initCenterStars = initCenterStars;

@@ -18,3 +18,10 @@ Own adversarial review traced lazy cards/windowing, filter hide visibility,
 resize, preference changes, review link default and duplicate critic rows.
 Source/checked-in docs assets synchronized narrowly, no data regeneration.
 No merge/deploy. Existing search-placement PR132not included on this branch.
+
+Follow-up: browser event traces exposed initial resize consuming the one-shot cue
+before any user scroll. Added failing-first resize/visibility-before-scroll
+regression (first scroll failed before fix), changed non-scroll lifecycle events
+to cancel only, and replaced fixed 500ms browser wait with active-class condition.
+Five consecutive full 320/390/768 runs pass with normal automatic startup.
+78 JavaScript tests pass, 440 Python pass and 1 skip.

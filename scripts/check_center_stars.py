@@ -26,7 +26,8 @@ try:
             href=row.locator('a.rating-pill').get_attribute('href')
             if width==390:page.screenshot(path='/downloads/kriitikot-stars-before.png')
             page.evaluate('window.dispatchEvent(new Event("touchend"))')
-            page.wait_for_timeout(500)
+            page.wait_for_function('document.querySelectorAll(".center-star-active").length===1', timeout=2000)
+            page.wait_for_timeout(280)  # let the lift paint within its 800ms window
             assert page.locator('.center-star-active').count()==1
             assert row.get_attribute('class').find('center-star-active')>=0
             transform=row.locator('.rating-star-paint').first.evaluate('n=>getComputedStyle(n).transform')
