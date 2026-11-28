@@ -442,3 +442,17 @@ scripts/add_manual_hs_cliff_booth.py defaults to dry-run and fails on identity
 or duplicate conflicts. See notes/manual-hs-cliff-booth.md for provenance.
 No parser, source-health policy, Episodi code or generated docs changed. Ordinary
 publication still needs to publish the updated DB before the site contains it.
+
+
+## Mobile film search, 2026-11-28
+
+Mobile had no visible search: the only input was in the desktop table, hidden
+below769px. Owner approved an always-visible row above Hakuehdot. Added mobile-
+only markup outside collapsible filters, reusing delegated .film-search handler,
+shared state, reset and desktop/sticky input sync.44px target/16px font. No new
+search engine/state or breakpoint change. Template + checked-in docs index and
+CSS synchronized narrowly, no data/site regeneration committed. New real-Chrome
+script scripts/check_mobile_search.py failed before fix and passes at320/390/768:
+visibility with collapsed filters, tail-only/no-result/clear/reset/focus, desktop
+breakpoint and no horizontal overflow. Existing desktop search script preserved.
+No DB/parser/data changes or deploy. Local screenshot inspected.
