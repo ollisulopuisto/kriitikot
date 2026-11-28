@@ -1,0 +1,25 @@
+import {readFileSync} from 'node:fs';import {describe,it,expect,vi,afterEach} from 'vitest';
+const code=readFileSync('static/center-stars.js','utf8');
+afterEach(()=>{vi.useRealTimers();});
+describe('center star decoration',()=>{it('waits for settled scroll, nearest only, once per row, no click interception',()=>{
+ vi.useFakeTimers();document.body.innerHTML='<div id="review-container-mobile"><div class="movie-card" data-movie="Example"><div class="review-item" data-critic="1"><a class="rating-pill" href="https://example.com">stars</a></div></div></div>';
+ const row=document.querySelector('.review-item');row.getBoundingClientRect=()=>({top:350,bottom:450,height:100});row.checkVisibility=()=>true;window.innerHeight=800;window.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});window.eval(code);const cleanup=window.initCenterStars();
+ window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(199);expect(row.classList.contains('center-star-active')).toBe(false);vi.advanceTimersByTime(1);expect(row.classList.contains('center-star-active')).toBe(true);window.dispatchEvent(new Event('scroll'));expect(row.classList.contains('center-star-active')).toBe(false);vi.advanceTimersByTime(1000);expect(row.classList.contains('center-star-active')).toBe(false);expect(document.querySelector('a').getAttribute('href')).toBe('https://example.com');cleanup();
+});});
+it('suppresses during touch, reduced motion, desktop and hidden rows; handles lazy rows',()=>{
+ vi.useFakeTimers();document.body.innerHTML='<div id="review-container-mobile"><div class="movie-card" data-movie="Lazy"></div></div>';
+ const media={mobile:true,motion:true};window.matchMedia=q=>({get matches(){return q.includes('reduced')?media.motion:media.mobile;},addEventListener(){},removeEventListener(){}});window.eval(code);const cleanup=window.initCenterStars();
+ document.querySelector('.movie-card').innerHTML='<div class="review-item" data-critic="2"><a class="rating-pill">stars</a></div>';const row=document.querySelector('.review-item');row.getBoundingClientRect=()=>({top:350,bottom:450,height:100});row.checkVisibility=()=>true;
+ window.dispatchEvent(new Event('touchstart'));window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(1000);expect(row.classList.contains('center-star-active')).toBe(false);
+ window.dispatchEvent(new Event('touchend'));media.motion=false;vi.advanceTimersByTime(200);expect(row.classList.contains('center-star-active')).toBe(false);media.motion=true;media.mobile=false;window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(row.classList.contains('center-star-active')).toBe(false);
+ media.mobile=true;row.checkVisibility=()=>false;window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(row.classList.contains('center-star-active')).toBe(false);row.checkVisibility=()=>true;window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(row.classList.contains('center-star-active')).toBe(true);cleanup();expect(row.classList.contains('center-star-active')).toBe(false);
+});
+it('selects nearest row rather than first DOM row, then excludes repeat after replacement',()=>{
+ vi.useFakeTimers();window.innerHeight=800;document.body.innerHTML='<div id="review-container-mobile"><div class="movie-card" data-movie="Example"><div class="review-item" data-critic="1"><a class="rating-pill"></a></div><div class="review-item" data-critic="2"><a class="rating-pill"></a></div></div></div>';window.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});const rows=[...document.querySelectorAll('.review-item')];rows.forEach((r,i)=>{r.checkVisibility=()=>true;r.getBoundingClientRect=()=>({top:i?350:290,bottom:i?450:390,height:100});});window.eval(code);const cleanup=window.initCenterStars();window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(rows[0].classList.contains('center-star-active')).toBe(false);expect(rows[1].classList.contains('center-star-active')).toBe(true);vi.advanceTimersByTime(1000);window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(document.querySelectorAll('.center-star-active').length).toBe(0);cleanup();
+});
+it('does not consume first scroll cue on initial resize or visibility change',()=>{
+ vi.useFakeTimers();window.innerHeight=800;document.body.innerHTML='<div id="review-container-mobile"><div class="movie-card" data-movie="Fresh"><div class="review-item" data-critic="1"><a class="rating-pill"></a></div></div></div>';
+ window.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});const row=document.querySelector('.review-item');row.checkVisibility=()=>true;row.getBoundingClientRect=()=>({top:350,bottom:450,height:100});window.eval(code);const cleanup=window.initCenterStars();
+ window.dispatchEvent(new Event('resize'));document.dispatchEvent(new Event('visibilitychange'));vi.advanceTimersByTime(1000);expect(row.classList.contains('center-star-active')).toBe(false);
+ window.dispatchEvent(new Event('scroll'));vi.advanceTimersByTime(200);expect(row.classList.contains('center-star-active')).toBe(true);cleanup();
+});
