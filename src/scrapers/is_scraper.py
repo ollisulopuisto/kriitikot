@@ -288,8 +288,15 @@ class ISScraper(BaseScraper):
 
     def _title_from_endnote(self, asset_data: dict) -> Optional[str]:
         """Nimi arvion loppuriviltä: "Nimi, ensi-ilta pe. Komedia ★★★"."""
-        for endnote in (self._get_endnote_text(asset_data),
-                        self._get_endnote_paragraph_text(asset_data)):
+        # The premiere line may be a separate endnote paragraph before the
+        # genre/stars. Inspect all marked endnotes before falling back to
+        # incidental italics such as an actor's earlier franchise.
+        endnotes = [
+            self.clean_text(''.join(c.get('content', '') for c in section.get('crumbs', [])))
+            for section in reversed(self._paragraph_sections(asset_data))
+            if any('endnote' in c.get('marks', []) for c in section.get('crumbs', []))
+        ]
+        for endnote in (self._get_endnote_text(asset_data), *endnotes):
             if not endnote:
                 continue
 
