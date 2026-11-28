@@ -44,7 +44,7 @@ def test_importer_excludes_series_without_creating_film_or_hiding_parser_failure
         {'title': 'Candidate', 'url': 'https://muropaketti.com/elokuvat/elokuva-arvostelut/candidate/'}])
     importer.get_or_create_movie = MagicMock(side_effect=AssertionError('No movie writes'))
     importer.get_or_create_critic = MagicMock(side_effect=AssertionError('No critic writes'))
-    for html, failures in [(FIXTURE.read_text(), 0), ('Broken page', 1)]:
+    for html, failures in [(FIXTURE.read_text(), 0), (tag_page(['sarjat']), 0), ('Broken page', 1)]:
         monkeypatch.setattr(discovery_importer.requests, 'get', lambda *a, **k:
             SimpleNamespace(text=html, raise_for_status=lambda: None))
         assert importer.import_discovered_reviews('muropaketti') == 0
@@ -63,4 +63,25 @@ def test_series_markers_are_general_not_a_title_exception(marker):
 def test_franchise_film_lead_without_facts_is_not_silently_excluded():
     html = ('<article class="content__wrapper"><h1>Scream saa uuden osan</h1>'
             '<div class="content__excerpt">Scream -sarja saa uuden osan.</div></article>')
+    assert MuropakettiScraper().exclusion_reason(html) is None
+
+
+def tag_page(tags, facts='', lead=''):
+    return ('<article class="content__wrapper"><h1>A subject</h1>' + lead +
+            '<ul class="content__tag-list">' + ''.join(
+                '<li class="content__tag-list_item"><a href="/avainsana/example/">' + tag + '</a></li>'
+                for tag in tags) + '</ul>' + facts + '</article>')
+
+
+def test_explicit_article_series_tag_without_lead_is_excluded():
+    assert MuropakettiScraper().exclusion_reason(tag_page(['Prime Video', 'sarjat'])) == 'tv_series_review'
+
+
+@pytest.mark.parametrize('html', [
+    '<nav><a href="/avainsana/netti-ja-tv-sarjat/">sarjat</a></nav>' + tag_page(['Elokuvat']),
+    tag_page(['tv-sarjat', 'sarjatuotanto']),
+    tag_page(['sarjat'], '<p><strong>A film</strong> Ensi-ilta: today</p>'),
+    '<ul class="content__tag-list"><li class="content__tag-list_item"><a>sarjat</a></li></ul>' + tag_page([]),
+])
+def test_tags_outside_article_partial_tags_and_film_facts_do_not_exclude(html):
     assert MuropakettiScraper().exclusion_reason(html) is None

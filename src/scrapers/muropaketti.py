@@ -16,7 +16,7 @@ class MuropakettiScraper(BaseScraper):
         super().__init__(publication_name="Muropaketti")
     
     def exclusion_reason(self, html_content: str) -> str | None:
-        """Only an explicit series subject in the article lead is a non-film.
+        """Explicit article series tags or a series subject in the lead mark non-films.
 
         Category paths are not evidence: this site files TV beside movies.
         Incidental prose mentions and unidentified/broken pages still fail.
@@ -25,6 +25,9 @@ class MuropakettiScraper(BaseScraper):
         article = soup.select_one('article.content__wrapper')
         if not article or self._extract_title(article):
             return None  # A film-facts block conflicts with excluding a movie.
+        tags = article.select('.content__tag-list .content__tag-list_item a')
+        if any(tag.get_text(' ', strip=True).casefold() == 'sarjat' for tag in tags):
+            return 'tv_series_review'
         headline = article.find('h1')
         lead = article.select_one('.content__excerpt')
         if not headline or not lead:
