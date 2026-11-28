@@ -601,6 +601,7 @@ function initResetButton() {
         if (window.topUpSliderResults) window.topUpSliderResults();
 
         hideResetButton();
+        window.updateMobileFilterSummary?.();
     }
 
     function isAnyFilterActive() {

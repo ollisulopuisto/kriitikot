@@ -703,8 +703,20 @@ tr.dimmed {
 
 .mobile-film-search { display:none; }
 @media (max-width:768px) {
-    .mobile-film-search { display:block; margin:1rem 2rem .5rem; }
+    .mobile-film-search { display:block; margin:0; }
+    .mobile-filter.collapsed .mobile-film-search { visibility:hidden; }
     .mobile-film-search .film-search-label { padding-right:0; }
     .mobile-film-search .film-search { min-height:44px; font-size:16px; margin-top:6px; }
 }
 @media print { .mobile-film-search { display:none; } }
+
+@media (max-width:768px) {
+    .mobile-filter-bar { display:flex; border-radius:.75rem; background:linear-gradient(135deg,#8b5cf6,#7c3aed); box-shadow:0 .25rem .5rem rgba(139,92,246,.3); }
+    .mobile-filter-bar .mobile-filter-toggle { flex:1; min-width:0; justify-content:flex-start; background:none; box-shadow:none; }
+    .mobile-filter-toggle .toggle-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .mobile-filter-toggle .toggle-count { flex:none; white-space:nowrap; }
+    .mobile-filter-clear { flex:0 0 48px; min-height:48px; border:0; border-left:1px solid #a88038; border-radius:0 .75rem .75rem 0; background:none; color:#392b12; font:24px Arial,sans-serif; cursor:pointer; }
+    .mobile-filter-clear[hidden] { display:none; }
+    .mobile-filter.has-active-filters .mobile-filter-bar { background:#f3c969; }
+    .mobile-filter.has-active-filters .mobile-filter-toggle { color:#392b12; }
+}
