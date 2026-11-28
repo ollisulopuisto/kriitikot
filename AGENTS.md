@@ -399,3 +399,15 @@ Consumer trace: discovery importer before parser/admission/DB writes; source fai
 counts consumed by batch_update exit status; unchanged partial-publication workflow.
 Tests cover isolated DB outcomes, positive exclusions and ambiguous/corrupt inputs.
 Regression: uv run pytest; npm test. No schema, workflow or generated-site changes.
+
+## IS Yön lapsi identity repair, 2026-11-28
+
+Review1087 at IS art-2000012358997 was linked to Harry Potter movie351,
+although its stored premiere endnote explicitly names Yön lapsi. Corrected only
+its movie_id to existing movie348. No reviews/movies/critics removed or renamed,
+metadata/text/rating/dates unchanged. scripts/repair_is_yon_lapsi.py is guarded,
+transactional, idempotent and dry-run by default. Source live fetch403, no live
+reimport. The parser now checks all marked endnote paragraphs before incidental
+italics: a final genre/stars paragraph previously hid the preceding premiere.
+Failing-first regression reproduces the franchise-actor reference failure.
+Generated site untouched; the next ordinary publication will consume the DB.
