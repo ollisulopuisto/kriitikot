@@ -50,3 +50,11 @@ def test_importer_excludes_series_without_creating_film_or_hiding_parser_failure
         assert importer.import_discovered_reviews('muropaketti') == 0
         assert importer.source_failures == {'muropaketti': failures}
     assert db.query(Movie).count() == db.query(Critic).count() == db.query(Review).count() == 0
+
+
+@pytest.mark.parametrize('marker', ['tv-sarja', 'minisarja', 'televisiosarja', 'sarja'])
+def test_series_markers_are_general_not_a_title_exception(marker):
+    html = ('<article class="content__wrapper"><h1>Arvio: Unrelated New Title</h1>'
+            '<div class="content__excerpt">Unrelated New Title -' + marker +
+            ' kertoo etsivistä.</div></article>')
+    assert MuropakettiScraper().exclusion_reason(html) == 'tv_series_review'
