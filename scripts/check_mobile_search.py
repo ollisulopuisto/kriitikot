@@ -17,8 +17,12 @@ try:
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='networkidle')
             search = page.locator('.mobile-film-search .film-search')
-            assert search.is_visible()
+            assert not search.is_visible()
             assert page.locator('.mobile-filter').evaluate('n=>n.classList.contains("collapsed")')
+            page.locator('#mobile-filter-toggle').click()
+            page.wait_for_timeout(350)
+            assert search.is_visible()
+            assert search.evaluate('n=>!!n.closest("#mobile-filters-content")')
             assert search.bounding_box()['height'] >= 44
             assert search.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)') >= 16
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
@@ -30,6 +34,10 @@ try:
             assert visible == [title], visible
             assert search.evaluate('n=>n===document.activeElement')
             page.locator('#mobile-filter-toggle').click()
+            page.wait_for_timeout(350)
+            assert not search.is_visible()
+            page.locator('#mobile-filter-toggle').click()
+            page.wait_for_timeout(350)
             assert search.is_visible()
             search.fill('zzzz-no-film-xyz')
             page.wait_for_timeout(300)
@@ -43,14 +51,17 @@ try:
                 if not page.locator('.mobile-filter').evaluate('n=>n.classList.contains("collapsed")'):
                     page.locator('#mobile-filter-toggle').click()
                 page.wait_for_timeout(350)
-                page.screenshot(path='/downloads/kriitikot-mobile-search-built.png')
+                page.screenshot(path='/downloads/kriitikot-mobile-search-after-collapsed.png')
+                page.locator('#mobile-filter-toggle').click()
+                page.wait_for_timeout(350)
+                page.screenshot(path='/downloads/kriitikot-mobile-search-after-expanded.png')
             page.set_viewport_size({'width': 1000, 'height': 844})
             assert not search.is_visible()
             assert page.locator('#review-container-desktop .film-search').is_visible()
             assert not errors, errors
             page.close()
         browser.close()
-        print('Mobile search320/390/768: visible, tail/no-result/clear/reset/focus, breakpoint and no overflow pass')
+        print('Mobile search320/390/768: collapsed hidden, expanded visible, tail/no-result/clear/reset/focus, breakpoint and no overflow pass')
 finally:
     server.shutdown()
     server.server_close()

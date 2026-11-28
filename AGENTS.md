@@ -456,3 +456,15 @@ script scripts/check_mobile_search.py failed before fix and passes at320/390/768
 visibility with collapsed filters, tail-only/no-result/clear/reset/focus, desktop
 breakpoint and no horizontal overflow. Existing desktop search script preserved.
 No DB/parser/data changes or deploy. Local screenshot inspected.
+
+## Mobile search inside disclosure,2026-11-28
+
+Owner revised the mobile search placement: inside Hakuehdot rather than always
+visible above it. Moved the existing input into mobile-filters-content in both
+source template and checked-in docs. Shared search state/events unchanged.
+Explicit visibility:hidden on the collapsed input keeps it out of keyboard focus
+as well as clipping/opacity; expanded search remains44px/16px. Real Chrome
+regression failed first on main, passes320/390/768including collapse/reopen,
+tail/no-result/clear/reset/focus, desktop switch and overflow. Desktop900/1600
+suite passes,73Vitest and440pytest pass(1skip). Before/after pixels inspected.
+No scraping/DB changes/generated-data churn/deploy. Merge approval pending.

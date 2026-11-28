@@ -232,13 +232,6 @@
         </div>
     </div>
 
-    <!-- Always visible on phones, independent of collapsed filter controls. -->
-    <div class="mobile-film-search">
-        <label class="film-search-label">ELOKUVA
-            <input type="search" class="film-search" placeholder="Hae elokuvaa..." aria-label="Hae elokuvaa koko luettelosta" autocomplete="off">
-        </label>
-    </div>
-
     <!-- Mobile: Suodattimet (ENSIN) -->
     <div class="mobile-filter collapsed">
         <!-- Toggle-nappi -->
@@ -248,6 +241,13 @@
         </button>
 
         <div class="mobile-filters-container" id="mobile-filters-content">
+            <!-- Film search shares the mobile filter disclosure. -->
+            <div class="mobile-film-search">
+                <label class="film-search-label">ELOKUVA
+                    <input type="search" class="film-search" placeholder="Hae elokuvaa..." aria-label="Hae elokuvaa koko luettelosta" autocomplete="off">
+                </label>
+            </div>
+
             <!-- Fasetti 1: Arvioiden määrä -->
             <div class="mobile-filter-group mobile-filter-inline">
                 <label>Arvosteluja:</label>

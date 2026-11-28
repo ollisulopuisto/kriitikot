@@ -703,7 +703,8 @@ tr.dimmed {
 
 .mobile-film-search { display:none; }
 @media (max-width:768px) {
-    .mobile-film-search { display:block; margin:1rem 2rem .5rem; }
+    .mobile-film-search { display:block; margin:0; }
+    .mobile-filter.collapsed .mobile-film-search { visibility:hidden; }
     .mobile-film-search .film-search-label { padding-right:0; }
     .mobile-film-search .film-search { min-height:44px; font-size:16px; margin-top:6px; }
 }
