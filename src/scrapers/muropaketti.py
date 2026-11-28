@@ -30,7 +30,7 @@ class MuropakettiScraper(BaseScraper):
         if not headline or not lead:
             return None
         text = self.clean_text(lead.get_text(' ', strip=True)) or ''
-        subject = re.match(r'^(.{2,100}?)\s+[-–]?(?:tv-sarja|minisarja|televisiosarja|sarja)\b', text, re.IGNORECASE)
+        subject = re.match(r'^(.{2,100}?)\s+[-–]?(?:tv-sarja|minisarja|televisiosarja)\b', text, re.IGNORECASE)
         if not subject:
             return None
         title = subject.group(1).strip().casefold()

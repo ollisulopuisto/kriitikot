@@ -52,9 +52,15 @@ def test_importer_excludes_series_without_creating_film_or_hiding_parser_failure
     assert db.query(Movie).count() == db.query(Critic).count() == db.query(Review).count() == 0
 
 
-@pytest.mark.parametrize('marker', ['tv-sarja', 'minisarja', 'televisiosarja', 'sarja'])
+@pytest.mark.parametrize('marker', ['tv-sarja', 'minisarja', 'televisiosarja'])
 def test_series_markers_are_general_not_a_title_exception(marker):
     html = ('<article class="content__wrapper"><h1>Arvio: Unrelated New Title</h1>'
             '<div class="content__excerpt">Unrelated New Title -' + marker +
             ' kertoo etsivistä.</div></article>')
     assert MuropakettiScraper().exclusion_reason(html) == 'tv_series_review'
+
+
+def test_franchise_film_lead_without_facts_is_not_silently_excluded():
+    html = ('<article class="content__wrapper"><h1>Scream saa uuden osan</h1>'
+            '<div class="content__excerpt">Scream -sarja saa uuden osan.</div></article>')
+    assert MuropakettiScraper().exclusion_reason(html) is None
