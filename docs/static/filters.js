@@ -874,6 +874,11 @@ function applyPublicationFilter(publications) {
         const allRows = tbody.querySelectorAll('tr:not(.poster-row)');
         const thead = table.querySelector('thead');
         const criticHeaders = Array.from(thead.querySelectorAll('th.rating-cell'));
+        const criticMatchesByIndex = new Map(criticHeaders.map(header => {
+            const media = header.querySelector('.critic-media');
+            const pubs = media ? media.textContent.trim().toUpperCase().split(', ') : [];
+            return [header.cellIndex, noFilter || publications.some(pub => pubs.includes(pub.toUpperCase()))];
+        }));
 
         allRows.forEach(row => {
             const ratingCells = row.querySelectorAll('.rating-cell');
@@ -881,12 +886,8 @@ function applyPublicationFilter(publications) {
 
             ratingCells.forEach(cell => {
                 const cellIndex = cell.cellIndex;
-                const header = criticHeaders.find(h => h.cellIndex === cellIndex);
-
-                if (header) {
-                    const mediaSpan = header.querySelector('.critic-media');
-                    const criticPublications = mediaSpan ? mediaSpan.textContent.trim().toUpperCase().split(', ') : [];
-                    const criticMatches = noFilter || publications.some(pub => criticPublications.includes(pub.toUpperCase()));
+                if (criticMatchesByIndex.has(cellIndex)) {
+                    const criticMatches = criticMatchesByIndex.get(cellIndex);
 
                     const cellReviews = cell.querySelectorAll('[data-publication]');
                     let cellHasVisibleReview = false;
@@ -947,6 +948,7 @@ function applyPublicationFilter(publications) {
 
 // One final intersection after legacy facet helpers. Never clear another facet.
 function reconcileFacetVisibility() {
+    if (window.facetReapplyDepth) return;
     window.reviewWindow?.prepare();
     const selected = document.querySelector('thead th.rating-cell[data-filtered="true"]');
     const criticId = selected?.dataset.criticId;
@@ -1037,33 +1039,41 @@ window.reconcileFacetVisibility = reconcileFacetVisibility;
 
 function reapplyAllFacets() {
     window.reviewWindow?.prepare();
-    // 1. Minimum number of reviews
-    const reviewSlider = document.getElementById('min-reviews-slider');
-    if (reviewSlider) {
-        const sliderPos = parseInt(reviewSlider.value, 10);
-        const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
-        const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
-        if (typeof window.filterByReviewCount === 'function') {
-            window.filterByReviewCount(mappedValue);
+    window.facetReapplyDepth = (window.facetReapplyDepth || 0) + 1;
+    try {
+        // 1. Minimum number of reviews
+        const reviewSlider = document.getElementById('min-reviews-slider');
+        if (reviewSlider) {
+            const sliderPos = parseInt(reviewSlider.value, 10);
+            const reviewValueMapping = window.REVIEW_VALUE_MAPPING || { 1: 1, 2: 2, 3: 4, 4: 6, 5: 8 };
+            const mappedValue = reviewValueMapping[sliderPos] || sliderPos;
+            if (typeof window.filterByReviewCount === 'function') {
+                window.filterByReviewCount(mappedValue);
+            }
         }
-    }
 
-    // 2. Minimum stars
-    const starSlider = document.getElementById('star-filter-slider');
-    if (starSlider) {
-        const starValue = parseInt(starSlider.value, 10);
-        if (typeof window.filterByStars === 'function') {
-            window.filterByStars(starValue);
+        // 2. Minimum stars
+        const starSlider = document.getElementById('star-filter-slider');
+        if (starSlider) {
+            const starValue = parseInt(starSlider.value, 10);
+            if (typeof window.filterByStars === 'function') {
+                window.filterByStars(starValue);
+            }
         }
-    }
 
-    // 3. Outlet / publication
-    const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
-    const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
-    if (typeof window.applyPublicationFilter === 'function') {
-        window.applyPublicationFilter(activePubs);
+        // 3. Outlet / publication
+        const activePubButtons = document.querySelectorAll('.filter-publication.active, .media-filter-btn.active');
+        const activePubs = Array.from(new Set(Array.from(activePubButtons).map(btn => btn.dataset.publication)));
+        if (typeof window.applyPublicationFilter === 'function') {
+            window.applyPublicationFilter(activePubs);
+        }
+    } finally {
+        window.facetReapplyDepth--;
     }
-    reconcileFacetVisibility();
+    if (!window.facetReapplyDepth) {
+        window.updateCriticColumnVisibility?.();
+        reconcileFacetVisibility();
+    }
 }
 
 window.applyPublicationFilter = applyPublicationFilter;

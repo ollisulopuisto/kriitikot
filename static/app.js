@@ -57,6 +57,8 @@ function initFilmSearch() {
         document.querySelectorAll('.film-search').forEach(input => { if (input !== event.target) input.value = value; });
         clearTimeout(timer);
         timer = setTimeout(() => {
+            const query = value.trim().normalize('NFC').toLocaleLowerCase('fi');
+            if (query === filmSearchQuery) return;
             window.reviewWindow?.prepare();
             document.querySelectorAll('#review-container-desktop tbody tr, .movie-card[data-filtered="true"]').forEach(node=>{
                 delete node.dataset.filtered;
@@ -64,7 +66,7 @@ function initFilmSearch() {
                 node.querySelectorAll('.selected, .dimmed').forEach(n=>n.classList.remove('selected', 'dimmed'));
             });
             window.rememberSliderWindow?.();
-            filmSearchQuery = value.trim().normalize('NFC').toLocaleLowerCase('fi');
+            filmSearchQuery = query;
             window.topUpSliderResults?.();
             window.reconcileFacetVisibility?.();
             window.refreshStickyHeader?.();
@@ -437,6 +439,7 @@ function sortCriticColumnsByReviews() {
  * Päivitä kriitikkosarakkeiden näkyvyys
  */
 function updateCriticColumnVisibility() {
+    if (window.facetReapplyDepth) return;
     window.reviewWindow?.prepare();
     const table = document.querySelector('table');
     if (!table) return;
@@ -1291,6 +1294,18 @@ function rememberSliderWindow() {
     sliderWindows.set(sliderWindowKey, { offset: sliderBaseOffset, reveal: FACET_REVIEW_BATCH });
 }
 function topUpSliderResults() {
+    window.facetReapplyDepth = (window.facetReapplyDepth || 0) + 1;
+    try {
+        topUpSliderResultsNow();
+    } finally {
+        window.facetReapplyDepth--;
+        if (!window.facetReapplyDepth) {
+            window.updateCriticColumnVisibility?.();
+            window.reconcileFacetVisibility?.();
+        }
+    }
+}
+function topUpSliderResultsNow() {
     window.reviewWindow?.prepare();
     // Initialization and pagination reapplication never enter this function.
     if (!sliderWindows) return;

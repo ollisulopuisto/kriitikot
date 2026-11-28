@@ -411,3 +411,19 @@ reimport. The parser now checks all marked endnote paragraphs before incidental
 italics: a final genre/stars paragraph previously hid the preceding premiere.
 Failing-first regression reproduces the franchise-actor reference failure.
 Generated site untouched; the next ordinary publication will consume the DB.
+## Film search synchronous work, 2026-11-28
+
+Search already debounces120ms and renders only matching tail films. Chrome
+on320films/92critics/1094reviews showed the settled query repeatedly reapplying
+facets/columns. Batched column/reconcile passes at the top-up boundary and cached
+publication-header metadata by cellIndex per pass instead of a linear header
+scan for every cell. Normalized-equivalent queries skip work. No persistent DOM
+cache, sorting change, pagination policy change or larger debounce. Batching depth
+is unwound in finally. Consumers traced: slider top-up/load-more, filter helpers,
+column visibility, reconciliation, pinned headers, delayed catalog and reset.
+Chrome baseline top-up k/ki/kis/kiss/clear453.7/868.0/826.2/798.6/516.6ms
+versus67.4/147.1/137.4/134.1/115.9ms after; run scripts/measure_film_search.py
+against generated docs for comparable local timings, not a user-device promise.
+73JS tests and scripts/check_film_search.py passed at900/1600plusphonecleanup.
+New bounded-column assertion fails on original code (9passes, budget2); same-query
+assertion protects the no-op path. No scrape, DB mutation or deployment.
