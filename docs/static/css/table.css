@@ -938,3 +938,14 @@ tbody tr:nth-child(even) td.window-odd-column { background-color: #fcfcfc; }
         forced-color-adjust: none;
     }
 }
+
+/* Settled mobile center-row cue: transform only, never expands content. */
+@media (max-width:768px) and (hover:none) and (pointer:coarse) and (prefers-reduced-motion:no-preference) {
+    .review-item.center-star-active .rating-star-paint {
+        transform: translateY(var(--hover-lift)) scale(var(--hover-scale, 1));
+        transition: transform 250ms ease;
+    }
+    .review-item .rating-star-paint { transition: transform 420ms ease; }
+    .review-item.center-star-active .rating-star-shadow { opacity:.28; }
+    .review-item .rating-star-shadow { transition: opacity 420ms ease; }
+}
