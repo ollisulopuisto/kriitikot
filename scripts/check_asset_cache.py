@@ -24,8 +24,12 @@ try:
                 continue
             page = browser.new_page(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
             # Exact old URL cache entries must not satisfy the newly hashed requests.
+            def cached_response(body, path):
+                def respond(route):
+                    route.fulfill(body=body, content_type='text/css' if path.endswith('.css') else 'text/javascript')
+                return respond
             for path, body in old.items():
-                page.route(f'**/{path}', lambda route, body=body, path=path: route.fulfill(body=body, content_type='text/css' if path.endswith('.css') else 'text/javascript'))
+                page.route(f'**/{path}', cached_response(body, path))
             page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='networkidle')
             page.locator('#mobile-filter-toggle').click()
             page.wait_for_timeout(350)
