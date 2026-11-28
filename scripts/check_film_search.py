@@ -24,7 +24,7 @@ try:
             page.wait_for_function('window.currentMovieOffset>=60')
             title = page.evaluate('Object.keys(window._cachedReviewsData).at(-1)')
             # A tail-only exact query renders the matching tail, not all of it.
-            page.locator('.film-search').fill(title)
+            page.locator('#review-container-desktop .film-search').fill(title)
             page.wait_for_timeout(250)
             assert page.locator('.movie-card').count() < 70
             visible = lambda: page.locator('.movie-card').evaluate_all('ns=>ns.filter(n=>n.style.display!=="none").map(n=>n.dataset.movie)')
@@ -106,7 +106,7 @@ try:
             print(width, 'sparse tail, sort, selection, reset, pinned focus, phone cleanup passed')
         page = browser.new_page(viewport={'width':1200,'height':900})
         page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='networkidle')
-        page.locator('.film-search').fill('a')
+        page.locator('#review-container-desktop .film-search').fill('a')
         page.wait_for_timeout(220)
         page.evaluate('''() => {window.rememberSliderWindow();const s=document.querySelector('#star-filter-slider');s.value=5;window.filterByStars(5);window.topUpSliderResults();}''')
         assert page.locator('.movie-card').count() < 100
@@ -130,12 +130,12 @@ try:
             page = browser.new_page(viewport={'width': 1200, 'height': 900})
             page.add_init_script('''const originalFetch=window.fetch;window.fetch=(url,...args)=>String(url).includes('reviews.json')?new Promise(resolve=>{window.releaseReviews=()=>resolve(originalFetch(url,...args));}):originalFetch(url,...args);''')
             page.goto(f'http://127.0.0.1:{server.server_port}', wait_until='domcontentloaded')
-            page.locator('.film-search').fill('Anna minun rakastaa enemmän')
+            page.locator('#review-container-desktop .film-search').fill('Anna minun rakastaa enemmän')
             page.wait_for_timeout(200)
-            page.locator('.film-search').fill('One Battle After Another')
+            page.locator('#review-container-desktop .film-search').fill('One Battle After Another')
             page.wait_for_timeout(200)
             if clear_before_release:
-                page.locator('.film-search').fill('')
+                page.locator('#review-container-desktop .film-search').fill('')
                 page.wait_for_timeout(200)
             page.evaluate('window.releaseReviews()')
             page.wait_for_function('window._cachedReviewsData')
@@ -146,10 +146,10 @@ try:
                 page.wait_for_function('''[...document.querySelectorAll(
                     '.movie-card')].some(n=>n.dataset.movie==='One Battle After Another' &&
                         n.style.display!=='none')''')
-            page.locator('.film-search').fill('Anna minun rakastaa enemmän')
+            page.locator('#review-container-desktop .film-search').fill('Anna minun rakastaa enemmän')
 
             page.wait_for_function('window._cachedReviewsData && [...document.querySelectorAll(".movie-card")].some(n=>n.dataset.movie==="Anna minun rakastaa enemmän" && n.style.display!=="none")')
-            page.locator('.film-search').fill('')
+            page.locator('#review-container-desktop .film-search').fill('')
             page.wait_for_timeout(250)
             expected = 60 if clear_before_release else 30
             assert page.evaluate('window.currentMovieOffset') == expected
