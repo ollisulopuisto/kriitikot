@@ -28,6 +28,9 @@ def rfc2822(dt):
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
+from asset_urls import asset_url
+app.jinja_env.globals['asset_url'] = lambda filename: asset_url(app.static_folder, filename)
+
 from publication_names import PUBLICATION_NAMES, publication_name, publication_names
 
 app.jinja_env.filters['publication_name'] = publication_name

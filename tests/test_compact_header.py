@@ -10,6 +10,8 @@ def toolbar():
     env.filters['publication_name'] = publication_name
     env.filters['publication_names'] = publication_names
     env.globals['publication_names_map'] = PUBLICATION_NAMES
+    from asset_urls import asset_url
+    env.globals['asset_url'] = lambda filename: asset_url('static', filename)
     html = env.get_template("index.html").render(
         grouped_reviews={},
         all_critics=[],

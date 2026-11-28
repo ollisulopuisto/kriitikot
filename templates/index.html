@@ -51,20 +51,20 @@
             rel="stylesheet">
     </noscript>
 
-    <link rel="stylesheet" href="static/css/base.css">
-    <link rel="stylesheet" href="static/css/header.css">
-    <link rel="stylesheet" href="static/css/filters.css">
-    <link rel="stylesheet" href="static/css/table.css">
-    <link rel="stylesheet" href="static/css/cards.css">
+    <link rel="stylesheet" href="{{ asset_url('css/base.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('css/filters.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('css/cards.css') }}">
 
     <!-- JavaScript modules -->
     <script id="publication-names-data" type="application/json">{{ publication_names_map|tojson }}</script>
-    <script src="static/app.js" defer></script>
-    <script src="static/filters.js" defer></script>
-    <script src="static/interactions.js" defer></script>
-    <script src="static/ui.js" defer></script>
-    <script src="static/windowing.js" defer></script>
-    <script src="static/center-stars.js" defer></script>
+    <script src="{{ asset_url('app.js') }}" defer></script>
+    <script src="{{ asset_url('filters.js') }}" defer></script>
+    <script src="{{ asset_url('interactions.js') }}" defer></script>
+    <script src="{{ asset_url('ui.js') }}" defer></script>
+    <script src="{{ asset_url('windowing.js') }}" defer></script>
+    <script src="{{ asset_url('center-stars.js') }}" defer></script>
 </head>
 
 <body>
