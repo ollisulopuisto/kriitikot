@@ -291,7 +291,7 @@ class DiscoveryImporter:
                             queue.finish(url, 'excluded')
                         continue
 
-                if source in {'demokraatti', 'ksml'}:
+                if source in {'demokraatti', 'ksml', 'muropaketti'}:
                     reason = scraper.exclusion_reason(html)
                     if reason:
                         print(f'   ⏭️  {source.upper()} exclusion: {reason}')

@@ -15,6 +15,30 @@ class MuropakettiScraper(BaseScraper):
     def __init__(self):
         super().__init__(publication_name="Muropaketti")
     
+    def exclusion_reason(self, html_content: str) -> str | None:
+        """Only an explicit series subject in the article lead is a non-film.
+
+        Category paths are not evidence: this site files TV beside movies.
+        Incidental prose mentions and unidentified/broken pages still fail.
+        """
+        soup = self.get_soup(html_content)
+        article = soup.select_one('article.content__wrapper')
+        if not article or self._extract_title(article):
+            return None  # A film-facts block conflicts with excluding a movie.
+        headline = article.find('h1')
+        lead = article.select_one('.content__excerpt')
+        if not headline or not lead:
+            return None
+        text = self.clean_text(lead.get_text(' ', strip=True)) or ''
+        subject = re.match(r'^(.{2,100}?)\s+[-–]?(?:tv-sarja|minisarja)\b', text, re.IGNORECASE)
+        if not subject:
+            return None
+        title = subject.group(1).strip().casefold()
+        heading = (self.clean_text(headline.get_text(' ', strip=True)) or '').casefold()
+        if title in heading:
+            return 'tv_series_review'
+        return None
+
     def parse_html(self, html_content: str, source_url: str = None) -> Review:
         """Parsitaan Muropaketin elokuva-arvostelu.
         
